@@ -47,7 +47,7 @@ function Module2Transformation({ user }) {
       third_channel_price_per_kg: '',
     }
   ]);
-  
+
   // Legacy single product state (for backward compatibility during migration)
   const [transformationData, setTransformationData] = useState({
     product_type: 'queso_fresco',
@@ -114,7 +114,7 @@ function Module2Transformation({ user }) {
       const response = await api.get(`/scenarios/${id}`);
       const scenario = response.data;
       setSelectedScenario(scenario);
-      
+
       // ALWAYS load production data from Module 1 (read-only inheritance)
       if (scenario.productionData) {
         const normalizedData = {
@@ -148,14 +148,14 @@ function Module2Transformation({ user }) {
           type: 'info'
         });
       }
-      
+
       // Load transformation products (Product Mix) or fall back to legacy single product
       const convertToInputValue = (value) => {
         if (value === null || value === undefined || value === '') return '';
         const num = typeof value === 'number' ? value : parseFloat(value);
         return isNaN(num) || num === 0 ? '' : num.toString();
       };
-      
+
       if (scenario.transformationProducts && scenario.transformationProducts.length > 0) {
         // New Product Mix format
         const loadedProducts = scenario.transformationProducts.map((product, index) => ({
@@ -195,7 +195,7 @@ function Module2Transformation({ user }) {
           distributors_price_per_kg: convertToInputValue(scenario.transformationData.distributors_price_per_kg),
           third_channel_price_per_kg: convertToInputValue(scenario.transformationData.third_channel_price_per_kg),
         }]);
-        
+
         // Also set legacy state for backward compatibility
         setTransformationData({
           product_type: scenario.transformationData.product_type || 'queso_fresco',
@@ -249,7 +249,7 @@ function Module2Transformation({ user }) {
 
   const handleTransformationChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Handle string fields (product_type, product_type_custom)
     if (name === 'product_type' || name === 'product_type_custom') {
       setTransformationData(prev => ({
@@ -258,7 +258,7 @@ function Module2Transformation({ user }) {
       }));
       return;
     }
-    
+
     // Handle empty string - keep as empty string for free typing
     if (value === '' || value === null || value === undefined) {
       setTransformationData(prev => ({
@@ -267,25 +267,25 @@ function Module2Transformation({ user }) {
       }));
       return;
     }
-    
+
     // Allow valid numeric input (including decimals)
     // Keep as string to allow free typing
     const validNumberPattern = /^-?\d*\.?\d*$/;
     if (!validNumberPattern.test(value)) {
       return; // Ignore invalid input
     }
-    
+
     // Handle sales channel percentages - ensure they sum to 100
     if (name.includes('_percentage')) {
       const numValue = parseFloat(value) || 0;
       setTransformationData(prev => {
         const updated = { ...prev, [name]: value };
-        
+
         // Calculate the third percentage to ensure sum is 100
         const directPct = name === 'sales_channel_direct_percentage' ? numValue : parseFloat(prev.sales_channel_direct_percentage) || 0;
         const distPct = name === 'sales_channel_distributors_percentage' ? numValue : parseFloat(prev.sales_channel_distributors_percentage) || 0;
         const thirdPct = name === 'sales_channel_third_percentage' ? numValue : parseFloat(prev.sales_channel_third_percentage) || 0;
-        
+
         if (name === 'sales_channel_direct_percentage') {
           const remaining = 100 - numValue - distPct;
           updated.sales_channel_third_percentage = remaining >= 0 ? remaining.toString() : '0';
@@ -300,7 +300,7 @@ function Module2Transformation({ user }) {
             updated.sales_channel_direct_percentage = adjusted.toString();
           }
         }
-        
+
         return updated;
       });
     } else {
@@ -349,39 +349,39 @@ function Module2Transformation({ user }) {
 
   const handleProductChange = (productId, fieldName, value) => {
     // Handle string fields (product_type, product_type_custom, unit fields) - no validation needed
-    if (fieldName === 'product_type' || fieldName === 'product_type_custom' || 
-        fieldName === 'processing_cost_unit' || fieldName === 'packaging_cost_unit') {
-      setProducts(prev => prev.map(product => 
+    if (fieldName === 'product_type' || fieldName === 'product_type_custom' ||
+      fieldName === 'processing_cost_unit' || fieldName === 'packaging_cost_unit') {
+      setProducts(prev => prev.map(product =>
         product.id === productId ? { ...product, [fieldName]: value } : product
       ));
       return;
     }
-    
+
     // Handle empty string - keep as empty string for free typing
     if (value === '' || value === null || value === undefined) {
-      setProducts(prev => prev.map(product => 
+      setProducts(prev => prev.map(product =>
         product.id === productId ? { ...product, [fieldName]: '' } : product
       ));
       return;
     }
-    
+
     // Allow valid numeric input (including decimals)
     const validNumberPattern = /^-?\d*\.?\d*$/;
     if (!validNumberPattern.test(value)) {
       return; // Ignore invalid input
     }
-    
+
     setProducts(prev => prev.map(product => {
       if (product.id !== productId) return product;
-      
+
       const updated = { ...product, [fieldName]: value };
-      
+
       // Handle sales channel percentages per product - auto-adjust third channel
       if (fieldName.includes('_percentage') && fieldName.startsWith('sales_channel_')) {
         const numValue = parseFloat(value) || 0;
         const directPct = fieldName === 'sales_channel_direct_percentage' ? numValue : parseFloat(product.sales_channel_direct_percentage) || 0;
         const distPct = fieldName === 'sales_channel_distributors_percentage' ? numValue : parseFloat(product.sales_channel_distributors_percentage) || 0;
-        
+
         if (fieldName === 'sales_channel_direct_percentage') {
           const remaining = 100 - numValue - distPct;
           updated.sales_channel_third_percentage = remaining >= 0 ? remaining.toString() : '0';
@@ -397,9 +397,18 @@ function Module2Transformation({ user }) {
           }
         }
       }
-      
+
       return updated;
     }));
+  };
+
+  // Helper function to parse numbers properly (handles 0 correctly)
+  const toNumber = (value, defaultValue = 0) => {
+    if (value === null || value === undefined || value === '') {
+      return defaultValue;
+    }
+    const num = parseFloat(value);
+    return Number.isFinite(num) ? num : defaultValue;
   };
 
   const handleSave = async () => {
@@ -413,7 +422,7 @@ function Module2Transformation({ user }) {
     }
 
     // Validate distribution percentages sum to 100%
-    const totalPercentage = products.reduce((sum, p) => sum + (parseFloat(p.distribution_percentage) || 0), 0);
+    const totalPercentage = products.reduce((sum, p) => sum + toNumber(p.distribution_percentage, 0), 0);
     if (Math.abs(totalPercentage - 100) > 0.01) {
       setAlertModal({
         isOpen: true,
@@ -426,25 +435,40 @@ function Module2Transformation({ user }) {
     setLoading(true);
     try {
       // Convert products array to numbers before sending to API
-      const productsToSave = products.map(product => ({
-        product_type: product.product_type,
-        product_type_custom: product.product_type_custom || null,
-        distribution_percentage: parseFloat(product.distribution_percentage) || 0,
-        liters_per_kg_product: parseFloat(product.liters_per_kg_product) || 0,
-        processing_cost_per_liter: parseFloat(product.processing_cost_per_liter) || 0,
-        processing_cost_per_kg: parseFloat(product.processing_cost_per_kg) || 0,
-        processing_cost_unit: product.processing_cost_unit || 'liter',
-        packaging_cost_per_liter: parseFloat(product.packaging_cost_per_liter) || 0,
-        packaging_cost_per_kg: parseFloat(product.packaging_cost_per_kg) || 0,
-        packaging_cost_unit: product.packaging_cost_unit || 'kg',
-        sales_channel_direct_percentage: parseFloat(product.sales_channel_direct_percentage) || 100,
-        sales_channel_distributors_percentage: parseFloat(product.sales_channel_distributors_percentage) || 0,
-        sales_channel_third_percentage: parseFloat(product.sales_channel_third_percentage) || 0,
-        direct_sale_price_per_kg: parseFloat(product.direct_sale_price_per_kg) || null,
-        distributors_price_per_kg: parseFloat(product.distributors_price_per_kg) || null,
-        third_channel_price_per_kg: parseFloat(product.third_channel_price_per_kg) || null,
-      }));
-      
+      const productsToSave = products.map(product => {
+        // Parse sales channel percentages (must handle 0 correctly)
+        const directPct = toNumber(product.sales_channel_direct_percentage, 100);
+        const distributorsPct = toNumber(product.sales_channel_distributors_percentage, 0);
+        const thirdPct = toNumber(product.sales_channel_third_percentage, 0);
+
+        // Validate sales channels sum to 100% for this product
+        const salesChannelSum = directPct + distributorsPct + thirdPct;
+        if (Math.abs(salesChannelSum - 100) > 0.01) {
+          throw new Error(
+            `Sales channel percentages for product "${product.product_type || 'product'}" must sum to 100%. Current sum: ${salesChannelSum.toFixed(2)}%`
+          );
+        }
+
+        return {
+          product_type: product.product_type,
+          product_type_custom: product.product_type_custom || null,
+          distribution_percentage: toNumber(product.distribution_percentage, 0),
+          liters_per_kg_product: toNumber(product.liters_per_kg_product, 0),
+          processing_cost_per_liter: toNumber(product.processing_cost_per_liter, 0),
+          processing_cost_per_kg: toNumber(product.processing_cost_per_kg, 0),
+          processing_cost_unit: product.processing_cost_unit || 'liter',
+          packaging_cost_per_liter: toNumber(product.packaging_cost_per_liter, 0),
+          packaging_cost_per_kg: toNumber(product.packaging_cost_per_kg, 0),
+          packaging_cost_unit: product.packaging_cost_unit || 'kg',
+          sales_channel_direct_percentage: directPct,
+          sales_channel_distributors_percentage: distributorsPct,
+          sales_channel_third_percentage: thirdPct,
+          direct_sale_price_per_kg: product.direct_sale_price_per_kg ? toNumber(product.direct_sale_price_per_kg, null) : null,
+          distributors_price_per_kg: product.distributors_price_per_kg ? toNumber(product.distributors_price_per_kg, null) : null,
+          third_channel_price_per_kg: product.third_channel_price_per_kg ? toNumber(product.third_channel_price_per_kg, null) : null,
+        };
+      });
+
       // Send as Product Mix format (array of products)
       await api.post(`/modules/transformation/${selectedScenario.id}`, { products: productsToSave });
       await loadScenario(selectedScenario.id);
@@ -458,7 +482,7 @@ function Module2Transformation({ user }) {
     } catch (error) {
       setAlertModal({
         isOpen: true,
-        message: error.response?.data?.error || t('errorSaving'),
+        message: error.message || error.response?.data?.error || t('errorSaving'),
         type: 'error'
       });
     } finally {
@@ -474,19 +498,19 @@ function Module2Transformation({ user }) {
     const infrastructureCost = Number(productionData.infrastructure_cost_per_liter) || 0;
     const otherCost = Number(productionData.other_costs_per_liter) || 0;
     const totalMilkProductionCostPerLiter = feedCost + laborCost + healthCost + infrastructureCost + otherCost;
-    
+
     const totalLiters = (productionData.daily_production_liters || 0) * (productionData.production_days || 0) * (productionData.animals_count || 0);
-    
+
     // Calculate for Product Mix (multiple products)
     let totalProductRevenue = 0;
     let totalProcessingCost = 0;
     let totalPackagingCost = 0;
     let totalProductKg = 0;
-    
+
     for (const product of products) {
       const distributionPct = parseFloat(product.distribution_percentage) || 0;
       const litersPerKg = parseFloat(product.liters_per_kg_product) || 1;
-      
+
       // Unit selection: processing and packaging costs can be per liter or per kg
       const processingCostUnit = product.processing_cost_unit || 'liter';
       const packagingCostUnit = product.packaging_cost_unit || 'kg';
@@ -494,11 +518,11 @@ function Module2Transformation({ user }) {
       const processingCostPerKg = parseFloat(product.processing_cost_per_kg) || 0;
       const packagingCostPerLiter = parseFloat(product.packaging_cost_per_liter) || 0;
       const packagingCostPerKg = parseFloat(product.packaging_cost_per_kg) || 0;
-      
+
       // Calculate liters allocated to this product
       const productLiters = totalLiters * (distributionPct / 100);
       const productKg = productLiters / litersPerKg;
-      
+
       // Calculate costs based on unit selection
       let productProcessingCost = 0;
       if (processingCostUnit === 'liter') {
@@ -506,38 +530,38 @@ function Module2Transformation({ user }) {
       } else if (processingCostUnit === 'kg') {
         productProcessingCost = processingCostPerKg * productKg;
       }
-      
+
       let productPackagingCost = 0;
       if (packagingCostUnit === 'liter') {
         productPackagingCost = packagingCostPerLiter * productLiters;
       } else if (packagingCostUnit === 'kg') {
         productPackagingCost = packagingCostPerKg * productKg;
       }
-      
+
       // Calculate revenue by sales channel for this product
       const directPct = (parseFloat(product.sales_channel_direct_percentage) || 0) / 100;
       const distPct = (parseFloat(product.sales_channel_distributors_percentage) || 0) / 100;
       const thirdPct = (parseFloat(product.sales_channel_third_percentage) || 0) / 100;
-      
+
       const directPrice = parseFloat(product.direct_sale_price_per_kg) || 0;
       const distPrice = parseFloat(product.distributors_price_per_kg) || 0;
       const thirdPrice = parseFloat(product.third_channel_price_per_kg) || 0;
-      
+
       const directKg = productKg * directPct;
       const distKg = productKg * distPct;
       const thirdKg = productKg * thirdPct;
-      
+
       const directRevenue = directPrice * directKg;
       const distRevenue = distPrice * distKg;
       const thirdRevenue = thirdPrice * thirdKg;
       const productRevenue = directRevenue + distRevenue + thirdRevenue;
-      
+
       totalProductRevenue += productRevenue;
       totalProcessingCost += productProcessingCost;
       totalPackagingCost += productPackagingCost;
       totalProductKg += productKg;
     }
-    
+
     // Compare with direct milk sale
     const milkRevenue = (productionData.milk_price_per_liter || 0) * totalLiters;
     const milkProductionCost = totalMilkProductionCostPerLiter * totalLiters;
@@ -558,17 +582,17 @@ function Module2Transformation({ user }) {
   };
 
   const comparisonData = results ? [
-    { 
-      name: t('rawMilkSale'), 
-      [t('income')]: Number(results.milk_revenue) || 0, 
-      [t('totalCosts')]: Number(results.milk_revenue - results.milk_margin) || 0, 
-      [t('margin')]: Number(results.milk_margin) || 0 
+    {
+      name: t('rawMilkSale'),
+      [t('income')]: Number(results.milk_revenue) || 0,
+      [t('totalCosts')]: Number(results.milk_revenue - results.milk_margin) || 0,
+      [t('margin')]: Number(results.milk_margin) || 0
     },
-    { 
-      name: t('transformation'), 
-      [t('income')]: Number(results.product_revenue) || 0, 
-      [t('totalCosts')]: Number(results.product_revenue - results.transformation_margin) || 0, 
-      [t('margin')]: Number(results.transformation_margin) || 0 
+    {
+      name: t('transformation'),
+      [t('income')]: Number(results.product_revenue) || 0,
+      [t('totalCosts')]: Number(results.product_revenue - results.transformation_margin) || 0,
+      [t('margin')]: Number(results.transformation_margin) || 0
     },
   ].filter(item => !isNaN(item[t('income')]) && !isNaN(item[t('totalCosts')]) && !isNaN(item[t('margin')])) : [];
 
@@ -576,10 +600,10 @@ function Module2Transformation({ user }) {
     <div className="container">
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ marginTop: '20px' }}>{t('module2Title')}</h1>
-        <div style={{ 
-          marginTop: '16px', 
-          padding: '18px 24px', 
-          background: 'var(--bg-tertiary)', 
+        <div style={{
+          marginTop: '16px',
+          padding: '18px 24px',
+          background: 'var(--bg-tertiary)',
           borderRadius: '12px',
           borderLeft: '4px solid var(--accent-info)',
           boxShadow: '0 2px 8px var(--shadow-color)'
@@ -704,16 +728,16 @@ function Module2Transformation({ user }) {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '30px', marginBottom: '15px' }}>
               <h3 style={{ margin: 0 }}>{t('productMix')}</h3>
-              <button 
+              <button
                 type="button"
-                className="btn btn-secondary" 
+                className="btn btn-secondary"
                 onClick={handleAddProduct}
                 style={{ padding: '8px 16px', fontSize: '0.9em' }}
               >
                 + {t('addProduct')}
               </button>
             </div>
-            
+
             {/* Total Distribution Validation */}
             {(() => {
               const totalDistribution = products.reduce((sum, p) => sum + (parseFloat(p.distribution_percentage) || 0), 0);
@@ -723,8 +747,8 @@ function Module2Transformation({ user }) {
                     <strong style={{ color: totalDistribution === 100 ? 'var(--accent-success)' : 'var(--accent-error)' }}>
                       {t('totalDistribution')}:
                     </strong>
-                    <span style={{ 
-                      fontWeight: 'bold', 
+                    <span style={{
+                      fontWeight: 'bold',
                       fontSize: '1.1em',
                       color: totalDistribution === 100 ? 'var(--accent-success)' : 'var(--accent-error)'
                     }}>
@@ -742,12 +766,12 @@ function Module2Transformation({ user }) {
 
             {/* Products List */}
             {products.map((product, index) => (
-              <div 
-                key={product.id} 
-                style={{ 
-                  marginBottom: '30px', 
-                  padding: '20px', 
-                  background: 'var(--bg-tertiary)', 
+              <div
+                key={product.id}
+                style={{
+                  marginBottom: '30px',
+                  padding: '20px',
+                  background: 'var(--bg-tertiary)',
                   borderRadius: '8px',
                   border: '1px solid var(--border-color)',
                   position: 'relative'
@@ -767,8 +791,8 @@ function Module2Transformation({ user }) {
                       type="button"
                       className="btn btn-secondary"
                       onClick={() => handleRemoveProduct(product.id)}
-                      style={{ 
-                        padding: '6px 12px', 
+                      style={{
+                        padding: '6px 12px',
                         fontSize: '0.85em',
                         background: 'var(--accent-error)',
                         color: 'var(--text-inverse)',
@@ -780,10 +804,10 @@ function Module2Transformation({ user }) {
                   )}
                 </div>
 
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-                  gap: '15px' 
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                  gap: '15px'
                 }}>
                   <div className="form-group">
                     <label>{t('productType')}</label>
@@ -799,7 +823,7 @@ function Module2Transformation({ user }) {
                       <option value="otro">{t('productTypes.otro')}</option>
                     </select>
                   </div>
-                  
+
                   <div className="form-group">
                     <label>{t('distributionPercentage')}</label>
                     <input
@@ -846,9 +870,9 @@ function Module2Transformation({ user }) {
                         <select
                           value={product.processing_cost_unit || 'liter'}
                           onChange={(e) => handleProductChange(product.id, 'processing_cost_unit', e.target.value)}
-                          style={{ 
-                            padding: '8px 12px', 
-                            border: '2px solid var(--border-color)', 
+                          style={{
+                            padding: '8px 12px',
+                            border: '2px solid var(--border-color)',
                             borderRadius: '6px',
                             fontSize: '0.95em',
                             fontWeight: '600',
@@ -878,18 +902,18 @@ function Module2Transformation({ user }) {
                             onFocus={handleInputFocus}
                             step="0.01"
                             placeholder={product.processing_cost_unit === 'liter' ? t('processingCostPlaceholderLiter') : t('processingCostPlaceholderKg')}
-                            style={{ 
-                              padding: '8px 45px 8px 12px', 
-                              border: '2px solid var(--border-color)', 
+                            style={{
+                              padding: '8px 45px 8px 12px',
+                              border: '2px solid var(--border-color)',
                               borderRadius: '6px',
                               fontSize: '0.95em',
                               width: '100%'
                             }}
                           />
-                          <span style={{ 
-                            position: 'absolute', 
-                            right: '12px', 
-                            color: 'var(--text-tertiary)', 
+                          <span style={{
+                            position: 'absolute',
+                            right: '12px',
+                            color: 'var(--text-tertiary)',
                             fontWeight: '600',
                             fontSize: '0.9em',
                             pointerEvents: 'none'
@@ -899,16 +923,16 @@ function Module2Transformation({ user }) {
                         </div>
                       </div>
                     </div>
-                    <div style={{ 
-                      padding: '10px 12px', 
+                    <div style={{
+                      padding: '10px 12px',
                       background: 'rgba(37, 99, 235, 0.1)',
-                      borderRadius: '6px', 
+                      borderRadius: '6px',
                       border: '1px solid var(--accent-info)',
                       fontSize: '0.85em',
                       color: 'var(--accent-info)'
                     }}>
-                      <strong>ℹ️ {t('note')}:</strong> {product.processing_cost_unit === 'liter' 
-                        ? t('processingCostHelpLiter') 
+                      <strong>ℹ️ {t('note')}:</strong> {product.processing_cost_unit === 'liter'
+                        ? t('processingCostHelpLiter')
                         : t('processingCostHelpKg')}
                     </div>
                   </div>
@@ -923,9 +947,9 @@ function Module2Transformation({ user }) {
                         <select
                           value={product.packaging_cost_unit || 'kg'}
                           onChange={(e) => handleProductChange(product.id, 'packaging_cost_unit', e.target.value)}
-                          style={{ 
-                            padding: '8px 12px', 
-                            border: '2px solid var(--border-color)', 
+                          style={{
+                            padding: '8px 12px',
+                            border: '2px solid var(--border-color)',
                             borderRadius: '6px',
                             fontSize: '0.95em',
                             fontWeight: '600',
@@ -955,18 +979,18 @@ function Module2Transformation({ user }) {
                             onFocus={handleInputFocus}
                             step="0.01"
                             placeholder={product.packaging_cost_unit === 'liter' ? t('packagingCostPlaceholderLiter') : t('packagingCostPlaceholderKg')}
-                            style={{ 
-                              padding: '8px 45px 8px 12px', 
-                              border: '2px solid var(--border-color)', 
+                            style={{
+                              padding: '8px 45px 8px 12px',
+                              border: '2px solid var(--border-color)',
                               borderRadius: '6px',
                               fontSize: '0.95em',
                               width: '100%'
                             }}
                           />
-                          <span style={{ 
-                            position: 'absolute', 
-                            right: '12px', 
-                            color: 'var(--text-tertiary)', 
+                          <span style={{
+                            position: 'absolute',
+                            right: '12px',
+                            color: 'var(--text-tertiary)',
                             fontWeight: '600',
                             fontSize: '0.9em',
                             pointerEvents: 'none'
@@ -976,16 +1000,16 @@ function Module2Transformation({ user }) {
                         </div>
                       </div>
                     </div>
-                    <div style={{ 
-                      padding: '10px 12px', 
-                      background: 'rgba(22, 163, 74, 0.1)', 
-                      borderRadius: '6px', 
+                    <div style={{
+                      padding: '10px 12px',
+                      background: 'rgba(22, 163, 74, 0.1)',
+                      borderRadius: '6px',
                       border: '1px solid var(--accent-success)',
                       fontSize: '0.85em',
                       color: 'var(--accent-success)'
                     }}>
-                      <strong>ℹ️ {t('note')}:</strong> {product.packaging_cost_unit === 'liter' 
-                        ? t('packagingCostHelpLiter') 
+                      <strong>ℹ️ {t('note')}:</strong> {product.packaging_cost_unit === 'liter'
+                        ? t('packagingCostHelpLiter')
                         : t('packagingCostHelpKg')}
                     </div>
                   </div>
@@ -999,15 +1023,15 @@ function Module2Transformation({ user }) {
                   <strong>📌 {t('note')}:</strong> {t('salesChannelsNote')}
                 </div>
                 {(() => {
-                  const totalChannelPct = parseFloat(product.sales_channel_direct_percentage || 0) + 
-                                          parseFloat(product.sales_channel_distributors_percentage || 0) + 
-                                          parseFloat(product.sales_channel_third_percentage || 0);
+                  const totalChannelPct = parseFloat(product.sales_channel_direct_percentage || 0) +
+                    parseFloat(product.sales_channel_distributors_percentage || 0) +
+                    parseFloat(product.sales_channel_third_percentage || 0);
                   return (
                     <div style={{ marginBottom: '15px', padding: '8px', background: 'var(--bg-tertiary)', borderRadius: '4px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <strong>{t('total')}:</strong>
-                        <span style={{ 
-                          fontWeight: 'bold', 
+                        <span style={{
+                          fontWeight: 'bold',
                           color: totalChannelPct === 100 ? 'green' : 'red'
                         }}>
                           {totalChannelPct.toFixed(2)}%
@@ -1016,11 +1040,11 @@ function Module2Transformation({ user }) {
                     </div>
                   );
                 })()}
-                
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-                  gap: '15px' 
+
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                  gap: '15px'
                 }}>
                   <div className="form-group">
                     <label>{t('directSalePercentage')}</label>
@@ -1116,13 +1140,13 @@ function Module2Transformation({ user }) {
                   </div>
                 </div>
               )}
-              
+
               {/* Cost Breakdown Section */}
               <div className="card">
                 <h2>{t('productionCostBreakdown')}</h2>
                 {(() => {
                   const totalLiters = (productionData.daily_production_liters || 0) * (productionData.production_days || 0) * (productionData.animals_count || 0);
-                  
+
                   // Calculate total milk production cost per liter (sum of all costs from Module 1)
                   const feedCost = Number(productionData.feed_cost_per_liter) || 0;
                   const laborCost = Number(productionData.labor_cost_per_liter) || 0;
@@ -1130,52 +1154,52 @@ function Module2Transformation({ user }) {
                   const infrastructureCost = Number(productionData.infrastructure_cost_per_liter) || 0;
                   const otherCost = Number(productionData.other_costs_per_liter) || 0;
                   const totalMilkProductionCostPerLiter = feedCost + laborCost + healthCost + infrastructureCost + otherCost;
-                  
+
                   // Calculate aggregated totals across all products
                   let totalProductKg = 0;
                   let totalProductLiters = 0;
                   let totalProcessingCost = 0;
                   let totalPackagingCost = 0;
                   let totalMilkCost = 0;
-                  
+
                   const productBreakdowns = products.map(product => {
                     const distributionPct = parseFloat(product.distribution_percentage) || 0;
                     const litersPerKg = parseFloat(product.liters_per_kg_product) || 1;
-                    
+
                     const processingCostUnit = product.processing_cost_unit || 'liter';
                     const packagingCostUnit = product.packaging_cost_unit || 'kg';
                     const processingCostPerLiter = parseFloat(product.processing_cost_per_liter) || 0;
                     const processingCostPerKg = parseFloat(product.processing_cost_per_kg) || 0;
                     const packagingCostPerLiter = parseFloat(product.packaging_cost_per_liter) || 0;
                     const packagingCostPerKg = parseFloat(product.packaging_cost_per_kg) || 0;
-                    
+
                     const productLiters = totalLiters * (distributionPct / 100);
                     const productKg = productLiters / litersPerKg;
-                    
+
                     let productProcessingCost = 0;
                     if (processingCostUnit === 'liter') {
                       productProcessingCost = processingCostPerLiter * productLiters;
                     } else if (processingCostUnit === 'kg') {
                       productProcessingCost = processingCostPerKg * productKg;
                     }
-                    
+
                     let productPackagingCost = 0;
                     if (packagingCostUnit === 'liter') {
                       productPackagingCost = packagingCostPerLiter * productLiters;
                     } else if (packagingCostUnit === 'kg') {
                       productPackagingCost = packagingCostPerKg * productKg;
                     }
-                    
+
                     const productMilkCost = totalMilkProductionCostPerLiter * productLiters;
                     const totalProductCost = productMilkCost + productProcessingCost + productPackagingCost;
                     const costPerKg = productKg > 0 ? totalProductCost / productKg : 0;
-                    
+
                     totalProductKg += productKg;
                     totalProductLiters += productLiters;
                     totalProcessingCost += productProcessingCost;
                     totalPackagingCost += productPackagingCost;
                     totalMilkCost += productMilkCost;
-                    
+
                     return {
                       product,
                       productLiters,
@@ -1187,48 +1211,48 @@ function Module2Transformation({ user }) {
                       costPerKg,
                     };
                   });
-                  
+
                   const totalCosts = totalMilkCost + totalProcessingCost + totalPackagingCost;
                   const averageCostPerKg = totalProductKg > 0 ? totalCosts / totalProductKg : 0;
-                  
+
                   return (
                     <div style={{ marginBottom: '20px' }}>
                       <h3 style={{ fontSize: '1.1em', marginBottom: '15px' }}>{t('consolidatedSummary')}</h3>
                       <div className="table-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                         <table className="table" style={{ minWidth: '400px' }}>
                           <tbody>
-                          <tr>
-                            <td><strong>{t('milkProductionCostPerLiter')}</strong></td>
-                            <td>${totalMilkProductionCostPerLiter.toFixed(2)} ({t('inheritedFromModule1')})</td>
-                          </tr>
-                          <tr>
-                            <td><strong>{t('totalLitersTransformed')}</strong></td>
-                            <td>{totalProductLiters.toLocaleString(undefined, { maximumFractionDigits: 2 })} L</td>
-                          </tr>
-                          <tr>
-                            <td><strong>{t('totalKgProduced')}</strong></td>
-                            <td>{totalProductKg.toLocaleString(undefined, { maximumFractionDigits: 2 })} kg</td>
-                          </tr>
-                          <tr>
-                            <td><strong>{t('totalMilkCost')}</strong></td>
-                            <td>${totalMilkCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>{t('totalProcessingCost')}</strong></td>
-                            <td>${totalProcessingCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>{t('totalPackagingCost')}</strong></td>
-                            <td>${totalPackagingCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                          </tr>
-                          <tr style={{ borderTop: '2px solid var(--border-color)' }}>
-                            <td><strong>{t('totalProductionCost')}</strong></td>
-                            <td><strong>${totalCosts.toLocaleString(undefined, { maximumFractionDigits: 2 })}</strong></td>
-                          </tr>
-                        </tbody>
-                      </table>
+                            <tr>
+                              <td><strong>{t('milkProductionCostPerLiter')}</strong></td>
+                              <td>${totalMilkProductionCostPerLiter.toFixed(2)} ({t('inheritedFromModule1')})</td>
+                            </tr>
+                            <tr>
+                              <td><strong>{t('totalLitersTransformed')}</strong></td>
+                              <td>{totalProductLiters.toLocaleString(undefined, { maximumFractionDigits: 2 })} L</td>
+                            </tr>
+                            <tr>
+                              <td><strong>{t('totalKgProduced')}</strong></td>
+                              <td>{totalProductKg.toLocaleString(undefined, { maximumFractionDigits: 2 })} kg</td>
+                            </tr>
+                            <tr>
+                              <td><strong>{t('totalMilkCost')}</strong></td>
+                              <td>${totalMilkCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>{t('totalProcessingCost')}</strong></td>
+                              <td>${totalProcessingCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>{t('totalPackagingCost')}</strong></td>
+                              <td>${totalPackagingCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                            </tr>
+                            <tr style={{ borderTop: '2px solid var(--border-color)' }}>
+                              <td><strong>{t('totalProductionCost')}</strong></td>
+                              <td><strong>${totalCosts.toLocaleString(undefined, { maximumFractionDigits: 2 })}</strong></td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
-                      
+
                       {products.length > 1 && (
                         <div>
                           <h3 style={{ fontSize: '1.1em', marginTop: '25px', marginBottom: '15px' }}>{t('costPerKgByProduct')}</h3>
@@ -1284,7 +1308,7 @@ function Module2Transformation({ user }) {
                 <h2>{t('channelMargins')}</h2>
                 {(() => {
                   const totalLiters = (productionData.daily_production_liters || 0) * (productionData.production_days || 0) * (productionData.animals_count || 0);
-                  
+
                   // Calculate total milk production cost per liter (inherited from Module 1)
                   const feedCost = Number(productionData.feed_cost_per_liter) || 0;
                   const laborCost = Number(productionData.labor_cost_per_liter) || 0;
@@ -1292,64 +1316,64 @@ function Module2Transformation({ user }) {
                   const infrastructureCost = Number(productionData.infrastructure_cost_per_liter) || 0;
                   const otherCost = Number(productionData.other_costs_per_liter) || 0;
                   const totalMilkProductionCostPerLiter = feedCost + laborCost + healthCost + infrastructureCost + otherCost;
-                  
+
                   // Aggregate channel data across all products
                   const channelData = {
                     direct: { kg: 0, revenue: 0, percentage: 0 },
                     distributors: { kg: 0, revenue: 0, percentage: 0 },
                     third: { kg: 0, revenue: 0, percentage: 0 },
                   };
-                  
+
                   let totalProductKg = 0;
                   let totalCosts = 0;
-                  
+
                   products.forEach(product => {
                     const distributionPct = parseFloat(product.distribution_percentage) || 0;
                     const litersPerKg = parseFloat(product.liters_per_kg_product) || 1;
-                    
+
                     const processingCostUnit = product.processing_cost_unit || 'liter';
                     const packagingCostUnit = product.packaging_cost_unit || 'kg';
                     const processingCostPerLiter = parseFloat(product.processing_cost_per_liter) || 0;
                     const processingCostPerKg = parseFloat(product.processing_cost_per_kg) || 0;
                     const packagingCostPerLiter = parseFloat(product.packaging_cost_per_liter) || 0;
                     const packagingCostPerKg = parseFloat(product.packaging_cost_per_kg) || 0;
-                    
+
                     const productLiters = totalLiters * (distributionPct / 100);
                     const productKg = productLiters / litersPerKg;
-                    
+
                     let productProcessingCost = 0;
                     if (processingCostUnit === 'liter') {
                       productProcessingCost = processingCostPerLiter * productLiters;
                     } else if (processingCostUnit === 'kg') {
                       productProcessingCost = processingCostPerKg * productKg;
                     }
-                    
+
                     let productPackagingCost = 0;
                     if (packagingCostUnit === 'liter') {
                       productPackagingCost = packagingCostPerLiter * productLiters;
                     } else if (packagingCostUnit === 'kg') {
                       productPackagingCost = packagingCostPerKg * productKg;
                     }
-                    
+
                     const productMilkCost = totalMilkProductionCostPerLiter * productLiters;
                     const productTotalCost = productMilkCost + productProcessingCost + productPackagingCost;
-                    
+
                     totalProductKg += productKg;
                     totalCosts += productTotalCost;
-                    
+
                     // Distribute product across channels
                     const directPct = parseFloat(product.sales_channel_direct_percentage) || 0;
                     const distPct = parseFloat(product.sales_channel_distributors_percentage) || 0;
                     const thirdPct = parseFloat(product.sales_channel_third_percentage) || 0;
-                    
+
                     const directKg = productKg * (directPct / 100);
                     const distKg = productKg * (distPct / 100);
                     const thirdKg = productKg * (thirdPct / 100);
-                    
+
                     const directPrice = parseFloat(product.direct_sale_price_per_kg) || 0;
                     const distPrice = parseFloat(product.distributors_price_per_kg) || 0;
                     const thirdPrice = parseFloat(product.third_channel_price_per_kg) || 0;
-                    
+
                     channelData.direct.kg += directKg;
                     channelData.direct.revenue += directPrice * directKg;
                     channelData.distributors.kg += distKg;
@@ -1357,14 +1381,14 @@ function Module2Transformation({ user }) {
                     channelData.third.kg += thirdKg;
                     channelData.third.revenue += thirdPrice * thirdKg;
                   });
-                  
+
                   // Calculate weighted average prices and percentages
                   channelData.direct.percentage = totalProductKg > 0 ? (channelData.direct.kg / totalProductKg) * 100 : 0;
                   channelData.distributors.percentage = totalProductKg > 0 ? (channelData.distributors.kg / totalProductKg) * 100 : 0;
                   channelData.third.percentage = totalProductKg > 0 ? (channelData.third.kg / totalProductKg) * 100 : 0;
-                  
+
                   const averageCostPerKg = totalProductKg > 0 ? totalCosts / totalProductKg : 0;
-                  
+
                   // Calculate product details per channel
                   const getProductDetailsPerChannel = (channelKey) => {
                     return products.map(product => {
@@ -1372,39 +1396,39 @@ function Module2Transformation({ user }) {
                       const litersPerKg = parseFloat(product.liters_per_kg_product) || 1;
                       const productLiters = totalLiters * (distributionPct / 100);
                       const productKg = productLiters / litersPerKg;
-                      
+
                       const processingCostUnit = product.processing_cost_unit || 'liter';
                       const packagingCostUnit = product.packaging_cost_unit || 'kg';
                       const processingCostPerLiter = parseFloat(product.processing_cost_per_liter) || 0;
                       const processingCostPerKg = parseFloat(product.processing_cost_per_kg) || 0;
                       const packagingCostPerLiter = parseFloat(product.packaging_cost_per_liter) || 0;
                       const packagingCostPerKg = parseFloat(product.packaging_cost_per_kg) || 0;
-                      
+
                       let productProcessingCost = 0;
                       if (processingCostUnit === 'liter') {
                         productProcessingCost = processingCostPerLiter * productLiters;
                       } else if (processingCostUnit === 'kg') {
                         productProcessingCost = processingCostPerKg * productKg;
                       }
-                      
+
                       let productPackagingCost = 0;
                       if (packagingCostUnit === 'liter') {
                         productPackagingCost = packagingCostPerLiter * productLiters;
                       } else if (packagingCostUnit === 'kg') {
                         productPackagingCost = packagingCostPerKg * productKg;
                       }
-                      
+
                       const productMilkCost = totalMilkProductionCostPerLiter * productLiters;
                       const productTotalCost = productMilkCost + productProcessingCost + productPackagingCost;
                       const productCostPerKg = productKg > 0 ? productTotalCost / productKg : 0;
-                      
+
                       const directPct = parseFloat(product.sales_channel_direct_percentage) || 0;
                       const distPct = parseFloat(product.sales_channel_distributors_percentage) || 0;
                       const thirdPct = parseFloat(product.sales_channel_third_percentage) || 0;
-                      
+
                       let channelKg = 0;
                       let channelPrice = 0;
-                      
+
                       if (channelKey === 'direct') {
                         channelKg = productKg * (directPct / 100);
                         channelPrice = parseFloat(product.direct_sale_price_per_kg) || 0;
@@ -1415,13 +1439,13 @@ function Module2Transformation({ user }) {
                         channelKg = productKg * (thirdPct / 100);
                         channelPrice = parseFloat(product.third_channel_price_per_kg) || 0;
                       }
-                      
+
                       const unitMargin = channelPrice - productCostPerKg;
                       const unitMarginPercent = channelPrice > 0 ? (unitMargin / channelPrice) * 100 : 0;
                       const totalRevenue = channelPrice * channelKg;
                       const totalCost = productCostPerKg * channelKg;
                       const totalMarginDollars = totalRevenue - totalCost;
-                      
+
                       return {
                         productName: product.product_type_custom || t(`productTypes.${product.product_type}`) || product.product_type,
                         kg: channelKg,
@@ -1434,7 +1458,7 @@ function Module2Transformation({ user }) {
                       };
                     }).filter(detail => detail.kg > 0); // Only show products that have kg in this channel
                   };
-                  
+
                   const channels = [
                     {
                       key: 'direct',
@@ -1461,7 +1485,7 @@ function Module2Transformation({ user }) {
                       revenue: channelData.third.revenue,
                     }
                   ];
-                  
+
                   return (
                     <>
                       <div style={{ marginBottom: '15px', padding: '12px', background: 'rgba(37, 99, 235, 0.1)', borderRadius: '6px', border: '1px solid var(--accent-info)', fontSize: '0.9em' }}>
@@ -1469,155 +1493,155 @@ function Module2Transformation({ user }) {
                       </div>
                       <div className="table-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                         <table className="table" style={{ minWidth: '800px' }}>
-                        <thead>
-                          <tr>
-                            <th style={{ width: '30px' }}></th>
-                            <th>{t('concept')}</th>
-                            <th>% {t('salesChannels')}</th>
-                            <th>{t('kgL')}</th>
-                            <th>{t('salesPrice')}</th>
-                            <th style={{ width: '110px', minWidth: '110px', maxWidth: '110px' }}>{t('costAverage')}</th>
-                            <th>{t('marginPerKg')}</th>
-                            <th>{t('marginPercent')}</th>
-                            <th>{t('totalIncome')}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {channels.map((channel, idx) => {
-                            const margin = channel.price - averageCostPerKg;
-                            const marginPercent = channel.price > 0 ? (margin / channel.price) * 100 : 0;
-                            const totalMargin = channel.revenue - (averageCostPerKg * channel.kg);
-                            const isExpanded = expandedChannels[channel.key] ?? true; // Auto-expand by default
-                            const productDetails = getProductDetailsPerChannel(channel.key);
-                            
-                            return (
-                              <Fragment key={idx}>
-                                <tr style={{ 
-                                  opacity: channel.percentage === 0 ? 0.5 : 1,
-                                  background: 'var(--bg-tertiary)',
-                                  fontWeight: 'normal'
-                                }}>
-                                  <td style={{ cursor: 'pointer', textAlign: 'center' }}>
-                                    {productDetails.length > 0 && (
-                                      <button
-                                        onClick={() => setExpandedChannels(prev => ({
-                                          ...prev,
-                                          [channel.key]: !prev[channel.key]
-                                        }))}
-                                        style={{
-                                          background: 'none',
-                                          border: 'none',
-                                          fontSize: '1.2em',
-                                          cursor: 'pointer',
-                                          padding: '0 5px'
-                                        }}
-                                      >
-                                        {isExpanded ? '▼' : '▶'}
-                                      </button>
-                                    )}
-                                  </td>
-                                  <td><strong>{channel.name}</strong></td>
-                                  <td>{channel.percentage.toFixed(1)}%</td>
-                                  <td>{channel.kg.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                                  <td 
-                                    colSpan="5" 
-                                    style={{ 
-                                      fontStyle: 'italic', 
-                                      color: 'var(--text-secondary)',
-                                      cursor: productDetails.length > 0 ? 'pointer' : 'default',
-                                      textDecoration: productDetails.length > 0 ? 'underline' : 'none'
-                                    }}
-                                    onClick={productDetails.length > 0 ? () => setExpandedChannels(prev => ({
-                                      ...prev,
-                                      [channel.key]: !prev[channel.key]
-                                    })) : undefined}
-                                    onMouseEnter={(e) => {
-                                      if (productDetails.length > 0) {
-                                        e.target.style.color = 'var(--accent-primary)';
-                                      }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      if (productDetails.length > 0) {
-                                        e.target.style.color = 'var(--text-secondary)';
-                                      }
-                                    }}
-                                  >
-                                    {productDetails.length > 1 ? t('clickToSeeProductDetails') : t('seeProductDetailsBelow')}
-                                  </td>
-                                </tr>
-                                {isExpanded && productDetails.length > 0 && productDetails.map((detail, detailIdx) => (
-                                  <tr key={`${idx}-${detailIdx}`} style={{ 
-                                    borderBottom: detailIdx === productDetails.length - 1 ? 'none' : '1px solid var(--border-color)',
-                                    background: 'var(--bg-secondary)'
-                                  }}>
-                                    <td></td>
-                                    <td style={{ paddingLeft: '30px' }}>{detail.productName}</td>
-                                    <td>-</td>
-                                    <td>{detail.kg.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                                    <td style={{ fontWeight: 'bold' }}>${detail.price.toFixed(2)}</td>
-                                    <td style={{ width: '110px', minWidth: '110px', maxWidth: '110px' }}>${detail.unitCost.toFixed(2)}</td>
-                                    <td style={{ 
-                                      color: detail.unitMargin >= 0 ? 'green' : 'red',
-                                      fontWeight: 'bold',
-                                      fontSize: '1.05em'
-                                    }}>
-                                      ${detail.unitMargin.toFixed(2)}
-                                    </td>
-                                    <td style={{ 
-                                      color: detail.unitMarginPercent >= 0 ? 'green' : 'red',
-                                      fontWeight: 'bold',
-                                      fontSize: '1.05em'
-                                    }}>
-                                      {detail.unitMarginPercent.toFixed(1)}%
-                                    </td>
-                                    <td>${detail.totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                                  </tr>
-                                ))}
-                                {/* Weighted Average Summary Row (Secondary) */}
-                                {isExpanded && productDetails.length > 1 && (
-                                  <tr style={{ 
+                          <thead>
+                            <tr>
+                              <th style={{ width: '30px' }}></th>
+                              <th>{t('concept')}</th>
+                              <th>% {t('salesChannels')}</th>
+                              <th>{t('kgL')}</th>
+                              <th>{t('salesPrice')}</th>
+                              <th style={{ width: '110px', minWidth: '110px', maxWidth: '110px' }}>{t('costAverage')}</th>
+                              <th>{t('marginPerKg')}</th>
+                              <th>{t('marginPercent')}</th>
+                              <th>{t('totalIncome')}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {channels.map((channel, idx) => {
+                              const margin = channel.price - averageCostPerKg;
+                              const marginPercent = channel.price > 0 ? (margin / channel.price) * 100 : 0;
+                              const totalMargin = channel.revenue - (averageCostPerKg * channel.kg);
+                              const isExpanded = expandedChannels[channel.key] ?? true; // Auto-expand by default
+                              const productDetails = getProductDetailsPerChannel(channel.key);
+
+                              return (
+                                <Fragment key={idx}>
+                                  <tr style={{
+                                    opacity: channel.percentage === 0 ? 0.5 : 1,
                                     background: 'var(--bg-tertiary)',
-                                    borderTop: '1px dashed var(--border-color)',
-                                    fontStyle: 'italic',
-                                    fontSize: '0.95em'
+                                    fontWeight: 'normal'
                                   }}>
-                                    <td></td>
-                                    <td style={{ paddingLeft: '30px', color: 'var(--text-secondary)' }}>
-                                      <small>📊 {t('weightedAverageMix')}</small>
+                                    <td style={{ cursor: 'pointer', textAlign: 'center' }}>
+                                      {productDetails.length > 0 && (
+                                        <button
+                                          onClick={() => setExpandedChannels(prev => ({
+                                            ...prev,
+                                            [channel.key]: !prev[channel.key]
+                                          }))}
+                                          style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            fontSize: '1.2em',
+                                            cursor: 'pointer',
+                                            padding: '0 5px'
+                                          }}
+                                        >
+                                          {isExpanded ? '▼' : '▶'}
+                                        </button>
+                                      )}
                                     </td>
-                                    <td>-</td>
-                                    <td><small>{channel.kg.toLocaleString(undefined, { maximumFractionDigits: 2 })}</small></td>
-                                    <td style={{ color: 'var(--text-secondary)' }}>
-                                      <small>${channel.price > 0 ? channel.price.toFixed(2) : '0.00'}</small>
-                                    </td>
-                                    <td style={{ color: 'var(--text-secondary)' }}>
-                                      <small>${averageCostPerKg.toFixed(2)}</small>
-                                    </td>
-                                    <td style={{ color: 'var(--text-secondary)' }}>
-                                      <small>${margin.toFixed(2)}</small>
-                                    </td>
-                                    <td style={{ color: 'var(--text-secondary)' }}>
-                                      <small>{marginPercent.toFixed(1)}%</small>
-                                    </td>
-                                    <td style={{ color: 'var(--text-secondary)' }}>
-                                      <small>${channel.revenue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</small>
+                                    <td><strong>{channel.name}</strong></td>
+                                    <td>{channel.percentage.toFixed(1)}%</td>
+                                    <td>{channel.kg.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                                    <td
+                                      colSpan="5"
+                                      style={{
+                                        fontStyle: 'italic',
+                                        color: 'var(--text-secondary)',
+                                        cursor: productDetails.length > 0 ? 'pointer' : 'default',
+                                        textDecoration: productDetails.length > 0 ? 'underline' : 'none'
+                                      }}
+                                      onClick={productDetails.length > 0 ? () => setExpandedChannels(prev => ({
+                                        ...prev,
+                                        [channel.key]: !prev[channel.key]
+                                      })) : undefined}
+                                      onMouseEnter={(e) => {
+                                        if (productDetails.length > 0) {
+                                          e.target.style.color = 'var(--accent-primary)';
+                                        }
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        if (productDetails.length > 0) {
+                                          e.target.style.color = 'var(--text-secondary)';
+                                        }
+                                      }}
+                                    >
+                                      {productDetails.length > 1 ? t('clickToSeeProductDetails') : t('seeProductDetailsBelow')}
                                     </td>
                                   </tr>
-                                )}
-                              </Fragment>
-                            );
-                          })}
-                          <tr style={{ borderTop: '2px solid #333', fontWeight: 'bold', background: '#f5f5f5' }}>
-                            <td colSpan="2"><strong>{t('total')}</strong></td>
-                            <td>100%</td>
-                            <td>{totalProductKg.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                            <td colSpan="4" style={{ color: 'var(--text-secondary)', fontStyle: 'italic', fontSize: '0.9em' }}>
-                              {t('totalAcrossAllChannels')}
-                            </td>
-                            <td>${(channels[0].revenue + channels[1].revenue + channels[2].revenue).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                          </tr>
-                        </tbody>
-                      </table>
+                                  {isExpanded && productDetails.length > 0 && productDetails.map((detail, detailIdx) => (
+                                    <tr key={`${idx}-${detailIdx}`} style={{
+                                      borderBottom: detailIdx === productDetails.length - 1 ? 'none' : '1px solid var(--border-color)',
+                                      background: 'var(--bg-secondary)'
+                                    }}>
+                                      <td></td>
+                                      <td style={{ paddingLeft: '30px' }}>{detail.productName}</td>
+                                      <td>-</td>
+                                      <td>{detail.kg.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                                      <td style={{ fontWeight: 'bold' }}>${detail.price.toFixed(2)}</td>
+                                      <td style={{ width: '110px', minWidth: '110px', maxWidth: '110px' }}>${detail.unitCost.toFixed(2)}</td>
+                                      <td style={{
+                                        color: detail.unitMargin >= 0 ? 'green' : 'red',
+                                        fontWeight: 'bold',
+                                        fontSize: '1.05em'
+                                      }}>
+                                        ${detail.unitMargin.toFixed(2)}
+                                      </td>
+                                      <td style={{
+                                        color: detail.unitMarginPercent >= 0 ? 'green' : 'red',
+                                        fontWeight: 'bold',
+                                        fontSize: '1.05em'
+                                      }}>
+                                        {detail.unitMarginPercent.toFixed(1)}%
+                                      </td>
+                                      <td>${detail.totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                                    </tr>
+                                  ))}
+                                  {/* Weighted Average Summary Row (Secondary) */}
+                                  {isExpanded && productDetails.length > 1 && (
+                                    <tr style={{
+                                      background: 'var(--bg-tertiary)',
+                                      borderTop: '1px dashed var(--border-color)',
+                                      fontStyle: 'italic',
+                                      fontSize: '0.95em'
+                                    }}>
+                                      <td></td>
+                                      <td style={{ paddingLeft: '30px', color: 'var(--text-secondary)' }}>
+                                        <small>📊 {t('weightedAverageMix')}</small>
+                                      </td>
+                                      <td>-</td>
+                                      <td><small>{channel.kg.toLocaleString(undefined, { maximumFractionDigits: 2 })}</small></td>
+                                      <td style={{ color: 'var(--text-secondary)' }}>
+                                        <small>${channel.price > 0 ? channel.price.toFixed(2) : '0.00'}</small>
+                                      </td>
+                                      <td style={{ color: 'var(--text-secondary)' }}>
+                                        <small>${averageCostPerKg.toFixed(2)}</small>
+                                      </td>
+                                      <td style={{ color: 'var(--text-secondary)' }}>
+                                        <small>${margin.toFixed(2)}</small>
+                                      </td>
+                                      <td style={{ color: 'var(--text-secondary)' }}>
+                                        <small>{marginPercent.toFixed(1)}%</small>
+                                      </td>
+                                      <td style={{ color: 'var(--text-secondary)' }}>
+                                        <small>${channel.revenue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</small>
+                                      </td>
+                                    </tr>
+                                  )}
+                                </Fragment>
+                              );
+                            })}
+                            <tr style={{ borderTop: '2px solid #333', fontWeight: 'bold', background: '#f5f5f5' }}>
+                              <td colSpan="2"><strong>{t('total')}</strong></td>
+                              <td>100%</td>
+                              <td>{totalProductKg.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                              <td colSpan="4" style={{ color: 'var(--text-secondary)', fontStyle: 'italic', fontSize: '0.9em' }}>
+                                {t('totalAcrossAllChannels')}
+                              </td>
+                              <td>${(channels[0].revenue + channels[1].revenue + channels[2].revenue).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </>
                   );
@@ -1693,25 +1717,25 @@ function Module2Transformation({ user }) {
                       </select>
                     </div>
                     <div className="chart-view-toggle">
-                      <button 
+                      <button
                         className={`chart-view-btn ${chartViewType === 'grouped' ? 'active' : ''}`}
                         onClick={() => setChartViewType('grouped')}
                       >
                         Bar
                       </button>
-                      <button 
+                      <button
                         className={`chart-view-btn ${chartViewType === 'donut' ? 'active' : ''}`}
                         onClick={() => setChartViewType('donut')}
                       >
                         Donut
                       </button>
-                      <button 
+                      <button
                         className={`chart-view-btn ${chartViewType === 'stacked' ? 'active' : ''}`}
                         onClick={() => setChartViewType('stacked')}
                       >
                         Stack
                       </button>
-                      <button 
+                      <button
                         className={`chart-view-btn ${chartViewType === 'waterfall' ? 'active' : ''}`}
                         onClick={() => setChartViewType('waterfall')}
                       >
@@ -1720,233 +1744,233 @@ function Module2Transformation({ user }) {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="chart-container">
-                {comparisonData.length > 0 ? (
-                  <>
-                    {chartViewType === 'grouped' && (() => {
-                      const chartData = marginViewMode === 'percent' ? comparisonData.map(item => {
-                        const income = Number(item[t('income')]) || 0;
-                        const costs = Number(item[t('totalCosts')]) || 0;
-                        const margin = Number(item[t('margin')]) || 0;
-                        return {
-                          name: item.name,
-                          [t('income')]: income > 0 ? ((margin / income) * 100) : 0,
-                          [t('totalCosts')]: income > 0 ? ((costs / income) * 100) : 0,
-                          [t('margin')]: income > 0 ? ((margin / income) * 100) : 0,
+                  {comparisonData.length > 0 ? (
+                    <>
+                      {chartViewType === 'grouped' && (() => {
+                        const chartData = marginViewMode === 'percent' ? comparisonData.map(item => {
+                          const income = Number(item[t('income')]) || 0;
+                          const costs = Number(item[t('totalCosts')]) || 0;
+                          const margin = Number(item[t('margin')]) || 0;
+                          return {
+                            name: item.name,
+                            [t('income')]: income > 0 ? ((margin / income) * 100) : 0,
+                            [t('totalCosts')]: income > 0 ? ((costs / income) * 100) : 0,
+                            [t('margin')]: income > 0 ? ((margin / income) * 100) : 0,
+                          };
+                        }) : comparisonData;
+
+                        return (
+                          <ResponsiveContainer width="100%" height={340}>
+                            <BarChart data={chartData} barCategoryGap="20%">
+                              <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
+                              <XAxis
+                                dataKey="name"
+                                stroke={chartColors.axis.tick}
+                                tick={{ fill: chartColors.text.secondary, fontSize: 12, fontWeight: 500 }}
+                                tickLine={false}
+                              />
+                              <YAxis
+                                stroke={chartColors.axis.tick}
+                                tick={{ fill: chartColors.text.secondary, fontSize: 11 }}
+                                axisLine={false}
+                                tickLine={false}
+                                tickFormatter={(value) => marginViewMode === 'percent' ? `${value}%` : `$${(value / 1000).toFixed(0)}k`}
+                              />
+                              <Tooltip
+                                formatter={(value) =>
+                                  marginViewMode === 'percent'
+                                    ? `${Number(value || 0).toFixed(1)}%`
+                                    : `$${Number(value || 0).toLocaleString(undefined)}`
+                                }
+                                contentStyle={{
+                                  backgroundColor: chartColors.tooltip.bg,
+                                  border: `1px solid ${chartColors.tooltip.border}`,
+                                  borderRadius: '12px',
+                                  boxShadow: chartColors.tooltip.shadow,
+                                  padding: '12px 16px'
+                                }}
+                                cursor={{ fill: chartColors.background.hover }}
+                              />
+                              <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="roundRect" />
+                              <Bar dataKey={t('income')} fill={chartColors.revenue} radius={[6, 6, 0, 0]} />
+                              <Bar dataKey={t('totalCosts')} fill={chartColors.costs} radius={[6, 6, 0, 0]} />
+                              <Bar dataKey={t('margin')} fill={chartColors.margin} radius={[6, 6, 0, 0]} />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        );
+                      })()}
+                      {chartViewType === 'donut' && (() => {
+                        const totalLiters = (productionData.daily_production_liters || 0) * (productionData.production_days || 0) * (productionData.animals_count || 0);
+                        const channelData = {
+                          direct: { kg: 0, revenue: 0 },
+                          distributors: { kg: 0, revenue: 0 },
+                          third: { kg: 0, revenue: 0 },
                         };
-                      }) : comparisonData;
-                      
-                      return (
-                        <ResponsiveContainer width="100%" height={340}>
-                          <BarChart data={chartData} barCategoryGap="20%">
-                            <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
-                            <XAxis 
-                              dataKey="name" 
-                              stroke={chartColors.axis.tick}
-                              tick={{ fill: chartColors.text.secondary, fontSize: 12, fontWeight: 500 }}
-                              tickLine={false}
-                            />
-                            <YAxis 
-                              stroke={chartColors.axis.tick}
-                              tick={{ fill: chartColors.text.secondary, fontSize: 11 }}
-                              axisLine={false}
-                              tickLine={false}
-                              tickFormatter={(value) => marginViewMode === 'percent' ? `${value}%` : `$${(value/1000).toFixed(0)}k`}
-                            />
-                            <Tooltip 
-                              formatter={(value) => 
-                                marginViewMode === 'percent' 
-                                  ? `${Number(value || 0).toFixed(1)}%`
-                                  : `$${Number(value || 0).toLocaleString(undefined)}`
-                              }
-                              contentStyle={{ 
-                                backgroundColor: chartColors.tooltip.bg, 
-                                border: `1px solid ${chartColors.tooltip.border}`,
-                                borderRadius: '12px',
-                                boxShadow: chartColors.tooltip.shadow,
-                                padding: '12px 16px'
-                              }}
-                              cursor={{ fill: chartColors.background.hover }}
-                            />
-                            <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="roundRect" />
-                            <Bar dataKey={t('income')} fill={chartColors.revenue} radius={[6, 6, 0, 0]} />
-                            <Bar dataKey={t('totalCosts')} fill={chartColors.costs} radius={[6, 6, 0, 0]} />
-                            <Bar dataKey={t('margin')} fill={chartColors.margin} radius={[6, 6, 0, 0]} />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      );
-                    })()}
-                    {chartViewType === 'donut' && (() => {
-                      const totalLiters = (productionData.daily_production_liters || 0) * (productionData.production_days || 0) * (productionData.animals_count || 0);
-                      const channelData = {
-                        direct: { kg: 0, revenue: 0 },
-                        distributors: { kg: 0, revenue: 0 },
-                        third: { kg: 0, revenue: 0 },
-                      };
-                      let totalProductKg = 0;
-                      products.forEach(product => {
-                        const distributionPct = parseFloat(product.distribution_percentage) || 0;
-                        const litersPerKg = parseFloat(product.liters_per_kg_product) || 1;
-                        const productLiters = totalLiters * (distributionPct / 100);
-                        const productKg = productLiters / litersPerKg;
-                        totalProductKg += productKg;
-                        const directPct = parseFloat(product.sales_channel_direct_percentage) || 0;
-                        const distPct = parseFloat(product.sales_channel_distributors_percentage) || 0;
-                        const thirdPct = parseFloat(product.sales_channel_third_percentage) || 0;
-                        channelData.direct.kg += productKg * (directPct / 100);
-                        channelData.distributors.kg += productKg * (distPct / 100);
-                        channelData.third.kg += productKg * (thirdPct / 100);
-                      });
-                      const donutData = [
-                        { name: t('salesChannelDirect'), value: totalProductKg > 0 ? (channelData.direct.kg / totalProductKg) * 100 : 0 },
-                        { name: t('salesChannelDistributors'), value: totalProductKg > 0 ? (channelData.distributors.kg / totalProductKg) * 100 : 0 },
-                        { name: t('salesChannelThird'), value: totalProductKg > 0 ? (channelData.third.kg / totalProductKg) * 100 : 0 },
-                      ].filter(item => item.value > 0);
-                      return (
-                        <ResponsiveContainer width="100%" height={340}>
-                          <PieChart>
-                            <Pie
-                              data={donutData}
-                              cx="50%"
-                              cy="50%"
-                              labelLine={false}
-                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
-                              outerRadius={110}
-                              innerRadius={60}
-                              fill={chartColors.primary}
-                              dataKey="value"
-                              paddingAngle={3}
-                            >
-                              {donutData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={chartColors.palette[index % chartColors.palette.length]} />
-                              ))}
-                            </Pie>
-                            <Tooltip 
-                              formatter={(value) => `${value.toFixed(1)}%`}
-                              contentStyle={{ 
-                                backgroundColor: chartColors.tooltip.bg, 
-                                border: `1px solid ${chartColors.tooltip.border}`,
-                                borderRadius: '12px',
-                                boxShadow: chartColors.tooltip.shadow
-                              }}
-                            />
-                            <Legend wrapperStyle={{ paddingTop: '16px' }} />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      );
-                    })()}
-                    {chartViewType === 'stacked' && (() => {
-                      const totalLiters = (productionData.daily_production_liters || 0) * (productionData.production_days || 0) * (productionData.animals_count || 0);
-                      const productData = products.map(product => {
-                        const distributionPct = parseFloat(product.distribution_percentage) || 0;
-                        const litersPerKg = parseFloat(product.liters_per_kg_product) || 1;
-                        const productLiters = totalLiters * (distributionPct / 100);
-                        const productKg = productLiters / litersPerKg;
-                        return {
-                          name: product.product_type_custom || t(`productTypes.${product.product_type}`) || product.product_type,
-                          kg: productKg,
-                        };
-                      });
-                      return (
-                        <ResponsiveContainer width="100%" height={340}>
-                          <BarChart data={productData} barCategoryGap="20%">
-                            <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
-                            <XAxis 
-                              dataKey="name" 
-                              stroke={chartColors.axis.tick}
-                              tick={{ fill: chartColors.text.secondary, fontSize: 11, fontWeight: 500 }}
-                              tickLine={false}
-                            />
-                            <YAxis 
-                              stroke={chartColors.axis.tick}
-                              tick={{ fill: chartColors.text.secondary, fontSize: 11 }}
-                              axisLine={false}
-                              tickLine={false}
-                            />
-                            <Tooltip 
-                              formatter={(value) => `${Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} kg`}
-                              contentStyle={{ 
-                                backgroundColor: chartColors.tooltip.bg, 
-                                border: `1px solid ${chartColors.tooltip.border}`,
-                                borderRadius: '12px',
-                                boxShadow: chartColors.tooltip.shadow
-                              }}
-                              cursor={{ fill: chartColors.background.hover }}
-                            />
-                            <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="roundRect" />
-                            <Bar dataKey="kg" stackId="a" fill={chartColors.primary} name={t('productMix')} radius={[8, 8, 0, 0]}>
-                              {productData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={chartColors.palette[index % chartColors.palette.length]} />
-                              ))}
-                            </Bar>
-                          </BarChart>
-                        </ResponsiveContainer>
-                      );
-                    })()}
-                    {chartViewType === 'waterfall' && (() => {
-                      const chartData = marginViewMode === 'percent' ? comparisonData.map(item => {
-                        const income = Number(item[t('income')]) || 0;
-                        const costs = Number(item[t('totalCosts')]) || 0;
-                        const margin = Number(item[t('margin')]) || 0;
-                        return {
-                          name: item.name,
-                          [t('income')]: income > 0 ? ((margin / income) * 100) : 0,
-                          [t('totalCosts')]: income > 0 ? ((costs / income) * 100) : 0,
-                          [t('margin')]: income > 0 ? ((margin / income) * 100) : 0,
-                        };
-                      }) : comparisonData;
-                      
-                      return (
-                        <ResponsiveContainer width="100%" height={340}>
-                          <ComposedChart data={chartData}>
-                            <defs>
-                              <linearGradient id="marginAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor={chartColors.margin} stopOpacity={0.4}/>
-                                <stop offset="95%" stopColor={chartColors.margin} stopOpacity={0.05}/>
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
-                            <XAxis 
-                              dataKey="name" 
-                              stroke={chartColors.axis.tick}
-                              tick={{ fill: chartColors.text.secondary, fontSize: 12, fontWeight: 500 }}
-                              tickLine={false}
-                            />
-                            <YAxis 
-                              stroke={chartColors.axis.tick}
-                              tick={{ fill: chartColors.text.secondary, fontSize: 11 }}
-                              axisLine={false}
-                              tickLine={false}
-                            />
-                            <Tooltip 
-                              formatter={(value) => 
-                                marginViewMode === 'percent' 
-                                  ? `${Number(value || 0).toFixed(1)}%`
-                                  : `$${Number(value || 0).toLocaleString(undefined)}`
-                              }
-                              contentStyle={{ 
-                                backgroundColor: chartColors.tooltip.bg, 
-                                border: `1px solid ${chartColors.tooltip.border}`,
-                                borderRadius: '12px',
-                                boxShadow: chartColors.tooltip.shadow
-                              }}
-                            />
-                            <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="roundRect" />
-                            <Bar dataKey={t('income')} fill={chartColors.revenue} radius={[6, 6, 0, 0]} />
-                            <Bar dataKey={t('totalCosts')} fill={chartColors.costs} radius={[6, 6, 0, 0]} />
-                            <Area type="monotone" dataKey={t('margin')} fill="url(#marginAreaGradient)" stroke={chartColors.margin} strokeWidth={3} />
-                          </ComposedChart>
-                        </ResponsiveContainer>
-                      );
-                    })()}
-                  </>
-                ) : (
-                  <div className="chart-empty">
-                    <div className="chart-empty-icon">📊</div>
-                    <p className="chart-empty-text">{t('noDataToShow')}</p>
-                  </div>
-                )}
+                        let totalProductKg = 0;
+                        products.forEach(product => {
+                          const distributionPct = parseFloat(product.distribution_percentage) || 0;
+                          const litersPerKg = parseFloat(product.liters_per_kg_product) || 1;
+                          const productLiters = totalLiters * (distributionPct / 100);
+                          const productKg = productLiters / litersPerKg;
+                          totalProductKg += productKg;
+                          const directPct = parseFloat(product.sales_channel_direct_percentage) || 0;
+                          const distPct = parseFloat(product.sales_channel_distributors_percentage) || 0;
+                          const thirdPct = parseFloat(product.sales_channel_third_percentage) || 0;
+                          channelData.direct.kg += productKg * (directPct / 100);
+                          channelData.distributors.kg += productKg * (distPct / 100);
+                          channelData.third.kg += productKg * (thirdPct / 100);
+                        });
+                        const donutData = [
+                          { name: t('salesChannelDirect'), value: totalProductKg > 0 ? (channelData.direct.kg / totalProductKg) * 100 : 0 },
+                          { name: t('salesChannelDistributors'), value: totalProductKg > 0 ? (channelData.distributors.kg / totalProductKg) * 100 : 0 },
+                          { name: t('salesChannelThird'), value: totalProductKg > 0 ? (channelData.third.kg / totalProductKg) * 100 : 0 },
+                        ].filter(item => item.value > 0);
+                        return (
+                          <ResponsiveContainer width="100%" height={340}>
+                            <PieChart>
+                              <Pie
+                                data={donutData}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                                outerRadius={110}
+                                innerRadius={60}
+                                fill={chartColors.primary}
+                                dataKey="value"
+                                paddingAngle={3}
+                              >
+                                {donutData.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={chartColors.palette[index % chartColors.palette.length]} />
+                                ))}
+                              </Pie>
+                              <Tooltip
+                                formatter={(value) => `${value.toFixed(1)}%`}
+                                contentStyle={{
+                                  backgroundColor: chartColors.tooltip.bg,
+                                  border: `1px solid ${chartColors.tooltip.border}`,
+                                  borderRadius: '12px',
+                                  boxShadow: chartColors.tooltip.shadow
+                                }}
+                              />
+                              <Legend wrapperStyle={{ paddingTop: '16px' }} />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        );
+                      })()}
+                      {chartViewType === 'stacked' && (() => {
+                        const totalLiters = (productionData.daily_production_liters || 0) * (productionData.production_days || 0) * (productionData.animals_count || 0);
+                        const productData = products.map(product => {
+                          const distributionPct = parseFloat(product.distribution_percentage) || 0;
+                          const litersPerKg = parseFloat(product.liters_per_kg_product) || 1;
+                          const productLiters = totalLiters * (distributionPct / 100);
+                          const productKg = productLiters / litersPerKg;
+                          return {
+                            name: product.product_type_custom || t(`productTypes.${product.product_type}`) || product.product_type,
+                            kg: productKg,
+                          };
+                        });
+                        return (
+                          <ResponsiveContainer width="100%" height={340}>
+                            <BarChart data={productData} barCategoryGap="20%">
+                              <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
+                              <XAxis
+                                dataKey="name"
+                                stroke={chartColors.axis.tick}
+                                tick={{ fill: chartColors.text.secondary, fontSize: 11, fontWeight: 500 }}
+                                tickLine={false}
+                              />
+                              <YAxis
+                                stroke={chartColors.axis.tick}
+                                tick={{ fill: chartColors.text.secondary, fontSize: 11 }}
+                                axisLine={false}
+                                tickLine={false}
+                              />
+                              <Tooltip
+                                formatter={(value) => `${Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} kg`}
+                                contentStyle={{
+                                  backgroundColor: chartColors.tooltip.bg,
+                                  border: `1px solid ${chartColors.tooltip.border}`,
+                                  borderRadius: '12px',
+                                  boxShadow: chartColors.tooltip.shadow
+                                }}
+                                cursor={{ fill: chartColors.background.hover }}
+                              />
+                              <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="roundRect" />
+                              <Bar dataKey="kg" stackId="a" fill={chartColors.primary} name={t('productMix')} radius={[8, 8, 0, 0]}>
+                                {productData.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={chartColors.palette[index % chartColors.palette.length]} />
+                                ))}
+                              </Bar>
+                            </BarChart>
+                          </ResponsiveContainer>
+                        );
+                      })()}
+                      {chartViewType === 'waterfall' && (() => {
+                        const chartData = marginViewMode === 'percent' ? comparisonData.map(item => {
+                          const income = Number(item[t('income')]) || 0;
+                          const costs = Number(item[t('totalCosts')]) || 0;
+                          const margin = Number(item[t('margin')]) || 0;
+                          return {
+                            name: item.name,
+                            [t('income')]: income > 0 ? ((margin / income) * 100) : 0,
+                            [t('totalCosts')]: income > 0 ? ((costs / income) * 100) : 0,
+                            [t('margin')]: income > 0 ? ((margin / income) * 100) : 0,
+                          };
+                        }) : comparisonData;
+
+                        return (
+                          <ResponsiveContainer width="100%" height={340}>
+                            <ComposedChart data={chartData}>
+                              <defs>
+                                <linearGradient id="marginAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor={chartColors.margin} stopOpacity={0.4} />
+                                  <stop offset="95%" stopColor={chartColors.margin} stopOpacity={0.05} />
+                                </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
+                              <XAxis
+                                dataKey="name"
+                                stroke={chartColors.axis.tick}
+                                tick={{ fill: chartColors.text.secondary, fontSize: 12, fontWeight: 500 }}
+                                tickLine={false}
+                              />
+                              <YAxis
+                                stroke={chartColors.axis.tick}
+                                tick={{ fill: chartColors.text.secondary, fontSize: 11 }}
+                                axisLine={false}
+                                tickLine={false}
+                              />
+                              <Tooltip
+                                formatter={(value) =>
+                                  marginViewMode === 'percent'
+                                    ? `${Number(value || 0).toFixed(1)}%`
+                                    : `$${Number(value || 0).toLocaleString(undefined)}`
+                                }
+                                contentStyle={{
+                                  backgroundColor: chartColors.tooltip.bg,
+                                  border: `1px solid ${chartColors.tooltip.border}`,
+                                  borderRadius: '12px',
+                                  boxShadow: chartColors.tooltip.shadow
+                                }}
+                              />
+                              <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="roundRect" />
+                              <Bar dataKey={t('income')} fill={chartColors.revenue} radius={[6, 6, 0, 0]} />
+                              <Bar dataKey={t('totalCosts')} fill={chartColors.costs} radius={[6, 6, 0, 0]} />
+                              <Area type="monotone" dataKey={t('margin')} fill="url(#marginAreaGradient)" stroke={chartColors.margin} strokeWidth={3} />
+                            </ComposedChart>
+                          </ResponsiveContainer>
+                        );
+                      })()}
+                    </>
+                  ) : (
+                    <div className="chart-empty">
+                      <div className="chart-empty-icon">📊</div>
+                      <p className="chart-empty-text">{t('noDataToShow')}</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1962,7 +1986,7 @@ function Module2Transformation({ user }) {
                       <p className="chart-subtitle">{t('dashboardDescription') || 'Comprehensive view of all metrics and charts for quick decision-making'}</p>
                     </div>
                   </div>
-                  
+
                   {/* Key Metrics Grid */}
                   <div className="metrics-grid">
                     <div className="metric-card info">
@@ -1995,10 +2019,10 @@ function Module2Transformation({ user }) {
                   </div>
 
                   {/* Charts Grid */}
-                  <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', 
-                    gap: '2rem' 
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+                    gap: '2rem'
                   }}>
                     {/* Income/Costs/Margin Chart */}
                     {comparisonData && comparisonData.length > 0 && (
@@ -2011,10 +2035,10 @@ function Module2Transformation({ user }) {
                             <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                             <XAxis dataKey="name" stroke={chartColors.axis.tick} />
                             <YAxis stroke={chartColors.axis.tick} />
-                            <Tooltip 
+                            <Tooltip
                               formatter={(value) => `$${Number(value || 0).toLocaleString(undefined)}`}
-                              contentStyle={{ 
-                                backgroundColor: chartColors.tooltip.bg, 
+                              contentStyle={{
+                                backgroundColor: chartColors.tooltip.bg,
                                 border: `1px solid ${chartColors.tooltip.border}`,
                                 color: chartColors.tooltip.text
                               }}
@@ -2051,10 +2075,10 @@ function Module2Transformation({ user }) {
                               <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                               <XAxis dataKey="name" stroke={chartColors.axis.tick} />
                               <YAxis stroke={chartColors.axis.tick} />
-                              <Tooltip 
+                              <Tooltip
                                 formatter={(value) => `${Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} kg`}
-                                contentStyle={{ 
-                                  backgroundColor: chartColors.tooltip.bg, 
+                                contentStyle={{
+                                  backgroundColor: chartColors.tooltip.bg,
                                   border: `1px solid ${chartColors.tooltip.border}`,
                                   color: chartColors.tooltip.text
                                 }}
@@ -2110,10 +2134,10 @@ function Module2Transformation({ user }) {
                                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                               </Pie>
-                              <Tooltip 
+                              <Tooltip
                                 formatter={(value) => `${value.toFixed(1)}%`}
-                                contentStyle={{ 
-                                  backgroundColor: chartColors.tooltip.bg, 
+                                contentStyle={{
+                                  backgroundColor: chartColors.tooltip.bg,
                                   border: `1px solid ${chartColors.tooltip.border}`,
                                   color: chartColors.tooltip.text
                                 }}
