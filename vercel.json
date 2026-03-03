@@ -9,8 +9,6 @@
     }
   ],
   "functions": {
-    "api/index.js": {
-      "runtime": "@vercel/node@3.0.0"
-    }
+    "api/index.js": {}
   }
 }
