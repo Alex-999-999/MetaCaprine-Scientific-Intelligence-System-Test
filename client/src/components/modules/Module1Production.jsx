@@ -53,7 +53,11 @@ function Module1Production({ user }) {
 
   const loadScenarios = async () => {
     try {
-      const response = await api.get('/scenarios?type=milk_sale');
+      // Load all scenarios so that production data (Module 1) can be edited
+      // for any scenario type (e.g., milk_sale, transformation, etc.).
+      // This allows Module 2 (Transformation) to inherit production data
+      // from the same scenario.
+      const response = await api.get('/scenarios');
       setScenarios(response.data);
       if (scenarioId) {
         const scenario = response.data.find(s => s.id === parseInt(scenarioId));
