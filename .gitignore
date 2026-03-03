@@ -1,0 +1,194 @@
+# ============================================
+# Dependencies
+# ============================================
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnp
+.pnp.js
+
+# ============================================
+# Build outputs
+# ============================================
+dist/
+build/
+*.local
+client/dist/
+client/build/
+server/dist/
+server/build/
+api/dist/
+api/build/
+.vercel/
+.vercel/output/
+
+# ============================================
+# Environment variables (CRITICAL - DO NOT COMMIT)
+# ============================================
+.env
+.env.*
+!.env.example
+!.env.template
+*.env
+server/.env
+server/.env.*
+client/.env
+client/.env.*
+api/.env
+api/.env.*
+
+# ============================================
+# IDE and editor files
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+*.code-workspace
+
+# ============================================
+# Logs
+# ============================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+server/logs/
+client/logs/
+
+# ============================================
+# OS files
+# ============================================
+Thumbs.db
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# ============================================
+# Testing
+# ============================================
+coverage/
+.nyc_output/
+*.lcov
+.jest/
+test-results/
+playwright-report/
+.vitest/
+
+# ============================================
+# Temporary files
+# ============================================
+*.tmp
+*.temp
+.cache/
+.temp/
+tmp/
+temp/
+*.bak
+*.backup
+*.old
+
+# ============================================
+# Database files (local development)
+# ============================================
+*.sqlite
+*.sqlite3
+*.db
+*.sql.backup
+database.db
+*.dump
+
+# ============================================
+# Vercel
+# ============================================
+.vercel/
+.vercel/output/
+vercel.json.backup
+
+# ============================================
+# Package manager locks
+# ============================================
+# Uncomment if you want to ignore lock files
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# ============================================
+# TypeScript (if added in future)
+# ============================================
+*.tsbuildinfo
+.tsbuildinfo
+
+# ============================================
+# ESLint / Prettier
+# ============================================
+.eslintcache
+.prettierignore
+.prettierrc.local
+
+# ============================================
+# Next.js (if migrating in future)
+# ============================================
+.next/
+out/
+
+# ============================================
+# React / Vite specific
+# ============================================
+client/.vite/
+client/dist-ssr/
+*.local
+
+# ============================================
+# Serverless / Vercel Functions
+# ============================================
+.vercel/
+.vercel/output/
+api/.vercel/
+
+# ============================================
+# Security & Secrets
+# ============================================
+*.pem
+*.key
+*.cert
+*.crt
+secrets/
+.secrets/
+*.secret
+.env.local
+.env.*.local
+
+# ============================================
+# Documentation builds
+# ============================================
+docs/_build/
+site/
+
+# ============================================
+# Misc
+# ============================================
+*.pid
+*.seed
+*.pid.lock
+.npm
+.eslintcache
+.stylelintcache
