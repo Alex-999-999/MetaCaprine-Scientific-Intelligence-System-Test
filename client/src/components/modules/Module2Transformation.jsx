@@ -84,18 +84,19 @@ function Module2Transformation({ user }) {
     initialize();
   }, [scenarioId]);
 
-  // Auto-calculate results when data is loaded and we have products
-  // But only if results are not already loaded from saved scenario
+  // Auto-calculate when base inputs or product mix change.
+  // This keeps Module 2 responsive for direct-entry workflows.
   useEffect(() => {
-    if (selectedScenario && products.length > 0 && productionData.daily_production_liters > 0) {
-      // Only calculate if we don't have results yet
-      // Results should be loaded from scenario.results in loadScenario
-      if (!results) {
-        handleCalculate();
-      }
+    const totalLiters =
+      (Number(productionData.daily_production_liters) || 0) *
+      (Number(productionData.production_days) || 0) *
+      (Number(productionData.animals_count) || 0);
+
+    if (selectedScenario && products.length > 0 && totalLiters > 0) {
+      handleCalculate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedScenario, products, productionData.daily_production_liters]);
+  }, [selectedScenario, products, productionData]);
 
   const loadScenarios = async () => {
     try {
@@ -106,6 +107,10 @@ function Module2Transformation({ user }) {
       if (scenarioId) {
         const scenario = response.data.find(s => s.id === parseInt(scenarioId));
         setSelectedScenario(scenario);
+      } else if (response.data.length > 0 && !selectedScenario) {
+        // Auto-load the first available scenario when entering Module 2
+        // without a preselected scenario.
+        await loadScenario(response.data[0].id);
       }
     } catch (error) {
       console.error('Error loading scenarios:', error);
