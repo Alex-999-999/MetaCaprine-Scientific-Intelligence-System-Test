@@ -68,6 +68,7 @@ function Module2Transformation({ user }) {
   const [scenarios, setScenarios] = useState([]);
   const [selectedScenario, setSelectedScenario] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [creatingScenario, setCreatingScenario] = useState(false);
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: '', type: 'success' });
   const [chartViewType, setChartViewType] = useState('grouped'); // 'grouped', 'donut', 'stacked', 'waterfall'
   const [expandedChannels, setExpandedChannels] = useState({}); // Track which channels have expanded product details
@@ -98,7 +99,9 @@ function Module2Transformation({ user }) {
 
   const loadScenarios = async () => {
     try {
-      const response = await api.get('/scenarios?type=transformation');
+      // Load all scenarios so Module 2 can consume Module 1 scenarios
+      // and also work with standalone transformation scenarios.
+      const response = await api.get('/scenarios');
       setScenarios(response.data);
       if (scenarioId) {
         const scenario = response.data.find(s => s.id === parseInt(scenarioId));
@@ -115,7 +118,7 @@ function Module2Transformation({ user }) {
       const scenario = response.data;
       setSelectedScenario(scenario);
 
-      // ALWAYS load production data from Module 1 (read-only inheritance)
+      // Load production data if available (from Module 1 or previously saved in Module 2)
       if (scenario.productionData) {
         const normalizedData = {
           daily_production_liters: 0,
@@ -141,11 +144,17 @@ function Module2Transformation({ user }) {
         });
         setProductionData(normalizedData);
       } else {
-        // If no production data exists, show warning
-        setAlertModal({
-          isOpen: true,
-          message: t('module1DataRequired'),
-          type: 'info'
+        // Allow Module 2 to run independently (no Module 1 required)
+        setProductionData({
+          daily_production_liters: 0,
+          production_days: 0,
+          animals_count: 0,
+          feed_cost_per_liter: 0,
+          labor_cost_per_liter: 0,
+          health_cost_per_liter: 0,
+          infrastructure_cost_per_liter: 0,
+          other_costs_per_liter: 0,
+          milk_price_per_liter: 0,
         });
       }
 
@@ -237,8 +246,52 @@ function Module2Transformation({ user }) {
     }
   };
 
-  // Production data is now read-only and inherited from Module 1
-  // No need for handleProductionChange anymore
+  const handleProductionChange = (e) => {
+    const { name, value } = e.target;
+    const parsed = value === '' ? 0 : parseFloat(value);
+    setProductionData(prev => ({
+      ...prev,
+      [name]: Number.isFinite(parsed) ? parsed : 0,
+    }));
+  };
+
+  const handleCreateScenario = async () => {
+    const defaultName = `${t('moduleTypes.transformation') || 'Transformation'} ${new Date().toLocaleDateString()}`;
+    const scenarioName = window.prompt(
+      t('scenarioNamePlaceholder') || 'Enter scenario name',
+      defaultName
+    );
+
+    if (!scenarioName || !scenarioName.trim()) {
+      return;
+    }
+
+    setCreatingScenario(true);
+    try {
+      const response = await api.post('/scenarios', {
+        name: scenarioName.trim(),
+        type: 'transformation',
+      });
+
+      const createdScenario = response.data;
+      await loadScenarios();
+      navigate('/module2', { state: { scenarioId: createdScenario.id }, replace: true });
+      await loadScenario(createdScenario.id);
+      setAlertModal({
+        isOpen: true,
+        message: t('scenarioCreated') || 'Scenario created successfully',
+        type: 'success'
+      });
+    } catch (error) {
+      setAlertModal({
+        isOpen: true,
+        message: error.response?.data?.error || t('errorCreatingScenario') || 'Error creating scenario',
+        type: 'error'
+      });
+    } finally {
+      setCreatingScenario(false);
+    }
+  };
 
   const handleInputFocus = (e) => {
     // Only select all text if field has a value, otherwise allow typing from scratch
@@ -421,6 +474,31 @@ function Module2Transformation({ user }) {
       return;
     }
 
+    const productionPayload = {
+      daily_production_liters: toNumber(productionData.daily_production_liters, 0),
+      production_days: Math.max(0, Math.round(toNumber(productionData.production_days, 0))),
+      animals_count: Math.max(0, Math.round(toNumber(productionData.animals_count, 0))),
+      feed_cost_per_liter: toNumber(productionData.feed_cost_per_liter, 0),
+      labor_cost_per_liter: toNumber(productionData.labor_cost_per_liter, 0),
+      health_cost_per_liter: toNumber(productionData.health_cost_per_liter, 0),
+      infrastructure_cost_per_liter: toNumber(productionData.infrastructure_cost_per_liter, 0),
+      other_costs_per_liter: toNumber(productionData.other_costs_per_liter, 0),
+      milk_price_per_liter: toNumber(productionData.milk_price_per_liter, 0),
+    };
+
+    if (
+      productionPayload.daily_production_liters <= 0 ||
+      productionPayload.production_days <= 0 ||
+      productionPayload.animals_count <= 0
+    ) {
+      setAlertModal({
+        isOpen: true,
+        message: t('module2ProductionBaseRequired') || 'Please enter base milk volume data (daily liters, production days, and animals) before saving.',
+        type: 'info'
+      });
+      return;
+    }
+
     // Validate distribution percentages sum to 100%
     const totalPercentage = products.reduce((sum, p) => sum + toNumber(p.distribution_percentage, 0), 0);
     if (Math.abs(totalPercentage - 100) > 0.01) {
@@ -434,6 +512,10 @@ function Module2Transformation({ user }) {
 
     setLoading(true);
     try {
+      // Save/update production baseline directly from Module 2
+      // so this module can work independently from Module 1.
+      await api.post(`/modules/production/${selectedScenario.id}`, productionPayload);
+
       // Convert products array to numbers before sending to API
       const productsToSave = products.map(product => {
         // Parse sales channel percentages (must handle 0 correctly)
@@ -615,7 +697,17 @@ function Module2Transformation({ user }) {
       </header>
 
       <div className="card">
-        <h2>{t('selectScenario')}</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <h2 style={{ margin: 0 }}>{t('selectScenario')}</h2>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleCreateScenario}
+            disabled={creatingScenario}
+          >
+            {creatingScenario ? (t('creating') || 'Creating...') : `+ ${t('createScenario') || 'Create Scenario'}`}
+          </button>
+        </div>
         <select
           value={selectedScenario?.id || ''}
           onChange={(e) => {
@@ -629,9 +721,16 @@ function Module2Transformation({ user }) {
         >
           <option value="">{t('selectScenarioPlaceholder')}</option>
           {scenarios.map(s => (
-            <option key={s.id} value={s.id}>{s.name}</option>
+            <option key={s.id} value={s.id}>
+              {s.name} ({t(`moduleTypes.${s.type}`) || s.type})
+            </option>
           ))}
         </select>
+        {scenarios.length === 0 && (
+          <p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: '0.92rem' }}>
+            {t('noScenarios') || 'No scenarios yet'}.
+          </p>
+        )}
       </div>
 
       {selectedScenario && (
@@ -640,90 +739,121 @@ function Module2Transformation({ user }) {
             <h2>{t('baseProductionData')}</h2>
             <div style={{ marginBottom: '20px', padding: '15px', background: 'rgba(22, 163, 74, 0.1)', borderRadius: '8px', border: '1px solid var(--accent-success)' }}>
               <p style={{ margin: 0, fontSize: '0.9em', color: 'var(--accent-success)', fontWeight: '500' }}>
-                📊 <strong>{t('note')}:</strong> {t('inheritedDataNote')}
+                📊 <strong>{t('note')}:</strong> {t('module2StandaloneMode') || 'Module 2 can work with inherited Module 1 data or with direct input from this module.'}
               </p>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
-              <div className="form-group" style={{ display: 'grid', gridTemplateRows: '1fr auto auto', gap: '8px', alignItems: 'end' }}>
-                <label style={{ gridRow: '1', alignSelf: 'start' }}>{t('dailyProduction')} 🔒</label>
+              <div className="form-group">
+                <label>{t('dailyProduction')}</label>
                 <input
                   type="number"
                   name="daily_production_liters"
                   value={productionData.daily_production_liters}
-                  readOnly
-                  disabled
-                  style={{ gridRow: '2', background: 'var(--bg-tertiary)', cursor: 'not-allowed', color: 'var(--text-tertiary)', width: '100%', height: '40px' }}
+                  onChange={handleProductionChange}
+                  onFocus={handleInputFocus}
                   step="0.01"
                 />
-                <small style={{ gridRow: '3', color: 'var(--text-tertiary)', fontSize: '0.85em', height: '20px' }}>
-                  {t('inheritedFromModule1')}
-                </small>
               </div>
-              <div className="form-group" style={{ display: 'grid', gridTemplateRows: '1fr auto auto', gap: '8px', alignItems: 'end' }}>
-                <label style={{ gridRow: '1', alignSelf: 'start' }}>{t('productionDays')} 🔒</label>
+              <div className="form-group">
+                <label>{t('productionDays')}</label>
                 <input
                   type="number"
                   name="production_days"
                   value={productionData.production_days}
-                  readOnly
-                  disabled
-                  style={{ gridRow: '2', background: 'var(--bg-tertiary)', cursor: 'not-allowed', color: 'var(--text-tertiary)', width: '100%', height: '40px' }}
+                  onChange={handleProductionChange}
+                  onFocus={handleInputFocus}
+                  step="1"
+                  min="0"
                 />
-                <small style={{ gridRow: '3', color: 'var(--text-tertiary)', fontSize: '0.85em', height: '20px' }}>
-                  {t('inheritedFromModule1')}
-                </small>
               </div>
-              <div className="form-group" style={{ display: 'grid', gridTemplateRows: '1fr auto auto', gap: '8px', alignItems: 'end' }}>
-                <label style={{ gridRow: '1', alignSelf: 'start' }}>{t('animalsCount')} 🔒</label>
+              <div className="form-group">
+                <label>{t('animalsCount')}</label>
                 <input
                   type="number"
                   name="animals_count"
                   value={productionData.animals_count}
-                  readOnly
-                  disabled
-                  style={{ gridRow: '2', background: 'var(--bg-tertiary)', cursor: 'not-allowed', color: 'var(--text-tertiary)', width: '100%', height: '40px' }}
+                  onChange={handleProductionChange}
+                  onFocus={handleInputFocus}
+                  step="1"
+                  min="0"
                 />
-                <small style={{ gridRow: '3', color: 'var(--text-tertiary)', fontSize: '0.85em', height: '20px' }}>
-                  {t('inheritedFromModule1')}
-                </small>
               </div>
-              <div className="form-group" style={{ display: 'grid', gridTemplateRows: '1fr auto auto', gap: '8px', alignItems: 'end' }}>
-                <label style={{ gridRow: '1', alignSelf: 'start' }}>{t('milkPriceForComparison')} 🔒</label>
+              <div className="form-group">
+                <label>{t('milkPriceForComparison')}</label>
                 <input
                   type="number"
                   name="milk_price_per_liter"
                   value={productionData.milk_price_per_liter}
-                  readOnly
-                  disabled
-                  style={{ gridRow: '2', background: 'var(--bg-tertiary)', cursor: 'not-allowed', color: 'var(--text-tertiary)', width: '100%', height: '40px' }}
+                  onChange={handleProductionChange}
+                  onFocus={handleInputFocus}
                   step="0.01"
                 />
-                <small style={{ gridRow: '3', color: 'var(--text-tertiary)', fontSize: '0.85em', height: '20px' }}>
-                  {t('inheritedFromModule1')}
-                </small>
               </div>
-              <div className="form-group" style={{ display: 'grid', gridTemplateRows: '1fr auto auto', gap: '8px', alignItems: 'end' }}>
-                <label style={{ gridRow: '1', alignSelf: 'start' }}>{t('milkProductionCostPerLiter')} 🔒</label>
+              <div className="form-group">
+                <label>{t('feedCost') || 'Milk Cost'}</label>
                 <input
                   type="number"
-                  name="milk_production_cost_per_liter"
-                  value={(() => {
-                    const feedCost = Number(productionData.feed_cost_per_liter) || 0;
-                    const laborCost = Number(productionData.labor_cost_per_liter) || 0;
-                    const healthCost = Number(productionData.health_cost_per_liter) || 0;
-                    const infrastructureCost = Number(productionData.infrastructure_cost_per_liter) || 0;
-                    const otherCost = Number(productionData.other_costs_per_liter) || 0;
-                    return feedCost + laborCost + healthCost + infrastructureCost + otherCost;
-                  })()}
-                  readOnly
-                  disabled
-                  style={{ gridRow: '2', background: 'var(--bg-tertiary)', cursor: 'not-allowed', color: 'var(--text-tertiary)', width: '100%', height: '40px' }}
+                  name="feed_cost_per_liter"
+                  value={productionData.feed_cost_per_liter}
+                  onChange={handleProductionChange}
+                  onFocus={handleInputFocus}
                   step="0.01"
                 />
-                <small style={{ gridRow: '3', color: 'var(--text-tertiary)', fontSize: '0.85em', height: '20px' }}>
-                  {t('inheritedFromModule1')}
-                </small>
               </div>
+              <div className="form-group">
+                <label>{t('laborCost')}</label>
+                <input
+                  type="number"
+                  name="labor_cost_per_liter"
+                  value={productionData.labor_cost_per_liter}
+                  onChange={handleProductionChange}
+                  onFocus={handleInputFocus}
+                  step="0.01"
+                />
+              </div>
+              <div className="form-group">
+                <label>{t('healthCost')}</label>
+                <input
+                  type="number"
+                  name="health_cost_per_liter"
+                  value={productionData.health_cost_per_liter}
+                  onChange={handleProductionChange}
+                  onFocus={handleInputFocus}
+                  step="0.01"
+                />
+              </div>
+              <div className="form-group">
+                <label>{t('infrastructureCost')}</label>
+                <input
+                  type="number"
+                  name="infrastructure_cost_per_liter"
+                  value={productionData.infrastructure_cost_per_liter}
+                  onChange={handleProductionChange}
+                  onFocus={handleInputFocus}
+                  step="0.01"
+                />
+              </div>
+              <div className="form-group">
+                <label>{t('otherCosts')}</label>
+                <input
+                  type="number"
+                  name="other_costs_per_liter"
+                  value={productionData.other_costs_per_liter}
+                  onChange={handleProductionChange}
+                  onFocus={handleInputFocus}
+                  step="0.01"
+                />
+              </div>
+            </div>
+            <div style={{ marginTop: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+              <strong>{t('milkProductionCostPerLiter')}:</strong>{' '}
+              {(
+                (Number(productionData.feed_cost_per_liter) || 0) +
+                (Number(productionData.labor_cost_per_liter) || 0) +
+                (Number(productionData.health_cost_per_liter) || 0) +
+                (Number(productionData.infrastructure_cost_per_liter) || 0) +
+                (Number(productionData.other_costs_per_liter) || 0)
+              ).toFixed(2)}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '30px', marginBottom: '15px' }}>
