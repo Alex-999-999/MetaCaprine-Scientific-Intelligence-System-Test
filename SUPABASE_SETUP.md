@@ -44,8 +44,8 @@ PORT=3001
 NODE_ENV=development
 
 # Email Service (Optional - can skip for now)
-# SENDGRID_API_KEY=
-# SENDGRID_FROM_EMAIL=
+# RESEND_API_KEY=
+# RESEND_FROM_EMAIL=
 ```
 
 ### Generate JWT_SECRET:
@@ -153,3 +153,4 @@ After database setup is complete:
 4. Prepare for deployment
 
 See `LOCAL_TESTING_GUIDE.md` for complete testing guide.
+

@@ -14,7 +14,7 @@ import { sendVerificationEmail } from './emailService.js';
  * @param {string} email - User email
  * @param {string} password - User password
  * @param {string} name - User name
- * @returns {Promise<{user: Object, token: string}>}
+ * @returns {Promise<{user: Object, token: string, email_sent: boolean}>}
  */
 export async function registerUser(email, password, name) {
   const pool = getPool();
@@ -37,10 +37,9 @@ export async function registerUser(email, password, name) {
 
   const user = result.rows[0];
 
-  // Send verification email (non-blocking)
-  sendVerificationEmail(email, user.name, verificationToken).catch(err => {
-    console.error('Failed to send verification email:', err);
-  });
+  // Send verification email and expose status to caller.
+  // This prevents returning a misleading "check your inbox" message when send failed.
+  const emailSent = await sendVerificationEmail(email, user.name, verificationToken);
 
   // Generate JWT token
   const token = generateToken(user.id, user.email);
@@ -52,7 +51,8 @@ export async function registerUser(email, password, name) {
       name: user.name,
       email_verified: user.email_verified
     },
-    token
+    token,
+    email_sent: emailSent
   };
 }
 

@@ -109,7 +109,7 @@ MVP Web is a full-stack web application that helps livestock producers make data
 - **PostgreSQL** - Database
 - **JWT** - Authentication
 - **bcrypt** - Password hashing
-- **SendGrid** - Email service (for verification)
+- **Resend** - Email service (for verification)
 
 ### Deployment
 - **Vercel** - Frontend and serverless API hosting
@@ -159,7 +159,7 @@ MVP Web/
 │   │   ├── modules.js       # General module endpoints
 │   │   └── scenarios.js     # Scenario management
 │   ├── services/            # External services
-│   │   └── emailService.js  # SendGrid email service
+│   │   └── emailService.js  # Resend email service
 │   ├── index.js             # Server entry point
 │   ├── package.json
 │   └── metacaprine_module3_breed_reference_ranked_ecm.json
@@ -294,8 +294,8 @@ JWT_SECRET=your-secure-jwt-secret-here
 APP_URL=http://localhost:3000
 
 # Email Service (OPTIONAL - Required for email verification)
-SENDGRID_API_KEY=SG.your-sendgrid-api-key-here
-SENDGRID_FROM_EMAIL=noreply@yourdomain.com
+RESEND_API_KEY=re_your_resend_api_key
+RESEND_FROM_EMAIL=noreply@yourdomain.com
 
 # Server Configuration
 PORT=3001
@@ -320,8 +320,8 @@ For production deployment (Vercel, etc.):
 DATABASE_URL=postgresql://user:password@host:port/database?sslmode=require
 JWT_SECRET=your-production-jwt-secret
 APP_URL=https://your-domain.vercel.app
-SENDGRID_API_KEY=SG.your-sendgrid-api-key
-SENDGRID_FROM_EMAIL=noreply@yourdomain.com
+RESEND_API_KEY=re_your_resend_api_key
+RESEND_FROM_EMAIL=noreply@yourdomain.com
 NODE_ENV=production
 ```
 
@@ -502,10 +502,10 @@ Winner: Saanen produces 27% more total protein despite lower percentage!
 
 The application includes email verification for user registration.
 
-### SendGrid Setup (Recommended for Production)
+### Resend Setup (Recommended for Production)
 
-1. **Create SendGrid Account**
-   - Go to https://sendgrid.com
+1. **Create Resend Account**
+   - Go to https://resend.com
    - Sign up for a free account (100 emails/day)
 
 2. **Create API Key**
@@ -523,8 +523,8 @@ The application includes email verification for user registration.
 
 4. **Configure Environment Variables**
    ```env
-   SENDGRID_API_KEY=SG.your-api-key-here
-   SENDGRID_FROM_EMAIL=noreply@yourdomain.com
+   RESEND_API_KEY=re_your_resend_api_key
+   RESEND_FROM_EMAIL=noreply@yourdomain.com
    APP_URL=http://localhost:3000  # or your production URL
    ```
 
@@ -532,7 +532,7 @@ The application includes email verification for user registration.
 
 1. User registers with email/password
 2. System generates verification token (expires in 24 hours)
-3. Verification email sent via SendGrid
+3. Verification email sent via Resend
 4. User clicks link → email verified
 5. User can now login and access all features
 
@@ -553,7 +553,7 @@ This application is configured for Vercel deployment with serverless API.
 #### Prerequisites
 - Vercel account
 - PostgreSQL database (Vercel Postgres, Supabase, or other)
-- SendGrid account (for email verification)
+- Resend account (for email verification)
 
 #### Steps
 
@@ -573,8 +573,8 @@ This application is configured for Vercel deployment with serverless API.
      - `DATABASE_URL` (required)
      - `JWT_SECRET` (required)
      - `APP_URL` (required - your Vercel deployment URL)
-     - `SENDGRID_API_KEY` (optional but recommended)
-     - `SENDGRID_FROM_EMAIL` (optional but recommended)
+     - `RESEND_API_KEY` (optional but recommended)
+     - `RESEND_FROM_EMAIL` (optional but recommended)
      - `NODE_ENV=production`
    - **Note**: The `vercel.json` file is already configured with proper API routing, so API requests will work automatically.
 
@@ -643,11 +643,11 @@ pg_dump $DATABASE_URL > database_backup.sql
 - Import to new database: `psql $NEW_DATABASE_URL < backup.sql`
 - Update `DATABASE_URL` in Vercel environment variables
 
-#### SendGrid Transfer
-- Create new SendGrid account
+#### Resend Transfer
+- Create new Resend account
 - Create new API key
 - Verify new sender email
-- Update `SENDGRID_API_KEY` in Vercel environment variables
+- Update `RESEND_API_KEY` in Vercel environment variables
 
 ### Running Independently
 
@@ -679,9 +679,9 @@ After transfer, the client can:
 **Problem**: Verification emails not sent
 
 **Solutions**:
-- Check `SENDGRID_API_KEY` is set correctly
-- Verify sender email in SendGrid dashboard
-- Check SendGrid Activity for delivery status
+- Check `RESEND_API_KEY` is set correctly
+- Verify sender email in Resend dashboard
+- Check Resend Activity for delivery status
 - Check server logs for error messages
 
 ### Module 3 Data Missing
@@ -806,3 +806,5 @@ This project is delivered as proprietary software to the client with full source
 ---
 
 **Thank you for using MVP Web!** 🚀
+
+

@@ -1,218 +1,162 @@
 import dotenv from 'dotenv';
 import { Resend } from 'resend';
 
-// Ensure environment variables are loaded before reading them
 dotenv.config();
 
-// Initialize Resend configuration
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+const RESEND_API_KEY = process.env.RESEND_API_KEY?.trim();
+const RESEND_FROM_EMAIL = (process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev').trim();
 const APP_URL =
-  process.env.APP_URL ||
+  process.env.APP_URL?.trim() ||
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
 
 let resend = null;
-
 if (RESEND_API_KEY) {
   resend = new Resend(RESEND_API_KEY);
 } else {
-  console.warn('⚠️  RESEND_API_KEY not set. Email verification will not work.');
+  console.warn('RESEND_API_KEY not set. Email verification will not work.');
 }
 
-/**
- * Send email verification email
- * @param {string} email - User email
- * @param {string} name - User name
- * @param {string} verificationToken - Verification token
- * @returns {Promise<boolean>} Success status
- */
+function ensureResendConfigured() {
+  if (!resend) {
+    console.error('Resend client not configured');
+    return false;
+  }
+  return true;
+}
+
+async function sendEmail(payload) {
+  if (!ensureResendConfigured()) {
+    return { ok: false, error: 'Resend client not configured' };
+  }
+
+  try {
+    const { data, error } = await resend.emails.send(payload);
+
+    // Resend SDK can return { error } without throwing.
+    if (error) {
+      console.error('Resend API returned an error:', error);
+      return { ok: false, error };
+    }
+
+    return { ok: true, data };
+  } catch (error) {
+    console.error('Unexpected Resend send error:', error);
+    return { ok: false, error };
+  }
+}
+
 export async function sendVerificationEmail(email, name, verificationToken) {
-  if (!resend) {
-    console.error('Resend API key not configured');
-    return false;
-  }
-
   const verificationUrl = `${APP_URL}/verify-email?token=${verificationToken}`;
+  const displayName = name || 'Usuario';
 
-  const textBody = `
-Hola ${name || 'Usuario'},
-
-Gracias por registrarte en MetaCaprine Intelligence.
-
-Por favor, verifica tu correo electrónico haciendo clic en el siguiente enlace:
-
-${verificationUrl}
-
-Este enlace expirará en 24 horas.
-
-Si no creaste esta cuenta, puedes ignorar este correo.
-
-Saludos,
-El equipo de MetaCaprine
-  `;
+  const textBody = [
+    `Hola ${displayName},`,
+    '',
+    'Gracias por registrarte en MetaCaprine Intelligence.',
+    '',
+    'Verifica tu correo haciendo clic en este enlace:',
+    verificationUrl,
+    '',
+    'Este enlace expira en 24 horas.',
+    '',
+    'Si no creaste esta cuenta, ignora este mensaje.',
+    '',
+    'Equipo MetaCaprine',
+  ].join('\n');
 
   const htmlBody = `
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verifica tu correo - MetaCaprine</title>
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-  <div style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
-    <h1 style="color: white; margin: 0; font-size: 28px;">🐐 MetaCaprine Intelligence</h1>
-  </div>
-  
-  <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
-    <h2 style="color: #1f2937; margin-top: 0;">¡Bienvenido, ${name || 'Usuario'}!</h2>
-    
-    <p style="color: #4b5563; font-size: 16px;">
-      Gracias por registrarte en MetaCaprine Intelligence, la plataforma más avanzada para análisis de rentabilidad y producción en operaciones caprinas lecheras.
-    </p>
-    
-    <p style="color: #4b5563; font-size: 16px;">
-      Para completar tu registro y acceder a todas las funcionalidades, por favor verifica tu correo electrónico haciendo clic en el botón siguiente:
-    </p>
-    
-    <div style="text-align: center; margin: 30px 0;">
-      <a href="${verificationUrl}" 
-         style="display: inline-block; background: #16a34a; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
-        Verificar Correo Electrónico
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verifica tu correo - MetaCaprine</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; color: #111; line-height: 1.5; max-width: 640px; margin: 0 auto; padding: 20px;">
+    <h1 style="margin: 0 0 16px 0; color: #15803d;">MetaCaprine Intelligence</h1>
+    <p>Hola <strong>${displayName}</strong>,</p>
+    <p>Gracias por registrarte. Verifica tu correo con el siguiente enlace:</p>
+    <p>
+      <a href="${verificationUrl}" style="display: inline-block; background: #16a34a; color: #fff; text-decoration: none; padding: 12px 18px; border-radius: 6px;">
+        Verificar correo
       </a>
-    </div>
-    
-    <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
-      O copia y pega este enlace en tu navegador:<br>
-      <a href="${verificationUrl}" style="color: #16a34a; word-break: break-all;">${verificationUrl}</a>
     </p>
-    
-    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; margin: 20px 0; border-radius: 4px;">
-      <p style="margin: 0; color: #92400e; font-size: 14px;">
-        <strong>⚠️ Importante:</strong> Este enlace expirará en 24 horas. Si no verificas tu correo en ese tiempo, deberás solicitar un nuevo enlace de verificación.
-      </p>
-    </div>
-    
-    <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
-      Si no creaste esta cuenta, puedes ignorar este correo de forma segura.
-    </p>
-    
-    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
-    
-    <p style="color: #9ca3af; font-size: 12px; text-align: center; margin: 0;">
-      © ${new Date().getFullYear()} MetaCaprine Intelligence. Todos los derechos reservados.
-    </p>
-  </div>
-</body>
+    <p style="font-size: 14px; color: #444;">Si el boton no funciona, copia y pega: ${verificationUrl}</p>
+    <p style="font-size: 14px; color: #444;">Este enlace expira en 24 horas.</p>
+  </body>
 </html>
   `;
 
-  try {
-    await resend.emails.send({
-      from: `MetaCaprine Intelligence <${RESEND_FROM_EMAIL}>`,
-      to: email,
-      subject: 'Verifica tu correo electrónico - MetaCaprine',
-      text: textBody,
-      html: htmlBody,
-    });
-    console.log(`✅ Verification email sent to ${email}`);
-    return true;
-  } catch (error) {
-    console.error('❌ Error sending verification email via Resend:', error);
+  const result = await sendEmail({
+    from: `MetaCaprine Intelligence <${RESEND_FROM_EMAIL}>`,
+    to: email,
+    subject: 'Verifica tu correo electronico - MetaCaprine',
+    text: textBody,
+    html: htmlBody,
+  });
+
+  if (!result.ok) {
     return false;
   }
+
+  console.log(`Verification email sent to ${email} (id: ${result.data?.id || 'n/a'})`);
+  return true;
 }
 
-/**
- * Send password reset email (for future use)
- * @param {string} email - User email
- * @param {string} name - User name
- * @param {string} resetToken - Reset token
- * @returns {Promise<boolean>} Success status
- */
 export async function sendPasswordResetEmail(email, name, resetToken) {
-  if (!resend) {
-    console.error('Resend API key not configured');
-    return false;
-  }
-
   const resetUrl = `${APP_URL}/reset-password?token=${resetToken}`;
+  const displayName = name || 'Usuario';
 
-  const textBody = `
-Hola ${name || 'Usuario'},
-
-Has solicitado restablecer tu contraseña en MetaCaprine Intelligence.
-
-Haz clic en el siguiente enlace para crear una nueva contraseña:
-
-${resetUrl}
-
-Este enlace expirará en 1 hora.
-
-Si no solicitaste este cambio, puedes ignorar este correo de forma segura.
-
-Saludos,
-El equipo de MetaCaprine
-  `;
+  const textBody = [
+    `Hola ${displayName},`,
+    '',
+    'Recibimos una solicitud para restablecer tu contrasena.',
+    '',
+    'Crea una nueva contrasena aqui:',
+    resetUrl,
+    '',
+    'Este enlace expira en 1 hora.',
+    '',
+    'Si no solicitaste este cambio, ignora este mensaje.',
+    '',
+    'Equipo MetaCaprine',
+  ].join('\n');
 
   const htmlBody = `
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Restablecer contraseña - MetaCaprine</title>
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-  <div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
-    <h1 style="color: white; margin: 0; font-size: 28px;">🔒 Restablecer Contraseña</h1>
-  </div>
-  
-  <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
-    <h2 style="color: #1f2937; margin-top: 0;">Hola, ${name || 'Usuario'}</h2>
-    
-    <p style="color: #4b5563; font-size: 16px;">
-      Has solicitado restablecer tu contraseña en MetaCaprine Intelligence.
-    </p>
-    
-    <div style="text-align: center; margin: 30px 0;">
-      <a href="${resetUrl}" 
-         style="display: inline-block; background: #dc2626; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
-        Restablecer Contraseña
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Restablecer contrasena - MetaCaprine</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; color: #111; line-height: 1.5; max-width: 640px; margin: 0 auto; padding: 20px;">
+    <h1 style="margin: 0 0 16px 0; color: #b91c1c;">Restablecer contrasena</h1>
+    <p>Hola <strong>${displayName}</strong>,</p>
+    <p>Crea una nueva contrasena con el siguiente enlace:</p>
+    <p>
+      <a href="${resetUrl}" style="display: inline-block; background: #dc2626; color: #fff; text-decoration: none; padding: 12px 18px; border-radius: 6px;">
+        Restablecer contrasena
       </a>
-    </div>
-    
-    <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
-      O copia y pega este enlace en tu navegador:<br>
-      <a href="${resetUrl}" style="color: #dc2626; word-break: break-all;">${resetUrl}</a>
     </p>
-    
-    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; margin: 20px 0; border-radius: 4px;">
-      <p style="margin: 0; color: #92400e; font-size: 14px;">
-        <strong>⚠️ Importante:</strong> Este enlace expirará en 1 hora.
-      </p>
-    </div>
-    
-    <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
-      Si no solicitaste este cambio, puedes ignorar este correo de forma segura. Tu contraseña no será modificada.
-    </p>
-  </div>
-</body>
+    <p style="font-size: 14px; color: #444;">Si el boton no funciona, copia y pega: ${resetUrl}</p>
+    <p style="font-size: 14px; color: #444;">Este enlace expira en 1 hora.</p>
+  </body>
 </html>
   `;
 
-  try {
-    await resend.emails.send({
-      from: `MetaCaprine Intelligence <${RESEND_FROM_EMAIL}>`,
-      to: email,
-      subject: 'Restablecer contraseña - MetaCaprine',
-      text: textBody,
-      html: htmlBody,
-    });
-    console.log(`✅ Password reset email sent to ${email}`);
-    return true;
-  } catch (error) {
-    console.error('❌ Error sending password reset email via Resend:', error);
+  const result = await sendEmail({
+    from: `MetaCaprine Intelligence <${RESEND_FROM_EMAIL}>`,
+    to: email,
+    subject: 'Restablecer contrasena - MetaCaprine',
+    text: textBody,
+    html: htmlBody,
+  });
+
+  if (!result.ok) {
     return false;
   }
+
+  console.log(`Password reset email sent to ${email} (id: ${result.data?.id || 'n/a'})`);
+  return true;
 }

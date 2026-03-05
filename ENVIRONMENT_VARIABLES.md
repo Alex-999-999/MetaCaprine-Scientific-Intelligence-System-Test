@@ -32,8 +32,8 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 
 | Variable | Type | Description | Default | Required For |
 |----------|------|-------------|---------|--------------|
-| `SENDGRID_API_KEY` | String | SendGrid API key for emails | - | Email verification |
-| `SENDGRID_FROM_EMAIL` | String | Verified sender email | - | Email verification |
+| `RESEND_API_KEY` | String | Resend API key for emails | - | Email verification |
+| `RESEND_FROM_EMAIL` | String | Verified sender email | - | Email verification |
 | `PORT` | Number | Server port | `3001` | Backend server |
 | `NODE_ENV` | String | Environment mode | `development` | Runtime behavior |
 | `DB_HOST` | String | Database host (if not using DATABASE_URL) | - | Database connection |
@@ -86,11 +86,11 @@ APP_URL=http://localhost:3000
 # ============================================================================
 # EMAIL SERVICE (OPTIONAL - Required for email verification)
 # ============================================================================
-# Get from: https://app.sendgrid.com/settings/api_keys
-SENDGRID_API_KEY=SG.your-sendgrid-api-key-here
+# Get from: https://app.resend.com/settings/api_keys
+RESEND_API_KEY=re_your_resend_api_key
 
-# Verified sender email from SendGrid dashboard
-SENDGRID_FROM_EMAIL=noreply@yourdomain.com
+# Verified sender email from Resend dashboard
+RESEND_FROM_EMAIL=noreply@yourdomain.com
 
 # ============================================================================
 # SERVER CONFIGURATION
@@ -120,8 +120,8 @@ APP_URL=https://your-project.vercel.app
 # ============================================================================
 # EMAIL SERVICE (OPTIONAL but recommended)
 # ============================================================================
-SENDGRID_API_KEY=SG.your-production-sendgrid-api-key
-SENDGRID_FROM_EMAIL=noreply@yourdomain.com
+RESEND_API_KEY=re_your_resend_api_key
+RESEND_FROM_EMAIL=noreply@yourdomain.com
 
 # ============================================================================
 # SERVER CONFIGURATION
@@ -140,8 +140,8 @@ NODE_ENV=production
 | `DATABASE_URL` | `server/db/pool.js` | Database connection |
 | `JWT_SECRET` | `server/middleware/auth.js` | Token signing/verification |
 | `APP_URL` | `server/services/emailService.js` | Email verification links |
-| `SENDGRID_API_KEY` | `server/services/emailService.js` | SendGrid authentication |
-| `SENDGRID_FROM_EMAIL` | `server/services/emailService.js` | Email sender address |
+| `RESEND_API_KEY` | `server/services/emailService.js` | Resend authentication |
+| `RESEND_FROM_EMAIL` | `server/services/emailService.js` | Email sender address |
 | `PORT` | `server/index.js` | Server port |
 | `NODE_ENV` | Multiple files | Environment detection |
 
@@ -171,8 +171,8 @@ NODE_ENV=production
    DATABASE_URL=postgresql://user:pass@host:5432/db
    JWT_SECRET=[generated-secret]
    APP_URL=http://localhost:3000
-   SENDGRID_API_KEY=SG.xxx
-   SENDGRID_FROM_EMAIL=noreply@domain.com
+   RESEND_API_KEY=re_xxx
+   RESEND_FROM_EMAIL=noreply@domain.com
    PORT=3001
    NODE_ENV=development
    ```
@@ -188,8 +188,8 @@ Set these in Vercel Dashboard → Project Settings → Environment Variables:
    - `NODE_ENV=production`
 
 2. **Optional:**
-   - `SENDGRID_API_KEY`
-   - `SENDGRID_FROM_EMAIL`
+   - `RESEND_API_KEY`
+   - `RESEND_FROM_EMAIL`
 
 ---
 
@@ -222,3 +222,5 @@ Before deployment, verify:
 - Check `server/.env.example` for detailed comments
 - Review `LOCAL_TESTING_GUIDE.md` for setup instructions
 - See `README.md` for full documentation
+
+

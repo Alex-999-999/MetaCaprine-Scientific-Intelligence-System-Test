@@ -52,8 +52,8 @@ JWT_SECRET=your-secure-jwt-secret-here
 APP_URL=http://localhost:3000
 
 # OPTIONAL - Email service (can skip for local testing)
-# SENDGRID_API_KEY=
-# SENDGRID_FROM_EMAIL=
+# RESEND_API_KEY=
+# RESEND_FROM_EMAIL=
 
 # Server configuration
 PORT=3001
@@ -232,8 +232,8 @@ npm run dev
 
 | Variable | Description | Required For |
 |----------|-------------|--------------|
-| `SENDGRID_API_KEY` | SendGrid API key | Email verification |
-| `SENDGRID_FROM_EMAIL` | Verified sender email | Email verification |
+| `RESEND_API_KEY` | Resend API key | Email verification |
+| `RESEND_FROM_EMAIL` | Verified sender email | Email verification |
 | `PORT` | Server port | Backend (default: 3001) |
 | `NODE_ENV` | Environment | `development` or `production` |
 
@@ -347,3 +347,4 @@ If you encounter issues during local testing:
 2. Review README.md for detailed documentation
 3. Check browser console and server logs
 4. Verify all environment variables are set correctly
+

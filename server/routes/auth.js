@@ -16,7 +16,7 @@ router.post('/register', async (req, res) => {
     }
 
     // Business logic in service layer
-    const { user, token } = await authService.registerUser(email, password, name);
+    const { user, token, email_sent } = await authService.registerUser(email, password, name);
 
     // Assign default free plan to new user
     try {
@@ -30,7 +30,10 @@ router.post('/register', async (req, res) => {
     res.status(201).json({
       user,
       token,
-      message: 'Registration successful. Please check your email to verify your account.'
+      email_sent,
+      message: email_sent
+        ? 'Registration successful. Please check your email to verify your account.'
+        : 'Registration successful, but verification email could not be sent. Please use resend verification or contact support.'
     });
   } catch (error) {
     console.error('Register error:', error);
