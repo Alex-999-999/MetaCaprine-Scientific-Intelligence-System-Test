@@ -10,7 +10,15 @@ function Login({ onLogin }) {
   const [name, setName] = useState('');
   const [lastName, setLastName] = useState('');
   const [country, setCountry] = useState('');
+  const [city, setCity] = useState('');
+  const [goatsCount, setGoatsCount] = useState('');
+  const [transformsProducts, setTransformsProducts] = useState('no');
+  const [age, setAge] = useState('');
+  const [sex, setSex] = useState('');
+  const [preferredCurrency, setPreferredCurrency] = useState('USD');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,19 +32,38 @@ function Login({ onLogin }) {
     setLoading(true);
 
     try {
-      const endpoint = isRegister ? '/auth/register' : '/auth/login';
-      const payload = isRegister
-        ? { email, password, name, last_name: lastName, country }
-        : { email, password };
+      const endpoint = isForgotPassword ? '/auth/forgot-password' : isRegister ? '/auth/register' : '/auth/login';
+      const payload = isForgotPassword
+        ? { email }
+        : isRegister
+          ? {
+              email,
+              password,
+              name,
+              last_name: lastName,
+              country,
+              city,
+              goats_count: goatsCount,
+              transforms_products: transformsProducts === 'yes',
+              age,
+              sex,
+              preferred_currency: preferredCurrency,
+              accepted_terms: acceptedTerms,
+              accepted_terms_version: 'hito2-v1',
+            }
+          : { email, password };
 
       const response = await api.post(endpoint, payload);
       
-      if (isRegister) {
+      if (isForgotPassword) {
+        setSuccess(response.data.message || 'If an account exists for that email, a reset link has been sent.');
+      } else if (isRegister) {
         // Show success message for registration
         setSuccess(response.data.message || 'Registration successful! Please check your email to verify your account.');
         // Don't auto-login, let user verify email first
         setTimeout(() => {
           setIsRegister(false);
+          setIsForgotPassword(false);
           setSuccess('');
         }, 5000);
       } else {
@@ -83,10 +110,12 @@ function Login({ onLogin }) {
         <div className="login-card">
           <div className="login-card-header">
             <h2 className="login-card-title">
-              {isRegister ? t('register') : t('login')}
+              {isForgotPassword ? (t('forgotPassword') || 'Forgot Password') : isRegister ? t('register') : t('login')}
             </h2>
             <p className="login-card-subtitle">
-              {isRegister 
+              {isForgotPassword
+                ? (t('forgotPasswordSubtitle') || 'Enter your email and we will send you a secure reset link.')
+                : isRegister 
                 ? t('noAccount')?.replace('¿No tienes cuenta? ', '') || 'Create your account'
                 : t('alreadyHaveAccount')?.replace('¿Ya tienes cuenta? ', '') || 'Welcome back'
               }
@@ -344,6 +373,81 @@ function Login({ onLogin }) {
                     <option value="Zimbabwe">Zimbabwe</option>
                   </select>
                 </div>
+                <div className="form-group">
+                  <label>{t('city') || 'City'}</label>
+                  <input
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder={t('city') || 'City'}
+                    disabled={loading}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>{t('goatsCount') || 'Number of goats'}</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={goatsCount}
+                    onChange={(e) => setGoatsCount(e.target.value)}
+                    placeholder={t('goatsCount') || 'Number of goats'}
+                    disabled={loading}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>{t('transformsProducts') || 'Do you transform products?'}</label>
+                  <select
+                    value={transformsProducts}
+                    onChange={(e) => setTransformsProducts(e.target.value)}
+                    disabled={loading}
+                  >
+                    <option value="no">{t('no') || 'No'}</option>
+                    <option value="yes">{t('yes') || 'Yes'}</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>{t('age') || 'Age'}</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                    placeholder={t('age') || 'Age'}
+                    disabled={loading}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>{t('sex') || 'Sex'}</label>
+                  <select
+                    value={sex}
+                    onChange={(e) => setSex(e.target.value)}
+                    disabled={loading}
+                  >
+                    <option value="">{t('selectSex') || 'Select sex'}</option>
+                    <option value="female">{t('female') || 'Female'}</option>
+                    <option value="male">{t('male') || 'Male'}</option>
+                    <option value="other">{t('otherOption') || 'Other'}</option>
+                    <option value="prefer_not_to_say">{t('preferNotToSay') || 'Prefer not to say'}</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>{t('preferredCurrency') || 'Preferred currency'}</label>
+                  <select
+                    value={preferredCurrency}
+                    onChange={(e) => setPreferredCurrency(e.target.value)}
+                    disabled={loading}
+                  >
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="CAD">CAD</option>
+                    <option value="MXN">MXN</option>
+                    <option value="COP">COP</option>
+                    <option value="ARS">ARS</option>
+                    <option value="CLP">CLP</option>
+                    <option value="PEN">PEN</option>
+                    <option value="BRL">BRL</option>
+                  </select>
+                </div>
               </>
             )}
 
@@ -359,6 +463,7 @@ function Login({ onLogin }) {
               />
             </div>
 
+            {!isForgotPassword && (
             <div className="form-group">
               <label>{t('password')}</label>
               <div style={{ position: 'relative' }}>
@@ -393,19 +498,34 @@ function Login({ onLogin }) {
                 </button>
               </div>
             </div>
+            )}
+
+            {isRegister && (
+              <label style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '14px', lineHeight: 1.5 }}>
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  disabled={loading}
+                  required
+                  style={{ marginTop: '2px' }}
+                />
+                <span>{t('onboardingAgreeTerms') || 'I have read and agree to the terms and conditions'}</span>
+              </label>
+            )}
 
             <button
               type="submit"
               className="btn btn-primary login-submit-btn"
-              disabled={loading}
+              disabled={loading || (isRegister && !acceptedTerms)}
             >
               {loading ? (
                 <span className="login-loading">
                   <span className="login-spinner"></span>
-                  {isRegister ? t('registering') : t('signingIn')}
+                  {isForgotPassword ? (t('sending') || 'Sending...') : isRegister ? t('registering') : t('signingIn')}
                 </span>
               ) : (
-                isRegister ? t('register') : t('login')
+                isForgotPassword ? (t('sendResetLink') || 'Send reset link') : isRegister ? t('register') : t('login')
               )}
             </button>
           </form>
@@ -416,17 +536,41 @@ function Login({ onLogin }) {
               className="login-toggle-btn"
               onClick={() => {
                 setIsRegister(!isRegister);
+                setIsForgotPassword(false);
                 setError('');
                 setEmail('');
                 setPassword('');
                 setName('');
                 setLastName('');
                 setCountry('');
+                setCity('');
+                setGoatsCount('');
+                setTransformsProducts('no');
+                setAge('');
+                setSex('');
+                setPreferredCurrency('USD');
+                setAcceptedTerms(false);
               }}
               disabled={loading}
             >
               {isRegister ? t('alreadyHaveAccount') : t('noAccount')}
             </button>
+            {!isRegister && (
+              <button
+                type="button"
+                className="login-toggle-btn"
+                onClick={() => {
+                  setIsForgotPassword(!isForgotPassword);
+                  setIsRegister(false);
+                  setError('');
+                  setSuccess('');
+                  setPassword('');
+                }}
+                disabled={loading}
+              >
+                {isForgotPassword ? (t('backToLogin') || 'Back to login') : (t('forgotPassword') || 'Forgot password?')}
+              </button>
+            )}
           </div>
         </div>
       </div>

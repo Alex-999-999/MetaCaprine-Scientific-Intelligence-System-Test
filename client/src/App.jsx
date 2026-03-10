@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Profile from './components/Profile';
+import ResetPassword from './components/ResetPassword';
 import Module1Production from './components/modules/Module1Production';
 import Module2Transformation from './components/modules/Module2Transformation';
 import Module3Lactation from './components/modules/Module3Lactation';
@@ -86,6 +87,10 @@ function AppContent() {
         <Route
           path="/verify-email"
           element={<VerifyEmail />}
+        />
+        <Route
+          path="/reset-password"
+          element={<ResetPassword />}
         />
         <Route
           path="/dashboard"

@@ -9,14 +9,41 @@ const router = express.Router();
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, name } = req.body;
+    const {
+      email,
+      password,
+      name,
+      last_name,
+      country,
+      city,
+      goats_count,
+      transforms_products,
+      age,
+      sex,
+      preferred_currency,
+      accepted_terms,
+      accepted_terms_version,
+    } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    // Business logic in service layer
-    const { user, token, email_sent } = await authService.registerUser(email, password, name);
+    const { user, token, email_sent } = await authService.registerUser({
+      email,
+      password,
+      name,
+      last_name,
+      country,
+      city,
+      goats_count,
+      transforms_products,
+      age,
+      sex,
+      preferred_currency,
+      accepted_terms,
+      accepted_terms_version,
+    });
 
     // Assign default free plan to new user
     try {
@@ -39,6 +66,9 @@ router.post('/register', async (req, res) => {
     console.error('Register error:', error);
     if (error.code === '23505') {
       return res.status(400).json({ error: 'Email already exists' });
+    }
+    if (error.message === 'Terms and conditions must be accepted') {
+      return res.status(400).json({ error: error.message });
     }
     const errorMessage = error.message || 'Internal server error';
     res.status(500).json({ error: errorMessage });
@@ -170,6 +200,78 @@ router.post('/resend-verification', authenticateToken, async (req, res) => {
     }
 
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Forgot password
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const result = await authService.requestPasswordReset(email);
+    res.json(result);
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    const errorMessage = error.message || 'Internal server error';
+    res.status(500).json({ error: errorMessage });
+  }
+});
+
+// Reset password
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Reset token and password are required' });
+    }
+
+    const result = await authService.resetPassword(token, password);
+    res.json(result);
+  } catch (error) {
+    console.error('Reset password error:', error);
+    if (error.message === 'Invalid or expired password reset token') {
+      return res.status(400).json({ error: error.message });
+    }
+    const errorMessage = error.message || 'Internal server error';
+    res.status(500).json({ error: errorMessage });
+  }
+});
+
+// Update user profile
+router.put('/profile', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await authService.updateUserProfile(userId, req.body || {});
+    res.json({ user });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    const errorMessage = error.message || 'Internal server error';
+    res.status(500).json({ error: errorMessage });
+  }
+});
+
+// Update password from profile
+router.put('/password', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current password and new password are required' });
+    }
+
+    const result = await authService.updateUserPassword(userId, currentPassword, newPassword);
+    res.json(result);
+  } catch (error) {
+    console.error('Update password error:', error);
+    if (error.message === 'Current password is incorrect') {
+      return res.status(400).json({ error: error.message });
+    }
+    if (error.message === 'User not found') {
+      return res.status(404).json({ error: error.message });
+    }
+    const errorMessage = error.message || 'Internal server error';
+    res.status(500).json({ error: errorMessage });
   }
 });
 

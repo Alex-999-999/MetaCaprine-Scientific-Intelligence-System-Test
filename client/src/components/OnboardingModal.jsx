@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useI18n } from '../i18n/I18nContext';
+import api from '../utils/api';
 import '../styles/OnboardingModal.css';
 
 function OnboardingModal({ user, onClose }) {
   const { t } = useI18n();
   const [step, setStep] = useState(1);
-  const [emailVerified, setEmailVerified] = useState(false);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(Boolean(user?.email_verified));
+  const [agreedToTerms, setAgreedToTerms] = useState(Boolean(user?.accepted_terms));
+  const [sendingVerification, setSendingVerification] = useState(false);
 
   const totalSteps = 3;
 
@@ -127,16 +129,23 @@ function OnboardingModal({ user, onClose }) {
               {!emailVerified && (
                 <>
                   <p style={{ marginTop: '1.5rem' }}>{t('onboardingEmailVerifyText') || 'We recommend verifying your email to ensure you can recover your account and receive important updates.'}</p>
-                  <button 
-                    className="btn btn-primary" 
+                  <button
+                    className="btn btn-primary"
                     style={{ marginTop: '1rem' }}
-                    onClick={() => {
-                      setEmailVerified(true);
-                      // In a real implementation, this would send a verification email
-                      alert(t('onboardingEmailSent') || 'Verification email sent. Please check your inbox.');
+                    disabled={sendingVerification}
+                    onClick={async () => {
+                      setSendingVerification(true);
+                      try {
+                        await api.post('/auth/resend-verification');
+                        setEmailVerified(true);
+                      } catch (error) {
+                        alert(error.response?.data?.error || (t('errorOccurred') || 'An error occurred'));
+                      } finally {
+                        setSendingVerification(false);
+                      }
                     }}
                   >
-                    {t('sendVerificationEmail') || 'Send Verification Email'}
+                    {sendingVerification ? (t('sending') || 'Sending...') : (t('sendVerificationEmail') || 'Send Verification Email')}
                   </button>
                 </>
               )}

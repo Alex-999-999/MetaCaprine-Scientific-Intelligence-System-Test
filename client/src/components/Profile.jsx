@@ -7,6 +7,14 @@ function Profile({ user, onUserUpdate }) {
   const { t } = useI18n();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
+  const [lastName, setLastName] = useState(user?.last_name || '');
+  const [country, setCountry] = useState(user?.country || '');
+  const [city, setCity] = useState(user?.city || '');
+  const [goatsCount, setGoatsCount] = useState(user?.goats_count || '');
+  const [transformsProducts, setTransformsProducts] = useState(user?.transforms_products ? 'yes' : 'no');
+  const [age, setAge] = useState(user?.age || '');
+  const [sex, setSex] = useState(user?.sex || '');
+  const [preferredCurrency, setPreferredCurrency] = useState(user?.preferred_currency || 'USD');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -24,6 +32,14 @@ function Profile({ user, onUserUpdate }) {
         const userData = response.data.user;
         setName(userData.name || '');
         setEmail(userData.email || '');
+        setLastName(userData.last_name || '');
+        setCountry(userData.country || '');
+        setCity(userData.city || '');
+        setGoatsCount(userData.goats_count || '');
+        setTransformsProducts(userData.transforms_products ? 'yes' : 'no');
+        setAge(userData.age || '');
+        setSex(userData.sex || '');
+        setPreferredCurrency(userData.preferred_currency || 'USD');
         onUserUpdate({ ...user, ...userData });
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -49,6 +65,14 @@ function Profile({ user, onUserUpdate }) {
     if (user?.email) {
       setEmail(user.email);
     }
+    setLastName(user?.last_name || '');
+    setCountry(user?.country || '');
+    setCity(user?.city || '');
+    setGoatsCount(user?.goats_count || '');
+    setTransformsProducts(user?.transforms_products ? 'yes' : 'no');
+    setAge(user?.age || '');
+    setSex(user?.sex || '');
+    setPreferredCurrency(user?.preferred_currency || 'USD');
     const savedAvatar = getAvatar();
     if (savedAvatar) {
       setAvatar(savedAvatar);
@@ -82,8 +106,18 @@ function Profile({ user, onUserUpdate }) {
     setLoading(true);
 
     try {
-      // Update name in localStorage and state
-      const updatedUser = { ...user, name };
+      const response = await api.put('/auth/profile', {
+        name,
+        last_name: lastName,
+        country,
+        city,
+        goats_count: goatsCount,
+        transforms_products: transformsProducts === 'yes',
+        age,
+        sex,
+        preferred_currency: preferredCurrency,
+      });
+      const updatedUser = response.data.user;
       onUserUpdate(updatedUser);
       setSuccess(t('nameUpdated') || 'Name updated successfully');
       setTimeout(() => setSuccess(''), 3000);
@@ -112,9 +146,11 @@ function Profile({ user, onUserUpdate }) {
     setLoading(true);
 
     try {
-      // In a real app, you would call an API endpoint here
-      // For now, we'll just update locally
-      setSuccess(t('passwordUpdated') || 'Password updated successfully');
+      const response = await api.put('/auth/password', {
+        currentPassword,
+        newPassword,
+      });
+      setSuccess(response.data.message || t('passwordUpdated') || 'Password updated successfully');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -219,6 +255,109 @@ function Profile({ user, onUserUpdate }) {
                 className="form-input"
                 required
               />
+            </div>
+
+            <div className="form-group">
+              <label>{t('lastName') || 'Last Name'}</label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder={t('lastName') || 'Last Name'}
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>{t('country') || 'Country'}</label>
+              <input
+                type="text"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                placeholder={t('country') || 'Country'}
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>{t('city') || 'City'}</label>
+              <input
+                type="text"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder={t('city') || 'City'}
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>{t('goatsCount') || 'Number of goats'}</label>
+              <input
+                type="number"
+                min="0"
+                value={goatsCount}
+                onChange={(e) => setGoatsCount(e.target.value)}
+                placeholder={t('goatsCount') || 'Number of goats'}
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>{t('transformsProducts') || 'Do you transform products?'}</label>
+              <select
+                value={transformsProducts}
+                onChange={(e) => setTransformsProducts(e.target.value)}
+                className="form-input"
+              >
+                <option value="no">{t('no') || 'No'}</option>
+                <option value="yes">{t('yes') || 'Yes'}</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>{t('age') || 'Age'}</label>
+              <input
+                type="number"
+                min="0"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                placeholder={t('age') || 'Age'}
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>{t('sex') || 'Sex'}</label>
+              <select
+                value={sex}
+                onChange={(e) => setSex(e.target.value)}
+                className="form-input"
+              >
+                <option value="">{t('selectSex') || 'Select sex'}</option>
+                <option value="female">{t('female') || 'Female'}</option>
+                <option value="male">{t('male') || 'Male'}</option>
+                <option value="other">{t('otherOption') || 'Other'}</option>
+                <option value="prefer_not_to_say">{t('preferNotToSay') || 'Prefer not to say'}</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>{t('preferredCurrency') || 'Preferred currency'}</label>
+              <select
+                value={preferredCurrency}
+                onChange={(e) => setPreferredCurrency(e.target.value)}
+                className="form-input"
+              >
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="CAD">CAD</option>
+                <option value="MXN">MXN</option>
+                <option value="COP">COP</option>
+                <option value="ARS">ARS</option>
+                <option value="CLP">CLP</option>
+                <option value="PEN">PEN</option>
+                <option value="BRL">BRL</option>
+              </select>
             </div>
 
             <div className="form-actions">
