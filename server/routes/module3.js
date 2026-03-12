@@ -1,12 +1,17 @@
 import express from 'express';
 import { getPool } from '../db/pool.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { requireRole } from '../middleware/requireRole.js';
+import { requireEmailVerification } from '../middleware/requireEmailVerification.js';
+import { requireFeature } from '../middleware/requirePlan.js';
 import { buildBreedScenario, compareTwo, rankScenarios, validateBreedScenario } from '../core/module3Engine.js';
 
 const router = express.Router();
 
 // All routes require authentication
 router.use(authenticateToken);
+router.use(requireRole(['free', 'pro', 'admin']));
+router.use(requireEmailVerification);
 
 /**
  * GET /api/module3/breeds
@@ -160,7 +165,7 @@ router.post('/simulate', async (req, res) => {
  *   b: { breed_key, overrides }
  * }
  */
-router.post('/compare', async (req, res) => {
+router.post('/compare', requireFeature('advanced_calculations'), async (req, res) => {
   try {
     let pool;
     try {
@@ -234,7 +239,7 @@ router.post('/compare', async (req, res) => {
  *   mode: "per_head" | "total"
  * }
  */
-router.post('/rank', async (req, res) => {
+router.post('/rank', requireFeature('advanced_calculations'), async (req, res) => {
   try {
     let pool;
     try {

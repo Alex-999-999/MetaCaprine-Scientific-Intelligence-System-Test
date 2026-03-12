@@ -76,19 +76,19 @@ function Settings({ showSidebar, setShowSidebar, showFooter, setShowFooter, dark
       <button
         className="settings-button"
         onClick={() => setIsOpen(!isOpen)}
-        title={t('settings') || 'Settings'}
+        title={t('settings')}
       >
         ⚙️
       </button>
       {isOpen && (
         <div className="settings-dropdown">
           <div className="settings-header">
-            <h3>{t('settings') || 'Settings'}</h3>
+            <h3>{t('settings')}</h3>
           </div>
           <div className="settings-content">
             <div className="settings-item">
               <label className="settings-label">
-                <span>{t('showSidebar') || 'Show Sidebar'}</span>
+                <span>{t('showSidebar')}</span>
                 <div className="toggle-switch">
                   <input
                     type="checkbox"
@@ -101,7 +101,7 @@ function Settings({ showSidebar, setShowSidebar, showFooter, setShowFooter, dark
             </div>
             <div className="settings-item">
               <label className="settings-label">
-                <span>{t('showFooter') || 'Show Footer'}</span>
+                <span>{t('showFooter')}</span>
                 <div className="toggle-switch">
                   <input
                     type="checkbox"
@@ -114,7 +114,7 @@ function Settings({ showSidebar, setShowSidebar, showFooter, setShowFooter, dark
             </div>
             <div className="settings-item">
               <label className="settings-label">
-                <span>{t('darkMode') || 'Dark Mode'}</span>
+                <span>{t('darkMode')}</span>
                 <div className="toggle-switch">
                   <input
                     type="checkbox"
@@ -216,14 +216,14 @@ function UserAvatar({ user, onLogout }) {
               )}
             </div>
             <div className="avatar-dropdown-info">
-              <div className="avatar-dropdown-name">{user?.name || 'User'}</div>
+              <div className="avatar-dropdown-name">{user?.name || t('defaultUserName')}</div>
               <div className="avatar-dropdown-email">{user?.email}</div>
             </div>
           </div>
           <div className="avatar-dropdown-divider"></div>
           <button className="avatar-dropdown-item" onClick={handleProfileClick}>
             <span className="avatar-dropdown-icon">👤</span>
-            <span>{t('profile') || 'Profile'}</span>
+            <span>{t('profile')}</span>
           </button>
           <button className="avatar-dropdown-item avatar-dropdown-item-danger" onClick={handleLogoutClick}>
             <span className="avatar-dropdown-icon">🚪</span>
@@ -277,6 +277,9 @@ function Header({ user, onLogout, showSidebar, setShowSidebar, showFooter, setSh
               >
                 <option value="es">Español</option>
                 <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="it">Italiano</option>
+                <option value="pt">Português</option>
               </select>
             </div>
           )}
@@ -290,6 +293,9 @@ function Header({ user, onLogout, showSidebar, setShowSidebar, showFooter, setSh
                 >
                   <option value="es">Español</option>
                   <option value="en">English</option>
+                  <option value="fr">Français</option>
+                  <option value="it">Italiano</option>
+                  <option value="pt">Português</option>
                 </select>
               </div>
               <Settings

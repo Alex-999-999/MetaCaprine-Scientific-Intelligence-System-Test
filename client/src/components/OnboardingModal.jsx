@@ -48,7 +48,7 @@ function OnboardingModal({ user, onClose }) {
         {/* Header */}
         <div className="onboarding-header">
           <img src="/logo.png" alt="MetaCaprine Logo" className="onboarding-logo" />
-          <h1 className="onboarding-title">{t('welcome')} {user?.name || 'Usuario'}</h1>
+          <h1 className="onboarding-title">{t('welcome')} {user?.name || t('defaultUserName')}</h1>
           <button className="onboarding-skip" onClick={handleSkip}>
             {t('skip')}
           </button>
@@ -59,29 +59,29 @@ function OnboardingModal({ user, onClose }) {
           {step === 1 && (
             <div className="onboarding-step">
               <div className="onboarding-icon">🐐</div>
-              <h2>{t('onboardingWelcomeTitle') || 'Welcome to MetaCaprine Intelligence'}</h2>
-              <p>{t('onboardingWelcomeText') || 'The most advanced platform for analyzing profitability and production in dairy goat operations. Make data-driven decisions to maximize your margins and optimize your business.'}</p>
+              <h2>{t('onboardingWelcomeTitle')}</h2>
+              <p>{t('onboardingWelcomeText')}</p>
               
               <div className="onboarding-features">
                 <div className="onboarding-feature">
                   <span className="feature-icon">📊</span>
                   <div>
-                    <h3>{t('onboardingFeature1Title') || 'Production Analysis'}</h3>
-                    <p>{t('onboardingFeature1Text') || 'Project and analyze profitability of raw milk sales with real production scenarios.'}</p>
+                    <h3>{t('onboardingFeature1Title')}</h3>
+                    <p>{t('onboardingFeature1Text')}</p>
                   </div>
                 </div>
                 <div className="onboarding-feature">
                   <span className="feature-icon">🧀</span>
                   <div>
-                    <h3>{t('onboardingFeature2Title') || 'Transformation Simulation'}</h3>
-                    <p>{t('onboardingFeature2Text') || 'Compare profitability of different dairy products and sales channels.'}</p>
+                    <h3>{t('onboardingFeature2Title')}</h3>
+                    <p>{t('onboardingFeature2Text')}</p>
                   </div>
                 </div>
                 <div className="onboarding-feature">
                   <span className="feature-icon">🔬</span>
                   <div>
-                    <h3>{t('onboardingFeature3Title') || 'Scientific Breed Comparison'}</h3>
-                    <p>{t('onboardingFeature3Text') || 'Compare breeds based on internationally validated ECM and productive life data.'}</p>
+                    <h3>{t('onboardingFeature3Title')}</h3>
+                    <p>{t('onboardingFeature3Text')}</p>
                   </div>
                 </div>
               </div>
@@ -91,16 +91,16 @@ function OnboardingModal({ user, onClose }) {
           {step === 2 && (
             <div className="onboarding-step">
               <div className="onboarding-icon">⚖️</div>
-              <h2>{t('onboardingLegalTitle') || 'Important Legal Information'}</h2>
+              <h2>{t('onboardingLegalTitle')}</h2>
               <div className="onboarding-legal-content">
-                <h3>{t('onboardingDataSources') || 'Data Sources and Accuracy'}</h3>
-                <p>{t('onboardingDataSourcesText') || 'The data and parameters used in this platform come from official international sources and scientific studies. Results are projections based on average parameters and may vary depending on management practices, climate, genetics, and local conditions.'}</p>
+                <h3>{t('onboardingDataSources')}</h3>
+                <p>{t('onboardingDataSourcesText')}</p>
                 
-                <h3>{t('onboardingLiability') || 'Limitation of Liability'}</h3>
-                <p>{t('onboardingLiabilityText') || 'MetaCaprine Intelligence is a decision support tool. The calculations and results are estimates for planning purposes. We do not guarantee specific results. Production and economic decisions are the responsibility of the user.'}</p>
+                <h3>{t('onboardingLiability')}</h3>
+                <p>{t('onboardingLiabilityText')}</p>
                 
-                <h3>{t('onboardingDataPrivacy') || 'Data Privacy'}</h3>
-                <p>{t('onboardingDataPrivacyText') || 'Your production data and scenarios are private and secure. We do not share your information with third parties without your explicit consent.'}</p>
+                <h3>{t('onboardingDataPrivacy')}</h3>
+                <p>{t('onboardingDataPrivacyText')}</p>
 
                 <div className="onboarding-checkbox">
                   <input
@@ -110,7 +110,7 @@ function OnboardingModal({ user, onClose }) {
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
                   />
                   <label htmlFor="agree-terms">
-                    {t('onboardingAgreeTerms') || 'I have read and agree to the terms and conditions'}
+                    {t('onboardingAgreeTerms')}
                   </label>
                 </div>
               </div>
@@ -120,15 +120,15 @@ function OnboardingModal({ user, onClose }) {
           {step === 3 && (
             <div className="onboarding-step">
               <div className="onboarding-icon">📧</div>
-              <h2>{t('onboardingEmailTitle') || 'Email Verification'}</h2>
-              <p>{t('onboardingEmailText') || 'Your registered email is:'}</p>
+              <h2>{t('onboardingEmailTitle')}</h2>
+              <p>{t('onboardingEmailText')}</p>
               <div className="onboarding-email-display">
-                {user?.email || 'usuario@ejemplo.com'}
+                {user?.email || 'user@example.com'}
               </div>
               
               {!emailVerified && (
                 <>
-                  <p style={{ marginTop: '1.5rem' }}>{t('onboardingEmailVerifyText') || 'We recommend verifying your email to ensure you can recover your account and receive important updates.'}</p>
+                  <p style={{ marginTop: '1.5rem' }}>{t('onboardingEmailVerifyText')}</p>
                   <button
                     className="btn btn-primary"
                     style={{ marginTop: '1rem' }}
@@ -139,13 +139,13 @@ function OnboardingModal({ user, onClose }) {
                         await api.post('/auth/resend-verification');
                         setEmailVerified(true);
                       } catch (error) {
-                        alert(error.response?.data?.error || (t('errorOccurred') || 'An error occurred'));
+                        alert(error.response?.data?.error || (t('errorOccurred')));
                       } finally {
                         setSendingVerification(false);
                       }
                     }}
                   >
-                    {sendingVerification ? (t('sending') || 'Sending...') : (t('sendVerificationEmail') || 'Send Verification Email')}
+                    {sendingVerification ? (t('sending')) : (t('sendVerificationEmail'))}
                   </button>
                 </>
               )}
@@ -153,14 +153,14 @@ function OnboardingModal({ user, onClose }) {
               {emailVerified && (
                 <div className="onboarding-success">
                   <span style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</span>
-                  <p>{t('onboardingEmailSent') || 'Verification email sent! Please check your inbox and spam folder.'}</p>
+                  <p>{t('onboardingEmailSent')}</p>
                 </div>
               )}
 
               <div style={{ marginTop: '2rem', padding: '1rem', background: 'var(--bg-secondary)', borderRadius: '8px' }}>
-                <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{t('onboardingGetStarted') || 'Ready to Get Started?'}</h3>
+                <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{t('onboardingGetStarted')}</h3>
                 <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', margin: 0 }}>
-                  {t('onboardingGetStartedText') || 'Start with Module 1 to analyze your current production, or jump to Module 3 to compare breeds.'}
+                  {t('onboardingGetStartedText')}
                 </p>
               </div>
             </div>
@@ -180,12 +180,12 @@ function OnboardingModal({ user, onClose }) {
           <div className="onboarding-buttons">
             {step > 1 && (
               <button className="btn btn-secondary" onClick={handlePrevious}>
-                {t('previous') || 'Previous'}
+                {t('previous')}
               </button>
             )}
             {step < totalSteps && (
               <button className="btn btn-primary" onClick={handleNext}>
-                {t('next') || 'Next'}
+                {t('next')}
               </button>
             )}
             {step === totalSteps && (
@@ -194,7 +194,7 @@ function OnboardingModal({ user, onClose }) {
                 onClick={handleComplete}
                 disabled={!agreedToTerms}
               >
-                {t('getStarted') || 'Get Started'}
+                {t('getStarted')}
               </button>
             )}
           </div>

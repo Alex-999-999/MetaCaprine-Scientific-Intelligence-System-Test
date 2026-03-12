@@ -1,6 +1,10 @@
 import express from 'express';
 import { getPool } from '../db/pool.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { requireRole } from '../middleware/requireRole.js';
+import { requireEmailVerification } from '../middleware/requireEmailVerification.js';
+import { requireFeature } from '../middleware/requirePlan.js';
+import { hasFeatureAccess } from '../services/planService.js';
 import { runSimulation } from '../core/simulationEngine.js';
 import { runLactationSimulation } from '../core/lactationEngine.js';
 
@@ -8,6 +12,8 @@ const router = express.Router();
 
 // All routes require authentication
 router.use(authenticateToken);
+router.use(requireRole(['free', 'pro', 'admin']));
+router.use(requireEmailVerification);
 
 // Helper function to verify scenario ownership
 async function verifyScenarioOwnership(pool, scenarioId, userId) {
@@ -49,6 +55,12 @@ router.post('/production/:scenarioId', async (req, res) => {
       other_costs_per_liter,
       milk_price_per_liter,
     } = req.body;
+
+    // Free/basic users can keep using Module 1 but advanced cost fields stay locked.
+    const hasAdvancedAccess = await hasFeatureAccess(req.user.userId, 'advanced_calculations');
+    const laborCostInput = hasAdvancedAccess ? labor_cost_per_liter : 0;
+    const infrastructureCostInput = hasAdvancedAccess ? infrastructure_cost_per_liter : 0;
+    const otherCostsInput = hasAdvancedAccess ? other_costs_per_liter : 0;
 
     // Validate and sanitize numeric values to prevent overflow
     // DECIMAL(10,2) range: -99999999.99 to 99999999.99
@@ -96,10 +108,10 @@ router.post('/production/:scenarioId', async (req, res) => {
         sanitizeInteger(production_days),
         sanitizeInteger(animals_count),
         sanitizeDecimal(feed_cost_per_liter),
-        sanitizeDecimal(labor_cost_per_liter),
+        sanitizeDecimal(laborCostInput),
         sanitizeDecimal(health_cost_per_liter),
-        sanitizeDecimal(infrastructure_cost_per_liter),
-        sanitizeDecimal(other_costs_per_liter),
+        sanitizeDecimal(infrastructureCostInput),
+        sanitizeDecimal(otherCostsInput),
         sanitizeDecimal(milk_price_per_liter),
       ]
     );
@@ -127,7 +139,7 @@ router.post('/production/:scenarioId', async (req, res) => {
 
 // Module 2: Transformation - Save/Update transformation data
 // Supports both legacy single product and new Product Mix (multiple products)
-router.post('/transformation/:scenarioId', async (req, res) => {
+router.post('/transformation/:scenarioId', requireFeature('module2'), async (req, res) => {
   try {
     let pool;
     try {
@@ -398,7 +410,7 @@ router.post('/lactation/:scenarioId', async (req, res) => {
 });
 
 // Module 4: Yield - Save/Update yield data
-router.post('/yield/:scenarioId', async (req, res) => {
+router.post('/yield/:scenarioId', requireFeature('module4'), async (req, res) => {
   try {
     let pool;
     try {
@@ -448,7 +460,7 @@ router.post('/yield/:scenarioId', async (req, res) => {
 });
 
 // Module 5: Gestation - Save/Update gestation data
-router.post('/gestation/:scenarioId', async (req, res) => {
+router.post('/gestation/:scenarioId', requireFeature('module5'), async (req, res) => {
   try {
     let pool;
     try {

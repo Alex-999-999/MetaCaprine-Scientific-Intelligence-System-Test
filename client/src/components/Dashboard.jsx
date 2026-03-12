@@ -32,7 +32,7 @@ function Dashboard({ user, onLogout }) {
       setEmailResent(true);
       setTimeout(() => setEmailResent(false), 5000);
     } catch (error) {
-      alert(error.response?.data?.error || 'Failed to resend verification email');
+      alert(error.response?.data?.error || t('failedResendVerificationEmail'));
     } finally {
       setResendingEmail(false);
     }
@@ -240,7 +240,7 @@ function Dashboard({ user, onLogout }) {
             }}>
               <span style={{ fontSize: '1.5rem' }}>⚠️</span>
               <strong style={{ fontSize: '1.125rem', color: 'var(--text-primary)' }}>
-                Verifica tu correo electrónico
+                {t('verifyEmailTitle')}
               </strong>
             </div>
             <p style={{ 
@@ -249,7 +249,7 @@ function Dashboard({ user, onLogout }) {
               fontSize: '0.9375rem',
               lineHeight: '1.5'
             }}>
-              Por favor verifica tu correo electrónico para tener acceso completo a todas las funcionalidades de la plataforma.
+              {t('verifyEmailMessage')}
               {emailResent && (
                 <span style={{ 
                   display: 'block', 
@@ -257,7 +257,7 @@ function Dashboard({ user, onLogout }) {
                   color: 'var(--accent-success)',
                   fontWeight: '600'
                 }}>
-                  ✅ Email de verificación enviado. Revisa tu bandeja de entrada.
+                  ✅ {t('verifyEmailSent')}
                 </span>
               )}
             </p>
@@ -268,7 +268,7 @@ function Dashboard({ user, onLogout }) {
             disabled={resendingEmail || emailResent}
             style={{ whiteSpace: 'nowrap' }}
           >
-            {resendingEmail ? 'Enviando...' : emailResent ? 'Enviado ✓' : 'Reenviar Email'}
+            {resendingEmail ? t('sending') : emailResent ? t('sent') : t('resendEmail')}
           </button>
         </div>
       )}
@@ -357,7 +357,7 @@ function Dashboard({ user, onLogout }) {
                   ref={el => menuRefs.current[scenario.id] = el}
                   onClick={(e) => handleMenuToggle(e, scenario.id)}
                 >
-                  <button className="scenario-menu-button" title="More options">
+                  <button className="scenario-menu-button" title={t('moreOptions')}>
                     <span className="menu-dots">⋯</span>
                   </button>
                   {openMenuId === scenario.id && (

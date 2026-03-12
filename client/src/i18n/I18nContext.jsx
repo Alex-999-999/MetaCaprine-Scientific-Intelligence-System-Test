@@ -23,26 +23,39 @@ export const I18nProvider = ({ children }) => {
     localStorage.setItem('language', language);
   }, [language]);
 
-  const t = (key, params = {}) => {
-    const keys = key.split('.');
-    let value = translations[language];
-    
+  const getNestedValue = (obj, keys) => {
+    let value = obj;
     for (const k of keys) {
-      if (value && typeof value === 'object') {
+      if (value && typeof value === 'object' && k in value) {
         value = value[k];
       } else {
-        return key; // Return key if translation not found
+        return undefined;
       }
     }
-    
-    // Replace parameters if provided
-    if (typeof value === 'string' && params) {
-      return value.replace(/\{\{(\w+)\}\}/g, (match, paramKey) => {
-        return params[paramKey] !== undefined ? params[paramKey] : match;
-      });
+    return value;
+  };
+
+  const interpolateParams = (value, params) => {
+    if (typeof value !== 'string' || !params) return value;
+
+    // Support both {param} and {{param}} placeholder formats.
+    return value.replace(/\{\{(\w+)\}\}|\{(\w+)\}/g, (match, paramKey1, paramKey2) => {
+      const paramKey = paramKey1 || paramKey2;
+      return params[paramKey] !== undefined ? params[paramKey] : match;
+    });
+  };
+
+  const t = (key, params = {}) => {
+    const keys = key.split('.');
+    const localizedValue = getNestedValue(translations[language], keys);
+    const fallbackValue = getNestedValue(translations.en, keys);
+    const value = localizedValue ?? fallbackValue;
+
+    if (value === undefined || value === null) {
+      return key;
     }
-    
-    return value || key;
+
+    return interpolateParams(value, params) || key;
   };
 
   const changeLanguage = (lang) => {

@@ -17,7 +17,7 @@ function VerifyEmail() {
 
       if (!token) {
         setStatus('error');
-        setMessage('No verification token provided.');
+        setMessage(t('noVerificationToken'));
         setLoading(false);
         return;
       }
@@ -25,7 +25,7 @@ function VerifyEmail() {
       try {
         const response = await api.get(`/auth/verify-email?token=${token}`);
         setStatus('success');
-        setMessage(response.data.message || 'Email verified successfully!');
+        setMessage(response.data.message || t('emailVerifiedSuccess'));
         
         // Redirect to login after 3 seconds
         setTimeout(() => {
@@ -33,7 +33,7 @@ function VerifyEmail() {
         }, 3000);
       } catch (error) {
         setStatus('error');
-        setMessage(error.response?.data?.error || error.response?.data?.message || 'Failed to verify email. The link may have expired.');
+        setMessage(error.response?.data?.error || error.response?.data?.message || t('verifyEmailFailed'));
         setLoading(false);
       }
     };
@@ -53,27 +53,27 @@ function VerifyEmail() {
         {status === 'verifying' && (
           <>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
-            <h2 style={{ marginBottom: '1rem' }}>Verifying your email...</h2>
-            <p style={{ color: 'var(--text-secondary)' }}>Please wait while we verify your email address.</p>
+            <h2 style={{ marginBottom: '1rem' }}>{t('verifyingEmail')}</h2>
+            <p style={{ color: 'var(--text-secondary)' }}>{t('verifyEmailWait')}</p>
           </>
         )}
 
         {status === 'success' && (
           <>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
-            <h2 style={{ marginBottom: '1rem', color: 'var(--accent-success)' }}>Email Verified!</h2>
+            <h2 style={{ marginBottom: '1rem', color: 'var(--accent-success)' }}>{t('emailVerifiedTitle')}</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
               {message}
             </p>
             <p style={{ color: 'var(--text-tertiary)', fontSize: '0.875rem' }}>
-              Redirecting to login page...
+              {t('redirectingToLogin')}
             </p>
             <button 
               className="btn btn-primary" 
               onClick={() => navigate('/login')}
               style={{ marginTop: '1rem' }}
             >
-              Go to Login
+              {t('goToLogin')}
             </button>
           </>
         )}
@@ -81,7 +81,7 @@ function VerifyEmail() {
         {status === 'error' && (
           <>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>❌</div>
-            <h2 style={{ marginBottom: '1rem', color: 'var(--accent-error)' }}>Verification Failed</h2>
+            <h2 style={{ marginBottom: '1rem', color: 'var(--accent-error)' }}>{t('verificationFailedTitle')}</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
               {message}
             </p>
@@ -90,13 +90,13 @@ function VerifyEmail() {
                 className="btn btn-secondary" 
                 onClick={() => navigate('/login')}
               >
-                Go to Login
+                {t('goToLogin')}
               </button>
               <button 
                 className="btn btn-primary" 
                 onClick={() => navigate('/register')}
               >
-                Register Again
+                {t('registerAgain')}
               </button>
             </div>
           </>

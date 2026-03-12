@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
+import { useI18n } from '../i18n/I18nContext';
 
 function ResetPassword() {
+  const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const token = useMemo(() => searchParams.get('token') || '', [searchParams]);
   const [password, setPassword] = useState('');
@@ -17,28 +19,28 @@ function ResetPassword() {
     setSuccess('');
 
     if (!token) {
-      setError('Missing password reset token.');
+      setError(t('missingResetToken'));
       return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+      setError(t('passwordLengthError'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('passwordMismatch'));
       return;
     }
 
     setLoading(true);
     try {
       const response = await api.post('/auth/reset-password', { token, password });
-      setSuccess(response.data.message || 'Password reset successfully. You can now log in.');
+      setSuccess(response.data.message || t('passwordResetSuccess'));
       setPassword('');
       setConfirmPassword('');
     } catch (err) {
-      setError(err.response?.data?.error || 'Unable to reset password.');
+      setError(err.response?.data?.error || t('unableResetPassword'));
     } finally {
       setLoading(false);
     }
@@ -49,8 +51,8 @@ function ResetPassword() {
       <div className="login-form-wrapper">
         <div className="login-card">
           <div className="login-card-header">
-            <h2 className="login-card-title">Reset password</h2>
-            <p className="login-card-subtitle">Create a new password for your MetaCaprine account.</p>
+            <h2 className="login-card-title">{t('resetPasswordTitle')}</h2>
+            <p className="login-card-subtitle">{t('resetPasswordSubtitle')}</p>
           </div>
 
           {error && <div className="login-error-message">{error}</div>}
@@ -70,7 +72,7 @@ function ResetPassword() {
 
           <form onSubmit={handleSubmit} className="login-form">
             <div className="form-group">
-              <label>New password</label>
+              <label>{t('newPassword')}</label>
               <input
                 type="password"
                 value={password}
@@ -81,7 +83,7 @@ function ResetPassword() {
               />
             </div>
             <div className="form-group">
-              <label>Confirm password</label>
+              <label>{t('confirmPasswordLabel')}</label>
               <input
                 type="password"
                 value={confirmPassword}
@@ -92,13 +94,13 @@ function ResetPassword() {
               />
             </div>
             <button type="submit" className="btn btn-primary login-submit-btn" disabled={loading}>
-              {loading ? 'Resetting...' : 'Reset password'}
+              {loading ? t('resetting') : t('resetPasswordTitle')}
             </button>
           </form>
 
           <div className="login-card-footer">
             <Link to="/login" className="login-toggle-btn">
-              Back to login
+              {t('backToLogin')}
             </Link>
           </div>
         </div>

@@ -200,6 +200,18 @@ input, select, textarea {
   -moz-appearance: none;
 }
 
+/* Keep native controls for checkbox/radio inputs */
+input[type="checkbox"],
+input[type="radio"] {
+  width: auto;
+  padding: 0;
+  margin-bottom: 0;
+  appearance: auto;
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
+  cursor: pointer;
+}
+
 select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%232d5016' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -560,6 +572,30 @@ label {
   background-color: #f7fafc;
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.terms-checkbox-label {
+  display: flex !important;
+  gap: 10px;
+  align-items: center;
+  font-size: 14px;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.terms-checkbox-input {
+  width: 18px !important;
+  height: 18px;
+  min-width: 18px;
+  margin-top: 0;
+  appearance: auto;
+  -webkit-appearance: checkbox;
+  -moz-appearance: checkbox;
+}
+
+.terms-checkbox-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.15);
 }
 
 .login-submit-btn {

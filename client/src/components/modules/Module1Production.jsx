@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import api from '../../utils/api';
@@ -6,6 +6,7 @@ import { useI18n } from '../../i18n/I18nContext';
 import AlertModal from '../AlertModal';
 import CostCalculatorModal from '../CostCalculatorModal';
 import { useChartColors } from '../../hooks/useDarkMode';
+import { formatCurrency, formatCurrencyCompact, normalizeCurrency } from '../../utils/currency';
 
 function Module1Production({ user }) {
   const { t } = useI18n();
@@ -13,6 +14,9 @@ function Module1Production({ user }) {
   const navigate = useNavigate();
   const scenarioId = location.state?.scenarioId;
   const chartColors = useChartColors();
+  const preferredCurrency = normalizeCurrency(user?.preferred_currency);
+  const formatMoney = (value, options = {}) => formatCurrency(value, preferredCurrency, options);
+  const formatMoneyCompact = (value) => formatCurrencyCompact(value, preferredCurrency);
 
   const [formData, setFormData] = useState({
     daily_production_liters: '',
@@ -166,7 +170,7 @@ function Module1Production({ user }) {
       
       setAlertModal({
         isOpen: true,
-        message: `${t('costEstimator')}: ${t('estimatedCost')} $${calculatedCost.toFixed(4)} ${t('perLiter')} ${t('applyToModule1')} ✓`,
+        message: `${t('costEstimator')}: ${t('estimatedCost')} ${formatMoney(calculatedCost, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} ${t('perLiter')} ${t('applyToModule1')} âœ“`,
         type: 'success'
       });
     }
@@ -219,7 +223,7 @@ function Module1Production({ user }) {
       handleCalculate();
       setAlertModal({
         isOpen: true,
-        message: t('dataSavedAndCalculated') || 'Data saved and results calculated',
+        message: t('dataSavedAndCalculated'),
         type: 'success'
       });
     } catch (error) {
@@ -317,6 +321,9 @@ function Module1Production({ user }) {
     { name: t('other'), value: Number(formData.other_costs_per_liter) || 0 },
   ].filter(item => !isNaN(item.value)) : [];
 
+  const isProUser = ['pro', 'admin'].includes(user?.role);
+  const hasAdvancedAnalysis = isProUser || (user?.features || []).includes('advanced_calculations');
+
   return (
     <div className="container">
       <header style={{ marginBottom: '20px' }}>
@@ -330,7 +337,7 @@ function Module1Production({ user }) {
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
         }}>
           <p style={{ margin: 0, fontSize: '15px', lineHeight: '1.6', color: '#1565c0' }}>
-            ℹ️ {t('module1Explanation')}
+            â„¹ï¸ {t('module1Explanation')}
           </p>
         </div>
       </header>
@@ -405,6 +412,16 @@ function Module1Production({ user }) {
             </div>
 
             <h3 style={{ marginTop: '30px', marginBottom: '15px' }}>{t('totalCosts')} (per liter)</h3>
+            {!hasAdvancedAnalysis && (
+              <div style={{ marginBottom: '15px', padding: '12px', background: 'rgba(234, 179, 8, 0.1)', borderRadius: '8px', border: '1px solid var(--accent-warning)' }}>
+                <p style={{ margin: 0, color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                  {t('module1BasicAnalysisMessage')}
+                </p>
+                <button className="btn btn-primary" style={{ marginTop: '10px' }} onClick={() => navigate('/profile')}>
+                  {t('unlockFullAnalysis')}
+                </button>
+              </div>
+            )}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
               <div className="form-group">
                 <label>{t('feedCost')}</label>
@@ -424,12 +441,12 @@ function Module1Production({ user }) {
                     style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
                   >
-                    📊 {t('estimateCost')}
+                    ðŸ“Š {t('estimateCost')}
                   </button>
                 </div>
               </div>
               <div className="form-group">
-                <label>{t('laborCost')}</label>
+                <label>{t('laborCost')} {!hasAdvancedAnalysis && 'ðŸ”’'}</label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
                     type="number"
@@ -438,6 +455,8 @@ function Module1Production({ user }) {
                     onChange={handleInputChange}
                     onFocus={handleInputFocus}
                     step="0.01"
+                    disabled={!hasAdvancedAnalysis}
+                    title={!hasAdvancedAnalysis ? t('availableForProUsers') : ''}
                     style={{ flex: 1 }}
                   />
                   <button 
@@ -445,8 +464,9 @@ function Module1Production({ user }) {
                     onClick={() => openCostCalculator('labor', 'labor_cost_per_liter')}
                     style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
+                    disabled={!hasAdvancedAnalysis}
                   >
-                    📊 {t('estimateCost')}
+                    ðŸ“Š {t('estimateCost')}
                   </button>
                 </div>
               </div>
@@ -468,12 +488,12 @@ function Module1Production({ user }) {
                     style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
                   >
-                    📊 {t('estimateCost')}
+                    ðŸ“Š {t('estimateCost')}
                   </button>
                 </div>
               </div>
               <div className="form-group">
-                <label>{t('infrastructureCost')}</label>
+                <label>{t('infrastructureCost')} {!hasAdvancedAnalysis && 'ðŸ”’'}</label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
                     type="number"
@@ -482,6 +502,8 @@ function Module1Production({ user }) {
                     onChange={handleInputChange}
                     onFocus={handleInputFocus}
                     step="0.01"
+                    disabled={!hasAdvancedAnalysis}
+                    title={!hasAdvancedAnalysis ? t('availableForProUsers') : ''}
                     style={{ flex: 1 }}
                   />
                   <button 
@@ -489,13 +511,14 @@ function Module1Production({ user }) {
                     onClick={() => openCostCalculator('services', 'infrastructure_cost_per_liter')}
                     style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
+                    disabled={!hasAdvancedAnalysis}
                   >
-                    📊 {t('estimateCost')}
+                    ðŸ“Š {t('estimateCost')}
                   </button>
                 </div>
               </div>
               <div className="form-group">
-                <label>{t('otherCosts')}</label>
+                <label>{t('otherCosts')} {!hasAdvancedAnalysis && 'ðŸ”’'}</label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
                     type="number"
@@ -504,6 +527,8 @@ function Module1Production({ user }) {
                     onChange={handleInputChange}
                     onFocus={handleInputFocus}
                     step="0.01"
+                    disabled={!hasAdvancedAnalysis}
+                    title={!hasAdvancedAnalysis ? t('availableForProUsers') : ''}
                     style={{ flex: 1 }}
                   />
                   <button 
@@ -511,8 +536,9 @@ function Module1Production({ user }) {
                     onClick={() => openCostCalculator('rearing', 'other_costs_per_liter')}
                     style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
+                    disabled={!hasAdvancedAnalysis}
                   >
-                    📊 {t('estimateCost')}
+                    ðŸ“Š {t('estimateCost')}
                   </button>
                 </div>
               </div>
@@ -533,28 +559,28 @@ function Module1Production({ user }) {
               {/* Key Metrics Cards */}
               <div className="metrics-grid">
                 <div className={`metric-card ${results.gross_margin >= 0 ? 'success' : 'error'}`}>
-                  <div className="metric-label">{t('totalRevenue') || 'Total Revenue'}</div>
+                  <div className="metric-label">{t('totalRevenue')}</div>
                   <div className="metric-value">
-                    ${Number(results.total_revenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {formatMoney(results.total_revenue)}
                   </div>
                 </div>
                 <div className="metric-card warning">
-                  <div className="metric-label">{t('totalCosts') || 'Total Costs'}</div>
+                  <div className="metric-label">{t('totalCosts')}</div>
                   <div className="metric-value">
-                    ${Number(results.total_costs || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {formatMoney(results.total_costs)}
                   </div>
                 </div>
                 <div className={`metric-card ${results.gross_margin >= 0 ? 'success' : 'error'}`}>
-                  <div className="metric-label">{t('grossMargin') || 'Gross Margin'}</div>
+                  <div className="metric-label">{t('grossMargin')}</div>
                   <div className={`metric-value ${results.gross_margin >= 0 ? 'success' : 'error'}`}>
-                    ${Number(results.gross_margin || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {formatMoney(results.gross_margin)}
                   </div>
                   <div className={`metric-change ${results.margin_percentage >= 0 ? 'positive' : 'negative'}`}>
                     {results.margin_percentage >= 0 ? '+' : ''}{results.margin_percentage?.toFixed(2)}%
                   </div>
                 </div>
                 <div className="metric-card info">
-                  <div className="metric-label">{t('totalProduction') || 'Total Production'}</div>
+                  <div className="metric-label">{t('totalProduction')}</div>
                   <div className="metric-value">
                     {Number(results.total_production_liters || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })} L
                   </div>
@@ -566,14 +592,14 @@ function Module1Production({ user }) {
                 <div className="chart-header">
                   <div>
                     <h2 className="chart-title">
-                      <span className="chart-title-icon">📊</span>
+                      <span className="chart-title-icon">ðŸ“Š</span>
                       {t('results')}
                     </h2>
-                    <p className="chart-subtitle">{t('dashboardDescription') || 'Detailed breakdown of your production metrics'}</p>
+                    <p className="chart-subtitle">{t('dashboardDescription')}</p>
                   </div>
                   <div className="chart-controls">
                     {selectedScenario?.results && (
-                      <span className="chart-badge success">Auto-loaded</span>
+                      <span className="chart-badge success">{t('autoLoaded')}</span>
                     )}
                     <div className="chart-control-group">
                       <label className="chart-control-label">{t('viewPeriod')}:</label>
@@ -602,16 +628,16 @@ function Module1Production({ user }) {
                           </tr>
                           <tr>
                             <td><strong>{t('totalRevenue')}</strong></td>
-                            <td>${displayValues.revenue?.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                            <td>{formatMoney(displayValues.revenue)}</td>
                           </tr>
                           <tr>
                             <td><strong>{t('totalCosts')}</strong></td>
-                            <td>${displayValues.costs?.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                            <td>{formatMoney(displayValues.costs)}</td>
                           </tr>
                           <tr>
                             <td><strong>{t('grossMargin')}</strong></td>
                             <td style={{ color: displayValues.margin >= 0 ? '#16a34a' : '#dc2626', fontWeight: '600' }}>
-                              ${displayValues.margin?.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                              {formatMoney(displayValues.margin)}
                             </td>
                           </tr>
                           <tr>
@@ -620,11 +646,11 @@ function Module1Production({ user }) {
                           </tr>
                           <tr>
                             <td><strong>{t('revenuePerLiter')}</strong></td>
-                            <td>${typeof results.revenue_per_liter === 'number' ? results.revenue_per_liter.toFixed(2) : '0.00'}</td>
+                            <td>{formatMoney(results.revenue_per_liter)}</td>
                           </tr>
                           <tr>
                             <td><strong>{t('costPerLiter')}</strong></td>
-                            <td>${typeof results.cost_per_liter === 'number' ? results.cost_per_liter.toFixed(2) : '0.00'}</td>
+                            <td>{formatMoney(results.cost_per_liter)}</td>
                           </tr>
                         </tbody>
                       </table>
@@ -639,10 +665,10 @@ function Module1Production({ user }) {
                 <div className="chart-header">
                   <div>
                     <h2 className="chart-title">
-                      <span className="chart-title-icon">📈</span>
+                      <span className="chart-title-icon">ðŸ“ˆ</span>
                       {t('visualization')}
                     </h2>
-                    <p className="chart-subtitle">{t('financialOverview') || 'Visual breakdown of income, costs, and margins'}</p>
+                    <p className="chart-subtitle">{t('financialOverview')}</p>
                   </div>
                   <div className="chart-controls">
                     <div className="chart-control-group">
@@ -712,13 +738,13 @@ function Module1Production({ user }) {
                             tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
                             axisLine={false}
                             tickLine={false}
-                            tickFormatter={(value) => marginViewMode === 'percent' ? `${value}%` : `$${(value/1000).toFixed(0)}k`}
+                            tickFormatter={(value) => marginViewMode === 'percent' ? `${value}%` : formatMoneyCompact(value)}
                           />
                           <Tooltip 
                             formatter={(value) => 
                               marginViewMode === 'percent' 
                                 ? `${Number(value || 0).toFixed(1)}%`
-                                : `$${Number(value || 0).toLocaleString(undefined)}`
+                                : formatMoney(value)
                             }
                             contentStyle={{ 
                               backgroundColor: chartColors.tooltip.bg, 
@@ -749,7 +775,7 @@ function Module1Production({ user }) {
                     );
                   })() : (
                     <div className="chart-empty">
-                      <div className="chart-empty-icon">📊</div>
+                      <div className="chart-empty-icon">ðŸ“Š</div>
                       <p className="chart-empty-text">{t('noDataToShow')}</p>
                     </div>
                   )}
@@ -783,10 +809,10 @@ function Module1Production({ user }) {
                           tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
                           axisLine={false}
                           tickLine={false}
-                          tickFormatter={(value) => `$${value.toFixed(2)}`}
+                          tickFormatter={(value) => formatMoney(value)}
                         />
                         <Tooltip 
-                          formatter={(value) => `$${value.toFixed(4)} / L`}
+                          formatter={(value) => `${formatMoney(value, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} / L`}
                           contentStyle={{ 
                             backgroundColor: chartColors.tooltip.bg, 
                             border: `1px solid ${chartColors.tooltip.border}`,
@@ -815,7 +841,7 @@ function Module1Production({ user }) {
                     </ResponsiveContainer>
                   ) : (
                     <div className="chart-empty">
-                      <div className="chart-empty-icon">💰</div>
+                      <div className="chart-empty-icon">ðŸ’°</div>
                       <p className="chart-empty-text">{t('noCostDataToShow')}</p>
                     </div>
                   )}
@@ -827,17 +853,17 @@ function Module1Production({ user }) {
                 <div className="chart-header">
                   <div>
                     <h2 className="chart-title">
-                      <span className="chart-title-icon">🎯</span>
-                      {t('integratedDashboard') || 'Integrated Dashboard'}
+                      <span className="chart-title-icon">ðŸŽ¯</span>
+                      {t('integratedDashboard')}
                     </h2>
-                    <p className="chart-subtitle">{t('dashboardDescription') || 'Comprehensive view of all metrics and charts for quick decision-making'}</p>
+                    <p className="chart-subtitle">{t('dashboardDescription')}</p>
                   </div>
                 </div>
 
                 <div className="charts-comparison-grid">
                   {/* Income/Costs/Margin Chart */}
                   <div className="chart-container">
-                    <h3 className="chart-section-title">{t('financialOverview') || 'Financial Overview'}</h3>
+                    <h3 className="chart-section-title">{t('financialOverview')}</h3>
                     {chartData.length > 0 ? (
                       <ResponsiveContainer width="100%" height={280}>
                         <BarChart data={chartData} barCategoryGap="20%">
@@ -855,7 +881,7 @@ function Module1Production({ user }) {
                             tickLine={false}
                           />
                           <Tooltip 
-                            formatter={(value) => `$${Number(value || 0).toLocaleString(undefined)}`}
+                            formatter={(value) => formatMoney(value)}
                             contentStyle={{ 
                               backgroundColor: chartColors.tooltip.bg, 
                               border: `1px solid ${chartColors.tooltip.border}`,
@@ -880,7 +906,7 @@ function Module1Production({ user }) {
 
                   {/* Cost Breakdown Chart */}
                   <div className="chart-container">
-                    <h3 className="chart-section-title">{t('costBreakdown') || 'Cost Breakdown'}</h3>
+                    <h3 className="chart-section-title">{t('costBreakdown')}</h3>
                     {costBreakdown.length > 0 ? (
                       <ResponsiveContainer width="100%" height={280}>
                         <BarChart data={costBreakdown} barCategoryGap="15%">
@@ -899,7 +925,7 @@ function Module1Production({ user }) {
                             tickLine={false}
                           />
                           <Tooltip 
-                            formatter={(value) => `$${value.toFixed(4)}`}
+                            formatter={(value) => formatMoney(value, { minimumFractionDigits: 4, maximumFractionDigits: 4 })}
                             contentStyle={{ 
                               backgroundColor: chartColors.tooltip.bg, 
                               border: `1px solid ${chartColors.tooltip.border}`,
@@ -925,7 +951,7 @@ function Module1Production({ user }) {
       <AlertModal
         isOpen={alertModal.isOpen}
         onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
-        title={alertModal.type === 'success' ? t('success') || 'Success' : alertModal.type === 'error' ? t('error') || 'Error' : t('information') || 'Information'}
+        title={alertModal.type === 'success' ? t('success') : alertModal.type === 'error' ? t('error') : t('information')}
         message={alertModal.message}
         type={alertModal.type}
       />
@@ -938,9 +964,11 @@ function Module1Production({ user }) {
         onApply={applyCostToForm}
         currentAnimals={parseFloat(formData.animals_count) || 1}
         currentDailyProduction={parseFloat(formData.daily_production_liters) || 1}
+        preferredCurrency={preferredCurrency}
       />
     </div>
   );
 }
 
 export default Module1Production;
+

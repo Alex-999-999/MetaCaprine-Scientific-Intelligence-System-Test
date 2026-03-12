@@ -5,11 +5,15 @@ import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import AlertModal from '../AlertModal';
 import { useChartColors } from '../../hooks/useDarkMode';
+import { formatCurrency, formatCurrencyCompact, normalizeCurrency } from '../../utils/currency';
 
 function Module5Summary({ user }) {
   const { t } = useI18n();
   const navigate = useNavigate();
   const chartColors = useChartColors();
+  const preferredCurrency = normalizeCurrency(user?.preferred_currency);
+  const formatMoney = (value, options = {}) => formatCurrency(value, preferredCurrency, options);
+  const formatMoneyCompact = (value) => formatCurrencyCompact(value, preferredCurrency);
   const [scenarios, setScenarios] = useState([]);
   const [selectedScenarios, setSelectedScenarios] = useState([]);
   const [comparison, setComparison] = useState(null);
@@ -17,18 +21,24 @@ function Module5Summary({ user }) {
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: '', type: 'success' });
   const [expandedBreakdown, setExpandedBreakdown] = useState({});
 
-  // Helper function to determine scenario type label
-  const getScenarioTypeLabel = (item) => {
+  // Helper function to determine scenario type code/label
+  const getScenarioTypeCode = (item) => {
     if (!item.results.transformationMetrics) {
-      return 'Solo leche';
+      return 'milk_only';
     }
-    // If has transformation but might also have direct milk sale
-    const hasTransformation = item.results.transformationMetrics && 
+    const hasTransformation = item.results.transformationMetrics &&
       (item.results.transformationMetrics.productRevenue || 0) > 0;
     if (hasTransformation && item.results.revenue?.totalRevenue > 0) {
-      return 'Mixto';
+      return 'mixed';
     }
-    return 'Transformación';
+    return 'transformation';
+  };
+
+  const getScenarioTypeLabel = (item) => {
+    const typeCode = getScenarioTypeCode(item);
+    if (typeCode === 'milk_only') return t('scenarioTypeMilkOnly');
+    if (typeCode === 'mixed') return t('scenarioTypeMixed');
+    return t('scenarioTypeTransformation');
   };
 
   useEffect(() => {
@@ -112,6 +122,7 @@ function Module5Summary({ user }) {
       revenueRank,
       marginRank,
       marginPercentRank,
+      typeCode: getScenarioTypeCode(item),
       typeLabel: getScenarioTypeLabel(item),
     };
   }) : [];
@@ -229,18 +240,18 @@ function Module5Summary({ user }) {
                           padding: '4px 8px',
                           borderRadius: '4px',
                           fontSize: '0.85em',
-                          backgroundColor: dataItem?.typeLabel === 'Solo leche' ? '#e3f2fd' :
-                                         dataItem?.typeLabel === 'Transformación' ? '#fff3e0' : '#f3e5f5',
-                          color: dataItem?.typeLabel === 'Solo leche' ? '#1976d2' :
-                                dataItem?.typeLabel === 'Transformación' ? '#e65100' : '#7b1fa2',
+                          backgroundColor: dataItem?.typeCode === 'milk_only' ? '#e3f2fd' :
+                                         dataItem?.typeCode === 'transformation' ? '#fff3e0' : '#f3e5f5',
+                          color: dataItem?.typeCode === 'milk_only' ? '#1976d2' :
+                                dataItem?.typeCode === 'transformation' ? '#e65100' : '#7b1fa2',
                         }}>
                           {dataItem?.typeLabel || getScenarioTypeLabel(item)}
                         </span>
                       </td>
                       <td>{Number(item.results.totalProductionLiters || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                      <td>${Number(item.results.totalRevenue || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                      <td>${Number(item.results.totalCosts || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                      <td>${Number(item.results.grossMargin || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                      <td>{formatMoney(item.results.totalRevenue)}</td>
+                      <td>{formatMoney(item.results.totalCosts)}</td>
+                      <td>{formatMoney(item.results.grossMargin)}</td>
                       <td>{Number(item.results.marginPercentage || 0).toFixed(2)}%</td>
                       <td>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85em' }}>
@@ -264,7 +275,7 @@ function Module5Summary({ user }) {
                   <span className="chart-title-icon">📊</span>
                   {t('comparativeVisualization')}
                 </h2>
-                <p className="chart-subtitle">Visual comparison of financial metrics across scenarios</p>
+                <p className="chart-subtitle">{t('financialMetricsComparisonSubtitle')}</p>
               </div>
             </div>
             
@@ -287,10 +298,10 @@ function Module5Summary({ user }) {
                     tick={{ fill: chartColors.text.secondary, fontSize: 11 }}
                     axisLine={false}
                     tickLine={false}
-                    tickFormatter={(value) => `$${(value/1000).toFixed(0)}k`}
+                    tickFormatter={(value) => formatMoneyCompact(value)}
                   />
                   <Tooltip 
-                    formatter={(value) => `$${Number(value || 0).toLocaleString(undefined)}`}
+                    formatter={(value) => formatMoney(value)}
                     contentStyle={{ 
                       backgroundColor: chartColors.tooltip.bg, 
                       border: `1px solid ${chartColors.tooltip.border}`,
@@ -332,7 +343,7 @@ function Module5Summary({ user }) {
                     tickLine={false}
                   />
                   <Tooltip 
-                    formatter={(value) => `$${Number(value || 0).toLocaleString(undefined)}`}
+                    formatter={(value) => formatMoney(value)}
                     contentStyle={{ 
                       backgroundColor: chartColors.tooltip.bg, 
                       border: `1px solid ${chartColors.tooltip.border}`,
@@ -398,9 +409,9 @@ function Module5Summary({ user }) {
                 <div>
                   <h2 className="chart-title">
                     <span className="chart-title-icon">🥧</span>
-                    Análisis de Mix
+                    {t('mixAnalysis')}
                   </h2>
-                  <p className="chart-subtitle">Product and channel distribution breakdown</p>
+                  <p className="chart-subtitle">{t('productChannelDistributionSubtitle')}</p>
                 </div>
               </div>
               
@@ -408,10 +419,10 @@ function Module5Summary({ user }) {
                 {/* Product Mix Visualization */}
                 {comparison.some(item => item.results.transformationMetrics?.productsBreakdown) && (
                   <div className="chart-container">
-                    <h3 className="chart-section-title">Mix de Productos por Escenario</h3>
+                    <h3 className="chart-section-title">{t('productMixByScenario')}</h3>
                     {comparison.filter(item => item.results.transformationMetrics?.productsBreakdown).map((item, idx) => {
                       const productsData = item.results.transformationMetrics.productsBreakdown.map(p => ({
-                        name: p.product_type_custom || p.product_type || 'Producto',
+                        name: p.product_type_custom || p.product_type || t('product'),
                         value: p.distribution_percentage || 0,
                       }));
                       
@@ -455,7 +466,7 @@ function Module5Summary({ user }) {
                 {/* Channel Mix Visualization */}
                 {comparison.some(item => item.results.transformationMetrics?.productsBreakdown) && (
                   <div className="chart-container">
-                    <h3 className="chart-section-title">Mix de Canales por Escenario</h3>
+                    <h3 className="chart-section-title">{t('channelMixByScenario')}</h3>
                     {comparison.filter(item => item.results.transformationMetrics?.productsBreakdown).map((item, idx) => {
                       let totalKgDirect = 0;
                       let totalKgDistributors = 0;
@@ -474,13 +485,13 @@ function Module5Summary({ user }) {
                       const channelsData = [];
                       if (totalKg > 0) {
                         if (totalKgDirect > 0) {
-                          channelsData.push({ name: t('salesChannelDirect') || 'Directo', value: (totalKgDirect / totalKg) * 100 });
+                          channelsData.push({ name: t('salesChannelDirect'), value: (totalKgDirect / totalKg) * 100 });
                         }
                         if (totalKgDistributors > 0) {
-                          channelsData.push({ name: t('salesChannelDistributors') || 'Distribuidores', value: (totalKgDistributors / totalKg) * 100 });
+                          channelsData.push({ name: t('salesChannelDistributors'), value: (totalKgDistributors / totalKg) * 100 });
                         }
                         if (totalKgThird > 0) {
-                          channelsData.push({ name: t('salesChannelThird') || 'Tercer Canal', value: (totalKgThird / totalKg) * 100 });
+                          channelsData.push({ name: t('salesChannelThird'), value: (totalKgThird / totalKg) * 100 });
                         }
                       }
                       
@@ -549,7 +560,7 @@ function Module5Summary({ user }) {
 
           {/* Calculation Breakdown Panel */}
           <div className="card">
-            <h2>{t('calculationBreakdown') || 'Desglose de Cálculo'}</h2>
+            <h2>{t('calculationBreakdown')}</h2>
             {comparison.map((item, idx) => {
               const isExpanded = expandedBreakdown[item.scenario.id];
               const tm = item.results.transformationMetrics;
@@ -576,68 +587,68 @@ function Module5Summary({ user }) {
                     <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #e0e0e0' }}>
                       {tm ? (
                         <>
-                          <h4>{t('transformationDetails') || 'Detalles de Transformación'}</h4>
+                          <h4>{t('transformationDetails')}</h4>
                           <table className="table" style={{ fontSize: '0.9em' }}>
                             <tbody>
                               <tr>
-                                <td><strong>{t('litersUsedTransformation') || 'Litros usados en transformación'}:</strong></td>
+                                <td><strong>{t('litersUsedTransformation')}:</strong></td>
                                 <td>{Number(tm.totalTransformationLiters || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} L</td>
                               </tr>
                               <tr>
-                                <td><strong>{t('totalKgProduced') || 'Total kg/L producidos'}:</strong></td>
+                                <td><strong>{t('totalKgProduced')}:</strong></td>
                                 <td>{Number(tm.totalProductKg || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} kg</td>
                               </tr>
                               <tr>
-                                <td><strong>{t('averageWeightedPrice') || 'Precio promedio ponderado'}:</strong></td>
-                                <td>${Number(tm.averageWeightedPrice || 0).toFixed(2)} / kg</td>
+                                <td><strong>{t('averageWeightedPrice')}:</strong></td>
+                                <td>{formatMoney(tm.averageWeightedPrice)} / kg</td>
                               </tr>
                               <tr>
-                                <td><strong>{t('averageWeightedCost') || 'Costo promedio ponderado unitario'}:</strong></td>
-                                <td>${Number(tm.averageWeightedCost || 0).toFixed(2)} / kg</td>
+                                <td><strong>{t('averageWeightedCost')}:</strong></td>
+                                <td>{formatMoney(tm.averageWeightedCost)} / kg</td>
                               </tr>
                               <tr>
-                                <td><strong>{t('totalTransformationRevenue') || 'Ingreso total transformación'}:</strong></td>
-                                <td>${Number(tm.productRevenue || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                                <td><strong>{t('totalTransformationRevenue')}:</strong></td>
+                                <td>{formatMoney(tm.productRevenue)}</td>
                               </tr>
                               <tr>
-                                <td><strong>{t('totalTransformationCost') || 'Costo total transformación'}:</strong></td>
-                                <td>${Number((tm.processingCost || 0) + (tm.packagingCost || 0) + (item.results.costs?.totalCosts || 0)).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                                <td><strong>{t('totalTransformationCost')}:</strong></td>
+                                <td>{formatMoney((tm.processingCost || 0) + (tm.packagingCost || 0) + (item.results.costs?.totalCosts || 0))}</td>
                               </tr>
                               <tr>
-                                <td><strong>{t('totalTransformationMargin') || 'Margen total transformación'}:</strong></td>
-                                <td>${Number(item.results.grossMargin || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                                <td><strong>{t('totalTransformationMargin')}:</strong></td>
+                                <td>{formatMoney(item.results.grossMargin)}</td>
                               </tr>
                             </tbody>
                           </table>
                         </>
                       ) : (
                         <>
-                          <h4>{t('directSaleDetails') || 'Detalles de Venta Directa de Leche'}</h4>
+                          <h4>{t('directSaleDetails')}</h4>
                           <table className="table" style={{ fontSize: '0.9em' }}>
                             <tbody>
                               <tr>
-                                <td><strong>{t('totalLiters') || 'Total litros'}:</strong></td>
+                                <td><strong>{t('totalLiters')}:</strong></td>
                                 <td>{Number(item.results.totalProductionLiters || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} L</td>
                               </tr>
                               <tr>
-                                <td><strong>{t('revenuePerLiter') || 'Precio por litro'}:</strong></td>
-                                <td>${Number(item.results.revenue?.revenuePerLiter || 0).toFixed(2)} / L</td>
+                                <td><strong>{t('revenuePerLiter')}:</strong></td>
+                                <td>{formatMoney(item.results.revenue?.revenuePerLiter)} / L</td>
                               </tr>
                               <tr>
-                                <td><strong>{t('costPerLiter') || 'Costo por litro'}:</strong></td>
-                                <td>${Number(item.results.costs?.costPerLiter || 0).toFixed(2)} / L</td>
+                                <td><strong>{t('costPerLiter')}:</strong></td>
+                                <td>{formatMoney(item.results.costs?.costPerLiter)} / L</td>
                               </tr>
                               <tr>
-                                <td><strong>{t('totalRevenue') || 'Ingreso total'}:</strong></td>
-                                <td>${Number(item.results.totalRevenue || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                                <td><strong>{t('totalRevenue')}:</strong></td>
+                                <td>{formatMoney(item.results.totalRevenue)}</td>
                               </tr>
                               <tr>
-                                <td><strong>{t('totalCosts') || 'Costo total'}:</strong></td>
-                                <td>${Number(item.results.totalCosts || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                                <td><strong>{t('totalCosts')}:</strong></td>
+                                <td>{formatMoney(item.results.totalCosts)}</td>
                               </tr>
                               <tr>
-                                <td><strong>{t('grossMargin') || 'Margen bruto'}:</strong></td>
-                                <td>${Number(item.results.grossMargin || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                                <td><strong>{t('grossMargin')}:</strong></td>
+                                <td>{formatMoney(item.results.grossMargin)}</td>
                               </tr>
                             </tbody>
                           </table>
@@ -654,7 +665,7 @@ function Module5Summary({ user }) {
       <AlertModal
         isOpen={alertModal.isOpen}
         onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
-        title={alertModal.type === 'success' ? t('success') : alertModal.type === 'error' ? t('error') : t('information') || 'Information'}
+        title={alertModal.type === 'success' ? t('success') : alertModal.type === 'error' ? t('error') : t('information')}
         message={alertModal.message}
         type={alertModal.type}
       />

@@ -99,6 +99,13 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    if (error.message === 'Email not verified') {
+      return res.status(403).json({
+        error: 'Email not verified',
+        message: 'Please verify your email address before logging in.'
+      });
+    }
+
     if (error.code === 'ECONNREFUSED' || error.code === '28P01' || error.message?.includes('password authentication')) {
       return res.status(500).json({
         error: 'Database connection failed. Please check your database configuration.'

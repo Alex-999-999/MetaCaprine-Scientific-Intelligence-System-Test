@@ -5,6 +5,7 @@ import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import AlertModal from '../AlertModal';
 import { useChartColors } from '../../hooks/useDarkMode';
+import { formatCurrency, formatCurrencyCompact, getCurrencySymbol, normalizeCurrency } from '../../utils/currency';
 
 function Module2Transformation({ user }) {
   const { t } = useI18n();
@@ -12,6 +13,10 @@ function Module2Transformation({ user }) {
   const navigate = useNavigate();
   const scenarioId = location.state?.scenarioId;
   const chartColors = useChartColors();
+  const preferredCurrency = normalizeCurrency(user?.preferred_currency);
+  const currencySymbol = getCurrencySymbol(preferredCurrency);
+  const formatMoney = (value, options = {}) => formatCurrency(value, preferredCurrency, options);
+  const formatMoneyCompact = (value) => formatCurrencyCompact(value, preferredCurrency);
 
   const [productionData, setProductionData] = useState({
     daily_production_liters: 0,
@@ -261,9 +266,9 @@ function Module2Transformation({ user }) {
   };
 
   const handleCreateScenario = async () => {
-    const defaultName = `${t('moduleTypes.transformation') || 'Transformation'} ${new Date().toLocaleDateString()}`;
+    const defaultName = `${t('moduleTypes.transformation')} ${new Date().toLocaleDateString()}`;
     const scenarioName = window.prompt(
-      t('scenarioNamePlaceholder') || 'Enter scenario name',
+      t('scenarioNamePlaceholder'),
       defaultName
     );
 
@@ -284,13 +289,13 @@ function Module2Transformation({ user }) {
       await loadScenario(createdScenario.id);
       setAlertModal({
         isOpen: true,
-        message: t('scenarioCreated') || 'Scenario created successfully',
+        message: t('scenarioCreated'),
         type: 'success'
       });
     } catch (error) {
       setAlertModal({
         isOpen: true,
-        message: error.response?.data?.error || t('errorCreatingScenario') || 'Error creating scenario',
+        message: error.response?.data?.error || t('errorCreatingScenario'),
         type: 'error'
       });
     } finally {
@@ -498,7 +503,7 @@ function Module2Transformation({ user }) {
     ) {
       setAlertModal({
         isOpen: true,
-        message: t('module2ProductionBaseRequired') || 'Please enter base milk volume data (daily liters, production days, and animals) before saving.',
+        message: t('module2ProductionBaseRequired'),
         type: 'info'
       });
       return;
@@ -563,7 +568,7 @@ function Module2Transformation({ user }) {
       handleCalculate();
       setAlertModal({
         isOpen: true,
-        message: t('dataSavedAndCalculated') || 'Saved and calculated successfully',
+        message: t('dataSavedAndCalculated'),
         type: 'success'
       });
     } catch (error) {
@@ -664,7 +669,7 @@ function Module2Transformation({ user }) {
       milk_revenue: milkRevenue || 0,
       milk_margin: milkMargin || 0,
       transformation_margin: transformationMargin || 0,
-      better_option: transformationMargin > milkMargin ? 'transformación' : 'venta_directa',
+      better_option: transformationMargin > milkMargin ? 'transform' : 'sell_direct',
     });
   };
 
@@ -682,6 +687,25 @@ function Module2Transformation({ user }) {
       [t('margin')]: Number(results.transformation_margin) || 0
     },
   ].filter(item => !isNaN(item[t('income')]) && !isNaN(item[t('totalCosts')]) && !isNaN(item[t('margin')])) : [];
+
+  const isProUser = ['pro', 'admin'].includes(user?.role);
+  const hasModule2Access = isProUser || (user?.features || []).includes('module2');
+
+  if (!hasModule2Access) {
+    return (
+      <div className="container">
+        <div className="card" style={{ border: '2px solid var(--accent-warning)', background: 'var(--bg-secondary)' }}>
+          <h2 style={{ marginBottom: '12px' }}>🔒 {t('module2Title')}</h2>
+          <p style={{ marginBottom: '12px', lineHeight: 1.6 }}>
+            {t('module2BasicSimulationMessage')}
+          </p>
+          <button className="btn btn-primary" onClick={() => navigate('/profile')}>
+            {t('upgradeToPro')}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">
@@ -710,7 +734,7 @@ function Module2Transformation({ user }) {
             onClick={handleCreateScenario}
             disabled={creatingScenario}
           >
-            {creatingScenario ? (t('creating') || 'Creating...') : `+ ${t('createScenario') || 'Create Scenario'}`}
+            {creatingScenario ? (t('creating')) : `+ ${t('createScenario')}`}
           </button>
         </div>
         <select
@@ -733,7 +757,7 @@ function Module2Transformation({ user }) {
         </select>
         {scenarios.length === 0 && (
           <p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: '0.92rem' }}>
-            {t('noScenarios') || 'No scenarios yet'}.
+            {t('noScenarios')}.
           </p>
         )}
       </div>
@@ -744,7 +768,7 @@ function Module2Transformation({ user }) {
             <h2>{t('baseProductionData')}</h2>
             <div style={{ marginBottom: '20px', padding: '15px', background: 'rgba(22, 163, 74, 0.1)', borderRadius: '8px', border: '1px solid var(--accent-success)' }}>
               <p style={{ margin: 0, fontSize: '0.9em', color: 'var(--accent-success)', fontWeight: '500' }}>
-                📊 <strong>{t('note')}:</strong> {t('module2StandaloneMode') || 'Module 2 can work with inherited Module 1 data or with direct input from this module.'}
+                📊 <strong>{t('note')}:</strong> {t('module2StandaloneMode')}
               </p>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
@@ -795,7 +819,7 @@ function Module2Transformation({ user }) {
                 />
               </div>
               <div className="form-group">
-                <label>{t('feedCost') || 'Milk Cost'}</label>
+                <label>{t('feedCost')}</label>
                 <input
                   type="number"
                   name="feed_cost_per_liter"
@@ -1001,7 +1025,7 @@ function Module2Transformation({ user }) {
                     </label>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '8px' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '120px' }}>
-                        <label style={{ fontSize: '0.85em', color: 'var(--text-tertiary)', fontWeight: '500' }}>Unidad:</label>
+                        <label style={{ fontSize: '0.85em', color: 'var(--text-tertiary)', fontWeight: '500' }}>{t('unitLabel')}:</label>
                         <select
                           value={product.processing_cost_unit || 'liter'}
                           onChange={(e) => handleProductChange(product.id, 'processing_cost_unit', e.target.value)}
@@ -1018,13 +1042,13 @@ function Module2Transformation({ user }) {
                           onFocus={(e) => e.target.style.borderColor = 'var(--accent-success)'}
                           onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
                         >
-                          <option value="liter">$/L (por litro)</option>
-                          <option value="kg">$/kg (por kilogramo)</option>
+                          <option value="liter">{`${currencySymbol}/L (${t('perLiter')})`}</option>
+                          <option value="kg">{`${currencySymbol}/kg (${t('perKilogram')})`}</option>
                         </select>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
                         <label style={{ fontSize: '0.85em', color: 'var(--text-secondary)', fontWeight: '500' }}>
-                          Costo {product.processing_cost_unit === 'liter' ? 'por litro' : 'por kg'}:
+                          {`${t('costByUnit')} ${product.processing_cost_unit === 'liter' ? t('perLiter') : t('perKilogram')}:`}
                         </label>
                         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                           <input
@@ -1053,7 +1077,7 @@ function Module2Transformation({ user }) {
                             fontSize: '0.9em',
                             pointerEvents: 'none'
                           }}>
-                            {product.processing_cost_unit === 'liter' ? '$/L' : '$/kg'}
+                            {product.processing_cost_unit === 'liter' ? `${currencySymbol}/L` : `${currencySymbol}/kg`}
                           </span>
                         </div>
                       </div>
@@ -1078,7 +1102,7 @@ function Module2Transformation({ user }) {
                     </label>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '8px' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '120px' }}>
-                        <label style={{ fontSize: '0.85em', color: 'var(--text-tertiary)', fontWeight: '500' }}>Unidad:</label>
+                        <label style={{ fontSize: '0.85em', color: 'var(--text-tertiary)', fontWeight: '500' }}>{t('unitLabel')}:</label>
                         <select
                           value={product.packaging_cost_unit || 'kg'}
                           onChange={(e) => handleProductChange(product.id, 'packaging_cost_unit', e.target.value)}
@@ -1095,13 +1119,13 @@ function Module2Transformation({ user }) {
                           onFocus={(e) => e.target.style.borderColor = 'var(--accent-success)'}
                           onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
                         >
-                          <option value="liter">$/L (por litro)</option>
-                          <option value="kg">$/kg (por kilogramo)</option>
+                          <option value="liter">{`${currencySymbol}/L (${t('perLiter')})`}</option>
+                          <option value="kg">{`${currencySymbol}/kg (${t('perKilogram')})`}</option>
                         </select>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
                         <label style={{ fontSize: '0.85em', color: 'var(--text-secondary)', fontWeight: '500' }}>
-                          Costo {product.packaging_cost_unit === 'liter' ? 'por litro' : 'por kg'}:
+                          {`${t('costByUnit')} ${product.packaging_cost_unit === 'liter' ? t('perLiter') : t('perKilogram')}:`}
                         </label>
                         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                           <input
@@ -1130,7 +1154,7 @@ function Module2Transformation({ user }) {
                             fontSize: '0.9em',
                             pointerEvents: 'none'
                           }}>
-                            {product.packaging_cost_unit === 'liter' ? '$/L' : '$/kg'}
+                            {product.packaging_cost_unit === 'liter' ? `${currencySymbol}/L` : `${currencySymbol}/kg`}
                           </span>
                         </div>
                       </div>
@@ -1358,7 +1382,7 @@ function Module2Transformation({ user }) {
                           <tbody>
                             <tr>
                               <td><strong>{t('milkProductionCostPerLiter')}</strong></td>
-                              <td>${totalMilkProductionCostPerLiter.toFixed(2)} ({t('inheritedFromModule1')})</td>
+                              <td>{formatMoney(totalMilkProductionCostPerLiter)} ({t('inheritedFromModule1')})</td>
                             </tr>
                             <tr>
                               <td><strong>{t('totalLitersTransformed')}</strong></td>
@@ -1370,19 +1394,19 @@ function Module2Transformation({ user }) {
                             </tr>
                             <tr>
                               <td><strong>{t('totalMilkCost')}</strong></td>
-                              <td>${totalMilkCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                              <td>{formatMoney(totalMilkCost)}</td>
                             </tr>
                             <tr>
                               <td><strong>{t('totalProcessingCost')}</strong></td>
-                              <td>${totalProcessingCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                              <td>{formatMoney(totalProcessingCost)}</td>
                             </tr>
                             <tr>
                               <td><strong>{t('totalPackagingCost')}</strong></td>
-                              <td>${totalPackagingCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                              <td>{formatMoney(totalPackagingCost)}</td>
                             </tr>
                             <tr style={{ borderTop: '2px solid var(--border-color)' }}>
                               <td><strong>{t('totalProductionCost')}</strong></td>
-                              <td><strong>${totalCosts.toLocaleString(undefined, { maximumFractionDigits: 2 })}</strong></td>
+                              <td><strong>{formatMoney(totalCosts)}</strong></td>
                             </tr>
                           </tbody>
                         </table>
@@ -1411,18 +1435,18 @@ function Module2Transformation({ user }) {
                                     <td>{bd.product.product_type_custom || t(`productTypes.${bd.product.product_type}`) || bd.product.product_type}</td>
                                     <td>{bd.productLiters.toLocaleString(undefined, { maximumFractionDigits: 2 })} L</td>
                                     <td>{bd.productKg.toLocaleString(undefined, { maximumFractionDigits: 2 })} kg</td>
-                                    <td>${bd.productMilkCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                                    <td>${bd.productProcessingCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                                    <td>${bd.productPackagingCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                                    <td>${bd.totalProductCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                                    <td><strong>${bd.costPerKg.toFixed(2)}</strong></td>
+                                    <td>{formatMoney(bd.productMilkCost)}</td>
+                                    <td>{formatMoney(bd.productProcessingCost)}</td>
+                                    <td>{formatMoney(bd.productPackagingCost)}</td>
+                                    <td>{formatMoney(bd.totalProductCost)}</td>
+                                    <td><strong>{formatMoney(bd.costPerKg)}</strong></td>
                                   </tr>
                                 ))}
                               </tbody>
                             </table>
                           </div>
                           <div style={{ marginTop: '15px', padding: '12px', background: 'var(--bg-tertiary)', borderRadius: '6px', fontSize: '0.9em' }}>
-                            <strong>{t('weightedAverageCostPerKg')}</strong>: ${averageCostPerKg.toFixed(2)} / kg
+                            <strong>{t('weightedAverageCostPerKg')}</strong>: {formatMoney(averageCostPerKg)} / kg
                             <br />
                             <small style={{ color: 'var(--text-secondary)' }}>{t('note')}: {t('weightedAverageCostPerKg')}</small>
                           </div>
@@ -1430,7 +1454,7 @@ function Module2Transformation({ user }) {
                       )}
                       {products.length === 1 && (
                         <div style={{ marginTop: '15px', padding: '12px', background: '#f5f5f5', borderRadius: '6px', fontSize: '0.9em' }}>
-                          <strong>{t('weightedAverageCostPerKg')}</strong>: ${averageCostPerKg.toFixed(2)} / kg
+                          <strong>{t('weightedAverageCostPerKg')}</strong>: {formatMoney(averageCostPerKg)} / kg
                         </div>
                       )}
                     </div>
@@ -1624,7 +1648,7 @@ function Module2Transformation({ user }) {
                   return (
                     <>
                       <div style={{ marginBottom: '15px', padding: '12px', background: 'rgba(37, 99, 235, 0.1)', borderRadius: '6px', border: '1px solid var(--accent-info)', fontSize: '0.9em' }}>
-                        <strong>✅ {t('note')}:</strong> La tabla ahora muestra primero los datos reales por producto (precios, costos, márgenes), y el promedio ponderado del mix aparece como dato secundario. <strong>Los valores en negrita son los márgenes por producto</strong>, que son los datos accionables para decisiones de negocio.
+                        <strong>✅ {t('note')}:</strong> {t('module2ProductTableNote')}
                       </div>
                       <div className="table-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                         <table className="table" style={{ minWidth: '800px' }}>
@@ -1713,14 +1737,14 @@ function Module2Transformation({ user }) {
                                       <td style={{ paddingLeft: '30px' }}>{detail.productName}</td>
                                       <td>-</td>
                                       <td>{detail.kg.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                                      <td style={{ fontWeight: 'bold' }}>${detail.price.toFixed(2)}</td>
-                                      <td style={{ width: '110px', minWidth: '110px', maxWidth: '110px' }}>${detail.unitCost.toFixed(2)}</td>
+                                      <td style={{ fontWeight: 'bold' }}>{formatMoney(detail.price)}</td>
+                                      <td style={{ width: '110px', minWidth: '110px', maxWidth: '110px' }}>{formatMoney(detail.unitCost)}</td>
                                       <td style={{
                                         color: detail.unitMargin >= 0 ? 'green' : 'red',
                                         fontWeight: 'bold',
                                         fontSize: '1.05em'
                                       }}>
-                                        ${detail.unitMargin.toFixed(2)}
+                                        {formatMoney(detail.unitMargin)}
                                       </td>
                                       <td style={{
                                         color: detail.unitMarginPercent >= 0 ? 'green' : 'red',
@@ -1729,7 +1753,7 @@ function Module2Transformation({ user }) {
                                       }}>
                                         {detail.unitMarginPercent.toFixed(1)}%
                                       </td>
-                                      <td>${detail.totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                                      <td>{formatMoney(detail.totalRevenue)}</td>
                                     </tr>
                                   ))}
                                   {/* Weighted Average Summary Row (Secondary) */}
@@ -1747,19 +1771,19 @@ function Module2Transformation({ user }) {
                                       <td>-</td>
                                       <td><small>{channel.kg.toLocaleString(undefined, { maximumFractionDigits: 2 })}</small></td>
                                       <td style={{ color: 'var(--text-secondary)' }}>
-                                        <small>${channel.price > 0 ? channel.price.toFixed(2) : '0.00'}</small>
+                                        <small>{formatMoney(channel.price > 0 ? channel.price : 0)}</small>
                                       </td>
                                       <td style={{ color: 'var(--text-secondary)' }}>
-                                        <small>${averageCostPerKg.toFixed(2)}</small>
+                                        <small>{formatMoney(averageCostPerKg)}</small>
                                       </td>
                                       <td style={{ color: 'var(--text-secondary)' }}>
-                                        <small>${margin.toFixed(2)}</small>
+                                        <small>{formatMoney(margin)}</small>
                                       </td>
                                       <td style={{ color: 'var(--text-secondary)' }}>
                                         <small>{marginPercent.toFixed(1)}%</small>
                                       </td>
                                       <td style={{ color: 'var(--text-secondary)' }}>
-                                        <small>${channel.revenue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</small>
+                                        <small>{formatMoney(channel.revenue)}</small>
                                       </td>
                                     </tr>
                                   )}
@@ -1773,7 +1797,7 @@ function Module2Transformation({ user }) {
                               <td colSpan="4" style={{ color: 'var(--text-secondary)', fontStyle: 'italic', fontSize: '0.9em' }}>
                                 {t('totalAcrossAllChannels')}
                               </td>
-                              <td>${(channels[0].revenue + channels[1].revenue + channels[2].revenue).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                              <td>{formatMoney((channels[0].revenue + channels[1].revenue + channels[2].revenue))}</td>
                             </tr>
                           </tbody>
                         </table>
@@ -1809,19 +1833,19 @@ function Module2Transformation({ user }) {
                     <tbody>
                       <tr>
                         <td><strong>{t('income')}</strong></td>
-                        <td>${results.milk_revenue?.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                        <td>${results.product_revenue?.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                        <td>{formatMoney(results.milk_revenue)}</td>
+                        <td>{formatMoney(results.product_revenue)}</td>
                       </tr>
                       <tr>
                         <td><strong>{t('margin')}</strong></td>
-                        <td>${results.milk_margin?.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                        <td>${results.transformation_margin?.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                        <td>{formatMoney(results.milk_margin)}</td>
+                        <td>{formatMoney(results.transformation_margin)}</td>
                       </tr>
                       <tr>
                         <td><strong>{t('difference')}</strong></td>
                         <td colSpan="2">
-                          ${Math.abs(results.transformation_margin - results.milk_margin)?.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                          {' '}({results.better_option === 'transformación' ? t('betterTransform') : t('betterSellDirect')})
+                          {formatMoney(Math.abs(results.transformation_margin - results.milk_margin))}
+                          {' '}({['transform', 'transformation', 'transformación'].includes(results.better_option) ? t('betterTransform') : t('betterSellDirect')})
                         </td>
                       </tr>
                     </tbody>
@@ -1837,7 +1861,7 @@ function Module2Transformation({ user }) {
                       <span className="chart-title-icon">📈</span>
                       {t('visualization')}
                     </h2>
-                    <p className="chart-subtitle">Compare raw milk vs transformation scenarios visually</p>
+                    <p className="chart-subtitle">{t('module2CompareSubtitle')}</p>
                   </div>
                   <div className="chart-controls">
                     <div className="chart-control-group">
@@ -1911,13 +1935,13 @@ function Module2Transformation({ user }) {
                                 tick={{ fill: chartColors.text.secondary, fontSize: 11 }}
                                 axisLine={false}
                                 tickLine={false}
-                                tickFormatter={(value) => marginViewMode === 'percent' ? `${value}%` : `$${(value / 1000).toFixed(0)}k`}
+                                tickFormatter={(value) => marginViewMode === 'percent' ? `${value}%` : formatMoneyCompact(value)}
                               />
                               <Tooltip
                                 formatter={(value) =>
                                   marginViewMode === 'percent'
                                     ? `${Number(value || 0).toFixed(1)}%`
-                                    : `$${Number(value || 0).toLocaleString(undefined)}`
+                                    : formatMoney(value)
                                 }
                                 contentStyle={{
                                   backgroundColor: chartColors.tooltip.bg,
@@ -2082,7 +2106,7 @@ function Module2Transformation({ user }) {
                                 formatter={(value) =>
                                   marginViewMode === 'percent'
                                     ? `${Number(value || 0).toFixed(1)}%`
-                                    : `$${Number(value || 0).toLocaleString(undefined)}`
+                                    : formatMoney(value)
                                 }
                                 contentStyle={{
                                   backgroundColor: chartColors.tooltip.bg,
@@ -2116,36 +2140,36 @@ function Module2Transformation({ user }) {
                     <div>
                       <h2 className="chart-title">
                         <span className="chart-title-icon">🎯</span>
-                        {t('integratedDashboard') || 'Integrated Dashboard'}
+                        {t('integratedDashboard')}
                       </h2>
-                      <p className="chart-subtitle">{t('dashboardDescription') || 'Comprehensive view of all metrics and charts for quick decision-making'}</p>
+                      <p className="chart-subtitle">{t('dashboardDescription')}</p>
                     </div>
                   </div>
 
                   {/* Key Metrics Grid */}
                   <div className="metrics-grid">
                     <div className="metric-card info">
-                      <div className="metric-label">{t('totalProductKg') || 'Total Product (kg)'}</div>
+                      <div className="metric-label">{t('totalProductKg')}</div>
                       <div className="metric-value">
                         {Number(results.total_product_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
                     </div>
                     <div className="metric-card">
-                      <div className="metric-label">{t('totalRevenue') || 'Total Revenue'}</div>
+                      <div className="metric-label">{t('totalRevenue')}</div>
                       <div className="metric-value">
-                        ${Number(results.product_revenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatMoney(results.product_revenue)}
                       </div>
                     </div>
                     <div className="metric-card warning">
-                      <div className="metric-label">{t('totalCosts') || 'Total Costs'}</div>
+                      <div className="metric-label">{t('totalCosts')}</div>
                       <div className="metric-value">
-                        ${Number((results.product_revenue || 0) - (results.transformation_margin || 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatMoney((results.product_revenue || 0) - (results.transformation_margin || 0))}
                       </div>
                     </div>
                     <div className={`metric-card ${(results.transformation_margin || 0) >= 0 ? 'success' : 'error'}`}>
-                      <div className="metric-label">{t('grossMargin') || 'Gross Margin'}</div>
+                      <div className="metric-label">{t('grossMargin')}</div>
                       <div className={`metric-value ${(results.transformation_margin || 0) >= 0 ? 'success' : 'error'}`}>
-                        ${Number(results.transformation_margin || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatMoney(results.transformation_margin)}
                       </div>
                       <div className={`metric-change ${((results.product_revenue || 0) > 0 ? ((results.transformation_margin || 0) / (results.product_revenue || 1)) * 100 : 0) >= 0 ? 'positive' : 'negative'}`}>
                         {((results.product_revenue || 0) > 0 ? ((results.transformation_margin || 0) / (results.product_revenue || 1)) * 100 : 0) >= 0 ? '+' : ''}{((results.product_revenue || 0) > 0 ? ((results.transformation_margin || 0) / (results.product_revenue || 1)) * 100 : 0).toFixed(2)}%
@@ -2163,7 +2187,7 @@ function Module2Transformation({ user }) {
                     {comparisonData && comparisonData.length > 0 && (
                       <div>
                         <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600' }}>
-                          {t('financialOverview') || 'Financial Overview'}
+                          {t('financialOverview')}
                         </h3>
                         <ResponsiveContainer width="100%" height={280}>
                           <BarChart data={comparisonData}>
@@ -2171,7 +2195,7 @@ function Module2Transformation({ user }) {
                             <XAxis dataKey="name" stroke={chartColors.axis.tick} />
                             <YAxis stroke={chartColors.axis.tick} />
                             <Tooltip
-                              formatter={(value) => `$${Number(value || 0).toLocaleString(undefined)}`}
+                              formatter={(value) => formatMoney(value)}
                               contentStyle={{
                                 backgroundColor: chartColors.tooltip.bg,
                                 border: `1px solid ${chartColors.tooltip.border}`,
@@ -2203,7 +2227,7 @@ function Module2Transformation({ user }) {
                       return (
                         <div>
                           <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600' }}>
-                            {t('productMix') || 'Product Mix'}
+                            {t('productMix')}
                           </h3>
                           <ResponsiveContainer width="100%" height={280}>
                             <BarChart data={productData}>
@@ -2251,7 +2275,7 @@ function Module2Transformation({ user }) {
                       return donutData.length > 0 ? (
                         <div>
                           <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600' }}>
-                            {t('channelMix') || 'Sales Channel Mix'}
+                            {t('channelMix')}
                           </h3>
                           <ResponsiveContainer width="100%" height={280}>
                             <PieChart>
@@ -2293,7 +2317,7 @@ function Module2Transformation({ user }) {
       <AlertModal
         isOpen={alertModal.isOpen}
         onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
-        title={alertModal.type === 'success' ? t('success') || 'Success' : alertModal.type === 'error' ? t('error') || 'Error' : t('information') || 'Information'}
+        title={alertModal.type === 'success' ? t('success') : alertModal.type === 'error' ? t('error') : t('information')}
         message={alertModal.message}
         type={alertModal.type}
       />

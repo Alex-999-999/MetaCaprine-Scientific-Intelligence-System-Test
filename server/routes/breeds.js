@@ -1,11 +1,15 @@
 import express from 'express';
 import { getPool } from '../db/pool.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { requireRole } from '../middleware/requireRole.js';
+import { requireEmailVerification } from '../middleware/requireEmailVerification.js';
 
 const router = express.Router();
 
 // All routes require authentication
 router.use(authenticateToken);
+router.use(requireRole(['free', 'pro', 'admin']));
+router.use(requireEmailVerification);
 
 /**
  * GET /api/breeds

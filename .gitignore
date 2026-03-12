@@ -192,3 +192,4 @@ site/
 .npm
 .eslintcache
 .stylelintcache
+/What to do.md

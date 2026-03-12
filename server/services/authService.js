@@ -13,6 +13,19 @@ import { sendPasswordResetEmail, sendVerificationEmail } from './emailService.js
 
 const DEFAULT_TERMS_VERSION = 'hito2-v1';
 const DEFAULT_ROLE = 'free';
+const DEFAULT_CURRENCY = 'USD';
+const SUPPORTED_CURRENCIES = new Set([
+  'USD',
+  'EUR',
+  'CAD',
+  'MXN',
+  'COP',
+  'ARS',
+  'CLP',
+  'PEN',
+  'BRL',
+  'UYU',
+]);
 
 function normalizeNullableText(value) {
   if (value === undefined || value === null) return null;
@@ -32,6 +45,14 @@ function normalizeBoolean(value) {
     return ['true', '1', 'yes', 'on'].includes(value.toLowerCase());
   }
   return Boolean(value);
+}
+
+function normalizeCurrencyCode(value, defaultValue = DEFAULT_CURRENCY) {
+  const normalized = normalizeNullableText(value);
+  if (!normalized) return defaultValue;
+
+  const upper = normalized.toUpperCase();
+  return SUPPORTED_CURRENCIES.has(upper) ? upper : defaultValue;
 }
 
 async function assignDefaultRole(client, userId, roleName = DEFAULT_ROLE) {
@@ -107,7 +128,7 @@ async function hydrateUser(userId, client = null) {
     transforms_products: user.transforms_products,
     age: user.age,
     sex: user.sex,
-    preferred_currency: user.preferred_currency || 'USD',
+    preferred_currency: normalizeCurrencyCode(user.preferred_currency),
     accepted_terms: user.accepted_terms,
     accepted_terms_version: user.accepted_terms_version,
     accepted_terms_at: user.accepted_terms_at,
@@ -188,7 +209,7 @@ export async function registerUser(payload) {
         normalizeBoolean(transforms_products),
         normalizeNullableInteger(age),
         normalizeNullableText(sex),
-        normalizeNullableText(preferred_currency) || 'USD',
+        normalizeCurrencyCode(preferred_currency),
         true,
         normalizeNullableText(accepted_terms_version) || DEFAULT_TERMS_VERSION,
       ]
@@ -213,7 +234,7 @@ export async function registerUser(payload) {
 export async function loginUser(email, password) {
   const pool = getPool();
   const result = await pool.query(
-    'SELECT id, email, password_hash FROM users WHERE email = $1',
+    'SELECT id, email, password_hash, email_verified FROM users WHERE email = $1',
     [email]
   );
 
@@ -225,6 +246,10 @@ export async function loginUser(email, password) {
   const validPassword = await bcrypt.compare(password, user.password_hash);
   if (!validPassword) {
     throw new Error('Invalid credentials');
+  }
+
+  if (!user.email_verified) {
+    throw new Error('Email not verified');
   }
 
   const hydratedUser = await hydrateUser(user.id);
@@ -288,7 +313,7 @@ export async function updateUserProfile(userId, payload) {
         transforms_products === undefined ? null : normalizeBoolean(transforms_products),
         normalizeNullableInteger(age),
         normalizeNullableText(sex),
-        normalizeNullableText(preferred_currency),
+        preferred_currency === undefined ? null : normalizeCurrencyCode(preferred_currency),
       ]
     );
 

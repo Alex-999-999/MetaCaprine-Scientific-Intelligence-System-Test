@@ -74,6 +74,8 @@ function Module3Lactation({ user }) {
   const [selectedBreedDetail, setSelectedBreedDetail] = useState(null);
   const [breedDetailModalOpen, setBreedDetailModalOpen] = useState(false);
   const [imageHover, setImageHover] = useState({ isHovering: false, x: 0, y: 0 });
+  const isProUser = ['pro', 'admin'].includes(user?.role);
+  const hasAdvancedComparisons = isProUser || (user?.features || []).includes('advanced_calculations');
 
   useEffect(() => {
     loadBreeds();
@@ -115,7 +117,7 @@ function Module3Lactation({ user }) {
       console.error('Error loading breeds:', error);
       setAlertModal({
         isOpen: true,
-        message: t('errorLoadingBreeds') || 'Error loading breed data. Please ensure Module 3 migration has been run.',
+        message: t('errorLoadingBreeds'),
         type: 'error'
       });
     }
@@ -172,7 +174,7 @@ function Module3Lactation({ user }) {
     if (!breedKey) {
       setAlertModal({
         isOpen: true,
-        message: t('pleaseSelectBreed') || 'Please select a breed',
+        message: t('pleaseSelectBreed'),
         type: 'info'
       });
       return;
@@ -199,7 +201,7 @@ function Module3Lactation({ user }) {
       console.error('Error simulating breed:', error);
       setAlertModal({
         isOpen: true,
-        message: error.response?.data?.error || t('errorCalculating') || 'Error calculating',
+        message: error.response?.data?.error || t('errorCalculating'),
         type: 'error'
       });
     } finally {
@@ -211,7 +213,7 @@ function Module3Lactation({ user }) {
     if (!breedA || !breedB) {
       setAlertModal({
         isOpen: true,
-        message: t('pleaseSelectTwoBreedsForComparison') || 'Please select both breeds to compare',
+        message: t('pleaseSelectTwoBreedsForComparison'),
         type: 'info'
       });
       return;
@@ -246,7 +248,7 @@ function Module3Lactation({ user }) {
       console.error('Error comparing breeds:', error);
       setAlertModal({
         isOpen: true,
-        message: error.response?.data?.error || t('errorRunningComparison') || 'Error comparing breeds',
+        message: error.response?.data?.error || t('errorRunningComparison'),
         type: 'error'
       });
     } finally {
@@ -308,16 +310,30 @@ function Module3Lactation({ user }) {
           <button
             className={`btn ${viewMode === 'compare' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => setViewMode('compare')}
+            disabled={!hasAdvancedComparisons}
+            title={!hasAdvancedComparisons ? t('availableForProUsers') : ''}
           >
             ⚖️ {t('compareAvsB')}
           </button>
           <button
             className={`btn ${viewMode === 'ranking' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => setViewMode('ranking')}
+            disabled={!hasAdvancedComparisons}
+            title={!hasAdvancedComparisons ? t('availableForProUsers') : ''}
           >
             🏆 {t('ranking')}
           </button>
         </div>
+        {!hasAdvancedComparisons && (
+          <div style={{ marginTop: '12px', padding: '12px', borderRadius: '8px', background: 'rgba(234, 179, 8, 0.1)', border: '1px solid var(--accent-warning)' }}>
+            <p style={{ margin: 0, lineHeight: 1.5 }}>
+              {t('module3BasicComparisonMessage')}
+            </p>
+            <button className="btn btn-primary" style={{ marginTop: '10px' }} onClick={() => window.location.assign('/profile')}>
+              {t('unlockFullAnalysis')}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
@@ -353,7 +369,7 @@ function Module3Lactation({ user }) {
                   border: '2px solid var(--accent-error)',
                   color: 'var(--text-primary)'
                 }}>
-                  <h3 style={{ marginTop: 0, color: 'var(--text-primary)' }}>{t('baseParameters')} ({t('fromDatabase') || 'from database'})</h3>
+                  <h3 style={{ marginTop: 0, color: 'var(--text-primary)' }}>{t('baseParameters')} ({t('fromDatabase')})</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', color: 'var(--text-primary)' }}>
                     <div>
                       <strong style={{ color: 'var(--text-primary)' }}>{t('milkKgPerYear')}:</strong> <span style={{ color: 'var(--text-primary)' }}>{formatNumber(getBreedData(selectedBreed).milk_kg_yr)}</span>
@@ -376,7 +392,7 @@ function Module3Lactation({ user }) {
                   </div>
                   {getBreedData(selectedBreed).notes && (
                     <p style={{ marginTop: '10px', fontSize: '0.9em', color: 'var(--text-secondary)' }}>
-                      <strong>{t('source') || 'Source'}:</strong> {getBreedData(selectedBreed).notes}
+                      <strong>{t('source')}:</strong> {getBreedData(selectedBreed).notes}
                     </p>
                   )}
                 </div>
@@ -650,7 +666,7 @@ function Module3Lactation({ user }) {
                     {comparisonResult.winner === 'A' ? comparisonResult.aScenario.breed_name : comparisonResult.bScenario.breed_name}
                   </h3>
                   <p style={{ margin: '0 0 1rem 0', fontSize: '1.125rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
-                    {t('winner') || 'Ganadora'}
+                        {t('winner')}
                   </p>
                   <div style={{ 
                     display: 'grid', 
@@ -660,7 +676,7 @@ function Module3Lactation({ user }) {
                   }}>
                     <div>
                       <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
-                        {t('ecmAdvantage') || 'Ventaja ECM'}
+                        {t('ecmAdvantage')}
                       </div>
                       <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--accent-success)' }}>
                         +{formatNumber(Math.abs(comparisonResult.delta.ecm_kg_lifetime_total), 0)} kg
@@ -671,7 +687,7 @@ function Module3Lactation({ user }) {
                     </div>
                     <div>
                       <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
-                        {t('lactations') || 'Lactancias'}
+                        {t('lactations')}
                       </div>
                       <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                         {formatNumber(comparisonResult.winner === 'A' ? comparisonResult.aScenario.lactations_lifetime_avg : comparisonResult.bScenario.lactations_lifetime_avg, 1)}
@@ -683,17 +699,17 @@ function Module3Lactation({ user }) {
                 {/* Comprehensive Comparison Chart - Key Metrics Side by Side */}
                 <div className="card" style={{ marginBottom: '1.5rem' }}>
                   <h3 style={{ marginBottom: '1.5rem', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-                    {t('comprehensiveComparison') || 'Comparación Completa: Producción por Lactancia y ECM Vida Productiva'}
+                    {t('comprehensiveComparison')}
                   </h3>
                   <ResponsiveContainer width="100%" height={400}>
                     <ComposedChart data={[
                       {
-                        metric: t('milkPerLactation') || 'Leche/Lactancia',
+                        metric: t('milkPerLactation'),
                         [comparisonResult.aScenario.breed_name]: comparisonResult.aScenario.milk_kg_yr / (comparisonResult.aScenario.lact_days_avg / 365),
                         [comparisonResult.bScenario.breed_name]: comparisonResult.bScenario.milk_kg_yr / (comparisonResult.bScenario.lact_days_avg / 365)
                       },
                       {
-                        metric: t('ecmProductiveLife') || 'ECM Vida Productiva',
+                        metric: t('ecmProductiveLife'),
                         [comparisonResult.aScenario.breed_name]: comparisonResult.aScenario.ecm_kg_lifetime,
                         [comparisonResult.bScenario.breed_name]: comparisonResult.bScenario.ecm_kg_lifetime
                       }
@@ -747,10 +763,10 @@ function Module3Lactation({ user }) {
                 {/* Chart 2: Evolution by Lactation - Proper Curve from Lactation 1 */}
                 <div className="card" style={{ marginBottom: '1.5rem' }}>
                   <h3 style={{ marginBottom: '1rem', fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-                    {t('evolutionByLactation') || 'Evolución Productiva por Lactancia'}
+                    {t('evolutionByLactation')}
                   </h3>
                   <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-                    {t('lactationEvolutionNote') || 'Producción acumulada de ECM desde la lactancia 1 hasta el promedio de lactancias por raza'}
+                    {t('lactationEvolutionNote')}
                   </p>
                   <ResponsiveContainer width="100%" height={400}>
                     <LineChart data={(() => {
@@ -778,12 +794,12 @@ function Module3Lactation({ user }) {
                         dataKey="lactation"
                         stroke={chartColors.axis.tick}
                         tick={{ fill: chartColors.text.primary, fontSize: 13, fontWeight: '500' }}
-                        label={{ value: t('lactationNumber') || 'Número de Lactancia', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fill: chartColors.text.primary, fontSize: 14, fontWeight: '600' } }}
+                        label={{ value: t('lactationNumber'), position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fill: chartColors.text.primary, fontSize: 14, fontWeight: '600' } }}
                       />
                       <YAxis 
                         stroke={chartColors.axis.tick}
                         tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
-                        label={{ value: 'ECM Acumulado (kg)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: chartColors.text.primary, fontSize: 14, fontWeight: '600' } }}
+                        label={{ value: t('cumulativeEcmKg'), angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: chartColors.text.primary, fontSize: 14, fontWeight: '600' } }}
                       />
                       <Tooltip 
                         formatter={(value) => value !== null ? [`${formatNumber(value, 0)} kg ECM`, ''] : ['', '']}
@@ -826,7 +842,7 @@ function Module3Lactation({ user }) {
                     {/* Fat Chart */}
                     <div className="card" style={{ padding: '1.5rem', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                       <h3 style={{ marginBottom: '1.5rem', fontSize: '1.125rem', fontWeight: '600', color: 'var(--text-primary)' }}>
-                        {t('fatProductiveLife') || 'Grasa (kg vida productiva)'}
+                        {t('fatProductiveLife')}
                       </h3>
                       <ResponsiveContainer width="100%" height={300}>
                         <BarChart 
@@ -890,7 +906,7 @@ function Module3Lactation({ user }) {
                     {/* Protein Chart */}
                     <div className="card" style={{ padding: '1.5rem', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                       <h3 style={{ marginBottom: '1.5rem', fontSize: '1.125rem', fontWeight: '600', color: 'var(--text-primary)' }}>
-                        {t('proteinProductiveLife') || 'Proteína (kg vida productiva)'}
+                        {t('proteinProductiveLife')}
                       </h3>
                       <ResponsiveContainer width="100%" height={300}>
                         <BarChart 
@@ -980,7 +996,7 @@ function Module3Lactation({ user }) {
                   borderBottom: '1px solid var(--border-color)'
                 }}>
                   <h3 className="breed-ranking-title" style={{ margin: 0 }}>
-                    {t('rankingByEcmProductiveLife') || 'Ranking por ECM Vida Productiva'}
+                    {t('rankingByEcmProductiveLife')}
                   </h3>
                   <span style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)' }}>▼</span>
                 </div>
@@ -1088,7 +1104,7 @@ function Module3Lactation({ user }) {
 
               {/* Ranking Chart - Show ALL breeds */}
               <div className="chart-container">
-                <h3 className="chart-section-title">ECM Lifetime Production by Breed</h3>
+                <h3 className="chart-section-title">{t('ecmLifetimeByBreed')}</h3>
                 <ResponsiveContainer width="100%" height={Math.max(450, rankingResults.scenarios.length * 35)}>
                   <BarChart 
                     data={(() => {
@@ -1402,7 +1418,7 @@ function Module3Lactation({ user }) {
                         <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         <path d="M10 7V13M7 10H13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      {t('hoverToZoom') || 'Pasa el mouse para ampliar'}
+                      {t('hoverToZoom')}
                     </div>
                   )}
                 </div>
@@ -1440,7 +1456,7 @@ function Module3Lactation({ user }) {
               {/* Production Data Section */}
               <div style={{ marginBottom: '24px' }}>
                 <h3 style={{ margin: '0 0 16px 0', fontSize: '1.125rem', fontWeight: '600', color: 'var(--text-primary)' }}>
-                  {t('productionData') || 'Datos de Producción'}
+                  {t('productionData')}
                 </h3>
                 <div style={{ 
                   display: 'grid', 
@@ -1454,7 +1470,7 @@ function Module3Lactation({ user }) {
                     border: '1px solid var(--border-color)'
                   }}>
                     <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                      {t('milkKgPerYear') || 'Leche (kg/año)'}
+                      {t('milkKgPerYear')}
                     </div>
                     <div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                       {formatNumber(selectedBreedDetail.milk_kg_yr, 0)} kg
@@ -1467,10 +1483,10 @@ function Module3Lactation({ user }) {
                     border: '1px solid var(--border-color)'
                   }}>
                     <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                      {t('lactationDaysAvg') || 'Días de Lactación'}
+                      {t('lactationDaysAvg')}
                     </div>
                     <div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-                      {formatNumber(selectedBreedDetail.lact_days_avg, 0)} días
+                      {formatNumber(selectedBreedDetail.lact_days_avg, 0)} {t('days')}
                     </div>
                   </div>
                   <div style={{ 
@@ -1480,7 +1496,7 @@ function Module3Lactation({ user }) {
                     border: '1px solid var(--border-color)'
                   }}>
                     <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                      {t('fatPercent') || '% Grasa'}
+                      {t('fatPercent')}
                     </div>
                     <div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                       {formatNumber(selectedBreedDetail.fat_pct, 2)}%
@@ -1493,7 +1509,7 @@ function Module3Lactation({ user }) {
                     border: '1px solid var(--border-color)'
                   }}>
                     <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                      {t('proteinPercent') || '% Proteína'}
+                      {t('proteinPercent')}
                     </div>
                     <div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                       {formatNumber(selectedBreedDetail.protein_pct, 2)}%
@@ -1505,7 +1521,7 @@ function Module3Lactation({ user }) {
               {/* ECM Data Section */}
               <div style={{ marginBottom: '24px' }}>
                 <h3 style={{ margin: '0 0 16px 0', fontSize: '1.125rem', fontWeight: '600', color: 'var(--text-primary)' }}>
-                  {t('ecmData') || 'Datos ECM (Energy Corrected Milk)'}
+                  {t('ecmData')}
                 </h3>
                 <div style={{ 
                   display: 'grid', 
@@ -1519,7 +1535,7 @@ function Module3Lactation({ user }) {
                     border: '2px solid var(--accent-success)'
                   }}>
                     <div style={{ fontSize: '0.875rem', color: 'var(--accent-success)', marginBottom: '4px', fontWeight: '600' }}>
-                      {t('ecmPerYear') || 'ECM por Año'}
+                      {t('ecmPerYear')}
                     </div>
                     <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                       {formatNumber(selectedBreedDetail.ecm_kg_yr, 0)} kg
@@ -1532,7 +1548,7 @@ function Module3Lactation({ user }) {
                     border: '2px solid var(--accent-warning)'
                   }}>
                     <div style={{ fontSize: '0.875rem', color: 'var(--accent-warning)', marginBottom: '4px', fontWeight: '600' }}>
-                      {t('ecmLifetime') || 'ECM Vida Productiva'}
+                      {t('ecmLifetime')}
                     </div>
                     <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                       {formatNumber(selectedBreedDetail.ecm_kg_lifetime, 0)} kg
@@ -1544,7 +1560,7 @@ function Module3Lactation({ user }) {
               {/* Lifetime Production Section */}
               <div style={{ marginBottom: '24px' }}>
                 <h3 style={{ margin: '0 0 16px 0', fontSize: '1.125rem', fontWeight: '600', color: 'var(--text-primary)' }}>
-                  {t('lifetimeProduction') || 'Producción Vitalicia'}
+                  {t('lifetimeProduction')}
                 </h3>
                 <div style={{ 
                   display: 'grid', 
@@ -1558,7 +1574,7 @@ function Module3Lactation({ user }) {
                     border: '1px solid var(--border-color)'
                   }}>
                     <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                      {t('lactationsPerLife') || 'Lactancias'}
+                      {t('lactationsPerLife')}
                     </div>
                     <div style={{ fontSize: '1.125rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                       {formatNumber(selectedBreedDetail.lactations_lifetime_avg, 1)}
@@ -1571,7 +1587,7 @@ function Module3Lactation({ user }) {
                     border: '1px solid var(--border-color)'
                   }}>
                     <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                      {t('fatKgPerYear') || 'Grasa (kg/año)'}
+                      {t('fatKgPerYear')}
                     </div>
                     <div style={{ fontSize: '1.125rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                       {formatNumber(selectedBreedDetail.fat_kg_yr, 1)} kg
@@ -1584,7 +1600,7 @@ function Module3Lactation({ user }) {
                     border: '1px solid var(--border-color)'
                   }}>
                     <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                      {t('proteinKgPerYear') || 'Proteína (kg/año)'}
+                      {t('proteinKgPerYear')}
                     </div>
                     <div style={{ fontSize: '1.125rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                       {formatNumber(selectedBreedDetail.protein_kg_yr, 1)} kg
@@ -1602,7 +1618,7 @@ function Module3Lactation({ user }) {
                   border: '1px solid var(--accent-info)'
                 }}>
                   <div style={{ fontSize: '0.875rem', color: 'var(--accent-info)', fontWeight: '600', marginBottom: '4px' }}>
-                    {t('validationSource') || 'Fuente de Validación'}
+                    {t('validationSource')}
                   </div>
                   <div style={{ fontSize: '0.875rem', color: 'var(--text-primary)' }}>
                     {selectedBreedDetail.validation_source}
@@ -1620,7 +1636,7 @@ function Module3Lactation({ user }) {
                   border: '1px solid var(--accent-warning)'
                 }}>
                   <div style={{ fontSize: '0.875rem', color: 'var(--accent-warning)', fontWeight: '600', marginBottom: '4px' }}>
-                    {t('notes') || 'Notas'}
+                    {t('notes')}
                   </div>
                   <div style={{ fontSize: '0.875rem', color: 'var(--text-primary)' }}>
                     {selectedBreedDetail.notes}
@@ -1640,7 +1656,7 @@ function Module3Lactation({ user }) {
                 onClick={() => setBreedDetailModalOpen(false)}
                 style={{ minWidth: '100px' }}
               >
-                {t('close') || 'Cerrar'}
+                {t('close')}
               </button>
             </div>
           </div>

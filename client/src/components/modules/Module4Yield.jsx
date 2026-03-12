@@ -338,25 +338,25 @@ function Module4Yield({ user }) {
               {/* Key Metrics Cards */}
               <div className="metrics-grid">
                 <div className="metric-card info">
-                  <div className="metric-label">{t('totalLiters') || 'Total Liters'}</div>
+                  <div className="metric-label">{t('totalLiters')}</div>
                   <div className="metric-value">
                     {Number(results.totalLiters || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })} L
                   </div>
                 </div>
                 <div className="metric-card success">
-                  <div className="metric-label">{t('effectiveLiters') || 'Effective Liters'}</div>
+                  <div className="metric-label">{t('effectiveLiters')}</div>
                   <div className="metric-value success">
                     {Number(results.effectiveLiters || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })} L
                   </div>
                 </div>
                 <div className="metric-card">
-                  <div className="metric-label">{t('convertedProduct') || 'Converted Product'}</div>
+                  <div className="metric-label">{t('convertedProduct')}</div>
                   <div className="metric-value">
                     {Number(results.convertedProduct || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                   </div>
                 </div>
                 <div className={`metric-card ${results.efficiencyPercentage >= 90 ? 'success' : results.efficiencyPercentage >= 70 ? 'warning' : 'error'}`}>
-                  <div className="metric-label">{t('efficiencyPercentage') || 'Efficiency'}</div>
+                  <div className="metric-label">{t('efficiencyPercentage')}</div>
                   <div className={`metric-value ${results.efficiencyPercentage >= 90 ? 'success' : results.efficiencyPercentage >= 70 ? '' : 'error'}`}>
                     {Number(results.efficiencyPercentage || 0).toFixed(1)}%
                   </div>
@@ -371,7 +371,7 @@ function Module4Yield({ user }) {
                       <span className="chart-title-icon">📋</span>
                       {t('results')}
                     </h2>
-                    <p className="chart-subtitle">Detailed yield and conversion metrics</p>
+                    <p className="chart-subtitle">{t('yieldResultsSubtitle')}</p>
                   </div>
                 </div>
                 <div className="chart-container">
@@ -422,7 +422,7 @@ function Module4Yield({ user }) {
                       <span className="chart-title-icon">📊</span>
                       {t('visualization')}
                     </h2>
-                    <p className="chart-subtitle">Visual breakdown of conversion and efficiency metrics</p>
+                    <p className="chart-subtitle">{t('yieldVisualSubtitle')}</p>
                   </div>
                 </div>
                 
@@ -514,7 +514,7 @@ function Module4Yield({ user }) {
       <AlertModal
         isOpen={alertModal.isOpen}
         onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
-        title={alertModal.type === 'success' ? t('success') : alertModal.type === 'error' ? t('error') : t('information') || 'Information'}
+        title={alertModal.type === 'success' ? t('success') : alertModal.type === 'error' ? t('error') : t('information')}
         message={alertModal.message}
         type={alertModal.type}
       />

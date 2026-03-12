@@ -83,7 +83,7 @@ function Profile({ user, onUserUpdate }) {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        setError(t('avatarSizeError') || 'Avatar image must be less than 2MB');
+        setError(t('avatarSizeError'));
         return;
       }
 
@@ -92,7 +92,7 @@ function Profile({ user, onUserUpdate }) {
         const base64String = reader.result;
         setAvatar(base64String);
         saveAvatar(base64String);
-        setSuccess(t('avatarUpdated') || 'Avatar updated successfully');
+        setSuccess(t('avatarUpdated'));
         setTimeout(() => setSuccess(''), 3000);
       };
       reader.readAsDataURL(file);
@@ -119,10 +119,10 @@ function Profile({ user, onUserUpdate }) {
       });
       const updatedUser = response.data.user;
       onUserUpdate(updatedUser);
-      setSuccess(t('nameUpdated') || 'Name updated successfully');
+      setSuccess(t('nameUpdated'));
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(err.message || t('updateError') || 'Error updating name');
+      setError(err.message || t('updateError'));
     } finally {
       setLoading(false);
     }
@@ -134,12 +134,12 @@ function Profile({ user, onUserUpdate }) {
     setSuccess('');
 
     if (newPassword !== confirmPassword) {
-      setError(t('passwordMismatch') || 'New passwords do not match');
+      setError(t('passwordMismatch'));
       return;
     }
 
     if (newPassword.length < 6) {
-      setError(t('passwordLengthError') || 'Password must be at least 6 characters');
+      setError(t('passwordLengthError'));
       return;
     }
 
@@ -150,13 +150,13 @@ function Profile({ user, onUserUpdate }) {
         currentPassword,
         newPassword,
       });
-      setSuccess(response.data.message || t('passwordUpdated') || 'Password updated successfully');
+      setSuccess(response.data.message || t('passwordUpdated'));
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(err.response?.data?.error || err.message || t('updateError') || 'Error updating password');
+      setError(err.response?.data?.error || err.message || t('updateError'));
     } finally {
       setLoading(false);
     }
@@ -166,15 +166,15 @@ function Profile({ user, onUserUpdate }) {
     <div className="container">
       <div className="dashboard-header">
         <div>
-          <h1 className="page-title">{t('profile') || 'Profile'}</h1>
-          <p className="page-subtitle">{t('manageProfile') || 'Manage your account settings'}</p>
+          <h1 className="page-title">{t('profile')}</h1>
+          <p className="page-subtitle">{t('manageProfile')}</p>
         </div>
       </div>
 
       <div className="profile-content">
         {/* Avatar Section */}
         <div className="card">
-          <h2 className="card-section-title">{t('profilePicture') || 'Profile Picture'}</h2>
+          <h2 className="card-section-title">{t('profilePicture')}</h2>
           <div className="avatar-section">
             <div className="avatar-preview">
               {avatar ? (
@@ -187,7 +187,7 @@ function Profile({ user, onUserUpdate }) {
             </div>
             <div className="avatar-upload">
               <label htmlFor="avatar-upload" className="btn btn-primary">
-                {t('uploadAvatar') || 'Upload Avatar'}
+                {t('uploadAvatar')}
               </label>
               <input
                 id="avatar-upload"
@@ -201,12 +201,12 @@ function Profile({ user, onUserUpdate }) {
                 onClick={() => {
                   setAvatar(null);
                   saveAvatar(null);
-                  setSuccess(t('avatarRemoved') || 'Avatar removed');
+                  setSuccess(t('avatarRemoved'));
                   setTimeout(() => setSuccess(''), 3000);
                 }}
                 disabled={!avatar}
               >
-                {t('removeAvatar') || 'Remove Avatar'}
+                {t('removeAvatar')}
               </button>
             </div>
           </div>
@@ -214,7 +214,7 @@ function Profile({ user, onUserUpdate }) {
 
         {/* User Info Section */}
         <div className="card">
-          <h2 className="card-section-title">{t('userInformation') || 'User Information'}</h2>
+          <h2 className="card-section-title">{t('userInformation')}</h2>
           {error && <div className="error-message">{error}</div>}
           {success && <div className="success-message">{success}</div>}
           
@@ -228,7 +228,7 @@ function Profile({ user, onUserUpdate }) {
                   value=""
                   disabled
                   className="form-input"
-                  placeholder={t('loading') || 'Loading...'}
+                  placeholder={t('loading')}
                   style={{ backgroundColor: 'var(--bg-tertiary)', cursor: 'not-allowed' }}
                 />
               ) : (
@@ -238,11 +238,11 @@ function Profile({ user, onUserUpdate }) {
                   value={email || ''}
                   disabled
                   className="form-input"
-                  placeholder={email ? '' : (t('noEmailAvailable') || 'No email available')}
+                  placeholder={email ? '' : (t('noEmailAvailable'))}
                   style={{ backgroundColor: 'var(--bg-tertiary)', cursor: 'not-allowed' }}
                 />
               )}
-              <small className="form-hint">{t('emailCannotChange') || 'Email cannot be changed'}</small>
+              <small className="form-hint">{t('emailCannotChange')}</small>
             </div>
 
             <div className="form-group">
@@ -251,98 +251,98 @@ function Profile({ user, onUserUpdate }) {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder={t('name') || 'Name'}
+                placeholder={t('name')}
                 className="form-input"
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>{t('lastName') || 'Last Name'}</label>
+              <label>{t('lastName')}</label>
               <input
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                placeholder={t('lastName') || 'Last Name'}
+                placeholder={t('lastName')}
                 className="form-input"
               />
             </div>
 
             <div className="form-group">
-              <label>{t('country') || 'Country'}</label>
+              <label>{t('country')}</label>
               <input
                 type="text"
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
-                placeholder={t('country') || 'Country'}
+                placeholder={t('country')}
                 className="form-input"
               />
             </div>
 
             <div className="form-group">
-              <label>{t('city') || 'City'}</label>
+              <label>{t('city')}</label>
               <input
                 type="text"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                placeholder={t('city') || 'City'}
+                placeholder={t('city')}
                 className="form-input"
               />
             </div>
 
             <div className="form-group">
-              <label>{t('goatsCount') || 'Number of goats'}</label>
+              <label>{t('goatsCount')}</label>
               <input
                 type="number"
                 min="0"
                 value={goatsCount}
                 onChange={(e) => setGoatsCount(e.target.value)}
-                placeholder={t('goatsCount') || 'Number of goats'}
+                placeholder={t('goatsCount')}
                 className="form-input"
               />
             </div>
 
             <div className="form-group">
-              <label>{t('transformsProducts') || 'Do you transform products?'}</label>
+              <label>{t('transformsProducts')}</label>
               <select
                 value={transformsProducts}
                 onChange={(e) => setTransformsProducts(e.target.value)}
                 className="form-input"
               >
-                <option value="no">{t('no') || 'No'}</option>
-                <option value="yes">{t('yes') || 'Yes'}</option>
+                <option value="no">{t('no')}</option>
+                <option value="yes">{t('yes')}</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label>{t('age') || 'Age'}</label>
+              <label>{t('age')}</label>
               <input
                 type="number"
                 min="0"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
-                placeholder={t('age') || 'Age'}
+                placeholder={t('age')}
                 className="form-input"
               />
             </div>
 
             <div className="form-group">
-              <label>{t('sex') || 'Sex'}</label>
+              <label>{t('sex')}</label>
               <select
                 value={sex}
                 onChange={(e) => setSex(e.target.value)}
                 className="form-input"
               >
-                <option value="">{t('selectSex') || 'Select sex'}</option>
-                <option value="female">{t('female') || 'Female'}</option>
-                <option value="male">{t('male') || 'Male'}</option>
-                <option value="other">{t('otherOption') || 'Other'}</option>
-                <option value="prefer_not_to_say">{t('preferNotToSay') || 'Prefer not to say'}</option>
+                <option value="">{t('selectSex')}</option>
+                <option value="female">{t('female')}</option>
+                <option value="male">{t('male')}</option>
+                <option value="other">{t('otherOption')}</option>
+                <option value="prefer_not_to_say">{t('preferNotToSay')}</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label>{t('preferredCurrency') || 'Preferred currency'}</label>
+              <label>{t('preferredCurrency')}</label>
               <select
                 value={preferredCurrency}
                 onChange={(e) => setPreferredCurrency(e.target.value)}
@@ -357,12 +357,13 @@ function Profile({ user, onUserUpdate }) {
                 <option value="CLP">CLP</option>
                 <option value="PEN">PEN</option>
                 <option value="BRL">BRL</option>
+                <option value="UYU">UYU</option>
               </select>
             </div>
 
             <div className="form-actions">
               <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? t('saving') || 'Saving...' : t('updateName') || 'Update Name'}
+                {loading ? t('saving') : t('updateName')}
               </button>
             </div>
           </form>
@@ -370,28 +371,28 @@ function Profile({ user, onUserUpdate }) {
 
         {/* Password Change Section */}
         <div className="card">
-          <h2 className="card-section-title">{t('changePassword') || 'Change Password'}</h2>
+          <h2 className="card-section-title">{t('changePassword')}</h2>
           
           <form onSubmit={handlePasswordUpdate}>
             <div className="form-group">
-              <label>{t('currentPassword') || 'Current Password'}</label>
+              <label>{t('currentPassword')}</label>
               <input
                 type="password"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder={t('currentPassword') || 'Current Password'}
+                placeholder={t('currentPassword')}
                 className="form-input"
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>{t('newPassword') || 'New Password'}</label>
+              <label>{t('newPassword')}</label>
               <input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder={t('newPassword') || 'New Password'}
+                placeholder={t('newPassword')}
                 className="form-input"
                 required
                 minLength={6}
@@ -399,12 +400,12 @@ function Profile({ user, onUserUpdate }) {
             </div>
 
             <div className="form-group">
-              <label>{t('confirmPassword') || 'Confirm New Password'}</label>
+              <label>{t('confirmPassword')}</label>
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder={t('confirmPassword') || 'Confirm New Password'}
+                placeholder={t('confirmPassword')}
                 className="form-input"
                 required
                 minLength={6}
@@ -413,7 +414,7 @@ function Profile({ user, onUserUpdate }) {
 
             <div className="form-actions">
               <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? t('updating') || 'Updating...' : t('updatePassword') || 'Update Password'}
+                {loading ? t('updating') : t('updatePassword')}
               </button>
             </div>
           </form>

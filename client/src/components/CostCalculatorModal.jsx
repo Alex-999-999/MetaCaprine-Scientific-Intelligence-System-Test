@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useI18n } from '../i18n/I18nContext';
+import { formatCurrency, getCurrencySymbol, normalizeCurrency } from '../utils/currency';
 
 /**
  * Module 4: Cost Mini-Calculator Modal
@@ -10,8 +11,19 @@ import { useI18n } from '../i18n/I18nContext';
  * - "Apply to Module 1" button auto-fills the calculated cost
  * - Simple, producer-oriented UI
  */
-function CostCalculatorModal({ isOpen, onClose, calculatorType, onApply, currentAnimals = 1, currentDailyProduction = 1 }) {
+function CostCalculatorModal({
+  isOpen,
+  onClose,
+  calculatorType,
+  onApply,
+  currentAnimals = 1,
+  currentDailyProduction = 1,
+  preferredCurrency = 'USD',
+}) {
   const { t } = useI18n();
+  const normalizedCurrency = normalizeCurrency(preferredCurrency);
+  const currencySymbol = getCurrencySymbol(normalizedCurrency);
+  const formatMoney = (value, options = {}) => formatCurrency(value, normalizedCurrency, options);
   
   // Feed Calculator State
   const [feedData, setFeedData] = useState({
@@ -209,19 +221,19 @@ function CostCalculatorModal({ isOpen, onClose, calculatorType, onApply, current
                   value={feedData.concentrate_kg_per_day}
                   onChange={(e) => handleInputChange(e, 'feed')}
                   step="0.1"
-                  placeholder="Ej: 0.5"
+                  placeholder="0.5"
                 />
               </div>
               
               <div className="form-group">
-                <label>{t('concentratePricePerKg')} ($/kg)</label>
+                <label>{t('concentratePricePerKg')} ({currencySymbol}/kg)</label>
                 <input
                   type="number"
                   name="concentrate_price_per_kg"
                   value={feedData.concentrate_price_per_kg}
                   onChange={(e) => handleInputChange(e, 'feed')}
                   step="0.01"
-                  placeholder="Ej: 0.45"
+                  placeholder="0.45"
                 />
               </div>
               
@@ -233,19 +245,19 @@ function CostCalculatorModal({ isOpen, onClose, calculatorType, onApply, current
                   value={feedData.forage_kg_per_day}
                   onChange={(e) => handleInputChange(e, 'feed')}
                   step="0.1"
-                  placeholder="Ej: 3.0"
+                  placeholder="3.0"
                 />
               </div>
               
               <div className="form-group">
-                <label>{t('foragePricePerKg')} ($/kg)</label>
+                <label>{t('foragePricePerKg')} ({currencySymbol}/kg)</label>
                 <input
                   type="number"
                   name="forage_price_per_kg"
                   value={feedData.forage_price_per_kg}
                   onChange={(e) => handleInputChange(e, 'feed')}
                   step="0.01"
-                  placeholder="Ej: 0.15"
+                  placeholder="0.15"
                 />
               </div>
               
@@ -257,31 +269,31 @@ function CostCalculatorModal({ isOpen, onClose, calculatorType, onApply, current
                   value={feedData.supplement_kg_per_day}
                   onChange={(e) => handleInputChange(e, 'feed')}
                   step="0.1"
-                  placeholder="Ej: 0.2"
+                  placeholder="0.2"
                 />
               </div>
               
               <div className="form-group">
-                <label>{t('supplementPricePerKg')} ($/kg)</label>
+                <label>{t('supplementPricePerKg')} ({currencySymbol}/kg)</label>
                 <input
                   type="number"
                   name="supplement_price_per_kg"
                   value={feedData.supplement_price_per_kg}
                   onChange={(e) => handleInputChange(e, 'feed')}
                   step="0.01"
-                  placeholder="Ej: 0.60"
+                  placeholder="0.60"
                 />
               </div>
               
               <div className="form-group">
-                <label>{t('mineralMonthlyCost')} ($/month total herd)</label>
+                <label>{t('mineralMonthlyCost')} ({currencySymbol}/month total herd)</label>
                 <input
                   type="number"
                   name="mineral_monthly_cost"
                   value={feedData.mineral_monthly_cost}
                   onChange={(e) => handleInputChange(e, 'feed')}
                   step="0.01"
-                  placeholder="Ej: 30"
+                  placeholder="30"
                 />
               </div>
             </div>
@@ -317,20 +329,20 @@ function CostCalculatorModal({ isOpen, onClose, calculatorType, onApply, current
                   onChange={(e) => handleInputChange(e, 'labor')}
                   step="1"
                   min="0"
-                  placeholder="Ej: 2"
+                  placeholder="2"
                 />
               </div>
               
               {laborData.use_monthly ? (
                 <div className="form-group">
-                  <label>{t('monthlyWagePerWorker')} ($/month)</label>
+                  <label>{t('monthlyWagePerWorker')} ({currencySymbol}/month)</label>
                   <input
                     type="number"
                     name="monthly_wage_per_worker"
                     value={laborData.monthly_wage_per_worker}
                     onChange={(e) => handleInputChange(e, 'labor')}
                     step="0.01"
-                    placeholder="Ej: 400"
+                    placeholder="400"
                   />
                 </div>
               ) : (
@@ -343,19 +355,19 @@ function CostCalculatorModal({ isOpen, onClose, calculatorType, onApply, current
                       value={laborData.hours_per_day_per_worker}
                       onChange={(e) => handleInputChange(e, 'labor')}
                       step="0.5"
-                      placeholder="Ej: 8"
+                      placeholder="8"
                     />
                   </div>
                   
                   <div className="form-group">
-                    <label>{t('wagePerHour')} ($/hour)</label>
+                    <label>{t('wagePerHour')} ({currencySymbol}/hour)</label>
                     <input
                       type="number"
                       name="wage_per_hour"
                       value={laborData.wage_per_hour}
                       onChange={(e) => handleInputChange(e, 'labor')}
                       step="0.01"
-                      placeholder="Ej: 2.50"
+                      placeholder="2.50"
                     />
                   </div>
                 </>
@@ -372,14 +384,14 @@ function CostCalculatorModal({ isOpen, onClose, calculatorType, onApply, current
               </p>
               
               <div className="form-group">
-                <label>{t('annualHealthCostPerAnimal')} ($/animal/year)</label>
+                <label>{t('annualHealthCostPerAnimal')} ({currencySymbol}/animal/year)</label>
                 <input
                   type="number"
                   name="annual_health_cost_per_animal"
                   value={healthData.annual_health_cost_per_animal}
                   onChange={(e) => handleInputChange(e, 'health')}
                   step="0.01"
-                  placeholder="Ej: 25"
+                  placeholder="25"
                 />
                 <small style={{ display: 'block', marginTop: '5px', color: 'var(--text-tertiary)' }}>
                   {t('healthCostHint')}
@@ -391,38 +403,38 @@ function CostCalculatorModal({ isOpen, onClose, calculatorType, onApply, current
               </p>
               
               <div className="form-group">
-                <label>{t('vaccineCostAnnual')} ($/animal/year)</label>
+                <label>{t('vaccineCostAnnual')} ({currencySymbol}/animal/year)</label>
                 <input
                   type="number"
                   name="vaccine_cost_annual"
                   value={healthData.vaccine_cost_annual}
                   onChange={(e) => handleInputChange(e, 'health')}
                   step="0.01"
-                  placeholder="Ej: 10"
+                  placeholder="10"
                 />
               </div>
               
               <div className="form-group">
-                <label>{t('dewormingCostAnnual')} ($/animal/year)</label>
+                <label>{t('dewormingCostAnnual')} ({currencySymbol}/animal/year)</label>
                 <input
                   type="number"
                   name="deworming_cost_annual"
                   value={healthData.deworming_cost_annual}
                   onChange={(e) => handleInputChange(e, 'health')}
                   step="0.01"
-                  placeholder="Ej: 5"
+                  placeholder="5"
                 />
               </div>
               
               <div className="form-group">
-                <label>{t('vetVisitsAnnual')} ($/animal/year)</label>
+                <label>{t('vetVisitsAnnual')} ({currencySymbol}/animal/year)</label>
                 <input
                   type="number"
                   name="vet_visits_annual"
                   value={healthData.vet_visits_annual}
                   onChange={(e) => handleInputChange(e, 'health')}
                   step="0.01"
-                  placeholder="Ej: 10"
+                  placeholder="10"
                 />
               </div>
             </div>
@@ -437,50 +449,50 @@ function CostCalculatorModal({ isOpen, onClose, calculatorType, onApply, current
               </p>
               
               <div className="form-group">
-                <label>{t('electricityMonthly')} ($/month)</label>
+                <label>{t('electricityMonthly')} ({currencySymbol}/month)</label>
                 <input
                   type="number"
                   name="electricity_monthly"
                   value={servicesData.electricity_monthly}
                   onChange={(e) => handleInputChange(e, 'services')}
                   step="0.01"
-                  placeholder="Ej: 50"
+                  placeholder="50"
                 />
               </div>
               
               <div className="form-group">
-                <label>{t('waterMonthly')} ($/month)</label>
+                <label>{t('waterMonthly')} ({currencySymbol}/month)</label>
                 <input
                   type="number"
                   name="water_monthly"
                   value={servicesData.water_monthly}
                   onChange={(e) => handleInputChange(e, 'services')}
                   step="0.01"
-                  placeholder="Ej: 20"
+                  placeholder="20"
                 />
               </div>
               
               <div className="form-group">
-                <label>{t('maintenanceMonthly')} ($/month)</label>
+                <label>{t('maintenanceMonthly')} ({currencySymbol}/month)</label>
                 <input
                   type="number"
                   name="maintenance_monthly"
                   value={servicesData.maintenance_monthly}
                   onChange={(e) => handleInputChange(e, 'services')}
                   step="0.01"
-                  placeholder="Ej: 30"
+                  placeholder="30"
                 />
               </div>
               
               <div className="form-group">
-                <label>{t('transportMonthly')} ($/month)</label>
+                <label>{t('transportMonthly')} ({currencySymbol}/month)</label>
                 <input
                   type="number"
                   name="transport_monthly"
                   value={servicesData.transport_monthly}
                   onChange={(e) => handleInputChange(e, 'services')}
                   step="0.01"
-                  placeholder="Ej: 40"
+                  placeholder="40"
                 />
               </div>
             </div>
@@ -495,14 +507,14 @@ function CostCalculatorModal({ isOpen, onClose, calculatorType, onApply, current
               </p>
               
               <div className="form-group">
-                <label>{t('rearingCostPerAnimal')} ($ total per animal to productive age)</label>
+                <label>{t('rearingCostPerAnimal')} ({currencySymbol} total per animal to productive age)</label>
                 <input
                   type="number"
                   name="rearing_cost_per_animal"
                   value={rearingData.rearing_cost_per_animal}
                   onChange={(e) => handleInputChange(e, 'rearing')}
                   step="0.01"
-                  placeholder="Ej: 300"
+                  placeholder="300"
                 />
                 <small style={{ display: 'block', marginTop: '5px', color: 'var(--text-tertiary)' }}>
                   {t('rearingCostHint')}
@@ -517,7 +529,7 @@ function CostCalculatorModal({ isOpen, onClose, calculatorType, onApply, current
                   value={rearingData.productive_years}
                   onChange={(e) => handleInputChange(e, 'rearing')}
                   step="0.5"
-                  placeholder="Ej: 5"
+                  placeholder="5"
                 />
               </div>
               
@@ -529,7 +541,7 @@ function CostCalculatorModal({ isOpen, onClose, calculatorType, onApply, current
                   value={rearingData.replacement_rate_percent}
                   onChange={(e) => handleInputChange(e, 'rearing')}
                   step="1"
-                  placeholder="Ej: 20"
+                  placeholder="20"
                 />
                 <small style={{ display: 'block', marginTop: '5px', color: 'var(--text-tertiary)' }}>
                   {t('replacementRateHint')}
@@ -543,7 +555,7 @@ function CostCalculatorModal({ isOpen, onClose, calculatorType, onApply, current
             <h3 style={{ marginTop: 0, marginBottom: '10px' }}>{t('estimatedCost')}</h3>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '10px' }}>
               <span style={{ fontSize: '2em', fontWeight: 'bold', color: 'var(--accent-info)' }}>
-                ${calculatedCost.toFixed(4)}
+                {formatMoney(calculatedCost, { minimumFractionDigits: 4, maximumFractionDigits: 4 })}
               </span>
               <span style={{ color: 'var(--text-tertiary)' }}>{t('perLiter')}</span>
             </div>
