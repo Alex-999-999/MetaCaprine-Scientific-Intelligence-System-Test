@@ -37,7 +37,7 @@ function Module1Production({ user }) {
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: '', type: 'success' });
   const [viewPeriod, setViewPeriod] = useState('lactation'); // 'daily', 'monthly', 'lactation'
   const [marginViewMode, setMarginViewMode] = useState('dollars'); // 'dollars' or 'percent' for charts
-  
+
   // Module 4: Cost Calculator Modal State
   const [costCalculatorModal, setCostCalculatorModal] = useState({
     isOpen: false,
@@ -122,7 +122,7 @@ function Module1Production({ user }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Allow empty string, keep as string in state
     // Only update if the value is a valid number or empty
     if (value === '' || value === null || value === undefined) {
@@ -132,7 +132,7 @@ function Module1Production({ user }) {
       }));
       return;
     }
-    
+
     // Allow valid numeric input (including decimals and negative numbers if needed)
     // Keep as string to allow free typing
     const validNumberPattern = /^-?\d*\.?\d*$/;
@@ -150,7 +150,7 @@ function Module1Production({ user }) {
       e.target.select();
     }
   };
-  
+
   // Module 4: Open Cost Calculator Modal
   const openCostCalculator = (calculatorType, targetField) => {
     setCostCalculatorModal({
@@ -159,7 +159,7 @@ function Module1Production({ user }) {
       targetField
     });
   };
-  
+
   // Module 4: Apply Calculated Cost to Form
   const applyCostToForm = (calculatedCost) => {
     if (costCalculatorModal.targetField) {
@@ -167,7 +167,7 @@ function Module1Production({ user }) {
         ...prev,
         [costCalculatorModal.targetField]: calculatedCost.toFixed(4)
       }));
-      
+
       setAlertModal({
         isOpen: true,
         message: `${t('costEstimator')}: ${t('estimatedCost')} ${formatMoney(calculatedCost, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} ${t('perLiter')} ${t('applyToModule1')} âœ“`,
@@ -192,7 +192,7 @@ function Module1Production({ user }) {
       // Validate and clamp values to prevent overflow (DECIMAL(10,2) max: 99999999.99)
       const MAX_DECIMAL_VALUE = 99999999.99;
       const MIN_DECIMAL_VALUE = -99999999.99;
-      
+
       const dataToSave = {};
       Object.keys(formData).forEach(key => {
         const value = formData[key];
@@ -208,7 +208,7 @@ function Module1Production({ user }) {
           }
         }
       });
-      
+
       // For INTEGER fields, ensure they are integers and within valid range
       if (dataToSave.production_days !== undefined) {
         dataToSave.production_days = Math.max(0, Math.min(2147483647, Math.round(dataToSave.production_days)));
@@ -216,7 +216,7 @@ function Module1Production({ user }) {
       if (dataToSave.animals_count !== undefined) {
         dataToSave.animals_count = Math.max(0, Math.min(2147483647, Math.round(dataToSave.animals_count)));
       }
-      
+
       await api.post(`/modules/production/${selectedScenario.id}`, dataToSave);
       await loadScenario(selectedScenario.id);
       // Trigger calculation after save
@@ -248,7 +248,7 @@ function Module1Production({ user }) {
     const infrastructureCost = parseFloat(formData.infrastructure_cost_per_liter) || 0;
     const otherCost = parseFloat(formData.other_costs_per_liter) || 0;
     const milkPrice = parseFloat(formData.milk_price_per_liter) || 0;
-    
+
     const totalLiters = dailyProduction * productionDays * animalsCount;
     const costPerLiter = feedCost + laborCost + healthCost + infrastructureCost + otherCost;
     const totalCosts = costPerLiter * totalLiters;
@@ -273,10 +273,10 @@ function Module1Production({ user }) {
   // Calculate values based on selected period
   const getDisplayValues = () => {
     if (!results) return null;
-    
+
     const dailyProduction = results.daily_production || 0;
     const productionDays = results.production_days || 1;
-    
+
     switch (viewPeriod) {
       case 'daily':
         return {
@@ -328,16 +328,16 @@ function Module1Production({ user }) {
     <div className="container">
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ marginTop: '20px' }}>{t('module1Title')}</h1>
-        <div style={{ 
-          marginTop: '16px', 
-          padding: '18px 24px', 
-          background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)', 
+        <div style={{
+          marginTop: '16px',
+          padding: '18px 24px',
+          background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
           borderRadius: '12px',
           borderLeft: '4px solid #2d5016',
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
         }}>
           <p style={{ margin: 0, fontSize: '15px', lineHeight: '1.6', color: '#1565c0' }}>
-            â„¹ï¸ {t('module1Explanation')}
+            {t('module1Explanation')}
           </p>
         </div>
       </header>
@@ -435,8 +435,8 @@ function Module1Production({ user }) {
                     step="0.01"
                     style={{ flex: 1 }}
                   />
-                  <button 
-                    className="btn btn-secondary" 
+                  <button
+                    className="btn btn-secondary"
                     onClick={() => openCostCalculator('feed', 'feed_cost_per_liter')}
                     style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
@@ -459,8 +459,8 @@ function Module1Production({ user }) {
                     title={!hasAdvancedAnalysis ? t('availableForProUsers') : ''}
                     style={{ flex: 1 }}
                   />
-                  <button 
-                    className="btn btn-secondary" 
+                  <button
+                    className="btn btn-secondary"
                     onClick={() => openCostCalculator('labor', 'labor_cost_per_liter')}
                     style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
@@ -482,8 +482,8 @@ function Module1Production({ user }) {
                     step="0.01"
                     style={{ flex: 1 }}
                   />
-                  <button 
-                    className="btn btn-secondary" 
+                  <button
+                    className="btn btn-secondary"
                     onClick={() => openCostCalculator('health', 'health_cost_per_liter')}
                     style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
@@ -506,8 +506,8 @@ function Module1Production({ user }) {
                     title={!hasAdvancedAnalysis ? t('availableForProUsers') : ''}
                     style={{ flex: 1 }}
                   />
-                  <button 
-                    className="btn btn-secondary" 
+                  <button
+                    className="btn btn-secondary"
                     onClick={() => openCostCalculator('services', 'infrastructure_cost_per_liter')}
                     style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
@@ -531,8 +531,8 @@ function Module1Production({ user }) {
                     title={!hasAdvancedAnalysis ? t('availableForProUsers') : ''}
                     style={{ flex: 1 }}
                   />
-                  <button 
-                    className="btn btn-secondary" 
+                  <button
+                    className="btn btn-secondary"
                     onClick={() => openCostCalculator('rearing', 'other_costs_per_liter')}
                     style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
@@ -603,9 +603,9 @@ function Module1Production({ user }) {
                     )}
                     <div className="chart-control-group">
                       <label className="chart-control-label">{t('viewPeriod')}:</label>
-                      <select 
+                      <select
                         className="chart-control-select"
-                        value={viewPeriod} 
+                        value={viewPeriod}
                         onChange={(e) => setViewPeriod(e.target.value)}
                       >
                         <option value="daily">{t('daily')}</option>
@@ -621,39 +621,39 @@ function Module1Production({ user }) {
                     <div className="chart-container">
                       <div className="table-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                         <table className="table" style={{ minWidth: '400px' }}>
-                        <tbody>
-                          <tr>
-                            <td><strong>{t('totalProduction')}</strong></td>
-                            <td>{displayValues.production?.toLocaleString(undefined, { maximumFractionDigits: 2 })} L</td>
-                          </tr>
-                          <tr>
-                            <td><strong>{t('totalRevenue')}</strong></td>
-                            <td>{formatMoney(displayValues.revenue)}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>{t('totalCosts')}</strong></td>
-                            <td>{formatMoney(displayValues.costs)}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>{t('grossMargin')}</strong></td>
-                            <td style={{ color: displayValues.margin >= 0 ? '#16a34a' : '#dc2626', fontWeight: '600' }}>
-                              {formatMoney(displayValues.margin)}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td><strong>{t('marginPercentage')}</strong></td>
-                            <td>{typeof results.margin_percentage === 'number' ? results.margin_percentage.toFixed(2) : '0.00'}%</td>
-                          </tr>
-                          <tr>
-                            <td><strong>{t('revenuePerLiter')}</strong></td>
-                            <td>{formatMoney(results.revenue_per_liter)}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>{t('costPerLiter')}</strong></td>
-                            <td>{formatMoney(results.cost_per_liter)}</td>
-                          </tr>
-                        </tbody>
-                      </table>
+                          <tbody>
+                            <tr>
+                              <td><strong>{t('totalProduction')}</strong></td>
+                              <td>{displayValues.production?.toLocaleString(undefined, { maximumFractionDigits: 2 })} L</td>
+                            </tr>
+                            <tr>
+                              <td><strong>{t('totalRevenue')}</strong></td>
+                              <td>{formatMoney(displayValues.revenue)}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>{t('totalCosts')}</strong></td>
+                              <td>{formatMoney(displayValues.costs)}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>{t('grossMargin')}</strong></td>
+                              <td style={{ color: displayValues.margin >= 0 ? '#16a34a' : '#dc2626', fontWeight: '600' }}>
+                                {formatMoney(displayValues.margin)}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><strong>{t('marginPercentage')}</strong></td>
+                              <td>{typeof results.margin_percentage === 'number' ? results.margin_percentage.toFixed(2) : '0.00'}%</td>
+                            </tr>
+                            <tr>
+                              <td><strong>{t('revenuePerLiter')}</strong></td>
+                              <td>{formatMoney(results.revenue_per_liter)}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>{t('costPerLiter')}</strong></td>
+                              <td>{formatMoney(results.cost_per_liter)}</td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   );
@@ -684,7 +684,7 @@ function Module1Production({ user }) {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="chart-container">
                   <h3 className="chart-section-title">{t('income')} vs {t('totalCosts')} vs {t('grossMargin')}</h3>
                   {chartData.length > 0 ? (() => {
@@ -694,60 +694,60 @@ function Module1Production({ user }) {
                       const totalRevenue = results?.total_revenue || 1;
                       return {
                         ...item,
-                        value: totalRevenue > 0 
+                        value: totalRevenue > 0
                           ? (item.name === t('income') ? 100 : item.name === t('totalCosts') ? (costs / totalRevenue) * 100 : (margin / totalRevenue) * 100)
                           : 0
                       };
                     }) : chartData;
-                    
+
                     // Create enhanced chart data with semantic colors
                     const enhancedChartData = displayChartData.map(item => ({
                       ...item,
-                      fill: item.name === t('income') ? chartColors.revenue : 
-                            item.name === t('totalCosts') ? chartColors.costs : 
-                            chartColors.margin
+                      fill: item.name === t('income') ? chartColors.revenue :
+                        item.name === t('totalCosts') ? chartColors.costs :
+                          chartColors.margin
                     }));
-                    
+
                     return (
                       <ResponsiveContainer width="100%" height={320}>
                         <BarChart data={enhancedChartData} barCategoryGap="20%">
                           <defs>
                             <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor={chartColors.revenue} stopOpacity={1}/>
-                              <stop offset="100%" stopColor={chartColors.revenue} stopOpacity={0.7}/>
+                              <stop offset="0%" stopColor={chartColors.revenue} stopOpacity={1} />
+                              <stop offset="100%" stopColor={chartColors.revenue} stopOpacity={0.7} />
                             </linearGradient>
                             <linearGradient id="costsGradient" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor={chartColors.costs} stopOpacity={1}/>
-                              <stop offset="100%" stopColor={chartColors.costs} stopOpacity={0.7}/>
+                              <stop offset="0%" stopColor={chartColors.costs} stopOpacity={1} />
+                              <stop offset="100%" stopColor={chartColors.costs} stopOpacity={0.7} />
                             </linearGradient>
                             <linearGradient id="marginGradient" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor={chartColors.margin} stopOpacity={1}/>
-                              <stop offset="100%" stopColor={chartColors.margin} stopOpacity={0.7}/>
+                              <stop offset="0%" stopColor={chartColors.margin} stopOpacity={1} />
+                              <stop offset="100%" stopColor={chartColors.margin} stopOpacity={0.7} />
                             </linearGradient>
                           </defs>
                           <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
-                          <XAxis 
-                            dataKey="name" 
+                          <XAxis
+                            dataKey="name"
                             stroke={chartColors.axis.tick}
                             tick={{ fill: chartColors.text.secondary, fontSize: 12, fontWeight: 500 }}
                             axisLine={{ stroke: chartColors.grid }}
                             tickLine={false}
                           />
-                          <YAxis 
+                          <YAxis
                             stroke={chartColors.axis.tick}
                             tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
                             axisLine={false}
                             tickLine={false}
                             tickFormatter={(value) => marginViewMode === 'percent' ? `${value}%` : formatMoneyCompact(value)}
                           />
-                          <Tooltip 
-                            formatter={(value) => 
-                              marginViewMode === 'percent' 
+                          <Tooltip
+                            formatter={(value) =>
+                              marginViewMode === 'percent'
                                 ? `${Number(value || 0).toFixed(1)}%`
                                 : formatMoney(value)
                             }
-                            contentStyle={{ 
-                              backgroundColor: chartColors.tooltip.bg, 
+                            contentStyle={{
+                              backgroundColor: chartColors.tooltip.bg,
                               border: `1px solid ${chartColors.tooltip.border}`,
                               borderRadius: '12px',
                               boxShadow: chartColors.tooltip.shadow,
@@ -757,12 +757,12 @@ function Module1Production({ user }) {
                             itemStyle={{ color: chartColors.text.secondary }}
                             cursor={{ fill: chartColors.background.hover }}
                           />
-                          <Legend 
+                          <Legend
                             wrapperStyle={{ paddingTop: '20px' }}
                             iconType="roundRect"
                           />
-                          <Bar 
-                            dataKey="value" 
+                          <Bar
+                            dataKey="value"
                             radius={[8, 8, 0, 0]}
                             fill={chartColors.primary}
                           >
@@ -788,13 +788,13 @@ function Module1Production({ user }) {
                       <BarChart data={costBreakdown} barCategoryGap="15%">
                         <defs>
                           <linearGradient id="costBarGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={chartColors.secondary} stopOpacity={1}/>
-                            <stop offset="100%" stopColor={chartColors.secondary} stopOpacity={0.7}/>
+                            <stop offset="0%" stopColor={chartColors.secondary} stopOpacity={1} />
+                            <stop offset="100%" stopColor={chartColors.secondary} stopOpacity={0.7} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
-                        <XAxis 
-                          dataKey="name" 
+                        <XAxis
+                          dataKey="name"
                           stroke={chartColors.axis.tick}
                           tick={{ fill: chartColors.text.secondary, fontSize: 11, fontWeight: 500 }}
                           axisLine={{ stroke: chartColors.grid }}
@@ -804,17 +804,17 @@ function Module1Production({ user }) {
                           textAnchor="end"
                           height={60}
                         />
-                        <YAxis 
+                        <YAxis
                           stroke={chartColors.axis.tick}
                           tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
                           axisLine={false}
                           tickLine={false}
                           tickFormatter={(value) => formatMoney(value)}
                         />
-                        <Tooltip 
+                        <Tooltip
                           formatter={(value) => `${formatMoney(value, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} / L`}
-                          contentStyle={{ 
-                            backgroundColor: chartColors.tooltip.bg, 
+                          contentStyle={{
+                            backgroundColor: chartColors.tooltip.bg,
                             border: `1px solid ${chartColors.tooltip.border}`,
                             borderRadius: '12px',
                             boxShadow: chartColors.tooltip.shadow,
@@ -824,12 +824,12 @@ function Module1Production({ user }) {
                           itemStyle={{ color: chartColors.text.secondary }}
                           cursor={{ fill: chartColors.background.hover }}
                         />
-                        <Legend 
+                        <Legend
                           wrapperStyle={{ paddingTop: '20px' }}
                           iconType="roundRect"
                         />
-                        <Bar 
-                          dataKey="value" 
+                        <Bar
+                          dataKey="value"
                           fill="url(#costBarGradient)"
                           radius={[8, 8, 0, 0]}
                         >
@@ -868,22 +868,22 @@ function Module1Production({ user }) {
                       <ResponsiveContainer width="100%" height={280}>
                         <BarChart data={chartData} barCategoryGap="20%">
                           <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
-                          <XAxis 
-                            dataKey="name" 
+                          <XAxis
+                            dataKey="name"
                             stroke={chartColors.axis.tick}
                             tick={{ fill: chartColors.text.secondary, fontSize: 11 }}
                             tickLine={false}
                           />
-                          <YAxis 
+                          <YAxis
                             stroke={chartColors.axis.tick}
                             tick={{ fill: chartColors.text.secondary, fontSize: 11 }}
                             axisLine={false}
                             tickLine={false}
                           />
-                          <Tooltip 
+                          <Tooltip
                             formatter={(value) => formatMoney(value)}
-                            contentStyle={{ 
-                              backgroundColor: chartColors.tooltip.bg, 
+                            contentStyle={{
+                              backgroundColor: chartColors.tooltip.bg,
                               border: `1px solid ${chartColors.tooltip.border}`,
                               borderRadius: '12px',
                               boxShadow: chartColors.tooltip.shadow
@@ -891,11 +891,11 @@ function Module1Production({ user }) {
                           />
                           <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                             {chartData.map((entry, index) => (
-                              <Cell 
-                                key={`cell-${index}`} 
-                                fill={entry.name === t('income') ? chartColors.revenue : 
-                                      entry.name === t('totalCosts') ? chartColors.costs : 
-                                      chartColors.margin} 
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={entry.name === t('income') ? chartColors.revenue :
+                                  entry.name === t('totalCosts') ? chartColors.costs :
+                                    chartColors.margin}
                               />
                             ))}
                           </Bar>
@@ -911,23 +911,23 @@ function Module1Production({ user }) {
                       <ResponsiveContainer width="100%" height={280}>
                         <BarChart data={costBreakdown} barCategoryGap="15%">
                           <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
-                          <XAxis 
-                            dataKey="name" 
+                          <XAxis
+                            dataKey="name"
                             stroke={chartColors.axis.tick}
                             tick={{ fill: chartColors.text.secondary, fontSize: 10 }}
                             tickLine={false}
                             interval={0}
                           />
-                          <YAxis 
+                          <YAxis
                             stroke={chartColors.axis.tick}
                             tick={{ fill: chartColors.text.secondary, fontSize: 11 }}
                             axisLine={false}
                             tickLine={false}
                           />
-                          <Tooltip 
+                          <Tooltip
                             formatter={(value) => formatMoney(value, { minimumFractionDigits: 4, maximumFractionDigits: 4 })}
-                            contentStyle={{ 
-                              backgroundColor: chartColors.tooltip.bg, 
+                            contentStyle={{
+                              backgroundColor: chartColors.tooltip.bg,
                               border: `1px solid ${chartColors.tooltip.border}`,
                               borderRadius: '12px',
                               boxShadow: chartColors.tooltip.shadow
@@ -955,7 +955,7 @@ function Module1Production({ user }) {
         message={alertModal.message}
         type={alertModal.type}
       />
-      
+
       {/* Module 4: Cost Calculator Modal */}
       <CostCalculatorModal
         isOpen={costCalculatorModal.isOpen}

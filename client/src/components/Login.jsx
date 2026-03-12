@@ -44,22 +44,24 @@ function Login({ onLogin }) {
       return fallbackCountries;
     }
 
-    const englishNames = new Intl.DisplayNames(['en'], { type: 'region' });
-    const localizedNames = new Intl.DisplayNames([locale], { type: 'region' });
-
-    const options = Intl.supportedValuesOf('region')
-      .filter((code) => code.length === 2)
-      .map((code) => {
-        const value = englishNames.of(code) || code;
-        return {
-          code,
-          value,
-          label: localizedNames.of(code) || value,
-        };
-      })
-      .sort((a, b) => a.label.localeCompare(b.label, locale));
-
-    return options.length ? options : fallbackCountries;
+    try {
+      const englishNames = new Intl.DisplayNames(['en'], { type: 'region' });
+      const localizedNames = new Intl.DisplayNames([locale], { type: 'region' });
+      const codes = Intl.supportedValuesOf('region').filter((code) => code.length === 2);
+      const options = codes
+        .map((code) => {
+          const value = englishNames.of(code) || code;
+          return {
+            code,
+            value,
+            label: localizedNames.of(code) || value,
+          };
+        })
+        .sort((a, b) => a.label.localeCompare(b.label, locale));
+      return options.length ? options : fallbackCountries;
+    } catch {
+      return fallbackCountries;
+    }
   }, [locale]);
 
   const handleSubmit = async (e) => {
