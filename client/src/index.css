@@ -487,10 +487,12 @@ label {
 .login-form-wrapper {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: 100px 20px 40px;
   width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .login-card {
@@ -501,6 +503,9 @@ label {
   max-width: 440px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.05);
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .login-card-header {
