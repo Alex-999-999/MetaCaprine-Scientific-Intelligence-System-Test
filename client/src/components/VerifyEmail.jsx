@@ -94,7 +94,7 @@ function VerifyEmail() {
               </button>
               <button 
                 className="btn btn-primary" 
-                onClick={() => navigate('/register')}
+                onClick={() => navigate('/login', { state: { mode: 'register' } })}
               >
                 {t('registerAgain')}
               </button>

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useI18n } from '../i18n/I18nContext';
 import './Modal.css';
 
-function Modal({ isOpen, onClose, onConfirm, title, message, confirmText, cancelText, type = 'danger', children, showIcon = true }) {
+function Modal({ isOpen, onClose, onConfirm, title, message, confirmText, cancelText, type = 'danger', children, showIcon = true, confirmDisabled = false }) {
   const { t } = useI18n();
 
   // Handle ESC key to close modal
@@ -34,6 +34,7 @@ function Modal({ isOpen, onClose, onConfirm, title, message, confirmText, cancel
   };
 
   const handleConfirm = () => {
+    if (confirmDisabled) return;
     onConfirm();
     onClose();
   };
@@ -101,7 +102,7 @@ function Modal({ isOpen, onClose, onConfirm, title, message, confirmText, cancel
             <button 
               className={`btn modal-confirm btn-${type === 'danger' ? 'danger' : 'primary'}`}
               onClick={handleConfirm}
-              autoFocus
+              disabled={confirmDisabled}
             >
               {confirmText || t('confirm')}
             </button>

@@ -416,7 +416,8 @@ function Dashboard({ user, onLogout }) {
       <Modal
         isOpen={showCreateForm}
         onClose={handleCreateModalClose}
-        onConfirm={newScenarioName.trim() ? handleCreateScenario : null}
+        onConfirm={handleCreateScenario}
+        confirmDisabled={!newScenarioName.trim()}
         title={t('createScenario')}
         confirmText={t('createScenario')}
         cancelText={t('cancel')}
