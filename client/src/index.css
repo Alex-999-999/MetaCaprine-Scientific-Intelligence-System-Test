@@ -667,7 +667,7 @@ label {
 }
 
 .terms-checkbox-input::before {
-  content: "X";
+  content: "✓";
   color: #ffffff;
   font-size: 12px;
   font-weight: 700;
