@@ -184,6 +184,20 @@ docs/_build/
 site/
 
 # ============================================
+# Unnecessary / scratch markdown files
+# ============================================
+What to do.md
+REFINEMENT_NOTES_BOARD.md
+REFINEMENT_NOTE_TEMPLATE.md
+MODULE4_MODULE5_AUDIT.md
+TEST_REPORT.md
+REFACTORING_SUMMARY.md
+DELIVERY_SUMMARY.md
+TECHNICAL_RECOMMENDATIONS.md
+QUICK_START_CHECKLIST.md
+SQL policies.md
+
+# ============================================
 # Misc
 # ============================================
 *.pid
@@ -192,4 +206,3 @@ site/
 .npm
 .eslintcache
 .stylelintcache
-/What to do.md
