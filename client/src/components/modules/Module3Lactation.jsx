@@ -351,6 +351,53 @@ function Module3Lactation({ user }) {
       )}
     </span>
   );
+  const overrideRangeItems = [
+    {
+      label: t('herdSize'),
+      value: isSpanish ? '1 a 100.000' : '1 to 100,000',
+    },
+    {
+      label: t('milkKgPerYear'),
+      value: isSpanish ? '0 a 10.000 kg' : '0 to 10,000 kg',
+    },
+    {
+      label: t('fatPercent'),
+      value: isSpanish ? '0 a 20%' : '0 to 20%',
+    },
+    {
+      label: t('proteinPercent'),
+      value: isSpanish ? '0 a 20%' : '0 to 20%',
+    },
+    {
+      label: t('lactationDaysAvg'),
+      value: isSpanish ? '100 a 400 dias' : '100 to 400 days',
+    },
+    {
+      label: t('lactationsPerLife'),
+      value: isSpanish ? '1 a 10' : '1 to 10',
+    },
+  ];
+  const renderOverrideRangeGuide = () => (
+    <div className="pedagogy-block" style={{ marginBottom: '16px' }}>
+      <p className="pedagogy-title" style={{ marginBottom: '10px' }}>
+        {isSpanish
+          ? 'Rangos permitidos para los valores editables'
+          : 'Allowed ranges for editable values'}
+      </p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '8px 16px' }}>
+        {overrideRangeItems.map((item) => (
+          <p key={item.label} style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+            <strong style={{ color: 'var(--text-primary)' }}>{item.label}:</strong> {item.value}
+          </p>
+        ))}
+      </div>
+      <p style={{ margin: '10px 0 0 0', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+        {isSpanish
+          ? 'Si no quieres cambiar un parametro, deja ese campo vacio y el sistema usara el valor recomendado de la raza.'
+          : 'If you do not want to change a parameter, leave that field empty and the system will use the recommended breed value.'}
+      </p>
+    </div>
+  );
 
   return (
     <div className="container">
@@ -476,6 +523,7 @@ function Module3Lactation({ user }) {
               )}
 
               <h3>{t('overridesOptional')}</h3>
+              {renderOverrideRangeGuide()}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px' }}>
                 <div className="form-group">
                   <label>{t('herdSize')}</label>
@@ -620,6 +668,7 @@ function Module3Lactation({ user }) {
                       </div>
                       <details>
                         <summary style={{ cursor: 'pointer', marginBottom: '10px' }}>{t('advancedOverrides')}</summary>
+                        {renderOverrideRangeGuide()}
                         <div className="form-group">
                           <label>{t('milkKgPerYear')}</label>
                           <input
@@ -684,6 +733,7 @@ function Module3Lactation({ user }) {
                       </div>
                       <details>
                         <summary style={{ cursor: 'pointer', marginBottom: '10px' }}>{t('advancedOverrides')}</summary>
+                        {renderOverrideRangeGuide()}
                         <div className="form-group">
                           <label>{t('milkKgPerYear')}</label>
                           <input
