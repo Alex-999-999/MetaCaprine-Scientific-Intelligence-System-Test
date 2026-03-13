@@ -3,9 +3,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../utils/api';
 import { useI18n } from '../i18n/I18nContext';
 import { BRAND_ASSETS } from '../utils/assetCatalog';
+import LanguageSwitcher from './LanguageSwitcher';
 
 function Login({ onLogin }) {
-  const { t, language, changeLanguage } = useI18n();
+  const { t, language } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -178,17 +179,7 @@ function Login({ onLogin }) {
           <h1 className="login-title">{t('appTitle')}</h1>
         </Link>
         <div className="login-language-switcher">
-          <select
-            value={language}
-            onChange={(e) => changeLanguage(e.target.value)}
-            className="login-language-select"
-          >
-            <option value="es">Español</option>
-            <option value="en">English</option>
-            <option value="fr">Français</option>
-            <option value="it">Italiano</option>
-            <option value="pt">Português</option>
-          </select>
+          <LanguageSwitcher className="login-language-menu" />
         </div>
       </div>
 
@@ -480,3 +471,4 @@ function Login({ onLogin }) {
 }
 
 export default Login;
+

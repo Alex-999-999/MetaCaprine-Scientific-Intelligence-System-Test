@@ -5,9 +5,10 @@ import { getAuthToken } from '../utils/auth';
 import { getAvatar } from '../utils/avatar';
 import { BRAND_ASSETS } from '../utils/assetCatalog';
 import OnboardingModal from './OnboardingModal';
+import LanguageSwitcher from './LanguageSwitcher';
 
 function Sidebar({ user, onLogout }) {
-  const { t, language, changeLanguage } = useI18n();
+  const { t } = useI18n();
   const location = useLocation();
   const isAuthenticated = !!getAuthToken();
 
@@ -256,7 +257,7 @@ function UserAvatar({ user, onLogout }) {
 }
 
 function Header({ user, onLogout, showSidebar, setShowSidebar, showFooter, setShowFooter, darkMode, setDarkMode }) {
-  const { t, language, changeLanguage } = useI18n();
+  const { t } = useI18n();
   const isAuthenticated = !!getAuthToken();
   const hasSidebar = isAuthenticated && showSidebar;
 
@@ -265,6 +266,7 @@ function Header({ user, onLogout, showSidebar, setShowSidebar, showFooter, setSh
       <div className="header-content">
         {!hasSidebar && (
           <div className="header-left">
+            <LanguageSwitcher className="header-language-menu" />
             <Link to="/dashboard" className="logo-link">
               <div className="logo-container">
                 <img src={BRAND_ASSETS.logo} alt="MetaCaprine Logo" className="logo-image" />
@@ -275,6 +277,7 @@ function Header({ user, onLogout, showSidebar, setShowSidebar, showFooter, setSh
         )}
         {hasSidebar && (
           <div className="header-left">
+            <LanguageSwitcher className="header-language-menu" />
             <h1 className="site-title">{t('appTitle')}</h1>
           </div>
         )}
@@ -288,36 +291,8 @@ function Header({ user, onLogout, showSidebar, setShowSidebar, showFooter, setSh
           )}
         </nav>
         <div className="header-right">
-          {!isAuthenticated && (
-            <div className="language-switcher">
-              <select
-                value={language}
-                onChange={(e) => changeLanguage(e.target.value)}
-                className="language-select"
-              >
-                <option value="es">Español</option>
-                <option value="en">English</option>
-                <option value="fr">Français</option>
-                <option value="it">Italiano</option>
-                <option value="pt">Português</option>
-              </select>
-            </div>
-          )}
           {isAuthenticated && (
             <>
-              <div className="language-switcher">
-                <select
-                  value={language}
-                  onChange={(e) => changeLanguage(e.target.value)}
-                  className="language-select"
-                >
-                  <option value="es">Español</option>
-                  <option value="en">English</option>
-                  <option value="fr">Français</option>
-                  <option value="it">Italiano</option>
-                  <option value="pt">Português</option>
-                </select>
-              </div>
               <Settings
                 showSidebar={showSidebar}
                 setShowSidebar={setShowSidebar}
@@ -489,4 +464,5 @@ function Layout({ children, user, onLogout }) {
 }
 
 export default Layout;
+
 
