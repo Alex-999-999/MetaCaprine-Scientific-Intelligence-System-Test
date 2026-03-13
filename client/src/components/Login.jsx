@@ -30,6 +30,42 @@ function Login({ onLogin }) {
     return map[language] || 'en';
   }, [language]);
 
+  const friendlyText = (es, en) => (language === 'es' ? es : en);
+
+  const validateBeforeSubmit = () => {
+    if (!email.trim()) {
+      return friendlyText('Ingresa tu correo para continuar.', 'Please enter your email to continue.');
+    }
+
+    if (isForgotPassword) return '';
+
+    if (!password.trim()) {
+      return friendlyText('Ingresa tu contraseña para continuar.', 'Please enter your password to continue.');
+    }
+
+    if (!isRegister) return '';
+
+    if (!name.trim()) return friendlyText('Completa tu nombre.', 'Please enter your first name.');
+    if (!lastName.trim()) return friendlyText('Completa tu apellido.', 'Please enter your last name.');
+    if (!country.trim()) return friendlyText('Selecciona tu país.', 'Please select your country.');
+    if (!city.trim()) return friendlyText('Ingresa tu ciudad.', 'Please enter your city.');
+    if (goatsCount === '' || Number(goatsCount) < 0) {
+      return friendlyText('Ingresa una cantidad válida de cabras.', 'Please enter a valid number of goats.');
+    }
+    if (!sex.trim()) return friendlyText('Selecciona el sexo.', 'Please select sex.');
+    if (age === '' || Number(age) < 0) {
+      return friendlyText('Ingresa una edad válida.', 'Please enter a valid age.');
+    }
+    if (!acceptedTerms) {
+      return friendlyText(
+        'Debes aceptar los términos y condiciones para crear tu cuenta.',
+        'You must accept terms and conditions to create your account.'
+      );
+    }
+
+    return '';
+  };
+
   const countryOptions = useMemo(() => {
     const fallbackCountries = [
       'Argentina', 'Australia', 'Brazil', 'Canada', 'Chile', 'Colombia',
@@ -69,6 +105,13 @@ function Login({ onLogin }) {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    const validationMessage = validateBeforeSubmit();
+    if (validationMessage) {
+      setError(validationMessage);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -185,7 +228,7 @@ function Login({ onLogin }) {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="login-form">
+          <form onSubmit={handleSubmit} className="login-form" noValidate>
             {isRegister && (
               <>
                 <div className="form-group">
@@ -375,7 +418,7 @@ function Login({ onLogin }) {
             <button
               type="submit"
               className="btn btn-primary login-submit-btn"
-              disabled={loading || (isRegister && !acceptedTerms)}
+              disabled={loading}
             >
               {loading ? (
                 <span className="login-loading">
