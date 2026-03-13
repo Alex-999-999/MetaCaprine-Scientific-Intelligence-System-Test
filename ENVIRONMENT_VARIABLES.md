@@ -17,6 +17,7 @@ This document lists **ALL** environment variables used in the MVP Web platform, 
 |----------|------|-------------|---------|
 | `DATABASE_URL` | String | PostgreSQL connection string | `postgresql://user:pass@host:5432/db` |
 | `JWT_SECRET` | String | Secret for JWT token signing (64+ chars) | `[generated hex string]` |
+| `SUPABASE_JWT_SECRET` | String | Supabase JWT secret for validating Supabase access tokens in backend middleware | `[from Supabase project settings]` |
 | `APP_URL` | String | Base URL for email verification links | `http://localhost:3000` |
 
 **Generate JWT_SECRET:**
@@ -77,6 +78,7 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/mvp_ganaderia
 # ============================================================================
 # Generate with: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 JWT_SECRET=your-generated-64-character-hex-string-here
+SUPABASE_JWT_SECRET=your-supabase-jwt-secret
 
 # ============================================================================
 # APPLICATION URL (REQUIRED)
@@ -111,6 +113,7 @@ DATABASE_URL=postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres?sslmode=requi
 # JWT AUTHENTICATION (REQUIRED)
 # ============================================================================
 JWT_SECRET=your-production-jwt-secret-64-chars-minimum
+SUPABASE_JWT_SECRET=your-production-supabase-jwt-secret
 
 # ============================================================================
 # APPLICATION URL (REQUIRED)
@@ -139,6 +142,7 @@ NODE_ENV=production
 |----------|---------|---------|
 | `DATABASE_URL` | `server/db/pool.js` | Database connection |
 | `JWT_SECRET` | `server/middleware/auth.js` | Token signing/verification |
+| `SUPABASE_JWT_SECRET` | `server/middleware/auth.js` | Supabase token verification during migration/cutover |
 | `APP_URL` | `server/services/emailService.js` | Email verification links |
 | `RESEND_API_KEY` | `server/services/emailService.js` | Resend authentication |
 | `RESEND_FROM_EMAIL` | `server/services/emailService.js` | Email sender address |

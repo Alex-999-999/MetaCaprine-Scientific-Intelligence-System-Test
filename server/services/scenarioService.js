@@ -5,6 +5,7 @@
 
 import { getPool } from '../db/pool.js';
 import { runSimulation } from '../core/simulationEngine.js';
+import { ensureGestationTable, getGestationDataByScenarioId } from './gestationService.js';
 
 /**
  * Get all scenarios for a user
@@ -59,10 +60,8 @@ export async function getScenarioById(scenarioId, userId) {
     pool.query('SELECT * FROM lactation_data WHERE scenario_id = $1', [scenarioId]),
     pool.query('SELECT * FROM yield_data WHERE scenario_id = $1', [scenarioId]),
     pool.query('SELECT * FROM results WHERE scenario_id = $1', [scenarioId]),
-    pool.query('SELECT * FROM gestation_data WHERE scenario_id = $1', [scenarioId]).catch(() => ({ rows: [] })),
+    getGestationDataByScenarioId(pool, scenarioId),
   ]);
-
-  const gestationRow = gestationData.rows[0];
 
   return {
     ...scenario,
@@ -72,7 +71,8 @@ export async function getScenarioById(scenarioId, userId) {
     lactationData: lactationData.rows[0] || null,
     yieldData: yieldData.rows[0] || null,
     results: results.rows[0] || null,
-    gestationData: gestationRow || null,
+    gestationData: gestationData.gestationData || null,
+    calculatedGestationTimeline: gestationData.calculatedGestationTimeline || null,
   };
 }
 
@@ -188,6 +188,7 @@ export async function deleteScenario(scenarioId, userId) {
  */
 export async function duplicateScenario(scenarioId, userId, newName = null) {
   const pool = getPool();
+  await ensureGestationTable(pool);
 
   // Get original scenario
   const original = await getScenarioById(scenarioId, userId);
@@ -255,6 +256,13 @@ export async function duplicateScenario(scenarioId, userId, newName = null) {
       `INSERT INTO yield_data (scenario_id, conversion_rate, efficiency_percentage)
        SELECT $1, conversion_rate, efficiency_percentage
        FROM yield_data WHERE scenario_id = $2`,
+      [newScenario.id, scenarioId]
+    ),
+    // Copy gestation_data
+    original.gestationData && pool.query(
+      `INSERT INTO gestation_data (scenario_id, gestation_data, calculated_gestation_timeline)
+       SELECT $1, gestation_data, calculated_gestation_timeline
+       FROM gestation_data WHERE scenario_id = $2`,
       [newScenario.id, scenarioId]
     ),
   ].filter(Boolean)); // Remove null/undefined promises

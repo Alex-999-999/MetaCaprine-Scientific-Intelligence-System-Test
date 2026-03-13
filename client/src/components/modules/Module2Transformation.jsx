@@ -690,18 +690,50 @@ function Module2Transformation({ user }) {
 
   const isProUser = ['pro', 'admin'].includes(user?.role);
   const hasModule2Access = isProUser || (user?.features || []).includes('module2');
+  const hasProductionBaseline =
+    (Number(productionData.daily_production_liters) || 0) > 0 &&
+    (Number(productionData.production_days) || 0) > 0 &&
+    (Number(productionData.animals_count) || 0) > 0;
+  const infoIcon = '\u2139';
+  const labelWithHelp = (label, tooltipText) => (
+    <span className="field-label-with-help">
+      <span>{label}</span>
+      {tooltipText && (
+        <span className="term-help-icon" title={tooltipText} aria-label={tooltipText}>
+          {infoIcon}
+        </span>
+      )}
+    </span>
+  );
 
   if (!hasModule2Access) {
     return (
       <div className="container">
         <div className="card" style={{ border: '2px solid var(--accent-warning)', background: 'var(--bg-secondary)' }}>
-          <h2 style={{ marginBottom: '12px' }}>🔒 {t('module2Title')}</h2>
-          <p style={{ marginBottom: '12px', lineHeight: 1.6 }}>
-            {t('module2BasicSimulationMessage')}
-          </p>
-          <button className="btn btn-primary" onClick={() => navigate('/profile')}>
-            {t('upgradeToPro')}
-          </button>
+          <h2 style={{ marginBottom: '12px' }}>{'\u{1F512}'} {t('module2Title')}</h2>
+          <div className="upgrade-info-block" style={{ marginBottom: '14px' }}>
+            <p style={{ margin: 0, lineHeight: 1.6, color: 'var(--text-primary)' }}>
+              <span className="term-help-icon" aria-hidden="true">{infoIcon}</span>
+              {t('module2BasicSimulationMessage')}
+            </p>
+            <button className="btn btn-primary" style={{ marginTop: '10px' }} onClick={() => navigate('/profile')}>
+              {t('unlockFullAnalysis')}
+            </button>
+          </div>
+          <div className="blocked-preview-grid" style={{ marginTop: '14px', marginBottom: '14px' }}>
+            <div className="blocked-preview-card">
+              <h4>{'\u{1F512}'} {t('productMix')}</h4>
+              <p>{t('module2ProductTableNote')}</p>
+            </div>
+            <div className="blocked-preview-card">
+              <h4>{'\u{1F512}'} {t('salesChannels')}</h4>
+              <p>{t('salesChannelsNote')}</p>
+            </div>
+            <div className="blocked-preview-card">
+              <h4>{'\u{1F512}'} {t('chartViewType')}</h4>
+              <p>{t('module2CompareSubtitle')}</p>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -766,14 +798,33 @@ function Module2Transformation({ user }) {
         <>
           <div className="card">
             <h2>{t('baseProductionData')}</h2>
-            <div style={{ marginBottom: '20px', padding: '15px', background: 'rgba(22, 163, 74, 0.1)', borderRadius: '8px', border: '1px solid var(--accent-success)' }}>
-              <p style={{ margin: 0, fontSize: '0.9em', color: 'var(--accent-success)', fontWeight: '500' }}>
-                📊 <strong>{t('note')}:</strong> {t('module2StandaloneMode')}
+            <div style={{
+              marginBottom: '20px',
+              padding: '15px',
+              background: hasProductionBaseline ? 'rgba(22, 163, 74, 0.1)' : 'rgba(37, 99, 235, 0.1)',
+              borderRadius: '8px',
+              border: `1px solid ${hasProductionBaseline ? 'var(--accent-success)' : 'var(--accent-info)'}`
+            }}>
+              <p style={{
+                margin: 0,
+                fontSize: '0.9em',
+                color: hasProductionBaseline ? 'var(--accent-success)' : 'var(--accent-info)',
+                fontWeight: '500'
+              }}>
+                <strong>{t('note')}:</strong> {hasProductionBaseline ? t('inheritedFromModule1') : t('module2StandaloneMode')}
               </p>
+            </div>
+            <div className="pedagogy-block" style={{ marginBottom: '18px' }}>
+              <p className="pedagogy-title">{t('module2CompareSubtitle')}</p>
+              <ul className="pedagogy-list">
+                <li>{`${t('totalDistribution')} = 100%`}</li>
+                <li>{`${t('totalProductionCost')} = ${t('totalMilkCost')} + ${t('totalProcessingCost')} + ${t('totalPackagingCost')}`}</li>
+                <li>{`${t('margin')} = ${t('income')} - ${t('totalCosts')}`}</li>
+              </ul>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
               <div className="form-group">
-                <label>{t('dailyProduction')}</label>
+                <label>{labelWithHelp(t('dailyProduction'), `${t('dailyProduction')} x ${t('productionDays')} x ${t('animalsCount')}`)}</label>
                 <input
                   type="number"
                   name="daily_production_liters"
@@ -784,7 +835,7 @@ function Module2Transformation({ user }) {
                 />
               </div>
               <div className="form-group">
-                <label>{t('productionDays')}</label>
+                <label>{labelWithHelp(t('productionDays'), `${t('productionDays')} (${t('perLactation')})`)}</label>
                 <input
                   type="number"
                   name="production_days"
@@ -796,7 +847,7 @@ function Module2Transformation({ user }) {
                 />
               </div>
               <div className="form-group">
-                <label>{t('animalsCount')}</label>
+                <label>{labelWithHelp(t('animalsCount'), `${t('animalsCount')} (${t('lactationCycle')})`)}</label>
                 <input
                   type="number"
                   name="animals_count"
@@ -808,7 +859,7 @@ function Module2Transformation({ user }) {
                 />
               </div>
               <div className="form-group">
-                <label>{t('milkPriceForComparison')}</label>
+                <label>{labelWithHelp(t('milkPriceForComparison'), `${t('milkPriceForComparison')} (${t('rawMilkSale')})`)}</label>
                 <input
                   type="number"
                   name="milk_price_per_liter"
@@ -819,7 +870,7 @@ function Module2Transformation({ user }) {
                 />
               </div>
               <div className="form-group">
-                <label>{t('feedCost')}</label>
+                <label>{labelWithHelp(t('feedCost'), `${t('feedCost')} (${t('perLiter')})`)}</label>
                 <input
                   type="number"
                   name="feed_cost_per_liter"
@@ -830,7 +881,7 @@ function Module2Transformation({ user }) {
                 />
               </div>
               <div className="form-group">
-                <label>{t('laborCost')}</label>
+                <label>{labelWithHelp(t('laborCost'), `${t('laborCost')} (${t('perLiter')})`)}</label>
                 <input
                   type="number"
                   name="labor_cost_per_liter"
@@ -841,7 +892,7 @@ function Module2Transformation({ user }) {
                 />
               </div>
               <div className="form-group">
-                <label>{t('healthCost')}</label>
+                <label>{labelWithHelp(t('healthCost'), `${t('healthCost')} (${t('perLiter')})`)}</label>
                 <input
                   type="number"
                   name="health_cost_per_liter"
@@ -852,7 +903,7 @@ function Module2Transformation({ user }) {
                 />
               </div>
               <div className="form-group">
-                <label>{t('infrastructureCost')}</label>
+                <label>{labelWithHelp(t('infrastructureCost'), `${t('infrastructureCost')} (${t('perLiter')})`)}</label>
                 <input
                   type="number"
                   name="infrastructure_cost_per_liter"
@@ -863,7 +914,7 @@ function Module2Transformation({ user }) {
                 />
               </div>
               <div className="form-group">
-                <label>{t('otherCosts')}</label>
+                <label>{labelWithHelp(t('otherCosts'), `${t('otherCosts')} (${t('perLiter')})`)}</label>
                 <input
                   type="number"
                   name="other_costs_per_liter"
@@ -875,7 +926,7 @@ function Module2Transformation({ user }) {
               </div>
             </div>
             <div style={{ marginTop: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-              <strong>{t('milkProductionCostPerLiter')}:</strong>{' '}
+              <strong>{labelWithHelp(t('milkProductionCostPerLiter'), `${t('feedCost')} + ${t('laborCost')} + ${t('healthCost')} + ${t('infrastructureCost')} + ${t('otherCosts')}`)}:</strong>{' '}
               {(
                 (Number(productionData.feed_cost_per_liter) || 0) +
                 (Number(productionData.labor_cost_per_liter) || 0) +
@@ -1378,7 +1429,7 @@ function Module2Transformation({ user }) {
                     <div style={{ marginBottom: '20px' }}>
                       <h3 style={{ fontSize: '1.1em', marginBottom: '15px' }}>{t('consolidatedSummary')}</h3>
                       <div className="table-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                        <table className="table" style={{ minWidth: '400px' }}>
+                        <table className="table numeric-table" style={{ minWidth: '400px' }}>
                           <tbody>
                             <tr>
                               <td><strong>{t('milkProductionCostPerLiter')}</strong></td>
@@ -1416,7 +1467,7 @@ function Module2Transformation({ user }) {
                         <div>
                           <h3 style={{ fontSize: '1.1em', marginTop: '25px', marginBottom: '15px' }}>{t('costPerKgByProduct')}</h3>
                           <div className="table-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                            <table className="table" style={{ minWidth: '700px' }}>
+                            <table className="table numeric-table" style={{ minWidth: '700px' }}>
                               <thead>
                                 <tr>
                                   <th>{t('product')}</th>
@@ -1651,7 +1702,7 @@ function Module2Transformation({ user }) {
                         <strong>✅ {t('note')}:</strong> {t('module2ProductTableNote')}
                       </div>
                       <div className="table-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                        <table className="table" style={{ minWidth: '800px' }}>
+                        <table className="table numeric-table" style={{ minWidth: '800px' }}>
                           <thead>
                             <tr>
                               <th style={{ width: '30px' }}></th>
@@ -1822,7 +1873,7 @@ function Module2Transformation({ user }) {
                   </ul>
                 </div>
                 <div className="table-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                  <table className="table" style={{ minWidth: '500px' }}>
+                  <table className="table numeric-table" style={{ minWidth: '500px' }}>
                     <thead>
                       <tr>
                         <th>{t('concept')}</th>
@@ -2150,25 +2201,25 @@ function Module2Transformation({ user }) {
                   <div className="metrics-grid">
                     <div className="metric-card info">
                       <div className="metric-label">{t('totalProductKg')}</div>
-                      <div className="metric-value">
+                      <div className="metric-value numeric-value">
                         {Number(results.total_product_kg || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
                     </div>
                     <div className="metric-card">
                       <div className="metric-label">{t('totalRevenue')}</div>
-                      <div className="metric-value">
+                      <div className="metric-value numeric-value">
                         {formatMoney(results.product_revenue)}
                       </div>
                     </div>
                     <div className="metric-card warning">
                       <div className="metric-label">{t('totalCosts')}</div>
-                      <div className="metric-value">
+                      <div className="metric-value numeric-value">
                         {formatMoney((results.product_revenue || 0) - (results.transformation_margin || 0))}
                       </div>
                     </div>
                     <div className={`metric-card ${(results.transformation_margin || 0) >= 0 ? 'success' : 'error'}`}>
                       <div className="metric-label">{t('grossMargin')}</div>
-                      <div className={`metric-value ${(results.transformation_margin || 0) >= 0 ? 'success' : 'error'}`}>
+                      <div className={`metric-value numeric-value ${(results.transformation_margin || 0) >= 0 ? 'success' : 'error'}`}>
                         {formatMoney(results.transformation_margin)}
                       </div>
                       <div className={`metric-change ${((results.product_revenue || 0) > 0 ? ((results.transformation_margin || 0) / (results.product_revenue || 1)) * 100 : 0) >= 0 ? 'positive' : 'negative'}`}>
@@ -2326,3 +2377,4 @@ function Module2Transformation({ user }) {
 }
 
 export default Module2Transformation;
+

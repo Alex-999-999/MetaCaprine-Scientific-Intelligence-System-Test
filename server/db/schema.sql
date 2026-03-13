@@ -4,6 +4,7 @@
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
+  auth_user_id UUID UNIQUE,
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   name VARCHAR(255),
@@ -16,7 +17,7 @@ CREATE TABLE IF NOT EXISTS scenarios (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name VARCHAR(255) NOT NULL,
-  type VARCHAR(50) NOT NULL, -- 'milk_sale', 'transformation', 'lactation', 'yield', 'summary'
+  type VARCHAR(50) NOT NULL, -- 'milk_sale', 'transformation', 'lactation', 'yield', 'gestation', 'summary'
   description TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -100,6 +101,17 @@ CREATE TABLE IF NOT EXISTS yield_data (
   UNIQUE(scenario_id)
 );
 
+-- Gestation Data (for gestation/reproductive calendar module)
+CREATE TABLE IF NOT EXISTS gestation_data (
+  id SERIAL PRIMARY KEY,
+  scenario_id INTEGER NOT NULL REFERENCES scenarios(id) ON DELETE CASCADE,
+  gestation_data JSONB,
+  calculated_gestation_timeline JSONB,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(scenario_id)
+);
+
 -- Results table (calculated outputs - shared across all modules)
 CREATE TABLE IF NOT EXISTS results (
   id SERIAL PRIMARY KEY,
@@ -124,4 +136,5 @@ CREATE INDEX IF NOT EXISTS idx_production_data_scenario_id ON production_data(sc
 CREATE INDEX IF NOT EXISTS idx_transformation_data_scenario_id ON transformation_data(scenario_id);
 CREATE INDEX IF NOT EXISTS idx_lactation_data_scenario_id ON lactation_data(scenario_id);
 CREATE INDEX IF NOT EXISTS idx_yield_data_scenario_id ON yield_data(scenario_id);
+CREATE INDEX IF NOT EXISTS idx_gestation_data_scenario_id ON gestation_data(scenario_id);
 CREATE INDEX IF NOT EXISTS idx_results_scenario_id ON results(scenario_id);

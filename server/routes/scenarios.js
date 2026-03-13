@@ -1,5 +1,4 @@
 import express from 'express';
-import { getPool } from '../db/pool.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { requireRole } from '../middleware/requireRole.js';
 import { requireEmailVerification } from '../middleware/requireEmailVerification.js';
@@ -33,25 +32,9 @@ router.get('/:id', async (req, res) => {
   try {
     const scenarioId = parseInt(req.params.id);
     
-    // Business logic in service layer
+    // Business logic in service layer (includes gestation payload if present)
     const scenario = await scenarioService.getScenarioById(scenarioId, req.user.userId);
-    
-    // Handle gestation data if it exists
-    const pool = getPool();
-    const gestationData = await pool.query(
-      'SELECT * FROM gestation_data WHERE scenario_id = $1', 
-      [scenarioId]
-    ).catch(() => ({ rows: [] }));
-    
-    const gestationRow = gestationData.rows[0];
-    const parsedGestationData = gestationRow?.gestation_data || null;
-    const parsedTimeline = gestationRow?.calculated_gestation_timeline || null;
-    
-    res.json({
-      ...scenario,
-      gestationData: parsedGestationData,
-      calculatedGestationTimeline: parsedTimeline,
-    });
+    res.json(scenario);
   } catch (error) {
     console.error('Get scenario error:', error);
     

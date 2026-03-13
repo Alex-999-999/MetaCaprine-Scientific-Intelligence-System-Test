@@ -22,7 +22,7 @@ import '../../styles/Module3.css';
  * - All calculations in kg (display note: ≈ L)
  */
 function Module3Lactation({ user }) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const chartColors = useChartColors();
 
   // Available breeds from database
@@ -99,6 +99,80 @@ function Module3Lactation({ user }) {
       document.body.style.overflow = 'unset';
     };
   }, [breedDetailModalOpen]);
+
+  const parseOverrideNumber = (value) => {
+    if (value === '' || value === null || value === undefined) return null;
+    if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+    const normalized = String(value).trim().replace(',', '.');
+    if (!normalized) return null;
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+
+  const buildCleanOverrides = (overrides) => {
+    const clean = {};
+    Object.keys(overrides || {}).forEach((key) => {
+      const parsed = parseOverrideNumber(overrides[key]);
+      if (parsed !== null) {
+        clean[key] = parsed;
+      }
+    });
+    return clean;
+  };
+
+  const isSpanish = language === 'es';
+  const toFriendlyValidationMessage = (details = []) => {
+    if (!Array.isArray(details) || details.length === 0) {
+      return isSpanish
+        ? 'Algunos valores no son válidos. Revísalos e inténtalo de nuevo.'
+        : 'Some values are not valid. Please review them and try again.';
+    }
+
+    const mapped = details.map((detail) => {
+      const text = String(detail || '').toLowerCase();
+
+      if (text.includes('milk_kg_yr')) {
+        return isSpanish
+          ? 'La producción anual de leche es demasiado alta. Usa un valor menor o igual a 10.000 kg, o deja el campo vacío para usar el valor de la raza.'
+          : 'Yearly milk production is too high. Use a value up to 10,000 kg, or leave it empty to use the breed default.';
+      }
+      if (text.includes('fat_pct')) {
+        return isSpanish
+          ? 'El porcentaje de grasa debe estar entre 0 y 20.'
+          : 'Fat percentage must be between 0 and 20.';
+      }
+      if (text.includes('protein_pct')) {
+        return isSpanish
+          ? 'El porcentaje de proteína debe estar entre 0 y 20.'
+          : 'Protein percentage must be between 0 and 20.';
+      }
+      if (text.includes('lact_days_avg')) {
+        return isSpanish
+          ? 'Los días de lactancia deben estar entre 100 y 400.'
+          : 'Lactation days must be between 100 and 400.';
+      }
+      if (text.includes('lactations_lifetime_avg')) {
+        return isSpanish
+          ? 'Las lactancias de vida productiva deben estar entre 1 y 10.'
+          : 'Lifetime lactations must be between 1 and 10.';
+      }
+      if (text.includes('herd_size')) {
+        return isSpanish
+          ? 'El tamaño del rebaño debe estar entre 1 y 100.000.'
+          : 'Herd size must be between 1 and 100,000.';
+      }
+
+      return isSpanish
+        ? 'Hay un valor fuera de rango. Revísalo o deja el campo vacío para usar el valor recomendado.'
+        : 'A value is out of range. Review it, or leave it empty to use the recommended value.';
+    });
+
+    const uniqueMessages = [...new Set(mapped)];
+    const intro = isSpanish
+      ? 'No se pudo calcular porque hay datos fuera de rango:'
+      : 'Calculation could not be completed because some values are out of range:';
+    return `${intro} ${uniqueMessages.join(' ')}`;
+  };
 
   const loadBreeds = async () => {
     try {
@@ -182,14 +256,8 @@ function Module3Lactation({ user }) {
 
     setLoading(true);
     try {
-      // Clean overrides: only send non-empty values
-      const cleanOverrides = {};
-      Object.keys(overrides).forEach(key => {
-        const value = overrides[key];
-        if (value !== '' && value !== null && value !== undefined) {
-          cleanOverrides[key] = Number(value);
-        }
-      });
+      // Clean overrides: only send finite numeric values
+      const cleanOverrides = buildCleanOverrides(overrides);
 
       const response = await api.post('/module3/simulate', {
         breed_key: breedKey,
@@ -199,9 +267,13 @@ function Module3Lactation({ user }) {
       setSingleResult(response.data.scenario);
     } catch (error) {
       console.error('Error simulating breed:', error);
+      const hasValidationError = error.response?.data?.error === 'Invalid overrides';
+      const validationMessage = hasValidationError
+        ? toFriendlyValidationMessage(error.response?.data?.details)
+        : null;
       setAlertModal({
         isOpen: true,
-        message: error.response?.data?.error || t('errorCalculating'),
+        message: validationMessage || error.response?.data?.error || t('errorCalculating'),
         type: 'error'
       });
     } finally {
@@ -221,22 +293,8 @@ function Module3Lactation({ user }) {
 
     setLoading(true);
     try {
-      const cleanOverridesA = {};
-      const cleanOverridesB = {};
-      
-      Object.keys(overridesA).forEach(key => {
-        const value = overridesA[key];
-        if (value !== '' && value !== null && value !== undefined) {
-          cleanOverridesA[key] = Number(value);
-        }
-      });
-      
-      Object.keys(overridesB).forEach(key => {
-        const value = overridesB[key];
-        if (value !== '' && value !== null && value !== undefined) {
-          cleanOverridesB[key] = Number(value);
-        }
-      });
+      const cleanOverridesA = buildCleanOverrides(overridesA);
+      const cleanOverridesB = buildCleanOverrides(overridesB);
 
       const response = await api.post('/module3/compare', {
         a: { breed_key: breedA, overrides: cleanOverridesA },
@@ -246,9 +304,15 @@ function Module3Lactation({ user }) {
       setComparisonResult(response.data.comparison);
     } catch (error) {
       console.error('Error comparing breeds:', error);
+      const hasValidationError = error.response?.data?.error === 'Invalid overrides';
+      const details = [
+        ...(Array.isArray(error.response?.data?.detailsA) ? error.response.data.detailsA : []),
+        ...(Array.isArray(error.response?.data?.detailsB) ? error.response.data.detailsB : []),
+      ];
+      const validationMessage = hasValidationError ? toFriendlyValidationMessage(details) : null;
       setAlertModal({
         isOpen: true,
-        message: error.response?.data?.error || t('errorRunningComparison'),
+        message: validationMessage || error.response?.data?.error || t('errorRunningComparison'),
         type: 'error'
       });
     } finally {
@@ -275,6 +339,18 @@ function Module3Lactation({ user }) {
     if (num === null || num === undefined || isNaN(num)) return '0';
     return Number(num).toLocaleString(undefined, { maximumFractionDigits: decimals });
   };
+  const infoIcon = '\u2139';
+  const lockIcon = '\u{1F512}';
+  const labelWithHelp = (label, tooltipText) => (
+    <span className="field-label-with-help">
+      <span>{label}</span>
+      {tooltipText && (
+        <span className="term-help-icon" title={tooltipText} aria-label={tooltipText}>
+          {infoIcon}
+        </span>
+      )}
+    </span>
+  );
 
   return (
     <div className="container">
@@ -293,7 +369,7 @@ function Module3Lactation({ user }) {
             🧬 {t('module3Explanation')}
           </p>
           <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.6', color: 'var(--text-secondary)', fontStyle: 'italic', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
-            <strong>ECM:</strong> {t('ecmDefinition')}
+            <strong>{labelWithHelp('ECM', t('ecmDefinition'))}:</strong> {t('ecmDefinition')}
           </p>
         </div>
       </header>
@@ -313,7 +389,7 @@ function Module3Lactation({ user }) {
             disabled={!hasAdvancedComparisons}
             title={!hasAdvancedComparisons ? t('availableForProUsers') : ''}
           >
-            ⚖️ {t('compareAvsB')}
+            {!hasAdvancedComparisons ? `${lockIcon} ` : ''}{t('compareAvsB')}
           </button>
           <button
             className={`btn ${viewMode === 'ranking' ? 'btn-primary' : 'btn-secondary'}`}
@@ -321,12 +397,13 @@ function Module3Lactation({ user }) {
             disabled={!hasAdvancedComparisons}
             title={!hasAdvancedComparisons ? t('availableForProUsers') : ''}
           >
-            🏆 {t('ranking')}
+            {!hasAdvancedComparisons ? `${lockIcon} ` : ''}{t('ranking')}
           </button>
         </div>
         {!hasAdvancedComparisons && (
-          <div style={{ marginTop: '12px', padding: '12px', borderRadius: '8px', background: 'rgba(234, 179, 8, 0.1)', border: '1px solid var(--accent-warning)' }}>
+          <div className="upgrade-info-block" style={{ marginTop: '12px' }}>
             <p style={{ margin: 0, lineHeight: 1.5 }}>
+              <span className="lock-indicator" aria-hidden="true">{lockIcon}</span>{' '}
               {t('module3BasicComparisonMessage')}
             </p>
             <button className="btn btn-primary" style={{ marginTop: '10px' }} onClick={() => window.location.assign('/profile')}>
@@ -1021,7 +1098,7 @@ function Module3Lactation({ user }) {
                       >
                         <div className="breed-image-container">
                           <img 
-                            src={getBreedImage(breed.breed_name)} 
+                            src={getBreedImage(breed.breed_name, breed.image_asset_key)} 
                             alt={breed.breed_name}
                             className="breed-image"
                             onError={(e) => {
@@ -1061,7 +1138,7 @@ function Module3Lactation({ user }) {
               </div>
 
               <div className="table-container" style={{ overflowX: 'auto', marginBottom: '30px' }}>
-                <table className="table" style={{ minWidth: '800px' }}>
+                <table className="table numeric-table" style={{ minWidth: '800px' }}>
                   <thead>
                     <tr>
                       <th>{t('rank')}</th>
@@ -1366,13 +1443,13 @@ function Module3Lactation({ user }) {
                   }}
                 >
                   <img 
-                    src={getBreedImage(selectedBreedDetail.breed_name)} 
+                    src={getBreedImage(selectedBreedDetail.breed_name, selectedBreedDetail.image_asset_key)} 
                     alt={selectedBreedDetail.breed_name}
                     style={{ 
                       width: '100%', 
                       height: '100%', 
-                      objectFit: 'cover',
-                      transform: imageHover.isHovering ? 'scale(2.5)' : 'scale(1)',
+                      objectFit: 'contain',
+                      transform: imageHover.isHovering ? 'scaleX(-1) scale(2.5)' : 'scaleX(-1) scale(1)',
                       transformOrigin: `${imageHover.x}% ${imageHover.y}%`,
                       transition: imageHover.isHovering ? 'none' : 'transform 0.3s ease-out'
                     }}

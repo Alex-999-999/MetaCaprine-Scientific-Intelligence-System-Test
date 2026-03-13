@@ -20,9 +20,11 @@ function Profile({ user, onUserUpdate }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [avatar, setAvatar] = useState(getAvatar() || null);
   const [loading, setLoading] = useState(false);
+  const [upgrading, setUpgrading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const hasProAccess = ['pro', 'admin'].includes(user?.role) || (user?.features || []).includes('module2');
 
   // Fetch fresh user data from backend when component mounts
   useEffect(() => {
@@ -159,6 +161,25 @@ function Profile({ user, onUserUpdate }) {
       setError(err.response?.data?.error || err.message || t('updateError'));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpgradeToPro = async () => {
+    setError('');
+    setSuccess('');
+    setUpgrading(true);
+    try {
+      const response = await api.post('/auth/upgrade-to-pro');
+      const updatedUser = response.data?.user;
+      if (updatedUser) {
+        onUserUpdate(updatedUser);
+      }
+      setSuccess(response.data?.message || t('upgradeToPro'));
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError(err.response?.data?.error || err.message || t('updateError'));
+    } finally {
+      setUpgrading(false);
     }
   };
 
@@ -418,6 +439,23 @@ function Profile({ user, onUserUpdate }) {
               </button>
             </div>
           </form>
+        </div>
+
+        {/* Upgrade Section */}
+        <div className="card">
+          <h2 className="card-section-title">{t('unlockFullAnalysis')}</h2>
+          <p style={{ marginBottom: '12px', color: 'var(--text-secondary)' }}>
+            {t('module2BasicSimulationMessage')}
+          </p>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={handleUpgradeToPro}
+            disabled={upgrading || hasProAccess}
+            title={hasProAccess ? t('availableForProUsers') : ''}
+          >
+            {hasProAccess ? t('availableForProUsers') : (upgrading ? t('saving') : t('upgradeToPro'))}
+          </button>
         </div>
       </div>
     </div>

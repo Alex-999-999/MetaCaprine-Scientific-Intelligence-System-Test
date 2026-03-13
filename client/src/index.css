@@ -588,9 +588,43 @@ label {
   height: 18px;
   min-width: 18px;
   margin-top: 0;
-  appearance: auto;
-  -webkit-appearance: checkbox;
-  -moz-appearance: checkbox;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 2px solid #2d5016;
+  border-radius: 4px;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.terms-checkbox-input::before {
+  content: "X";
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.terms-checkbox-input:checked {
+  background: #2d5016;
+  border-color: #2d5016;
+}
+
+.terms-checkbox-input:checked::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.terms-checkbox-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .terms-checkbox-input:focus {
@@ -889,6 +923,13 @@ label {
   font-size: 20px;
   width: 24px;
   text-align: center;
+}
+
+.nav-icon-image {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  vertical-align: middle;
 }
 
 .nav-text {
@@ -3831,4 +3872,161 @@ label {
 .dark-mode .chart-badge.info {
   background: rgba(59, 130, 246, 0.15);
   color: #60a5fa;
+}
+
+/* Step 7: Pedagogical and visual consistency helpers */
+.field-label-with-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.term-help-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: help;
+}
+
+.lock-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ca8a04;
+  font-size: 0.95rem;
+}
+
+.locked-field-group {
+  padding: 10px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(113, 128, 150, 0.08) 0%, rgba(113, 128, 150, 0.14) 100%);
+  border: 1px dashed rgba(113, 128, 150, 0.42);
+}
+
+.locked-field-group input:disabled {
+  filter: grayscale(0.4);
+  opacity: 0.8;
+}
+
+.upgrade-info-block {
+  margin-bottom: 15px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid var(--accent-warning);
+}
+
+.pedagogy-block {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.24);
+}
+
+.pedagogy-title {
+  margin: 0 0 8px 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.pedagogy-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.numeric-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.numeric-table th:not(:first-child),
+.numeric-table td:not(:first-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.dark-mode .term-help-icon {
+  background: rgba(96, 165, 250, 0.2);
+  color: #93c5fd;
+}
+
+.dark-mode .locked-field-group {
+  background: linear-gradient(180deg, rgba(113, 128, 150, 0.14) 0%, rgba(113, 128, 150, 0.2) 100%);
+  border-color: rgba(148, 163, 184, 0.45);
+}
+
+.blocked-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.blocked-preview-card {
+  position: relative;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(113, 128, 150, 0.35);
+  background: linear-gradient(180deg, rgba(113, 128, 150, 0.1) 0%, rgba(113, 128, 150, 0.16) 100%);
+  overflow: hidden;
+}
+
+.blocked-preview-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(1.5px);
+  pointer-events: none;
+}
+
+.blocked-preview-card h4 {
+  margin: 0 0 6px 0;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.blocked-preview-card p {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+/* Container policy: large containers must be square (no rounded corners). */
+.card,
+.site-header,
+.site-footer,
+.sidebar,
+.settings-dropdown,
+.user-avatar-dropdown,
+.login-card,
+.profile-content,
+.table-container,
+.locked-field-group,
+.upgrade-info-block,
+.pedagogy-block,
+.blocked-preview-card {
+  border-radius: 0 !important;
+}
+
+/* Global hard rule requested: no rounded corners anywhere. */
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+}
+
+/* Exception requested: loading indicators remain circular. */
+.spinner,
+.login-spinner {
+  border-radius: 50% !important;
 }

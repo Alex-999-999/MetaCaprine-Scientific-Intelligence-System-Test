@@ -103,41 +103,50 @@ function Dashboard({ user, onLogout }) {
     setDeleteModal({ isOpen: false, scenarioId: null, scenarioName: '' });
   };
 
+  const normalizeScenarioType = (type) => {
+    if (type === 'summary') return 'gestation';
+    return type;
+  };
+
   const getModulePath = (type) => {
+    const normalizedType = normalizeScenarioType(type);
     const typeMap = {
       milk_sale: '/module1',
       transformation: '/module2',
       lactation: '/module3',
       yield: '/module4',
-      summary: '/module5',
+      gestation: '/module5',
     };
-    return typeMap[type] || '/dashboard';
+    return typeMap[normalizedType] || '/dashboard';
   };
 
   const getModuleName = (type) => {
-    return t(`moduleTypes.${type}`) || type;
+    const normalizedType = normalizeScenarioType(type);
+    return t(`moduleTypes.${normalizedType}`) || normalizedType;
   };
 
   const getModuleColor = (type) => {
+    const normalizedType = normalizeScenarioType(type);
     const colorMap = {
       milk_sale: 'var(--accent-success)',
       transformation: 'var(--accent-success)',
       lactation: 'var(--accent-warning)',
       yield: 'var(--accent-info)',
-      summary: 'var(--accent-error)'
+      gestation: 'var(--accent-error)',
     };
-    return colorMap[type] || 'var(--text-tertiary)';
+    return colorMap[normalizedType] || 'var(--text-tertiary)';
   };
 
   const getModuleIcon = (type) => {
+    const normalizedType = normalizeScenarioType(type);
     const iconMap = {
-      milk_sale: '🥛',
-      transformation: '🧀',
-      lactation: '🐄',
-      yield: '📊',
-      summary: '📈'
+      milk_sale: 'M1',
+      transformation: 'M2',
+      lactation: 'M3',
+      yield: 'M4',
+      gestation: 'M5',
     };
-    return iconMap[type] || '📋';
+    return iconMap[normalizedType] || 'SC';
   };
 
   // Configurable menu items - easily extendable
@@ -172,7 +181,7 @@ function Dashboard({ user, onLogout }) {
   // Filter scenarios
   const filteredScenarios = scenarios.filter(scenario => {
     const matchesSearch = scenario.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = filterType === 'all' || scenario.type === filterType;
+    const matchesType = filterType === 'all' || normalizeScenarioType(scenario.type) === filterType;
     return matchesSearch && matchesType;
   });
 
@@ -308,8 +317,9 @@ function Dashboard({ user, onLogout }) {
               <option value="all">{t('allTypes')}</option>
               <option value="milk_sale">{t('moduleTypes.milk_sale')}</option>
               <option value="transformation">{t('moduleTypes.transformation')}</option>
+              <option value="lactation">{t('moduleTypes.lactation')}</option>
               <option value="yield">{t('moduleTypes.yield')}</option>
-              <option value="summary">{t('moduleTypes.summary')}</option>
+              <option value="gestation">{t('moduleTypes.gestation')}</option>
             </select>
           </div>
         </div>
@@ -440,8 +450,9 @@ function Dashboard({ user, onLogout }) {
             >
               <option value="milk_sale">{t('moduleTypes.milk_sale')}</option>
               <option value="transformation">{t('moduleTypes.transformation')}</option>
+              <option value="lactation">{t('moduleTypes.lactation')}</option>
               <option value="yield">{t('moduleTypes.yield')}</option>
-              <option value="summary">{t('moduleTypes.summary')}</option>
+              <option value="gestation">{t('moduleTypes.gestation')}</option>
             </select>
           </div>
         </form>
@@ -475,3 +486,4 @@ function Dashboard({ user, onLogout }) {
 }
 
 export default Dashboard;
+

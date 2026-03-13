@@ -53,9 +53,12 @@ function Module5Gestation({ user }) {
   const loadScenarios = async () => {
     try {
       const response = await api.get('/scenarios');
-      setScenarios(response.data);
+      const module5Scenarios = (response.data || []).filter((scenario) =>
+        ['gestation', 'summary'].includes(scenario.type)
+      );
+      setScenarios(module5Scenarios);
       if (scenarioId) {
-        const scenario = response.data.find(s => s.id === parseInt(scenarioId));
+        const scenario = (response.data || []).find(s => s.id === parseInt(scenarioId));
         setSelectedScenario(scenario);
       }
     } catch (error) {

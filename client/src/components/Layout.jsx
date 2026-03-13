@@ -3,6 +3,7 @@ import { useI18n } from '../i18n/I18nContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getAuthToken } from '../utils/auth';
 import { getAvatar } from '../utils/avatar';
+import { BRAND_ASSETS } from '../utils/assetCatalog';
 import OnboardingModal from './OnboardingModal';
 
 function Sidebar({ user, onLogout }) {
@@ -14,11 +15,27 @@ function Sidebar({ user, onLogout }) {
 
   const menuItems = [
     { path: '/dashboard', icon: '📊', label: t('dashboard') },
-    { path: '/module1', icon: '🥛', label: t('moduleTypes.milk_sale') },
-    { path: '/module2', icon: '🧀', label: t('moduleTypes.transformation') },
-    { path: '/module3', icon: '🐄', label: t('moduleTypes.lactation') },
+    { path: '/module1', icon: '🥛', label: `M1 - ${t('moduleTypes.milk_sale')}` },
+    { path: '/module2', icon: '🧀', label: `M2 - ${t('moduleTypes.transformation')}` },
+    {
+      path: '/module3',
+      icon: (
+        <img
+          src={BRAND_ASSETS.goatMirabella}
+          alt="Goat"
+          className="nav-icon-image"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+            const fallback = e.currentTarget.nextElementSibling;
+            if (fallback) fallback.style.display = 'inline';
+          }}
+        />
+      ),
+      iconFallback: '🐐',
+      label: `M3 - ${t('moduleTypes.lactation')}`,
+    },
     // { path: '/module4', icon: '📈', label: t('moduleTypes.yield') },
-    // { path: '/module5', icon: '📋', label: t('moduleTypes.summary') },
+    // { path: '/module5', icon: '📋', label: t('moduleTypes.gestation') },
   ];
 
   return (
@@ -26,7 +43,7 @@ function Sidebar({ user, onLogout }) {
       <div className="sidebar-header">
         <Link to="/dashboard" className="logo-link">
           <div className="logo-container">
-            <img src="/logo.png" alt="MetaCaprine Logo" className="logo-image" />
+            <img src={BRAND_ASSETS.logo} alt="MetaCaprine Logo" className="logo-image" />
           </div>
           <h1 className="site-title">{t('appTitle')}</h1>
         </Link>
@@ -40,7 +57,10 @@ function Sidebar({ user, onLogout }) {
               to={item.path}
               className={`sidebar-nav-link ${isActive ? 'active' : ''}`}
             >
-              <span className="nav-icon">{item.icon}</span>
+              <span className="nav-icon">
+                {item.icon}
+                {item.iconFallback && <span style={{ display: 'none' }}>{item.iconFallback}</span>}
+              </span>
               <span className="nav-text">{item.label}</span>
             </Link>
           );
@@ -247,7 +267,7 @@ function Header({ user, onLogout, showSidebar, setShowSidebar, showFooter, setSh
           <div className="header-left">
             <Link to="/dashboard" className="logo-link">
               <div className="logo-container">
-                <img src="/logo.png" alt="MetaCaprine Logo" className="logo-image" />
+                <img src={BRAND_ASSETS.logo} alt="MetaCaprine Logo" className="logo-image" />
               </div>
               <h1 className="site-title">{t('appTitle')}</h1>
             </Link>
@@ -469,3 +489,4 @@ function Layout({ children, user, onLogout }) {
 }
 
 export default Layout;
+

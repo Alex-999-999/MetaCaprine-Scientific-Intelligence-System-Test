@@ -5,6 +5,7 @@ import { requireRole } from '../middleware/requireRole.js';
 import { requireEmailVerification } from '../middleware/requireEmailVerification.js';
 import { requireFeature } from '../middleware/requirePlan.js';
 import { buildBreedScenario, compareTwo, rankScenarios, validateBreedScenario } from '../core/module3Engine.js';
+import { hasFeatureAccess } from '../services/planService.js';
 
 const router = express.Router();
 
@@ -12,6 +13,42 @@ const router = express.Router();
 router.use(authenticateToken);
 router.use(requireRole(['free', 'pro', 'admin']));
 router.use(requireEmailVerification);
+
+const FREE_BREED_KEYS = new Set([
+  'alpina_generica',
+  'alpine_generica',
+  'saanen_generica',
+  'criolla_colombiana',
+  'criolla_peruana',
+  'nigerian_dwarf',
+]);
+
+function normalizeToken(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .replace(/_+/g, '_');
+}
+
+function isFreeCatalogBreed(row) {
+  const key = normalizeToken(row?.breed_key);
+  const name = normalizeToken(row?.breed_name);
+  const matchByKey = FREE_BREED_KEYS.has(key);
+  const matchByName =
+    ((name.includes('alpina') || name.includes('alpine')) && name.includes('generica')) ||
+    (name.includes('saanen') && name.includes('generica')) ||
+    (name.includes('criolla') && name.includes('colombiana')) ||
+    (name.includes('criolla') && name.includes('peruana')) ||
+    name.includes('nigerian_dwarf');
+  return matchByKey || matchByName;
+}
+
+async function hasModule3CatalogAccess(userId) {
+  return hasFeatureAccess(userId, 'advanced_calculations');
+}
 
 /**
  * GET /api/module3/breeds
@@ -40,10 +77,16 @@ router.get('/breeds', async (req, res) => {
       ORDER BY ecm_kg_lifetime DESC
     `);
     
+    const canAccessFullCatalog = await hasModule3CatalogAccess(req.user.userId);
+    const breeds = canAccessFullCatalog
+      ? result.rows
+      : result.rows.filter(isFreeCatalogBreed);
+
     res.json({
       success: true,
-      count: result.rows.length,
-      breeds: result.rows
+      count: breeds.length,
+      full_catalog: canAccessFullCatalog,
+      breeds
     });
   } catch (error) {
     console.error('Error fetching breeds:', error);
@@ -83,9 +126,19 @@ router.get('/breeds/:breedKey', async (req, res) => {
       return res.status(404).json({ error: `Breed '${breedKey}' not found` });
     }
     
+    const breed = result.rows[0];
+    const canAccessFullCatalog = await hasModule3CatalogAccess(req.user.userId);
+    if (!canAccessFullCatalog && !isFreeCatalogBreed(breed)) {
+      return res.status(403).json({
+        error: 'Feature access required',
+        message: 'This breed is available in PRO. Upgrade to unlock full catalog and genetic-depth analysis.',
+        upgrade_required: true,
+      });
+    }
+
     res.json({
       success: true,
-      breed: result.rows[0]
+      breed
     });
   } catch (error) {
     console.error('Error fetching breed:', error);
@@ -141,6 +194,14 @@ router.post('/simulate', async (req, res) => {
     }
     
     const breedRef = breedResult.rows[0];
+    const canAccessFullCatalog = await hasModule3CatalogAccess(req.user.userId);
+    if (!canAccessFullCatalog && !isFreeCatalogBreed(breedRef)) {
+      return res.status(403).json({
+        error: 'Feature access required',
+        message: 'This simulation is available in PRO. Upgrade to unlock full breed analysis.',
+        upgrade_required: true,
+      });
+    }
     const scenario = buildBreedScenario(breedRef, overrides);
     
     res.json({

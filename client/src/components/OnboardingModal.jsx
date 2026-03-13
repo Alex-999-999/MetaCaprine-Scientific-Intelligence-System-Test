@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useI18n } from '../i18n/I18nContext';
 import api from '../utils/api';
+import { BRAND_ASSETS } from '../utils/assetCatalog';
 import '../styles/OnboardingModal.css';
 
 function OnboardingModal({ user, onClose }) {
@@ -47,7 +48,7 @@ function OnboardingModal({ user, onClose }) {
 
         {/* Header */}
         <div className="onboarding-header">
-          <img src="/logo.png" alt="MetaCaprine Logo" className="onboarding-logo" />
+          <img src={BRAND_ASSETS.logo} alt="MetaCaprine Logo" className="onboarding-logo" />
           <h1 className="onboarding-title">{t('welcome')} {user?.name || t('defaultUserName')}</h1>
           <button className="onboarding-skip" onClick={handleSkip}>
             {t('skip')}
@@ -58,6 +59,16 @@ function OnboardingModal({ user, onClose }) {
         <div className="onboarding-content">
           {step === 1 && (
             <div className="onboarding-step">
+              <div className="onboarding-welcome-image-wrap">
+                <img
+                  src={BRAND_ASSETS.welcomeHero}
+                  alt="MetaCaprine Welcome"
+                  className="onboarding-welcome-image"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
               <div className="onboarding-icon">🐐</div>
               <h2>{t('onboardingWelcomeTitle')}</h2>
               <p>{t('onboardingWelcomeText')}</p>

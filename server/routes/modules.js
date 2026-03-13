@@ -5,6 +5,7 @@ import { requireRole } from '../middleware/requireRole.js';
 import { requireEmailVerification } from '../middleware/requireEmailVerification.js';
 import { requireFeature } from '../middleware/requirePlan.js';
 import { hasFeatureAccess } from '../services/planService.js';
+import { saveGestationData } from '../services/gestationService.js';
 import { runSimulation } from '../core/simulationEngine.js';
 import { runLactationSimulation } from '../core/lactationEngine.js';
 
@@ -480,42 +481,14 @@ router.post('/gestation/:scenarioId', requireFeature('module5'), async (req, res
     }
 
     const { gestationData, calculatedGestationTimeline } = req.body;
-
-    // Check if gestation_data table exists, if not, create it
-    // For now, we'll store as JSONB in a new column or table
-    // Since we don't have a gestation_data table, we'll create one on the fly or use a JSONB column
-    
-    // First, let's check if we can add a JSONB column to scenarios or create a separate table
-    // For simplicity, let's create a gestation_data table if it doesn't exist
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS gestation_data (
-        id SERIAL PRIMARY KEY,
-        scenario_id INTEGER NOT NULL REFERENCES scenarios(id) ON DELETE CASCADE,
-        gestation_data JSONB,
-        calculated_gestation_timeline JSONB,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(scenario_id)
-      )
-    `);
-
-    // Save or update gestation data
-    const result = await pool.query(
-      `INSERT INTO gestation_data (scenario_id, gestation_data, calculated_gestation_timeline)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (scenario_id) DO UPDATE SET
-         gestation_data = EXCLUDED.gestation_data,
-         calculated_gestation_timeline = EXCLUDED.calculated_gestation_timeline,
-         updated_at = CURRENT_TIMESTAMP
-       RETURNING *`,
-      [scenarioId, JSON.stringify(gestationData || {}), JSON.stringify(calculatedGestationTimeline || null)]
+    const saved = await saveGestationData(
+      pool,
+      scenarioId,
+      gestationData,
+      calculatedGestationTimeline
     );
 
-    res.json({
-      ...result.rows[0],
-      gestationData: result.rows[0].gestation_data,
-      calculatedGestationTimeline: result.rows[0].calculated_gestation_timeline
-    });
+    res.json(saved);
   } catch (error) {
     console.error('Error saving gestation data:', error);
     const errorMessage = error.message || 'Internal server error';

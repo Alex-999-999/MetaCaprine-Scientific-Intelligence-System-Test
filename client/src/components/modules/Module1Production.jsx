@@ -323,6 +323,23 @@ function Module1Production({ user }) {
 
   const isProUser = ['pro', 'admin'].includes(user?.role);
   const hasAdvancedAnalysis = isProUser || (user?.features || []).includes('advanced_calculations');
+  const infoIcon = '\u2139';
+  const lockIcon = '\u{1F512}';
+  const labelWithHelp = (label, tooltipText, isLocked = false) => (
+    <span className="field-label-with-help">
+      <span>{label}</span>
+      {tooltipText && (
+        <span className="term-help-icon" title={tooltipText} aria-label={tooltipText}>
+          {infoIcon}
+        </span>
+      )}
+      {isLocked && (
+        <span className="lock-indicator" title={t('availableForProUsers')} aria-label={t('availableForProUsers')}>
+          {lockIcon}
+        </span>
+      )}
+    </span>
+  );
 
   return (
     <div className="container">
@@ -366,9 +383,17 @@ function Module1Production({ user }) {
         <>
           <div className="card">
             <h2>{t('productionData')}</h2>
+            <div className="pedagogy-block">
+              <p className="pedagogy-title">{t('dashboardDescription')}</p>
+              <ul className="pedagogy-list">
+                <li>{`${t('totalProduction')} = ${t('dailyProduction')} x ${t('productionDays')} x ${t('animalsCount')}`}</li>
+                <li>{`${t('totalCosts')} = ${t('costPerLiter')} x ${t('totalProduction')}`}</li>
+                <li>{`${t('grossMargin')} = ${t('totalRevenue')} - ${t('totalCosts')}`}</li>
+              </ul>
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
               <div className="form-group">
-                <label>{t('dailyProduction')}</label>
+                <label>{labelWithHelp(t('dailyProduction'), `${t('dailyProduction')} x ${t('animalsCount')} x ${t('productionDays')} = ${t('totalProduction')}`)}</label>
                 <input
                   type="number"
                   name="daily_production_liters"
@@ -379,7 +404,7 @@ function Module1Production({ user }) {
                 />
               </div>
               <div className="form-group">
-                <label>{t('productionDays')}</label>
+                <label>{labelWithHelp(t('productionDays'), `${t('productionDays')} (${t('perLactation')})`)}</label>
                 <input
                   type="number"
                   name="production_days"
@@ -389,7 +414,7 @@ function Module1Production({ user }) {
                 />
               </div>
               <div className="form-group">
-                <label>{t('animalsCount')}</label>
+                <label>{labelWithHelp(t('animalsCount'), `${t('animalsCount')} (${t('lactationCycle')})`)}</label>
                 <input
                   type="number"
                   name="animals_count"
@@ -399,7 +424,7 @@ function Module1Production({ user }) {
                 />
               </div>
               <div className="form-group">
-                <label>{t('milkPrice')}</label>
+                <label>{labelWithHelp(t('milkPrice'), `${t('milkPrice')} (${t('revenuePerLiter')})`)}</label>
                 <input
                   type="number"
                   name="milk_price_per_liter"
@@ -413,8 +438,9 @@ function Module1Production({ user }) {
 
             <h3 style={{ marginTop: '30px', marginBottom: '15px' }}>{t('totalCosts')} (per liter)</h3>
             {!hasAdvancedAnalysis && (
-              <div style={{ marginBottom: '15px', padding: '12px', background: 'rgba(234, 179, 8, 0.1)', borderRadius: '8px', border: '1px solid var(--accent-warning)' }}>
+              <div className="upgrade-info-block">
                 <p style={{ margin: 0, color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                  <span className="term-help-icon" aria-hidden="true">{infoIcon}</span>
                   {t('module1BasicAnalysisMessage')}
                 </p>
                 <button className="btn btn-primary" style={{ marginTop: '10px' }} onClick={() => navigate('/profile')}>
@@ -424,7 +450,7 @@ function Module1Production({ user }) {
             )}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
               <div className="form-group">
-                <label>{t('feedCost')}</label>
+                <label>{labelWithHelp(t('feedCost'), `${t('feedCost')} (${t('perLiter')})`)}</label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
                     type="number"
@@ -441,12 +467,12 @@ function Module1Production({ user }) {
                     style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
                   >
-                    ðŸ“Š {t('estimateCost')}
+                    {t('estimateCost')}
                   </button>
                 </div>
               </div>
-              <div className="form-group">
-                <label>{t('laborCost')} {!hasAdvancedAnalysis && 'ðŸ”’'}</label>
+              <div className={`form-group ${!hasAdvancedAnalysis ? 'locked-field-group' : ''}`}>
+                <label>{labelWithHelp(t('laborCost'), `${t('laborCost')} (${t('perLiter')})`, !hasAdvancedAnalysis)}</label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
                     type="number"
@@ -466,12 +492,12 @@ function Module1Production({ user }) {
                     title={t('estimateCost')}
                     disabled={!hasAdvancedAnalysis}
                   >
-                    ðŸ“Š {t('estimateCost')}
+                    {t('estimateCost')}
                   </button>
                 </div>
               </div>
               <div className="form-group">
-                <label>{t('healthCost')}</label>
+                <label>{labelWithHelp(t('healthCost'), `${t('healthCost')} (${t('perLiter')})`)}</label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
                     type="number"
@@ -488,12 +514,12 @@ function Module1Production({ user }) {
                     style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
                   >
-                    ðŸ“Š {t('estimateCost')}
+                    {t('estimateCost')}
                   </button>
                 </div>
               </div>
-              <div className="form-group">
-                <label>{t('infrastructureCost')} {!hasAdvancedAnalysis && 'ðŸ”’'}</label>
+              <div className={`form-group ${!hasAdvancedAnalysis ? 'locked-field-group' : ''}`}>
+                <label>{labelWithHelp(t('infrastructureCost'), `${t('infrastructureCost')} (${t('perLiter')})`, !hasAdvancedAnalysis)}</label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
                     type="number"
@@ -513,12 +539,12 @@ function Module1Production({ user }) {
                     title={t('estimateCost')}
                     disabled={!hasAdvancedAnalysis}
                   >
-                    ðŸ“Š {t('estimateCost')}
+                    {t('estimateCost')}
                   </button>
                 </div>
               </div>
-              <div className="form-group">
-                <label>{t('otherCosts')} {!hasAdvancedAnalysis && 'ðŸ”’'}</label>
+              <div className={`form-group ${!hasAdvancedAnalysis ? 'locked-field-group' : ''}`}>
+                <label>{labelWithHelp(t('otherCosts'), `${t('otherCosts')} (${t('perLiter')})`, !hasAdvancedAnalysis)}</label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
                     type="number"
@@ -538,7 +564,7 @@ function Module1Production({ user }) {
                     title={t('estimateCost')}
                     disabled={!hasAdvancedAnalysis}
                   >
-                    ðŸ“Š {t('estimateCost')}
+                    {t('estimateCost')}
                   </button>
                 </div>
               </div>
@@ -560,19 +586,19 @@ function Module1Production({ user }) {
               <div className="metrics-grid">
                 <div className={`metric-card ${results.gross_margin >= 0 ? 'success' : 'error'}`}>
                   <div className="metric-label">{t('totalRevenue')}</div>
-                  <div className="metric-value">
+                  <div className="metric-value numeric-value">
                     {formatMoney(results.total_revenue)}
                   </div>
                 </div>
                 <div className="metric-card warning">
                   <div className="metric-label">{t('totalCosts')}</div>
-                  <div className="metric-value">
+                  <div className="metric-value numeric-value">
                     {formatMoney(results.total_costs)}
                   </div>
                 </div>
                 <div className={`metric-card ${results.gross_margin >= 0 ? 'success' : 'error'}`}>
                   <div className="metric-label">{t('grossMargin')}</div>
-                  <div className={`metric-value ${results.gross_margin >= 0 ? 'success' : 'error'}`}>
+                  <div className={`metric-value numeric-value ${results.gross_margin >= 0 ? 'success' : 'error'}`}>
                     {formatMoney(results.gross_margin)}
                   </div>
                   <div className={`metric-change ${results.margin_percentage >= 0 ? 'positive' : 'negative'}`}>
@@ -581,7 +607,7 @@ function Module1Production({ user }) {
                 </div>
                 <div className="metric-card info">
                   <div className="metric-label">{t('totalProduction')}</div>
-                  <div className="metric-value">
+                  <div className="metric-value numeric-value">
                     {Number(results.total_production_liters || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })} L
                   </div>
                 </div>
@@ -592,7 +618,6 @@ function Module1Production({ user }) {
                 <div className="chart-header">
                   <div>
                     <h2 className="chart-title">
-                      <span className="chart-title-icon">ðŸ“Š</span>
                       {t('results')}
                     </h2>
                     <p className="chart-subtitle">{t('dashboardDescription')}</p>
@@ -620,7 +645,7 @@ function Module1Production({ user }) {
                   return (
                     <div className="chart-container">
                       <div className="table-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                        <table className="table" style={{ minWidth: '400px' }}>
+                        <table className="table numeric-table" style={{ minWidth: '400px' }}>
                           <tbody>
                             <tr>
                               <td><strong>{t('totalProduction')}</strong></td>
@@ -641,7 +666,7 @@ function Module1Production({ user }) {
                               </td>
                             </tr>
                             <tr>
-                              <td><strong>{t('marginPercentage')}</strong></td>
+                              <td><strong>{labelWithHelp(t('marginPercentage'), `${t('marginPercentage')} = (${t('grossMargin')} / ${t('totalRevenue')}) x 100`)}</strong></td>
                               <td>{typeof results.margin_percentage === 'number' ? results.margin_percentage.toFixed(2) : '0.00'}%</td>
                             </tr>
                             <tr>
@@ -649,7 +674,7 @@ function Module1Production({ user }) {
                               <td>{formatMoney(results.revenue_per_liter)}</td>
                             </tr>
                             <tr>
-                              <td><strong>{t('costPerLiter')}</strong></td>
+                              <td><strong>{labelWithHelp(t('costPerLiter'), `${t('costPerLiter')} = ${t('feedCost')} + ${t('laborCost')} + ${t('healthCost')} + ${t('infrastructureCost')} + ${t('otherCosts')}`)}</strong></td>
                               <td>{formatMoney(results.cost_per_liter)}</td>
                             </tr>
                           </tbody>
@@ -775,7 +800,6 @@ function Module1Production({ user }) {
                     );
                   })() : (
                     <div className="chart-empty">
-                      <div className="chart-empty-icon">ðŸ“Š</div>
                       <p className="chart-empty-text">{t('noDataToShow')}</p>
                     </div>
                   )}
@@ -853,7 +877,6 @@ function Module1Production({ user }) {
                 <div className="chart-header">
                   <div>
                     <h2 className="chart-title">
-                      <span className="chart-title-icon">ðŸŽ¯</span>
                       {t('integratedDashboard')}
                     </h2>
                     <p className="chart-subtitle">{t('dashboardDescription')}</p>
@@ -971,4 +994,3 @@ function Module1Production({ user }) {
 }
 
 export default Module1Production;
-

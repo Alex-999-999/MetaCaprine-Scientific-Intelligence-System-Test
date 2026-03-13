@@ -11,6 +11,7 @@
 -- Users table with email verification support
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
+  auth_user_id UUID UNIQUE,
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   name VARCHAR(255),
@@ -25,6 +26,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Create index for email verification token lookups
 CREATE INDEX IF NOT EXISTS idx_users_email_verification_token ON users(email_verification_token);
+CREATE INDEX IF NOT EXISTS idx_users_auth_user_id ON users(auth_user_id);
 
 -- Set existing users as verified (for backward compatibility)
 UPDATE users SET email_verified = true WHERE email_verified = false AND id IN (SELECT id FROM users);
@@ -36,7 +38,7 @@ CREATE TABLE IF NOT EXISTS scenarios (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name VARCHAR(255) NOT NULL,
-  type VARCHAR(50) NOT NULL, -- 'milk_sale', 'transformation', 'lactation', 'yield', 'summary'
+  type VARCHAR(50) NOT NULL, -- 'milk_sale', 'transformation', 'lactation', 'yield', 'gestation', 'summary'
   description TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -328,6 +330,21 @@ CREATE TABLE IF NOT EXISTS yield_data (
 CREATE INDEX IF NOT EXISTS idx_yield_data_scenario_id ON yield_data(scenario_id);
 
 -- ============================================================================
+-- GESTATION DATA (Module 5 - Reproductive calendar)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS gestation_data (
+  id SERIAL PRIMARY KEY,
+  scenario_id INTEGER NOT NULL REFERENCES scenarios(id) ON DELETE CASCADE,
+  gestation_data JSONB,
+  calculated_gestation_timeline JSONB,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(scenario_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_gestation_data_scenario_id ON gestation_data(scenario_id);
+
+-- ============================================================================
 -- RESULTS TABLE (Calculated outputs - shared across all modules)
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS results (
@@ -463,7 +480,7 @@ BEGIN
     'users', 'scenarios', 'production_data', 'transformation_data', 
     'transformation_products', 'breed_reference', 'breed_scenarios',
     'lactation_data', 'breed_profiles', 'lactation_simulations',
-    'yield_data', 'results', 'plans', 'user_plans', 'plan_features'
+    'yield_data', 'gestation_data', 'results', 'plans', 'user_plans', 'plan_features'
   );
   
   RAISE NOTICE '============================================================================';
@@ -471,8 +488,8 @@ BEGIN
   RAISE NOTICE 'Created/verified % tables', table_count;
   RAISE NOTICE '============================================================================';
   
-  IF table_count < 13 THEN
-    RAISE WARNING 'Expected at least 13 tables, got %. Some tables may not have been created.', table_count;
+  IF table_count < 16 THEN
+    RAISE WARNING 'Expected at least 16 tables, got %. Some tables may not have been created.', table_count;
   END IF;
 END $$;
 

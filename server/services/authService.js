@@ -26,6 +26,7 @@ const SUPPORTED_CURRENCIES = new Set([
   'BRL',
   'UYU',
 ]);
+const ALLOWED_SEX_VALUES = new Set(['female', 'male', 'other', 'prefer_not_to_say']);
 
 function normalizeNullableText(value) {
   if (value === undefined || value === null) return null;
@@ -80,6 +81,7 @@ async function hydrateUser(userId, client = null) {
   const result = await executor.query(
     `SELECT
       u.id,
+      u.auth_user_id,
       u.email,
       u.name,
       u.email_verified,
@@ -118,6 +120,7 @@ async function hydrateUser(userId, client = null) {
 
   return {
     id: user.id,
+    auth_user_id: user.auth_user_id,
     email: user.email,
     name: user.name,
     email_verified: user.email_verified,
@@ -154,6 +157,7 @@ export async function registerUser(payload) {
     preferred_currency,
     accepted_terms,
     accepted_terms_version,
+    auth_user_id,
   } = payload;
 
   if (!email || !password) {
@@ -164,20 +168,58 @@ export async function registerUser(payload) {
     throw new Error('Terms and conditions must be accepted');
   }
 
+  const normalizedCountry = normalizeNullableText(country);
+  if (!normalizedCountry) {
+    throw new Error('Country is required');
+  }
+
+  const normalizedCity = normalizeNullableText(city);
+  if (!normalizedCity) {
+    throw new Error('City is required');
+  }
+
+  const normalizedGoatsCount = normalizeNullableInteger(goats_count);
+  if (normalizedGoatsCount === null || normalizedGoatsCount < 0) {
+    throw new Error('Number of goats is required');
+  }
+
+  if (transforms_products === undefined) {
+    throw new Error('Transforms products selection is required');
+  }
+  const normalizedTransformsProducts = normalizeBoolean(transforms_products);
+
+  const normalizedAge = normalizeNullableInteger(age);
+  if (normalizedAge === null || normalizedAge < 0) {
+    throw new Error('Age is required');
+  }
+
+  const normalizedSex = normalizeNullableText(sex);
+  if (!normalizedSex) {
+    throw new Error('Sex is required');
+  }
+  if (!ALLOWED_SEX_VALUES.has(normalizedSex)) {
+    throw new Error('Sex must be one of: female, male, other, prefer_not_to_say');
+  }
+
   const passwordHash = await bcrypt.hash(password, 10);
   const verificationToken = crypto.randomBytes(32).toString('hex');
-  const tokenExpires = new Date();
-  tokenExpires.setHours(tokenExpires.getHours() + 24);
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
     const userResult = await client.query(
-      `INSERT INTO users (email, password_hash, name, email_verified, email_verification_token, email_verification_token_expires)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO users (auth_user_id, email, password_hash, name, email_verified, email_verification_token, email_verification_token_expires)
+       VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP + INTERVAL '24 hours')
        RETURNING id`,
-      [email, passwordHash, normalizeNullableText(name) || email, false, verificationToken, tokenExpires]
+      [
+        normalizeNullableText(auth_user_id),
+        email,
+        passwordHash,
+        normalizeNullableText(name) || email,
+        false,
+        verificationToken,
+      ]
     );
 
     const userId = userResult.rows[0].id;
@@ -203,12 +245,12 @@ export async function registerUser(payload) {
       [
         userId,
         normalizeNullableText(last_name),
-        normalizeNullableText(country),
-        normalizeNullableText(city),
-        normalizeNullableInteger(goats_count),
-        normalizeBoolean(transforms_products),
-        normalizeNullableInteger(age),
-        normalizeNullableText(sex),
+        normalizedCountry,
+        normalizedCity,
+        normalizedGoatsCount,
+        normalizedTransformsProducts,
+        normalizedAge,
+        normalizedSex,
         normalizeCurrencyCode(preferred_currency),
         true,
         normalizeNullableText(accepted_terms_version) || DEFAULT_TERMS_VERSION,
@@ -220,7 +262,7 @@ export async function registerUser(payload) {
 
     const user = await hydrateUser(userId);
     const emailSent = await sendVerificationEmail(email, user.name, verificationToken);
-    const token = generateToken(user.id, user.email);
+    const token = generateToken(user.id, user.email, user.auth_user_id);
 
     return { user, token, email_sent: emailSent };
   } catch (error) {
@@ -253,7 +295,7 @@ export async function loginUser(email, password) {
   }
 
   const hydratedUser = await hydrateUser(user.id);
-  const token = generateToken(user.id, user.email);
+  const token = generateToken(user.id, user.email, hydratedUser.auth_user_id);
   return { user: hydratedUser, token };
 }
 
@@ -379,7 +421,6 @@ export async function requestPasswordReset(email) {
 
   const user = result.rows[0];
   const resetToken = crypto.randomBytes(32).toString('hex');
-  const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
   await pool.query(
     `UPDATE password_reset_tokens
@@ -392,8 +433,8 @@ export async function requestPasswordReset(email) {
 
   await pool.query(
     `INSERT INTO password_reset_tokens (user_id, token, expires_at)
-     VALUES ($1, $2, $3)`,
-    [user.id, resetToken, expiresAt]
+     VALUES ($1, $2, CURRENT_TIMESTAMP + INTERVAL '1 hour')`,
+    [user.id, resetToken]
   );
 
   await sendPasswordResetEmail(user.email, user.name, resetToken);
@@ -457,7 +498,7 @@ export async function resetPassword(resetToken, newPassword) {
 export async function verifyEmail(token) {
   const pool = getPool();
   const result = await pool.query(
-    `SELECT id, email_verified, email_verification_token_expires
+    `SELECT id, email_verified, (email_verification_token_expires > CURRENT_TIMESTAMP) AS token_valid
      FROM users
      WHERE email_verification_token = $1`,
     [token]
@@ -471,7 +512,7 @@ export async function verifyEmail(token) {
   if (user.email_verified) {
     throw new Error('Email already verified');
   }
-  if (new Date() > new Date(user.email_verification_token_expires)) {
+  if (!user.token_valid) {
     throw new Error('Verification token expired');
   }
 
@@ -508,16 +549,14 @@ export async function resendVerificationEmail(userId) {
   }
 
   const verificationToken = crypto.randomBytes(32).toString('hex');
-  const tokenExpires = new Date();
-  tokenExpires.setHours(tokenExpires.getHours() + 24);
 
   await pool.query(
     `UPDATE users
      SET email_verification_token = $1,
-         email_verification_token_expires = $2,
+         email_verification_token_expires = CURRENT_TIMESTAMP + INTERVAL '24 hours',
          updated_at = CURRENT_TIMESTAMP
-     WHERE id = $3`,
-    [verificationToken, tokenExpires, userId]
+     WHERE id = $2`,
+    [verificationToken, userId]
   );
 
   const emailSent = await sendVerificationEmail(user.email, user.name, verificationToken);

@@ -3,6 +3,8 @@ import { authenticateToken } from '../middleware/auth.js';
 import * as authService from '../services/authService.js';
 import { assignPlanToUser } from '../services/planService.js';
 import { getPlanByName } from '../services/planService.js';
+import { requireEmailVerification } from '../middleware/requireEmailVerification.js';
+import { getPool } from '../db/pool.js';
 
 const router = express.Router();
 
@@ -23,6 +25,7 @@ router.post('/register', async (req, res) => {
       preferred_currency,
       accepted_terms,
       accepted_terms_version,
+      auth_user_id,
     } = req.body;
 
     if (!email || !password) {
@@ -43,6 +46,7 @@ router.post('/register', async (req, res) => {
       preferred_currency,
       accepted_terms,
       accepted_terms_version,
+      auth_user_id,
     });
 
     // Assign default free plan to new user
@@ -68,6 +72,17 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Email already exists' });
     }
     if (error.message === 'Terms and conditions must be accepted') {
+      return res.status(400).json({ error: error.message });
+    }
+    if (
+      error.message === 'Country is required' ||
+      error.message === 'City is required' ||
+      error.message === 'Number of goats is required' ||
+      error.message === 'Transforms products selection is required' ||
+      error.message === 'Age is required' ||
+      error.message === 'Sex is required' ||
+      error.message === 'Sex must be one of: female, male, other, prefer_not_to_say'
+    ) {
       return res.status(400).json({ error: error.message });
     }
     const errorMessage = error.message || 'Internal server error';
@@ -277,6 +292,48 @@ router.put('/password', authenticateToken, async (req, res) => {
     if (error.message === 'User not found') {
       return res.status(404).json({ error: error.message });
     }
+    const errorMessage = error.message || 'Internal server error';
+    res.status(500).json({ error: errorMessage });
+  }
+});
+
+// Upgrade current user to PRO/Premium plan
+router.post('/upgrade-to-pro', authenticateToken, requireEmailVerification, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    let targetPlan = null;
+    try {
+      targetPlan = await getPlanByName('pro');
+    } catch (_) {
+      targetPlan = await getPlanByName('premium');
+    }
+
+    await assignPlanToUser(userId, targetPlan.id, 'active');
+
+    // Keep RBAC role aligned with plan upgrade.
+    const pool = getPool();
+    const proRole = await pool.query('SELECT id FROM roles WHERE name = $1 LIMIT 1', ['pro']);
+    if (proRole.rows.length > 0) {
+      await pool.query(
+        `INSERT INTO user_roles (user_id, role_id)
+         VALUES ($1, $2)
+         ON CONFLICT (user_id) DO UPDATE SET
+           role_id = EXCLUDED.role_id,
+           updated_at = CURRENT_TIMESTAMP`,
+        [userId, proRole.rows[0].id]
+      );
+    }
+
+    const user = await authService.getUserById(userId);
+
+    res.json({
+      success: true,
+      user,
+      message: 'Your account has been upgraded to PRO successfully.',
+    });
+  } catch (error) {
+    console.error('Upgrade to PRO error:', error);
     const errorMessage = error.message || 'Internal server error';
     res.status(500).json({ error: errorMessage });
   }

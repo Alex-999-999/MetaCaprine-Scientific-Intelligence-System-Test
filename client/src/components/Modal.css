@@ -281,3 +281,8 @@
     font-size: 18px;
   }
 }
+
+/* Container policy override */
+.modal-container {
+  border-radius: 0 !important;
+}

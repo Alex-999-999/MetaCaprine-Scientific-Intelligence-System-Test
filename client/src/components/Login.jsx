@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../utils/api';
 import { useI18n } from '../i18n/I18nContext';
+import { BRAND_ASSETS } from '../utils/assetCatalog';
 
 function Login({ onLogin }) {
   const { t, language, changeLanguage } = useI18n();
@@ -129,7 +130,7 @@ function Login({ onLogin }) {
       <div className="login-header">
         <Link to="/" className="login-logo-link">
           <div className="login-logo-container">
-            <img src="/logo.png" alt="Livestock Simulators Logo" className="login-logo-image" />
+            <img src={BRAND_ASSETS.logo} alt="Livestock Simulators Logo" className="login-logo-image" />
           </div>
           <h1 className="login-title">{t('appTitle')}</h1>
         </Link>
@@ -232,6 +233,7 @@ function Login({ onLogin }) {
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     placeholder={t('city')}
+                    required
                     disabled={loading}
                   />
                 </div>
@@ -243,6 +245,7 @@ function Login({ onLogin }) {
                     value={goatsCount}
                     onChange={(e) => setGoatsCount(e.target.value)}
                     placeholder={t('goatsCount')}
+                    required
                     disabled={loading}
                   />
                 </div>
@@ -265,6 +268,7 @@ function Login({ onLogin }) {
                     value={age}
                     onChange={(e) => setAge(e.target.value)}
                     placeholder={t('age')}
+                    required
                     disabled={loading}
                   />
                 </div>
@@ -273,6 +277,7 @@ function Login({ onLogin }) {
                   <select
                     value={sex}
                     onChange={(e) => setSex(e.target.value)}
+                    required
                     disabled={loading}
                   >
                     <option value="">{t('selectSex')}</option>
