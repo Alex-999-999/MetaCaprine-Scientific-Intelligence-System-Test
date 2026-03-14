@@ -7,18 +7,47 @@ import scenarioRoutes from './routes/scenarios.js';
 import moduleRoutes from './routes/modules.js';
 import breedRoutes from './routes/breeds.js';
 import module3Routes from './routes/module3.js';
+import billingRoutes, { handleStripeWebhook } from './routes/billing.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
+function getAllowedOrigins() {
+  const configured = (process.env.CORS_ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  if (configured.length > 0) {
+    return configured;
+  }
+
+  return [...new Set([
+    process.env.APP_URL?.trim(),
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+  ].filter(Boolean))];
+}
+
+const allowedOrigins = getAllowedOrigins();
+
 app.use(cors({
-  origin: '*',
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error('Origin not allowed by CORS'));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature'],
 }));
+
+// Stripe requires the raw request body for webhook signature verification.
+app.post('/api/billing/webhook', express.raw({ type: 'application/json' }), handleStripeWebhook);
+
 app.use(express.json());
 
 // Routes (database will be initialized lazily when needed)
@@ -27,75 +56,69 @@ app.use('/api/scenarios', scenarioRoutes);
 app.use('/api/modules', moduleRoutes);
 app.use('/api/breeds', breedRoutes);
 app.use('/api/module3', module3Routes);
+app.use('/api/billing', billingRoutes);
 
 // Health check
 app.get('/api/health', async (req, res) => {
   try {
-    // Check if DATABASE_URL is configured
     if (!process.env.DATABASE_URL && !process.env.DB_HOST) {
-      return res.json({ 
-        status: 'ok', 
+      return res.json({
+        status: 'ok',
         message: 'MVP Web API is running',
         database: 'not configured',
-        warning: 'DATABASE_URL environment variable is not set'
+        warning: 'DATABASE_URL environment variable is not set',
       });
     }
 
-    // Test database connection
     const pool = createPool();
     if (!pool) {
-      return res.json({ 
-        status: 'ok', 
+      return res.json({
+        status: 'ok',
         message: 'MVP Web API is running',
         database: 'not configured',
-        warning: 'Database pool could not be created'
+        warning: 'Database pool could not be created',
       });
     }
     await pool.query('SELECT 1');
-    res.json({ 
-      status: 'ok', 
+    res.json({
+      status: 'ok',
       message: 'MVP Web API is running',
-      database: 'connected'
+      database: 'connected',
     });
   } catch (error) {
-    // Don't return 500, just indicate database is disconnected
-    res.json({ 
-      status: 'ok', 
+    res.json({
+      status: 'ok',
       message: 'MVP Web API is running',
       database: 'disconnected',
       error: error.message,
-      hint: 'Check your DATABASE_URL environment variable in Vercel'
+      hint: 'Check your DATABASE_URL environment variable in Vercel',
     });
   }
 });
 
-// Catch-all for unmatched API routes (for debugging)
 app.all('/api/*', (req, res) => {
-  res.status(404).json({ 
-    error: 'Route not found', 
-    method: req.method, 
+  res.status(404).json({
+    error: 'Route not found',
+    method: req.method,
     path: req.path,
-    url: req.url 
+    url: req.url,
   });
 });
 
-// Global error handler to prevent function crashes
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   if (!res.headersSent) {
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Internal server error',
-      message: err.message 
+      message: err.message,
     });
   }
 });
 
-// Start server (only in development or when not on Vercel)
 if (process.env.VERCEL !== '1') {
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }
 
-// Export for Vercel serverless functions
 export default app;

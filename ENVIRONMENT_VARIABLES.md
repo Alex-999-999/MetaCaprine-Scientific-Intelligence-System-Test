@@ -19,6 +19,7 @@ This document lists **ALL** environment variables used in the MVP Web platform, 
 | `JWT_SECRET` | String | Secret for JWT token signing (64+ chars) | `[generated hex string]` |
 | `SUPABASE_JWT_SECRET` | String | Supabase JWT secret for validating Supabase access tokens in backend middleware | `[from Supabase project settings]` |
 | `APP_URL` | String | Base URL for email verification links | `http://localhost:3000` |
+| `CORS_ALLOWED_ORIGINS` | String | Comma-separated allowed frontend origins | `http://localhost:3000` |
 
 **Generate JWT_SECRET:**
 ```bash
@@ -35,6 +36,9 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 |----------|------|-------------|---------|--------------|
 | `RESEND_API_KEY` | String | Resend API key for emails | - | Email verification |
 | `RESEND_FROM_EMAIL` | String | Verified sender email | - | Email verification |
+| `STRIPE_SECRET_KEY` | String | Stripe secret key | - | Billing checkout and portal |
+| `STRIPE_WEBHOOK_SECRET` | String | Stripe webhook signing secret | - | Billing webhook verification |
+| `STRIPE_PRICE_PRO_MONTHLY` | String | Stripe Price ID for PRO monthly plan | - | Checkout session creation |
 | `PORT` | Number | Server port | `3001` | Backend server |
 | `NODE_ENV` | String | Environment mode | `development` | Runtime behavior |
 | `DB_HOST` | String | Database host (if not using DATABASE_URL) | - | Database connection |
@@ -84,6 +88,7 @@ SUPABASE_JWT_SECRET=your-supabase-jwt-secret
 # APPLICATION URL (REQUIRED)
 # ============================================================================
 APP_URL=http://localhost:3000
+CORS_ALLOWED_ORIGINS=http://localhost:3000
 
 # ============================================================================
 # EMAIL SERVICE (OPTIONAL - Required for email verification)
@@ -93,6 +98,13 @@ RESEND_API_KEY=re_your_resend_api_key
 
 # Verified sender email from Resend dashboard
 RESEND_FROM_EMAIL=noreply@yourdomain.com
+
+# ============================================================================
+# BILLING (OPTIONAL - Required for payment-backed PRO upgrades)
+# ============================================================================
+STRIPE_SECRET_KEY=sk_test_xxx
+STRIPE_WEBHOOK_SECRET=whsec_xxx
+STRIPE_PRICE_PRO_MONTHLY=price_xxx
 
 # ============================================================================
 # SERVER CONFIGURATION
@@ -119,12 +131,16 @@ SUPABASE_JWT_SECRET=your-production-supabase-jwt-secret
 # APPLICATION URL (REQUIRED)
 # ============================================================================
 APP_URL=https://your-project.vercel.app
+CORS_ALLOWED_ORIGINS=https://your-project.vercel.app
 
 # ============================================================================
 # EMAIL SERVICE (OPTIONAL but recommended)
 # ============================================================================
 RESEND_API_KEY=re_your_resend_api_key
 RESEND_FROM_EMAIL=noreply@yourdomain.com
+STRIPE_SECRET_KEY=sk_live_xxx
+STRIPE_WEBHOOK_SECRET=whsec_live_xxx
+STRIPE_PRICE_PRO_MONTHLY=price_live_xxx
 
 # ============================================================================
 # SERVER CONFIGURATION
@@ -143,9 +159,13 @@ NODE_ENV=production
 | `DATABASE_URL` | `server/db/pool.js` | Database connection |
 | `JWT_SECRET` | `server/middleware/auth.js` | Token signing/verification |
 | `SUPABASE_JWT_SECRET` | `server/middleware/auth.js` | Supabase token verification during migration/cutover |
-| `APP_URL` | `server/services/emailService.js` | Email verification links |
+| `APP_URL` | `server/services/emailService.js`, `server/services/billingService.js` | Email verification links and billing redirects |
+| `CORS_ALLOWED_ORIGINS` | `server/index.js` | Restrict allowed frontend origins |
 | `RESEND_API_KEY` | `server/services/emailService.js` | Resend authentication |
 | `RESEND_FROM_EMAIL` | `server/services/emailService.js` | Email sender address |
+| `STRIPE_SECRET_KEY` | `server/services/billingService.js` | Checkout and billing portal |
+| `STRIPE_WEBHOOK_SECRET` | `server/services/billingService.js` | Webhook signature verification |
+| `STRIPE_PRICE_PRO_MONTHLY` | `server/services/billingService.js` | PRO checkout price |
 | `PORT` | `server/index.js` | Server port |
 | `NODE_ENV` | Multiple files | Environment detection |
 
@@ -194,6 +214,9 @@ Set these in Vercel Dashboard → Project Settings → Environment Variables:
 2. **Optional:**
    - `RESEND_API_KEY`
    - `RESEND_FROM_EMAIL`
+   - `STRIPE_SECRET_KEY`
+   - `STRIPE_WEBHOOK_SECRET`
+   - `STRIPE_PRICE_PRO_MONTHLY`
 
 ---
 

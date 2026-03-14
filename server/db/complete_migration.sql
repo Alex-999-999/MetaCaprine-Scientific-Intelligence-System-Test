@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   name VARCHAR(255),
+  stripe_customer_id VARCHAR(255) UNIQUE,
   -- Email verification fields
   email_verified BOOLEAN DEFAULT false,
   email_verification_token VARCHAR(255),
@@ -27,6 +28,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Create index for email verification token lookups
 CREATE INDEX IF NOT EXISTS idx_users_email_verification_token ON users(email_verification_token);
 CREATE INDEX IF NOT EXISTS idx_users_auth_user_id ON users(auth_user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_stripe_customer_id ON users(stripe_customer_id) WHERE stripe_customer_id IS NOT NULL;
 
 -- Set existing users as verified (for backward compatibility)
 UPDATE users SET email_verified = true WHERE email_verified = false AND id IN (SELECT id FROM users);
@@ -389,9 +391,15 @@ CREATE TABLE IF NOT EXISTS user_plans (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   plan_id INTEGER NOT NULL REFERENCES plans(id) ON DELETE RESTRICT,
-  status VARCHAR(50) DEFAULT 'active', -- 'active', 'cancelled', 'expired', 'trial'
+  status VARCHAR(50) DEFAULT 'active', -- 'active', 'cancelled', 'expired', 'trial', 'past_due'
   started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   expires_at TIMESTAMP, -- NULL for lifetime plans
+  billing_provider VARCHAR(50),
+  external_customer_id VARCHAR(255),
+  external_subscription_id VARCHAR(255),
+  external_price_id VARCHAR(255),
+  current_period_end TIMESTAMP,
+  cancel_at_period_end BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(user_id) -- One active plan per user
@@ -400,6 +408,8 @@ CREATE TABLE IF NOT EXISTS user_plans (
 CREATE INDEX IF NOT EXISTS idx_user_plans_user_id ON user_plans(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_plans_plan_id ON user_plans(plan_id);
 CREATE INDEX IF NOT EXISTS idx_user_plans_status ON user_plans(status);
+CREATE INDEX IF NOT EXISTS idx_user_plans_external_subscription_id ON user_plans(external_subscription_id) WHERE external_subscription_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_user_plans_external_customer_id ON user_plans(external_customer_id) WHERE external_customer_id IS NOT NULL;
 
 -- Plan features: Defines which features/modules are available per plan
 -- This is a reference table for feature definitions

@@ -158,6 +158,10 @@ export const translations = {
     availableForProUsers: 'Available for PRO users',
     unlockFullAnalysis: 'Unlock full analysis',
     upgradeToPro: 'Upgrade to PRO',
+    manageBilling: 'Manage Billing',
+    redirectingToCheckout: 'Redirecting to secure checkout...',
+    openingBillingPortal: 'Opening billing portal...',
+    billingUnavailable: 'Billing is not configured yet. Please complete the manual setup first.',
     defaultUserName: 'User',
     verifyEmailTitle: 'Verify your email',
     verifyEmailMessage: 'Please verify your email to get full access to all platform features.',
@@ -809,6 +813,10 @@ export const translations = {
     availableForProUsers: 'Disponible para usuarios PRO',
     unlockFullAnalysis: 'Desbloquear análisis completo',
     upgradeToPro: 'Pásate a PRO',
+    manageBilling: 'Gestionar facturación',
+    redirectingToCheckout: 'Redirigiendo al pago seguro...',
+    openingBillingPortal: 'Abriendo portal de facturación...',
+    billingUnavailable: 'La facturación todavía no está configurada. Primero completa la configuración manual.',
     defaultUserName: 'Usuario',
     verifyEmailTitle: 'Verifica tu correo electrónico',
     verifyEmailMessage: 'Por favor verifica tu correo electrónico para tener acceso completo a todas las funcionalidades de la plataforma.',
@@ -1400,6 +1408,10 @@ translations.fr = {
   registerAgain: 'S’inscrire de nouveau',
   unlockFullAnalysis: 'Débloquer l’analyse complète',
   upgradeToPro: 'Passer à PRO',
+  manageBilling: 'Gerer la facturation',
+  redirectingToCheckout: 'Redirection vers le paiement securise...',
+  openingBillingPortal: 'Ouverture du portail de facturation...',
+  billingUnavailable: 'La facturation n est pas encore configuree. Terminez d abord la configuration manuelle.',
   availableForProUsers: 'Disponible pour les utilisateurs PRO',
   module1Title: 'Module 1 : Production et vente de lait cru',
   module2Title: 'Module 2 : Transformation laitière',
@@ -1494,6 +1506,10 @@ translations.it = {
   registerAgain: 'Registrati di nuovo',
   unlockFullAnalysis: 'Sblocca analisi completa',
   upgradeToPro: 'Passa a PRO',
+  manageBilling: 'Gestisci fatturazione',
+  redirectingToCheckout: 'Reindirizzamento al pagamento sicuro...',
+  openingBillingPortal: 'Apertura portale fatturazione...',
+  billingUnavailable: 'La fatturazione non e ancora configurata. Completa prima la configurazione manuale.',
   availableForProUsers: 'Disponibile per utenti PRO',
   module1Title: 'Modulo 1: Produzione e vendita latte crudo',
   module2Title: 'Modulo 2: Trasformazione lattiero-casearia',
@@ -1588,6 +1604,10 @@ translations.pt = {
   registerAgain: 'Cadastrar novamente',
   unlockFullAnalysis: 'Desbloquear análise completa',
   upgradeToPro: 'Migrar para PRO',
+  manageBilling: 'Gerenciar cobranca',
+  redirectingToCheckout: 'Redirecionando para o pagamento seguro...',
+  openingBillingPortal: 'Abrindo portal de cobranca...',
+  billingUnavailable: 'A cobranca ainda nao esta configurada. Conclua primeiro a configuracao manual.',
   availableForProUsers: 'Disponível para usuários PRO',
   module1Title: 'Módulo 1: Produção e venda de leite cru',
   module2Title: 'Módulo 2: Transformação láctea',
@@ -2822,3 +2842,50 @@ Object.assign(translations.fr, { viewInDollars: 'Voir dans la devise selectionne
 Object.assign(translations.it, { viewInDollars: 'Visualizza nella valuta selezionata' });
 Object.assign(translations.pt, { viewInDollars: 'Ver na moeda selecionada' });
 // STEP4_CURRENCY_LABELS_END
+
+// STEP14_BILLING_PROFILE_I18N_START
+Object.assign(translations.en, {
+  billingActionFailed: 'We could not start billing right now. Please try again in a moment.',
+  billingReturnSuccess: 'Payment confirmed. Your access is being updated and will be available shortly.',
+  billingReturnCancelled: 'Checkout was cancelled. Your current plan remains unchanged.',
+  billingReturnUnknown: 'Billing returned with an unknown status. Please refresh and verify your plan.',
+  avatarAlt: 'Profile avatar',
+  defaultUserInitial: 'U'
+});
+
+Object.assign(translations.es, {
+  billingActionFailed: 'No pudimos iniciar la facturacion en este momento. Intentalo de nuevo en unos minutos.',
+  billingReturnSuccess: 'Pago confirmado. Tu acceso se esta actualizando y estara disponible en breve.',
+  billingReturnCancelled: 'El proceso de pago fue cancelado. Tu plan actual no cambio.',
+  billingReturnUnknown: 'La facturacion regreso con un estado desconocido. Actualiza y verifica tu plan.',
+  avatarAlt: 'Avatar del perfil',
+  defaultUserInitial: 'U'
+});
+
+Object.assign(translations.fr, {
+  billingActionFailed: 'Impossible de lancer la facturation pour le moment. Reessayez dans quelques instants.',
+  billingReturnSuccess: 'Paiement confirme. Votre acces est en cours de mise a jour et sera disponible sous peu.',
+  billingReturnCancelled: 'Le paiement a ete annule. Votre offre actuelle reste inchangée.',
+  billingReturnUnknown: 'La facturation est revenue avec un etat inconnu. Actualisez puis verifiez votre offre.',
+  avatarAlt: 'Avatar du profil',
+  defaultUserInitial: 'U'
+});
+
+Object.assign(translations.it, {
+  billingActionFailed: 'Impossibile avviare la fatturazione adesso. Riprova tra qualche minuto.',
+  billingReturnSuccess: 'Pagamento confermato. Il tuo accesso si sta aggiornando e sara disponibile a breve.',
+  billingReturnCancelled: 'Checkout annullato. Il tuo piano attuale rimane invariato.',
+  billingReturnUnknown: 'La fatturazione e tornata con uno stato sconosciuto. Aggiorna e verifica il tuo piano.',
+  avatarAlt: 'Avatar del profilo',
+  defaultUserInitial: 'U'
+});
+
+Object.assign(translations.pt, {
+  billingActionFailed: 'Nao foi possivel iniciar a cobranca agora. Tente novamente em instantes.',
+  billingReturnSuccess: 'Pagamento confirmado. Seu acesso esta sendo atualizado e estara disponivel em breve.',
+  billingReturnCancelled: 'Checkout cancelado. Seu plano atual permanece inalterado.',
+  billingReturnUnknown: 'A cobranca retornou com um estado desconhecido. Atualize e verifique seu plano.',
+  avatarAlt: 'Avatar do perfil',
+  defaultUserInitial: 'U'
+});
+// STEP14_BILLING_PROFILE_I18N_END

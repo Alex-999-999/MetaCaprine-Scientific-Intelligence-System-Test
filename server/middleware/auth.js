@@ -1,8 +1,14 @@
 import jwt from 'jsonwebtoken';
 import { getPool } from '../db/pool.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET?.trim();
+const SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET?.trim();
+
+function requireLegacyJwtSecret() {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET not configured');
+  }
+}
 
 function extractBearerToken(req) {
   const authHeader = req.headers.authorization || req.headers.Authorization;
@@ -13,6 +19,7 @@ function extractBearerToken(req) {
 }
 
 function verifyLegacyToken(token) {
+  requireLegacyJwtSecret();
   const decoded = jwt.verify(token, JWT_SECRET);
   if (!decoded?.userId) {
     throw new Error('Not a legacy app token');
@@ -98,5 +105,6 @@ export async function authenticateToken(req, res, next) {
 }
 
 export function generateToken(userId, email, authUserId = null) {
+  requireLegacyJwtSecret();
   return jwt.sign({ userId, email, authUserId }, JWT_SECRET, { expiresIn: '7d' });
 }

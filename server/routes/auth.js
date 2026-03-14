@@ -4,7 +4,6 @@ import * as authService from '../services/authService.js';
 import { assignPlanToUser } from '../services/planService.js';
 import { getPlanByName } from '../services/planService.js';
 import { requireEmailVerification } from '../middleware/requireEmailVerification.js';
-import { getPool } from '../db/pool.js';
 
 const router = express.Router();
 
@@ -297,46 +296,12 @@ router.put('/password', authenticateToken, async (req, res) => {
   }
 });
 
-// Upgrade current user to PRO/Premium plan
+// Legacy direct-upgrade endpoint disabled in favor of payment-backed billing flow.
 router.post('/upgrade-to-pro', authenticateToken, requireEmailVerification, async (req, res) => {
-  try {
-    const userId = req.user.userId;
-
-    let targetPlan = null;
-    try {
-      targetPlan = await getPlanByName('pro');
-    } catch (_) {
-      targetPlan = await getPlanByName('premium');
-    }
-
-    await assignPlanToUser(userId, targetPlan.id, 'active');
-
-    // Keep RBAC role aligned with plan upgrade.
-    const pool = getPool();
-    const proRole = await pool.query('SELECT id FROM roles WHERE name = $1 LIMIT 1', ['pro']);
-    if (proRole.rows.length > 0) {
-      await pool.query(
-        `INSERT INTO user_roles (user_id, role_id)
-         VALUES ($1, $2)
-         ON CONFLICT (user_id) DO UPDATE SET
-           role_id = EXCLUDED.role_id,
-           updated_at = CURRENT_TIMESTAMP`,
-        [userId, proRole.rows[0].id]
-      );
-    }
-
-    const user = await authService.getUserById(userId);
-
-    res.json({
-      success: true,
-      user,
-      message: 'Your account has been upgraded to PRO successfully.',
-    });
-  } catch (error) {
-    console.error('Upgrade to PRO error:', error);
-    const errorMessage = error.message || 'Internal server error';
-    res.status(500).json({ error: errorMessage });
-  }
+  res.status(410).json({
+    error: 'Direct self-upgrade is disabled. Start the billing checkout flow instead.',
+  });
 });
 
 export default router;
+

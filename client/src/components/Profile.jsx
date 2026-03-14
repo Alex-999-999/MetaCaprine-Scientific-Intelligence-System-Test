@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useI18n } from '../i18n/I18nContext';
 import { getAvatar, saveAvatar } from '../utils/avatar';
 import api from '../utils/api';
@@ -20,13 +20,48 @@ function Profile({ user, onUserUpdate }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [avatar, setAvatar] = useState(getAvatar() || null);
   const [loading, setLoading] = useState(false);
-  const [upgrading, setUpgrading] = useState(false);
+  const [billingLoading, setBillingLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [billingStatus, setBillingStatus] = useState({
+    configured: false,
+    checkout_ready: false,
+    has_paid_access: false,
+    can_manage_billing: false,
+  });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const hasProAccess = ['pro', 'admin'].includes(user?.role) || (user?.features || []).includes('module2');
+  const [billingNotice, setBillingNotice] = useState('');
 
-  // Fetch fresh user data from backend when component mounts
+  const hasProAccess = ['pro', 'admin'].includes(user?.role) || (user?.features || []).includes('module2');
+  const canManageBilling = hasProAccess || billingStatus.has_paid_access;
+
+  const getBillingErrorMessage = (billingError) => {
+    const apiMessage = billingError?.response?.data?.error;
+    const rawMessage = String(apiMessage || billingError?.message || '').toLowerCase();
+
+    if (
+      rawMessage.includes('missing stripe_secret_key') ||
+      rawMessage.includes('missing stripe_price_pro_monthly')
+    ) {
+      return t('billingUnavailable');
+    }
+
+    if (rawMessage.includes('could not start checkout') || rawMessage.includes('could not open billing portal')) {
+      return t('billingActionFailed');
+    }
+
+    return t('billingActionFailed');
+  };
+
+  const loadBillingStatus = async () => {
+    try {
+      const response = await api.get('/billing/status');
+      setBillingStatus(response.data || {});
+    } catch (billingError) {
+      console.error('Error fetching billing status:', billingError);
+    }
+  };
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -43,16 +78,10 @@ function Profile({ user, onUserUpdate }) {
         setSex(userData.sex || '');
         setPreferredCurrency(userData.preferred_currency || 'USD');
         onUserUpdate({ ...user, ...userData });
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        // Fallback to prop data
-        if (user?.name) {
-          setName(user.name);
-        }
-        if (user?.email) {
-          setEmail(user.email);
-        }
+      } catch (fetchError) {
+        console.error('Error fetching user data:', fetchError);
       } finally {
+        await loadBillingStatus();
         setFetching(false);
       }
     };
@@ -61,12 +90,35 @@ function Profile({ user, onUserUpdate }) {
   }, []);
 
   useEffect(() => {
-    if (user?.name) {
-      setName(user.name);
-    }
-    if (user?.email) {
-      setEmail(user.email);
-    }
+    const params = new URLSearchParams(window.location.search);
+    const billingState = params.get('billing');
+    if (!billingState) return;
+
+    const applyBillingState = async () => {
+      setError('');
+      setSuccess('');
+
+      if (billingState === 'success') {
+        setBillingNotice(t('billingReturnSuccess'));
+        await loadBillingStatus();
+      } else if (billingState === 'cancelled') {
+        setBillingNotice(t('billingReturnCancelled'));
+      } else {
+        setBillingNotice(t('billingReturnUnknown'));
+      }
+
+      params.delete('billing');
+      const nextQuery = params.toString();
+      const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}${window.location.hash || ''}`;
+      window.history.replaceState({}, '', nextUrl);
+    };
+
+    applyBillingState();
+  }, [t]);
+
+  useEffect(() => {
+    setName(user?.name || '');
+    setEmail(user?.email || '');
     setLastName(user?.last_name || '');
     setCountry(user?.country || '');
     setCity(user?.city || '');
@@ -75,34 +127,31 @@ function Profile({ user, onUserUpdate }) {
     setAge(user?.age || '');
     setSex(user?.sex || '');
     setPreferredCurrency(user?.preferred_currency || 'USD');
-    const savedAvatar = getAvatar();
-    if (savedAvatar) {
-      setAvatar(savedAvatar);
-    }
+    setAvatar(getAvatar() || null);
   }, [user]);
 
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        setError(t('avatarSizeError'));
-        return;
-      }
+  const handleAvatarChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result;
-        setAvatar(base64String);
-        saveAvatar(base64String);
-        setSuccess(t('avatarUpdated'));
-        setTimeout(() => setSuccess(''), 3000);
-      };
-      reader.readAsDataURL(file);
+    if (file.size > 2 * 1024 * 1024) {
+      setError(t('avatarSizeError'));
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result;
+      setAvatar(base64String);
+      saveAvatar(base64String);
+      setSuccess(t('avatarUpdated'));
+      setTimeout(() => setSuccess(''), 3000);
+    };
+    reader.readAsDataURL(file);
   };
 
-  const handleNameUpdate = async (e) => {
-    e.preventDefault();
+  const handleProfileUpdate = async (event) => {
+    event.preventDefault();
     setError('');
     setSuccess('');
     setLoading(true);
@@ -119,19 +168,18 @@ function Profile({ user, onUserUpdate }) {
         sex,
         preferred_currency: preferredCurrency,
       });
-      const updatedUser = response.data.user;
-      onUserUpdate(updatedUser);
+      onUserUpdate(response.data.user);
       setSuccess(t('nameUpdated'));
       setTimeout(() => setSuccess(''), 3000);
-    } catch (err) {
-      setError(err.message || t('updateError'));
+    } catch (updateError) {
+      setError(updateError.response?.data?.error || updateError.message || t('updateError'));
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePasswordUpdate = async (e) => {
-    e.preventDefault();
+  const handlePasswordUpdate = async (event) => {
+    event.preventDefault();
     setError('');
     setSuccess('');
 
@@ -146,7 +194,6 @@ function Profile({ user, onUserUpdate }) {
     }
 
     setLoading(true);
-
     try {
       const response = await api.put('/auth/password', {
         currentPassword,
@@ -157,29 +204,54 @@ function Profile({ user, onUserUpdate }) {
       setNewPassword('');
       setConfirmPassword('');
       setTimeout(() => setSuccess(''), 3000);
-    } catch (err) {
-      setError(err.response?.data?.error || err.message || t('updateError'));
+    } catch (updateError) {
+      setError(updateError.response?.data?.error || updateError.message || t('updateError'));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleUpgradeToPro = async () => {
+  const handleBillingAction = async () => {
     setError('');
     setSuccess('');
-    setUpgrading(true);
+    setBillingNotice('');
+    setBillingLoading(true);
+
     try {
-      const response = await api.post('/auth/upgrade-to-pro');
-      const updatedUser = response.data?.user;
-      if (updatedUser) {
-        onUserUpdate(updatedUser);
+      const origin = window.location.origin;
+
+      if (canManageBilling) {
+        setSuccess(t('openingBillingPortal'));
+        const response = await api.post('/billing/create-portal-session', {
+          returnUrl: `${origin}/profile`,
+        });
+        if (!response.data?.url) {
+          throw new Error(t('billingActionFailed'));
+        }
+        window.location.assign(response.data.url);
+        return;
       }
-      setSuccess(response.data?.message || t('upgradeToPro'));
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (err) {
-      setError(err.response?.data?.error || err.message || t('updateError'));
+
+      if (!billingStatus.checkout_ready) {
+        setError(t('billingUnavailable'));
+        return;
+      }
+
+      setSuccess(t('redirectingToCheckout'));
+      const response = await api.post('/billing/create-checkout-session', {
+        successUrl: `${origin}/profile?billing=success`,
+        cancelUrl: `${origin}/profile?billing=cancelled`,
+      });
+
+      if (!response.data?.url) {
+        throw new Error(t('billingActionFailed'));
+      }
+
+      window.location.assign(response.data.url);
+    } catch (billingError) {
+      setError(getBillingErrorMessage(billingError));
     } finally {
-      setUpgrading(false);
+      setBillingLoading(false);
     }
   };
 
@@ -193,16 +265,15 @@ function Profile({ user, onUserUpdate }) {
       </div>
 
       <div className="profile-content">
-        {/* Avatar Section */}
         <div className="card">
           <h2 className="card-section-title">{t('profilePicture')}</h2>
           <div className="avatar-section">
             <div className="avatar-preview">
               {avatar ? (
-                <img src={avatar} alt="Avatar" className="avatar-image-large" />
+                <img src={avatar} alt={t('avatarAlt')} className="avatar-image-large" />
               ) : (
                 <div className="avatar-placeholder-large">
-                  {(user?.name || user?.email || 'U').charAt(0).toUpperCase()}
+                  {(user?.name || user?.email || t('defaultUserInitial')).charAt(0).toUpperCase()}
                 </div>
               )}
             </div>
@@ -233,103 +304,54 @@ function Profile({ user, onUserUpdate }) {
           </div>
         </div>
 
-        {/* User Info Section */}
         <div className="card">
           <h2 className="card-section-title">{t('userInformation')}</h2>
           {error && <div className="error-message">{error}</div>}
           {success && <div className="success-message">{success}</div>}
-          
-          <form onSubmit={handleNameUpdate}>
+
+          <form onSubmit={handleProfileUpdate}>
             <div className="form-group">
               <label htmlFor="email">{t('email')}</label>
-              {fetching ? (
-                <input
-                  id="email"
-                  type="email"
-                  value=""
-                  disabled
-                  className="form-input"
-                  placeholder={t('loading')}
-                  style={{ backgroundColor: 'var(--bg-tertiary)', cursor: 'not-allowed' }}
-                />
-              ) : (
-                <input
-                  id="email"
-                  type="email"
-                  value={email || ''}
-                  disabled
-                  className="form-input"
-                  placeholder={email ? '' : (t('noEmailAvailable'))}
-                  style={{ backgroundColor: 'var(--bg-tertiary)', cursor: 'not-allowed' }}
-                />
-              )}
+              <input
+                id="email"
+                type="email"
+                value={fetching ? '' : email}
+                disabled
+                className="form-input"
+                placeholder={fetching ? t('loading') : ''}
+                style={{ backgroundColor: 'var(--bg-tertiary)', cursor: 'not-allowed' }}
+              />
               <small className="form-hint">{t('emailCannotChange')}</small>
             </div>
 
             <div className="form-group">
               <label>{t('name')}</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={t('name')}
-                className="form-input"
-                required
-              />
+              <input type="text" value={name} onChange={(event) => setName(event.target.value)} className="form-input" required />
             </div>
 
             <div className="form-group">
               <label>{t('lastName')}</label>
-              <input
-                type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder={t('lastName')}
-                className="form-input"
-              />
+              <input type="text" value={lastName} onChange={(event) => setLastName(event.target.value)} className="form-input" />
             </div>
 
             <div className="form-group">
               <label>{t('country')}</label>
-              <input
-                type="text"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                placeholder={t('country')}
-                className="form-input"
-              />
+              <input type="text" value={country} onChange={(event) => setCountry(event.target.value)} className="form-input" />
             </div>
 
             <div className="form-group">
               <label>{t('city')}</label>
-              <input
-                type="text"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                placeholder={t('city')}
-                className="form-input"
-              />
+              <input type="text" value={city} onChange={(event) => setCity(event.target.value)} className="form-input" />
             </div>
 
             <div className="form-group">
               <label>{t('goatsCount')}</label>
-              <input
-                type="number"
-                min="0"
-                value={goatsCount}
-                onChange={(e) => setGoatsCount(e.target.value)}
-                placeholder={t('goatsCount')}
-                className="form-input"
-              />
+              <input type="number" min="0" value={goatsCount} onChange={(event) => setGoatsCount(event.target.value)} className="form-input" />
             </div>
 
             <div className="form-group">
               <label>{t('transformsProducts')}</label>
-              <select
-                value={transformsProducts}
-                onChange={(e) => setTransformsProducts(e.target.value)}
-                className="form-input"
-              >
+              <select value={transformsProducts} onChange={(event) => setTransformsProducts(event.target.value)} className="form-input">
                 <option value="no">{t('no')}</option>
                 <option value="yes">{t('yes')}</option>
               </select>
@@ -337,23 +359,12 @@ function Profile({ user, onUserUpdate }) {
 
             <div className="form-group">
               <label>{t('age')}</label>
-              <input
-                type="number"
-                min="0"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
-                placeholder={t('age')}
-                className="form-input"
-              />
+              <input type="number" min="0" value={age} onChange={(event) => setAge(event.target.value)} className="form-input" />
             </div>
 
             <div className="form-group">
               <label>{t('sex')}</label>
-              <select
-                value={sex}
-                onChange={(e) => setSex(e.target.value)}
-                className="form-input"
-              >
+              <select value={sex} onChange={(event) => setSex(event.target.value)} className="form-input">
                 <option value="">{t('selectSex')}</option>
                 <option value="female">{t('female')}</option>
                 <option value="male">{t('male')}</option>
@@ -364,11 +375,7 @@ function Profile({ user, onUserUpdate }) {
 
             <div className="form-group">
               <label>{t('preferredCurrency')}</label>
-              <select
-                value={preferredCurrency}
-                onChange={(e) => setPreferredCurrency(e.target.value)}
-                className="form-input"
-              >
+              <select value={preferredCurrency} onChange={(event) => setPreferredCurrency(event.target.value)} className="form-input">
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
                 <option value="CAD">CAD</option>
@@ -390,47 +397,22 @@ function Profile({ user, onUserUpdate }) {
           </form>
         </div>
 
-        {/* Password Change Section */}
         <div className="card">
           <h2 className="card-section-title">{t('changePassword')}</h2>
-          
           <form onSubmit={handlePasswordUpdate}>
             <div className="form-group">
               <label>{t('currentPassword')}</label>
-              <input
-                type="password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder={t('currentPassword')}
-                className="form-input"
-                required
-              />
+              <input type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} className="form-input" required />
             </div>
 
             <div className="form-group">
               <label>{t('newPassword')}</label>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder={t('newPassword')}
-                className="form-input"
-                required
-                minLength={6}
-              />
+              <input type="password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} className="form-input" required minLength={6} />
             </div>
 
             <div className="form-group">
               <label>{t('confirmPassword')}</label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder={t('confirmPassword')}
-                className="form-input"
-                required
-                minLength={6}
-              />
+              <input type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className="form-input" required minLength={6} />
             </div>
 
             <div className="form-actions">
@@ -441,20 +423,19 @@ function Profile({ user, onUserUpdate }) {
           </form>
         </div>
 
-        {/* Upgrade Section */}
         <div className="card">
-          <h2 className="card-section-title">{t('unlockFullAnalysis')}</h2>
+          <h2 className="card-section-title">{canManageBilling ? t('manageBilling') : t('unlockFullAnalysis')}</h2>
+          {billingNotice && <div className="success-message">{billingNotice}</div>}
           <p style={{ marginBottom: '12px', color: 'var(--text-secondary)' }}>
             {t('module2BasicSimulationMessage')}
           </p>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={handleUpgradeToPro}
-            disabled={upgrading || hasProAccess}
-            title={hasProAccess ? t('availableForProUsers') : ''}
-          >
-            {hasProAccess ? t('availableForProUsers') : (upgrading ? t('saving') : t('upgradeToPro'))}
+          {!billingStatus.checkout_ready && !canManageBilling && (
+            <p style={{ marginBottom: '12px', color: 'var(--accent-warning)' }}>
+              {t('billingUnavailable')}
+            </p>
+          )}
+          <button type="button" className="btn btn-primary" onClick={handleBillingAction} disabled={billingLoading}>
+            {billingLoading ? t('saving') : canManageBilling ? t('manageBilling') : t('upgradeToPro')}
           </button>
         </div>
       </div>

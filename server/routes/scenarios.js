@@ -3,6 +3,8 @@ import { authenticateToken } from '../middleware/auth.js';
 import { requireRole } from '../middleware/requireRole.js';
 import { requireEmailVerification } from '../middleware/requireEmailVerification.js';
 import * as scenarioService from '../services/scenarioService.js';
+import { getPool } from '../db/pool.js';
+import { runSimulation } from '../core/simulationEngine.js';
 
 const router = express.Router();
 
@@ -281,3 +283,4 @@ router.post('/compare', async (req, res) => {
 });
 
 export default router;
+
