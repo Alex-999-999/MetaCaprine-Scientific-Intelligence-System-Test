@@ -89,7 +89,7 @@ MVP Web - Complete Setup Script
 ðŸ” Verifying setup...
    âœ… 7 core tables verified
    âœ… 27 breeds in database
-   â„¹ï¸  0 users in database
+    0 users in database
 
 âœ… Setup verification complete!
 

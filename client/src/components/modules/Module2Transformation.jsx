@@ -752,7 +752,7 @@ function Module2Transformation({ user }) {
           boxShadow: '0 2px 8px var(--shadow-color)'
         }}>
           <p style={{ margin: 0, fontSize: '15px', lineHeight: '1.6', color: 'var(--text-primary)' }}>
-            â„¹ï¸ {t('module2Explanation')}
+            {t('module2Explanation')}
           </p>
         </div>
       </header>
@@ -1141,7 +1141,7 @@ function Module2Transformation({ user }) {
                       fontSize: '0.85em',
                       color: 'var(--accent-info)'
                     }}>
-                      <strong>â„¹ï¸ {t('note')}:</strong> {product.processing_cost_unit === 'liter'
+                      <strong>{t('note')}:</strong> {product.processing_cost_unit === 'liter'
                         ? t('processingCostHelpLiter')
                         : t('processingCostHelpKg')}
                     </div>
@@ -1218,7 +1218,7 @@ function Module2Transformation({ user }) {
                       fontSize: '0.85em',
                       color: 'var(--accent-success)'
                     }}>
-                      <strong>â„¹ï¸ {t('note')}:</strong> {product.packaging_cost_unit === 'liter'
+                      <strong>{t('note')}:</strong> {product.packaging_cost_unit === 'liter'
                         ? t('packagingCostHelpLiter')
                         : t('packagingCostHelpKg')}
                     </div>
@@ -1817,7 +1817,7 @@ function Module2Transformation({ user }) {
                                     }}>
                                       <td></td>
                                       <td style={{ paddingLeft: '30px', color: 'var(--text-secondary)' }}>
-                                        <small>ðŸ“Š {t('weightedAverageMix')}</small>
+                                        <small>{t('weightedAverageMix')}</small>
                                       </td>
                                       <td>-</td>
                                       <td><small>{channel.kg.toLocaleString(undefined, { maximumFractionDigits: 2 })}</small></td>
@@ -1862,7 +1862,7 @@ function Module2Transformation({ user }) {
                 <h2>{t('comparison')}</h2>
                 <div style={{ marginBottom: '20px', padding: '15px', background: 'var(--bg-tertiary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                   <p style={{ margin: '0 0 10px 0', fontSize: '0.95em', fontWeight: 'bold', color: 'var(--accent-warning)' }}>
-                    ðŸ“Š {t('note')}: {t('whatAreWeComparing')}
+                    {t('note')}: {t('whatAreWeComparing')}
                   </p>
                   <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9em', color: 'var(--text-secondary)' }}>
                     <li><strong>{t('rawMilkSaleModule1')}</strong> {t('directSaleExplanation')}</li>
