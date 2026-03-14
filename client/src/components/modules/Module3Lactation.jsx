@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   ComposedChart, LineChart, Line, Area, Cell
@@ -17,12 +17,12 @@ import '../../styles/Module3.css';
  * Key Features:
  * - Automatic breed ranking by lifetime ECM
  * - Compare 2 breeds side-by-side
- * - Herd size scenarios (e.g., 2000 Malagueña vs 700 LaMancha)
+ * - Herd size scenarios (e.g., 2000 MalagueÃ±a vs 700 LaMancha)
  * - User can override base parameters per breed
- * - All calculations in kg (display note: ≈ L)
+ * - All calculations in kg (display note: â‰ˆ L)
  */
 function Module3Lactation({ user }) {
-  const { t, language } = useI18n();
+  const { t } = useI18n();
   const chartColors = useChartColors();
 
   // Available breeds from database
@@ -74,7 +74,7 @@ function Module3Lactation({ user }) {
   const [selectedBreedDetail, setSelectedBreedDetail] = useState(null);
   const [breedDetailModalOpen, setBreedDetailModalOpen] = useState(false);
   const [imageHover, setImageHover] = useState({ isHovering: false, x: 0, y: 0 });
-  const isProUser = ['pro', 'admin'].includes(user?.role);
+  const isProUser = ['pro', 'pro_user', 'premium', 'admin'].includes(user?.role);
   const hasAdvancedComparisons = isProUser || (user?.features || []).includes('advanced_calculations');
 
   useEffect(() => {
@@ -120,58 +120,26 @@ function Module3Lactation({ user }) {
     return clean;
   };
 
-  const isSpanish = language === 'es';
   const toFriendlyValidationMessage = (details = []) => {
     if (!Array.isArray(details) || details.length === 0) {
-      return isSpanish
-        ? 'Algunos valores no son válidos. Revísalos e inténtalo de nuevo.'
-        : 'Some values are not valid. Please review them and try again.';
+      return t('module3ValidationGeneric');
     }
 
     const mapped = details.map((detail) => {
       const text = String(detail || '').toLowerCase();
 
-      if (text.includes('milk_kg_yr')) {
-        return isSpanish
-          ? 'La producción anual de leche es demasiado alta. Usa un valor menor o igual a 10.000 kg, o deja el campo vacío para usar el valor de la raza.'
-          : 'Yearly milk production is too high. Use a value up to 10,000 kg, or leave it empty to use the breed default.';
-      }
-      if (text.includes('fat_pct')) {
-        return isSpanish
-          ? 'El porcentaje de grasa debe estar entre 0 y 20.'
-          : 'Fat percentage must be between 0 and 20.';
-      }
-      if (text.includes('protein_pct')) {
-        return isSpanish
-          ? 'El porcentaje de proteína debe estar entre 0 y 20.'
-          : 'Protein percentage must be between 0 and 20.';
-      }
-      if (text.includes('lact_days_avg')) {
-        return isSpanish
-          ? 'Los días de lactancia deben estar entre 100 y 400.'
-          : 'Lactation days must be between 100 and 400.';
-      }
-      if (text.includes('lactations_lifetime_avg')) {
-        return isSpanish
-          ? 'Las lactancias de vida productiva deben estar entre 1 y 10.'
-          : 'Lifetime lactations must be between 1 and 10.';
-      }
-      if (text.includes('herd_size')) {
-        return isSpanish
-          ? 'El tamaño del rebaño debe estar entre 1 y 100.000.'
-          : 'Herd size must be between 1 and 100,000.';
-      }
+      if (text.includes('milk_kg_yr')) return t('module3ValidationMilk');
+      if (text.includes('fat_pct')) return t('module3ValidationFat');
+      if (text.includes('protein_pct')) return t('module3ValidationProtein');
+      if (text.includes('lact_days_avg')) return t('module3ValidationLactDays');
+      if (text.includes('lactations_lifetime_avg')) return t('module3ValidationLactations');
+      if (text.includes('herd_size')) return t('module3ValidationHerd');
 
-      return isSpanish
-        ? 'Hay un valor fuera de rango. Revísalo o deja el campo vacío para usar el valor recomendado.'
-        : 'A value is out of range. Review it, or leave it empty to use the recommended value.';
+      return t('module3ValidationRangeFallback');
     });
 
     const uniqueMessages = [...new Set(mapped)];
-    const intro = isSpanish
-      ? 'No se pudo calcular porque hay datos fuera de rango:'
-      : 'Calculation could not be completed because some values are out of range:';
-    return `${intro} ${uniqueMessages.join(' ')}`;
+    return `${t('module3ValidationIntro')} ${uniqueMessages.join(' ')}`;
   };
 
   const loadBreeds = async () => {
@@ -354,35 +322,33 @@ function Module3Lactation({ user }) {
   const overrideRangeItems = [
     {
       label: t('herdSize'),
-      value: isSpanish ? '1 a 100.000' : '1 to 100,000',
+      value: t('module3RangeHerd'),
     },
     {
       label: t('milkKgPerYear'),
-      value: isSpanish ? '0 a 10.000 kg' : '0 to 10,000 kg',
+      value: t('module3RangeMilk'),
     },
     {
       label: t('fatPercent'),
-      value: isSpanish ? '0 a 20%' : '0 to 20%',
+      value: t('module3RangeFat'),
     },
     {
       label: t('proteinPercent'),
-      value: isSpanish ? '0 a 20%' : '0 to 20%',
+      value: t('module3RangeProtein'),
     },
     {
       label: t('lactationDaysAvg'),
-      value: isSpanish ? '100 a 400 dias' : '100 to 400 days',
+      value: t('module3RangeLactDays'),
     },
     {
       label: t('lactationsPerLife'),
-      value: isSpanish ? '1 a 10' : '1 to 10',
+      value: t('module3RangeLactations'),
     },
   ];
   const renderOverrideRangeGuide = () => (
     <div className="pedagogy-block" style={{ marginBottom: '16px' }}>
       <p className="pedagogy-title" style={{ marginBottom: '10px' }}>
-        {isSpanish
-          ? 'Rangos permitidos para los valores editables'
-          : 'Allowed ranges for editable values'}
+        {t('module3RangeGuideTitle')}
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '8px 16px' }}>
         {overrideRangeItems.map((item) => (
@@ -392,9 +358,7 @@ function Module3Lactation({ user }) {
         ))}
       </div>
       <p style={{ margin: '10px 0 0 0', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-        {isSpanish
-          ? 'Si no quieres cambiar un parametro, deja ese campo vacio y el sistema usara el valor recomendado de la raza.'
-          : 'If you do not want to change a parameter, leave that field empty and the system will use the recommended breed value.'}
+        {t('module3RangeGuideHint')}
       </p>
     </div>
   );
@@ -413,7 +377,7 @@ function Module3Lactation({ user }) {
           marginBottom: '16px'
         }}>
           <p style={{ margin: '0 0 12px 0', fontSize: '15px', lineHeight: '1.6', color: 'var(--accent-success)' }}>
-            🧬 {t('module3Explanation')}
+            ðŸ§¬ {t('module3Explanation')}
           </p>
           <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.6', color: 'var(--text-secondary)', fontStyle: 'italic', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
             <strong>{labelWithHelp('ECM', t('ecmDefinition'))}:</strong> {t('ecmDefinition')}
@@ -428,7 +392,7 @@ function Module3Lactation({ user }) {
             className={`btn ${viewMode === 'single' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => setViewMode('single')}
           >
-            📊 {t('singleBreedSimulation')}
+            ðŸ“Š {t('singleBreedSimulation')}
           </button>
           <button
             className={`btn ${viewMode === 'compare' ? 'btn-primary' : 'btn-secondary'}`}
@@ -466,7 +430,7 @@ function Module3Lactation({ user }) {
         {/* Single Breed View */}
         {viewMode === 'single' && (
           <div className="card">
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1.5rem' }}>🐐 {t('singleBreedSimulation')}</h2>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1.5rem' }}>ðŸ {t('singleBreedSimulation')}</h2>
               
               <div className="form-group">
                 <label>{t('selectBreed')}</label>
@@ -616,7 +580,7 @@ function Module3Lactation({ user }) {
                     <p style={{ color: 'var(--text-primary)', fontSize: '1rem', marginBottom: '0.5rem' }}><strong style={{ fontSize: '1rem' }}>{t('protein')}:</strong> <span style={{ fontSize: '1.125rem', fontWeight: '600' }}>{formatNumber(singleResult.protein_kg_lifetime)} kg</span></p>
                     <p style={{ color: 'var(--text-primary)', fontSize: '1rem', marginBottom: '0.5rem' }}><strong style={{ fontSize: '1rem' }}>{t('fat')} + {t('protein')}:</strong> <span style={{ fontSize: '1.125rem', fontWeight: '600' }}>{formatNumber(singleResult.fat_plus_protein_kg_lifetime)} kg</span></p>
                     <p style={{ color: 'var(--text-primary)', fontSize: '1rem', marginBottom: '0.5rem' }}><strong style={{ fontSize: '1rem' }}>{t('ecmLifetime')}:</strong> <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--accent-success)' }}>{formatNumber(singleResult.ecm_kg_lifetime)} kg</span></p>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '0.75rem' }}><small>({formatNumber(singleResult.lactations_lifetime_avg, 1)} {t('lactationsPerLife')} × {formatNumber(singleResult.lact_days_avg, 0)} {t('days')})</small></p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '0.75rem' }}><small>({formatNumber(singleResult.lactations_lifetime_avg, 1)} {t('lactationsPerLife')} Ã— {formatNumber(singleResult.lact_days_avg, 0)} {t('days')})</small></p>
                   </div>
                   <div style={{ padding: '20px', background: 'rgba(234, 179, 8, 0.1)', borderRadius: '8px', border: '1px solid var(--accent-warning)', color: 'var(--text-primary)' }}>
                     <h3 style={{ marginTop: 0, fontSize: '1.125rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '1rem' }}>{t('herdTotal')} ({formatNumber(singleResult.herd_size, 0)} {t('animals')})</h3>
@@ -635,7 +599,7 @@ function Module3Lactation({ user }) {
         {/* Compare A vs B View */}
         {viewMode === 'compare' && (
           <div className="card">
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1.5rem' }}>⚖️ {t('compareTwoBreeds')}</h2>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1.5rem' }}>âš–ï¸ {t('compareTwoBreeds')}</h2>
               
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '30px', marginBottom: '20px' }}>
                 {/* Breed A */}
@@ -788,7 +752,7 @@ function Module3Lactation({ user }) {
                   border: `3px solid ${comparisonResult.winner === 'A' ? 'var(--accent-info)' : 'var(--chart-quaternary)'}`,
                   textAlign: 'center'
                 }}>
-                  <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🏆</div>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>ðŸ†</div>
                   <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.5rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                     {comparisonResult.winner === 'A' ? comparisonResult.aScenario.breed_name : comparisonResult.bScenario.breed_name}
                   </h3>
@@ -1105,7 +1069,7 @@ function Module3Lactation({ user }) {
             <div className="chart-header">
               <div>
                 <h2 className="chart-title" style={{ fontSize: '1.75rem', fontWeight: '700' }}>
-                  <span className="chart-title-icon">🏆</span>
+                  <span className="chart-title-icon">ðŸ†</span>
                   {t('breedRankingByEcmLifetime')}
                 </h2>
                 <p className="chart-subtitle" style={{ fontSize: '1rem' }}>{t('breedRankingSubtitle')}</p>
@@ -1125,7 +1089,7 @@ function Module3Lactation({ user }) {
                   <h3 className="breed-ranking-title" style={{ margin: 0 }}>
                     {t('rankingByEcmProductiveLife')}
                   </h3>
-                  <span style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)' }}>▼</span>
+                  <span style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)' }}>â–¼</span>
                 </div>
                 <p className="breed-ranking-subtitle" style={{ 
                   fontSize: '0.875rem', 
@@ -1794,3 +1758,5 @@ function Module3Lactation({ user }) {
 }
 
 export default Module3Lactation;
+
+

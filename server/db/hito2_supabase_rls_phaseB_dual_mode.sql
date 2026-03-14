@@ -1,4 +1,4 @@
--- ============================================================================
+﻿-- ============================================================================
 -- Phase B - Dual-mode RLS policies
 -- Keeps service_role compatibility while enabling authenticated owner access
 -- through users.auth_user_id = auth.uid().
@@ -234,6 +234,21 @@ WITH CHECK (
 );
 
 -- Reference/scientific read for authenticated users
+-- + backend service_role read used by API server.
+DROP POLICY IF EXISTS breed_reference_service_role_read ON public.breed_reference;
+CREATE POLICY breed_reference_service_role_read
+ON public.breed_reference
+FOR SELECT
+TO service_role
+USING (true);
+
+DROP POLICY IF EXISTS breed_profiles_service_role_read ON public.breed_profiles;
+CREATE POLICY breed_profiles_service_role_read
+ON public.breed_profiles
+FOR SELECT
+TO service_role
+USING (true);
+
 DROP POLICY IF EXISTS breed_reference_authenticated_read ON public.breed_reference;
 CREATE POLICY breed_reference_authenticated_read
 ON public.breed_reference
@@ -249,3 +264,4 @@ TO authenticated
 USING (true);
 
 COMMIT;
+

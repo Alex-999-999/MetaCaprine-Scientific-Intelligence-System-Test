@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import { getPool } from '../db/pool.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { requireRole } from '../middleware/requireRole.js';
@@ -48,6 +48,34 @@ function isFreeCatalogBreed(row) {
 
 async function hasModule3CatalogAccess(userId) {
   return hasFeatureAccess(userId, 'advanced_calculations');
+}
+
+function hasNonEmptyOverrides(overrides) {
+  if (!overrides || typeof overrides !== 'object') return false;
+  return Object.values(overrides).some((value) => {
+    if (value === null || value === undefined || value === '') return false;
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed);
+  });
+}
+
+async function requireAdvancedComparisons(req, res, next) {
+  try {
+    const hasAccess = await hasFeatureAccess(req.user.userId, 'advanced_calculations');
+    if (!hasAccess) {
+      return res.status(403).json({
+        error: 'Feature access required',
+        message: 'Estas viendo el nivel base de comparacion productiva entre razas. MetaCaprine Intelligence incluye analisis comparativos mas profundos para entender el potencial productivo completo de cada tipo de cabra lechera. El analisis de prediccion genetica para esta raza son herramientas exclusivas. Desbloquea el nivel PRO y compite con los mejores rebanos del mundo.',
+        feature: 'advanced_calculations',
+        upgrade_required: true,
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Advanced comparison access check error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 }
 
 /**
@@ -198,11 +226,21 @@ router.post('/simulate', async (req, res) => {
     if (!canAccessFullCatalog && !isFreeCatalogBreed(breedRef)) {
       return res.status(403).json({
         error: 'Feature access required',
-        message: 'This simulation is available in PRO. Upgrade to unlock full breed analysis.',
+        message: 'Estas viendo el nivel base de comparacion productiva entre razas. MetaCaprine Intelligence incluye analisis comparativos mas profundos para entender el potencial productivo completo de cada tipo de cabra lechera. El analisis de prediccion genetica para esta raza son herramientas exclusivas. Desbloquea el nivel PRO y compite con los mejores rebanos del mundo.',
         upgrade_required: true,
       });
     }
-    const scenario = buildBreedScenario(breedRef, overrides);
+
+    if (!canAccessFullCatalog && hasNonEmptyOverrides(overrides)) {
+      return res.status(403).json({
+        error: 'Feature access required',
+        message: 'Estas viendo el nivel base de comparacion productiva entre razas. MetaCaprine Intelligence incluye analisis comparativos mas profundos para entender el potencial productivo completo de cada tipo de cabra lechera. El analisis de prediccion genetica para esta raza son herramientas exclusivas. Desbloquea el nivel PRO y compite con los mejores rebanos del mundo.',
+        feature: 'advanced_calculations',
+        upgrade_required: true,
+      });
+    }
+
+    const scenario = buildBreedScenario(breedRef, canAccessFullCatalog ? overrides : {});
     
     res.json({
       success: true,
@@ -226,7 +264,7 @@ router.post('/simulate', async (req, res) => {
  *   b: { breed_key, overrides }
  * }
  */
-router.post('/compare', requireFeature('advanced_calculations'), async (req, res) => {
+router.post('/compare', requireAdvancedComparisons, async (req, res) => {
   try {
     let pool;
     try {
@@ -300,7 +338,7 @@ router.post('/compare', requireFeature('advanced_calculations'), async (req, res
  *   mode: "per_head" | "total"
  * }
  */
-router.post('/rank', requireFeature('advanced_calculations'), async (req, res) => {
+router.post('/rank', requireAdvancedComparisons, async (req, res) => {
   try {
     let pool;
     try {
@@ -427,7 +465,28 @@ router.post('/scenario/:scenarioId/save', async (req, res) => {
     }
     
     const breedRef = breedResult.rows[0];
-    const calculated = buildBreedScenario(breedRef, overrides);
+    const canAccessFullCatalog = await hasModule3CatalogAccess(req.user.userId);
+
+    if (!canAccessFullCatalog && !isFreeCatalogBreed(breedRef)) {
+      return res.status(403).json({
+        error: 'Feature access required',
+        message: 'Estas viendo el nivel base de comparacion productiva entre razas. MetaCaprine Intelligence incluye analisis comparativos mas profundos para entender el potencial productivo completo de cada tipo de cabra lechera. El analisis de prediccion genetica para esta raza son herramientas exclusivas. Desbloquea el nivel PRO y compite con los mejores rebanos del mundo.',
+        feature: 'advanced_calculations',
+        upgrade_required: true,
+      });
+    }
+
+    if (!canAccessFullCatalog && hasNonEmptyOverrides(overrides)) {
+      return res.status(403).json({
+        error: 'Feature access required',
+        message: 'Estas viendo el nivel base de comparacion productiva entre razas. MetaCaprine Intelligence incluye analisis comparativos mas profundos para entender el potencial productivo completo de cada tipo de cabra lechera. El analisis de prediccion genetica para esta raza son herramientas exclusivas. Desbloquea el nivel PRO y compite con los mejores rebanos del mundo.',
+        feature: 'advanced_calculations',
+        upgrade_required: true,
+      });
+    }
+
+    const safeOverrides = canAccessFullCatalog ? overrides : {};
+    const calculated = buildBreedScenario(breedRef, safeOverrides);
     
     // Save to database
     const result = await pool.query(
@@ -545,3 +604,7 @@ router.get('/scenario/:scenarioId/load', async (req, res) => {
 });
 
 export default router;
+
+
+
+

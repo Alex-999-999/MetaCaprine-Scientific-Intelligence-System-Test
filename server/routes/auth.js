@@ -67,24 +67,48 @@ router.post('/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Register error:', error);
-    if (error.code === '23505') {
+
+    const errorCode = error?.code;
+    const errorMessage = typeof error === 'string' ? error : (error?.message || 'Internal server error');
+
+    if (errorCode === '23505') {
       return res.status(400).json({ error: 'Email already exists' });
     }
-    if (error.message === 'Terms and conditions must be accepted') {
-      return res.status(400).json({ error: error.message });
+
+    if (errorMessage === 'Terms and conditions must be accepted') {
+      return res.status(400).json({ error: errorMessage });
     }
+
     if (
-      error.message === 'Country is required' ||
-      error.message === 'City is required' ||
-      error.message === 'Number of goats is required' ||
-      error.message === 'Transforms products selection is required' ||
-      error.message === 'Age is required' ||
-      error.message === 'Sex is required' ||
-      error.message === 'Sex must be one of: female, male, other, prefer_not_to_say'
+      errorMessage === 'Country is required' ||
+      errorMessage === 'City is required' ||
+      errorMessage === 'Number of goats is required' ||
+      errorMessage === 'Transforms products selection is required' ||
+      errorMessage === 'Age is required' ||
+      errorMessage === 'Sex is required' ||
+      errorMessage === 'Sex must be one of: female, male, other, prefer_not_to_say'
     ) {
-      return res.status(400).json({ error: error.message });
+      return res.status(400).json({ error: errorMessage });
     }
-    const errorMessage = error.message || 'Internal server error';
+
+    if (errorMessage.includes("Role 'free' not found")) {
+      return res.status(500).json({
+        error: 'RBAC setup is incomplete. Missing role: free. Run Hito 2 auth/RBAC migration and seed roles.'
+      });
+    }
+
+    if (errorMessage.includes('JWT_SECRET not configured')) {
+      return res.status(500).json({
+        error: 'Server auth setup is incomplete. Set JWT_SECRET in environment variables.'
+      });
+    }
+
+    if (errorCode === '42703') {
+      return res.status(500).json({
+        error: 'Database schema is outdated. Run the latest auth/profile migration in server/db.'
+      });
+    }
+
     res.status(500).json({ error: errorMessage });
   }
 });

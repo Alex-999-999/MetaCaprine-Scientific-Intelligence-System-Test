@@ -1,4 +1,4 @@
-import Stripe from 'stripe';
+﻿import Stripe from 'stripe';
 import { getPool } from '../db/pool.js';
 import { getPlanByName } from './planService.js';
 
@@ -90,6 +90,17 @@ async function ensureStripeCustomer(user) {
   return customer.id;
 }
 
+async function resolveRoleId(client, aliases) {
+  const roleAliases = Array.isArray(aliases) ? aliases : [aliases];
+  for (const roleName of roleAliases) {
+    const roleResult = await client.query('SELECT id FROM roles WHERE name = $1 LIMIT 1', [roleName]);
+    if (roleResult.rows.length > 0) {
+      return { id: roleResult.rows[0].id, name: roleName };
+    }
+  }
+  return null;
+}
+
 async function setUserRoleForPaidAccess(client, userId, hasPaidAccess) {
   const currentRoleResult = await client.query(
     `SELECT r.name
@@ -104,14 +115,13 @@ async function setUserRoleForPaidAccess(client, userId, hasPaidAccess) {
     return;
   }
 
-  const targetRoleName = hasPaidAccess ? 'pro' : 'free';
-  const roleResult = await client.query(
-    'SELECT id FROM roles WHERE name = $1 LIMIT 1',
-    [targetRoleName]
-  );
+  const targetRole = hasPaidAccess
+    ? await resolveRoleId(client, ['pro', 'pro_user'])
+    : await resolveRoleId(client, ['free']);
 
-  if (roleResult.rows.length === 0) {
-    throw new Error(`Role '${targetRoleName}' not found`);
+  if (!targetRole) {
+    const expected = hasPaidAccess ? 'pro/pro_user' : 'free';
+    throw new Error(`Role '${expected}' not found`);
   }
 
   await client.query(
@@ -120,7 +130,7 @@ async function setUserRoleForPaidAccess(client, userId, hasPaidAccess) {
      ON CONFLICT (user_id) DO UPDATE SET
        role_id = EXCLUDED.role_id,
        updated_at = CURRENT_TIMESTAMP`,
-    [userId, roleResult.rows[0].id]
+    [userId, targetRole.id]
   );
 }
 
@@ -374,4 +384,5 @@ export async function processStripeWebhookEvent(event) {
   const syncResult = await syncStripeSubscription(subscription);
   return { handled: true, syncResult };
 }
+
 

@@ -1,4 +1,4 @@
--- ============================================================================
+﻿-- ============================================================================
 -- Hito 2 - Supabase RLS Hardening
 -- Purpose: close Security Advisor findings by enabling RLS and explicit policies.
 --
@@ -203,8 +203,23 @@ USING (true)
 WITH CHECK (true);
 
 -- --------------------------------------------------------------------------
--- 3) REFERENCE DATA: AUTHENTICATED READ
+-- 3) REFERENCE DATA READ
+-- Keep authenticated read + allow backend service_role read used by API server.
 -- --------------------------------------------------------------------------
+DROP POLICY IF EXISTS breed_reference_service_role_read ON public.breed_reference;
+CREATE POLICY breed_reference_service_role_read
+ON public.breed_reference
+FOR SELECT
+TO service_role
+USING (true);
+
+DROP POLICY IF EXISTS breed_profiles_service_role_read ON public.breed_profiles;
+CREATE POLICY breed_profiles_service_role_read
+ON public.breed_profiles
+FOR SELECT
+TO service_role
+USING (true);
+
 DROP POLICY IF EXISTS breed_reference_authenticated_read ON public.breed_reference;
 CREATE POLICY breed_reference_authenticated_read
 ON public.breed_reference
@@ -220,3 +235,4 @@ TO authenticated
 USING (true);
 
 COMMIT;
+

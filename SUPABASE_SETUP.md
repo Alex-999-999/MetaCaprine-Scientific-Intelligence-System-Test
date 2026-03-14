@@ -1,12 +1,12 @@
-# Supabase Database Setup Guide
+﻿# Supabase Database Setup Guide
 
-## 🔍 Step 1: Get Database Connection String
+## ðŸ” Step 1: Get Database Connection String
 
 The image shows your **API credentials**, but you need the **Database connection string** instead.
 
 ### How to Get Database Connection String:
 
-1. In your Supabase dashboard, go to **Settings** → **Database**
+1. In your Supabase dashboard, go to **Settings** â†’ **Database**
 2. Scroll down to **Connection string** section
 3. Select **URI** tab (not "Session mode" or "Transaction mode")
 4. Copy the connection string - it should look like:
@@ -21,11 +21,11 @@ The image shows your **API credentials**, but you need the **Database connection
 **Important**: 
 - Replace `[YOUR-PASSWORD]` with your actual database password
 - The password is the one you set when creating the Supabase project
-- If you forgot it, you can reset it in Settings → Database → Database password
+- If you forgot it, you can reset it in Settings â†’ Database â†’ Database password
 
 ---
 
-## 📝 Step 2: Create server/.env File
+## ðŸ“ Step 2: Create server/.env File
 
 Create a file `server/.env` with this content:
 
@@ -60,7 +60,7 @@ Copy the output and paste it as your `JWT_SECRET` value.
 
 ---
 
-## 🗄️ Step 3: Initialize Database
+## ðŸ—„ï¸ Step 3: Initialize Database
 
 Once your `.env` file is configured, run the setup script:
 
@@ -74,31 +74,59 @@ node setup.js
 MVP Web - Complete Setup Script
 ============================================================================
 
-📡 Checking database connection...
-✅ Database connection successful
+ðŸ“¡ Checking database connection...
+âœ… Database connection successful
    Server time: [timestamp]
 
-📦 Running database migration...
-✅ Database migration completed successfully
+ðŸ“¦ Running database migration...
+âœ… Database migration completed successfully
 
-🌱 Seeding breed reference data...
+ðŸŒ± Seeding breed reference data...
    Found 27 breeds to import
-✅ Breed data seeded successfully
+âœ… Breed data seeded successfully
    Imported: 27 breeds
 
-🔍 Verifying setup...
-   ✅ 7 core tables verified
-   ✅ 27 breeds in database
-   ℹ️  0 users in database
+ðŸ” Verifying setup...
+   âœ… 7 core tables verified
+   âœ… 27 breeds in database
+   â„¹ï¸  0 users in database
 
-✅ Setup verification complete!
+âœ… Setup verification complete!
 
-🎉 Setup completed successfully!
+ðŸŽ‰ Setup completed successfully!
 ```
 
 ---
 
-## ✅ Step 4: Verify Connection
+### Alternative: Supabase SQL Editor / Table Editor seed
+
+If you are not connecting directly with `DATABASE_URL`, generate the normalized Module 3 seed files first:
+
+```powershell
+npm run export:breed-reference-seed
+```
+
+This creates:
+
+- `server/db/breed_reference_seed.json`
+- `server/db/breed_reference_import.csv`
+- `server/db/breed_reference_seed.sql`
+
+For Supabase manual setup:
+
+1. Run the migration SQL files in Supabase SQL Editor.
+2. Open `server/db/breed_reference_seed.sql`.
+3. Paste it into Supabase SQL Editor and run it.
+
+If you prefer CSV import instead:
+
+1. Open `Table Editor` in Supabase.
+2. Open `public.breed_reference`.
+3. Use `Import data` and upload `server/db/breed_reference_import.csv`.
+4. Confirm headers are enabled and import the rows.
+
+---
+## âœ… Step 4: Verify Connection
 
 After setup completes, verify everything works:
 
@@ -115,7 +143,7 @@ After setup completes, verify everything works:
 
 ---
 
-## 🔐 Security Notes
+## ðŸ” Security Notes
 
 - **Never commit** `.env` file to Git
 - The database password in `DATABASE_URL` is sensitive
@@ -124,7 +152,7 @@ After setup completes, verify everything works:
 
 ---
 
-## 🐛 Troubleshooting
+## ðŸ› Troubleshooting
 
 ### "Database connection failed"
 - Check that `DATABASE_URL` includes your actual password
@@ -144,7 +172,7 @@ After setup completes, verify everything works:
 
 ---
 
-## 📚 Next Steps
+## ðŸ“š Next Steps
 
 After database setup is complete:
 1. Test frontend compilation
@@ -153,4 +181,6 @@ After database setup is complete:
 4. Prepare for deployment
 
 See `LOCAL_TESTING_GUIDE.md` for complete testing guide.
+
+
 

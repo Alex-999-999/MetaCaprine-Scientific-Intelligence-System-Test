@@ -1,4 +1,4 @@
--- ============================================================================
+﻿-- ============================================================================
 -- MVP Web - Complete Database Migration
 -- Single consolidated migration file for clean deployment
 -- Generated: February 4, 2026
@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS public.breed_reference (
   ecm_kg_lifetime NUMERIC NOT NULL, -- ECM lifetime (yr * lactations)
 
   -- Display helpers
-  approx_liters_note TEXT, -- "≈ 1183 L/año (1 kg ≈ 1 L)"
+  approx_liters_note TEXT, -- "â‰ˆ 1183 L/aÃ±o (1 kg â‰ˆ 1 L)"
   image_asset_key TEXT, -- key for breed image
 
   created_at TIMESTAMPTZ DEFAULT now(),
@@ -375,8 +375,8 @@ CREATE INDEX IF NOT EXISTS idx_results_scenario_id ON results(scenario_id);
 -- Plans table: Defines available subscription plans
 CREATE TABLE IF NOT EXISTS plans (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(100) UNIQUE NOT NULL, -- 'free', 'premium', 'enterprise'
-  display_name VARCHAR(255) NOT NULL, -- 'Free Plan', 'Premium Plan', etc.
+  name VARCHAR(100) UNIQUE NOT NULL, -- 'free', 'pro', 'enterprise'
+  display_name VARCHAR(255) NOT NULL, -- 'Free Plan', 'Pro Plan', etc.
   description TEXT,
   price_monthly DECIMAL(10, 2) DEFAULT 0.00,
   price_yearly DECIMAL(10, 2) DEFAULT 0.00,
@@ -426,7 +426,7 @@ CREATE TABLE IF NOT EXISTS plan_features (
 CREATE INDEX IF NOT EXISTS idx_plan_features_plan_id ON plan_features(plan_id);
 CREATE INDEX IF NOT EXISTS idx_plan_features_feature_key ON plan_features(feature_key);
 
--- Seed default plans (Free and Premium)
+-- Seed default plans (Free and Pro)
 INSERT INTO plans (name, display_name, description, price_monthly, price_yearly, features, is_active)
 VALUES 
   (
@@ -439,8 +439,8 @@ VALUES
     true
   ),
   (
-    'premium',
-    'Premium Plan',
+    'pro',
+    'Pro Plan',
     'Full access to all modules and advanced features',
     0.00, -- Will be set when payment gateway is integrated
     0.00,
@@ -458,12 +458,12 @@ INSERT INTO plan_features (plan_id, feature_key, feature_name, is_enabled)
 SELECT id, 'module4', 'Module 4: Cost Calculators', true FROM plans WHERE name = 'free'
 ON CONFLICT (plan_id, feature_key) DO NOTHING;
 
--- Seed plan features for Premium plan
+-- Seed plan features for Pro plan
 INSERT INTO plan_features (plan_id, feature_key, feature_name, is_enabled)
 SELECT id, unnest(ARRAY['module1', 'module2', 'module3', 'module4', 'module5', 'advanced_calculations', 'export_data']), 
        unnest(ARRAY['Module 1: Production & Direct Sales', 'Module 2: Dairy Transformation', 'Module 3: Scientific Breed Intelligence', 'Module 4: Cost Calculators', 'Module 5: Reproductive Management', 'Advanced Calculations', 'Data Export']),
        true
-FROM plans WHERE name = 'premium'
+FROM plans WHERE name = 'pro'
 ON CONFLICT (plan_id, feature_key) DO NOTHING;
 
 -- Set default plan for existing users (Free plan)
@@ -507,7 +507,9 @@ END $$;
 -- MIGRATION COMPLETE
 -- ============================================================================
 -- Next Steps:
--- 1. Run: node server/scripts/seed-breed-reference.js (to populate breed data)
+-- 1. Run: node setup.js (direct DB seed) or node server/scripts/export-breed-reference-seed.js (generate Supabase import files)
 -- 2. Verify all tables were created successfully
 -- 3. Test application functionality
 -- ============================================================================
+
+

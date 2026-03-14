@@ -2889,3 +2889,104 @@ Object.assign(translations.pt, {
   defaultUserInitial: 'U'
 });
 // STEP14_BILLING_PROFILE_I18N_END
+// STEP15_MODULE3_I18N_HARDENING_START
+Object.assign(translations.en, {
+  module3ValidationGeneric: 'Some values are not valid. Please review them and try again.',
+  module3ValidationMilk: 'Yearly milk production is too high. Use a value up to 10,000 kg, or leave it empty to use the breed default.',
+  module3ValidationFat: 'Fat percentage must be between 0 and 20.',
+  module3ValidationProtein: 'Protein percentage must be between 0 and 20.',
+  module3ValidationLactDays: 'Lactation days must be between 100 and 400.',
+  module3ValidationLactations: 'Lifetime lactations must be between 1 and 10.',
+  module3ValidationHerd: 'Herd size must be between 1 and 100,000.',
+  module3ValidationRangeFallback: 'A value is out of range. Review it, or leave it empty to use the recommended value.',
+  module3ValidationIntro: 'Calculation could not be completed because some values are out of range:',
+  module3RangeHerd: '1 to 100,000',
+  module3RangeMilk: '0 to 10,000 kg',
+  module3RangeFat: '0 to 20%',
+  module3RangeProtein: '0 to 20%',
+  module3RangeLactDays: '100 to 400 days',
+  module3RangeLactations: '1 to 10',
+  module3RangeGuideTitle: 'Allowed ranges for editable values',
+  module3RangeGuideHint: 'If you do not want to change a parameter, leave that field empty and the system will use the recommended breed value.'
+});
+
+Object.assign(translations.es, {
+  module3ValidationGeneric: 'Algunos valores no son validos. Revisa e intenta de nuevo.',
+  module3ValidationMilk: 'La produccion anual de leche es demasiado alta. Usa un valor menor o igual a 10.000 kg, o deja el campo vacio para usar el valor de la raza.',
+  module3ValidationFat: 'El porcentaje de grasa debe estar entre 0 y 20.',
+  module3ValidationProtein: 'El porcentaje de proteina debe estar entre 0 y 20.',
+  module3ValidationLactDays: 'Los dias de lactancia deben estar entre 100 y 400.',
+  module3ValidationLactations: 'Las lactancias de vida productiva deben estar entre 1 y 10.',
+  module3ValidationHerd: 'El tamano del rebano debe estar entre 1 y 100.000.',
+  module3ValidationRangeFallback: 'Hay un valor fuera de rango. Revisalo o deja el campo vacio para usar el valor recomendado.',
+  module3ValidationIntro: 'No se pudo calcular porque hay datos fuera de rango:',
+  module3RangeHerd: '1 a 100.000',
+  module3RangeMilk: '0 a 10.000 kg',
+  module3RangeFat: '0 a 20%',
+  module3RangeProtein: '0 a 20%',
+  module3RangeLactDays: '100 a 400 dias',
+  module3RangeLactations: '1 a 10',
+  module3RangeGuideTitle: 'Rangos permitidos para los valores editables',
+  module3RangeGuideHint: 'Si no quieres cambiar un parametro, deja ese campo vacio y el sistema usara el valor recomendado de la raza.'
+});
+
+Object.assign(translations.fr, {
+  module3ValidationGeneric: 'Certaines valeurs ne sont pas valides. Verifiez puis reessayez.',
+  module3ValidationMilk: 'La production annuelle de lait est trop elevee. Utilisez une valeur inferieure ou egale a 10 000 kg, ou laissez le champ vide pour utiliser la valeur de la race.',
+  module3ValidationFat: 'Le pourcentage de matiere grasse doit etre compris entre 0 et 20.',
+  module3ValidationProtein: 'Le pourcentage de proteine doit etre compris entre 0 et 20.',
+  module3ValidationLactDays: 'Les jours de lactation doivent etre compris entre 100 et 400.',
+  module3ValidationLactations: 'Les lactations de vie productive doivent etre comprises entre 1 et 10.',
+  module3ValidationHerd: 'La taille du troupeau doit etre comprise entre 1 et 100 000.',
+  module3ValidationRangeFallback: 'Une valeur est hors plage. Verifiez-la, ou laissez le champ vide pour utiliser la valeur recommandee.',
+  module3ValidationIntro: 'Le calcul n a pas pu etre effectue car certaines valeurs sont hors plage :',
+  module3RangeHerd: '1 a 100 000',
+  module3RangeMilk: '0 a 10 000 kg',
+  module3RangeFat: '0 a 20 %',
+  module3RangeProtein: '0 a 20 %',
+  module3RangeLactDays: '100 a 400 jours',
+  module3RangeLactations: '1 a 10',
+  module3RangeGuideTitle: 'Plages autorisees pour les valeurs modifiables',
+  module3RangeGuideHint: 'Si vous ne souhaitez pas modifier un parametre, laissez le champ vide et le systeme utilisera la valeur recommandee de la race.'
+});
+
+Object.assign(translations.it, {
+  module3ValidationGeneric: 'Alcuni valori non sono validi. Controllali e riprova.',
+  module3ValidationMilk: 'La produzione annuale di latte e troppo alta. Usa un valore fino a 10.000 kg, oppure lascia il campo vuoto per usare il valore della razza.',
+  module3ValidationFat: 'La percentuale di grasso deve essere tra 0 e 20.',
+  module3ValidationProtein: 'La percentuale di proteine deve essere tra 0 e 20.',
+  module3ValidationLactDays: 'I giorni di lattazione devono essere tra 100 e 400.',
+  module3ValidationLactations: 'Le lattazioni della vita produttiva devono essere tra 1 e 10.',
+  module3ValidationHerd: 'La dimensione del gregge deve essere tra 1 e 100.000.',
+  module3ValidationRangeFallback: 'Un valore e fuori intervallo. Controllalo, oppure lascia il campo vuoto per usare il valore consigliato.',
+  module3ValidationIntro: 'Calcolo non completato perche alcuni valori sono fuori intervallo:',
+  module3RangeHerd: '1 a 100.000',
+  module3RangeMilk: '0 a 10.000 kg',
+  module3RangeFat: '0 a 20%',
+  module3RangeProtein: '0 a 20%',
+  module3RangeLactDays: '100 a 400 giorni',
+  module3RangeLactations: '1 a 10',
+  module3RangeGuideTitle: 'Intervalli consentiti per i valori modificabili',
+  module3RangeGuideHint: 'Se non vuoi modificare un parametro, lascia il campo vuoto e il sistema usera il valore consigliato della razza.'
+});
+
+Object.assign(translations.pt, {
+  module3ValidationGeneric: 'Alguns valores nao sao validos. Revise e tente novamente.',
+  module3ValidationMilk: 'A producao anual de leite esta muito alta. Use um valor ate 10.000 kg, ou deixe o campo vazio para usar o valor da raca.',
+  module3ValidationFat: 'O percentual de gordura deve estar entre 0 e 20.',
+  module3ValidationProtein: 'O percentual de proteina deve estar entre 0 e 20.',
+  module3ValidationLactDays: 'Os dias de lactacao devem estar entre 100 e 400.',
+  module3ValidationLactations: 'As lactacoes de vida produtiva devem estar entre 1 e 10.',
+  module3ValidationHerd: 'O tamanho do rebanho deve estar entre 1 e 100.000.',
+  module3ValidationRangeFallback: 'Existe um valor fora do intervalo. Revise-o, ou deixe o campo vazio para usar o valor recomendado.',
+  module3ValidationIntro: 'O calculo nao foi concluido porque alguns valores estao fora do intervalo:',
+  module3RangeHerd: '1 a 100.000',
+  module3RangeMilk: '0 a 10.000 kg',
+  module3RangeFat: '0 a 20%',
+  module3RangeProtein: '0 a 20%',
+  module3RangeLactDays: '100 a 400 dias',
+  module3RangeLactations: '1 a 10',
+  module3RangeGuideTitle: 'Faixas permitidas para os valores editaveis',
+  module3RangeGuideHint: 'Se nao quiser alterar um parametro, deixe o campo vazio e o sistema usara o valor recomendado da raca.'
+});
+// STEP15_MODULE3_I18N_HARDENING_END

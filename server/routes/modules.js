@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import { getPool } from '../db/pool.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { requireRole } from '../middleware/requireRole.js';
@@ -59,6 +59,23 @@ router.post('/production/:scenarioId', async (req, res) => {
 
     // Free/basic users can keep using Module 1 but advanced cost fields stay locked.
     const hasAdvancedAccess = await hasFeatureAccess(req.user.userId, 'advanced_calculations');
+
+    const wantsAdvancedInputs = [labor_cost_per_liter, infrastructure_cost_per_liter, other_costs_per_liter]
+      .some((value) => {
+        if (value === null || value === undefined || value === '') return false;
+        const parsed = Number.parseFloat(value);
+        return Number.isFinite(parsed) && parsed !== 0;
+      });
+
+    if (!hasAdvancedAccess && wantsAdvancedInputs) {
+      return res.status(403).json({
+        error: 'Feature access required',
+        message: 'Estas utilizando el analisis basico de produccion. Los calculos completos de rentabilidad que incluyen variables adicionales forman parte del analisis avanzado de MetaCaprine Intelligence. Pasate a PRO y toma el control total de tu negocio.',
+        feature: 'advanced_calculations',
+        upgrade_required: true,
+      });
+    }
+
     const laborCostInput = hasAdvancedAccess ? labor_cost_per_liter : 0;
     const infrastructureCostInput = hasAdvancedAccess ? infrastructure_cost_per_liter : 0;
     const otherCostsInput = hasAdvancedAccess ? other_costs_per_liter : 0;
@@ -554,3 +571,4 @@ async function calculateAndSaveResults(pool, scenarioId) {
 }
 
 export default router;
+

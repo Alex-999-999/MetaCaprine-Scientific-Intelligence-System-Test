@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment } from 'react';
+﻿import { useState, useEffect, Fragment } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, ComposedChart, Area } from 'recharts';
 import api from '../../utils/api';
@@ -688,7 +688,7 @@ function Module2Transformation({ user }) {
     },
   ].filter(item => !isNaN(item[t('income')]) && !isNaN(item[t('totalCosts')]) && !isNaN(item[t('margin')])) : [];
 
-  const isProUser = ['pro', 'admin'].includes(user?.role);
+  const isProUser = ['pro', 'pro_user', 'premium', 'admin'].includes(user?.role);
   const hasModule2Access = isProUser || (user?.features || []).includes('module2');
   const hasProductionBaseline =
     (Number(productionData.daily_production_liters) || 0) > 0 &&
@@ -752,7 +752,7 @@ function Module2Transformation({ user }) {
           boxShadow: '0 2px 8px var(--shadow-color)'
         }}>
           <p style={{ margin: 0, fontSize: '15px', lineHeight: '1.6', color: 'var(--text-primary)' }}>
-            ℹ️ {t('module2Explanation')}
+            â„¹ï¸ {t('module2Explanation')}
           </p>
         </div>
       </header>
@@ -1141,7 +1141,7 @@ function Module2Transformation({ user }) {
                       fontSize: '0.85em',
                       color: 'var(--accent-info)'
                     }}>
-                      <strong>ℹ️ {t('note')}:</strong> {product.processing_cost_unit === 'liter'
+                      <strong>â„¹ï¸ {t('note')}:</strong> {product.processing_cost_unit === 'liter'
                         ? t('processingCostHelpLiter')
                         : t('processingCostHelpKg')}
                     </div>
@@ -1218,7 +1218,7 @@ function Module2Transformation({ user }) {
                       fontSize: '0.85em',
                       color: 'var(--accent-success)'
                     }}>
-                      <strong>ℹ️ {t('note')}:</strong> {product.packaging_cost_unit === 'liter'
+                      <strong>â„¹ï¸ {t('note')}:</strong> {product.packaging_cost_unit === 'liter'
                         ? t('packagingCostHelpLiter')
                         : t('packagingCostHelpKg')}
                     </div>
@@ -1230,7 +1230,7 @@ function Module2Transformation({ user }) {
                   {t('salesChannels')}
                 </h4>
                 <div style={{ marginBottom: '15px', padding: '10px', background: 'rgba(234, 179, 8, 0.1)', borderRadius: '6px', border: '1px solid var(--accent-warning)', fontSize: '0.9em' }}>
-                  <strong>📌 {t('note')}:</strong> {t('salesChannelsNote')}
+                  <strong>ðŸ“Œ {t('note')}:</strong> {t('salesChannelsNote')}
                 </div>
                 {(() => {
                   const totalChannelPct = parseFloat(product.sales_channel_direct_percentage || 0) +
@@ -1345,7 +1345,7 @@ function Module2Transformation({ user }) {
               {selectedScenario?.results && (
                 <div className="card" style={{ background: 'rgba(22, 163, 74, 0.1)', border: '1px solid var(--accent-success)', marginBottom: '20px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--accent-success)' }}>
-                    <span style={{ fontSize: '1.2em' }}>✓</span>
+                    <span style={{ fontSize: '1.2em' }}>âœ“</span>
                     <strong>{t('autoLoadedResults')}</strong>
                   </div>
                 </div>
@@ -1699,7 +1699,7 @@ function Module2Transformation({ user }) {
                   return (
                     <>
                       <div style={{ marginBottom: '15px', padding: '12px', background: 'rgba(37, 99, 235, 0.1)', borderRadius: '6px', border: '1px solid var(--accent-info)', fontSize: '0.9em' }}>
-                        <strong>✅ {t('note')}:</strong> {t('module2ProductTableNote')}
+                        <strong>âœ… {t('note')}:</strong> {t('module2ProductTableNote')}
                       </div>
                       <div className="table-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                         <table className="table numeric-table" style={{ minWidth: '800px' }}>
@@ -1746,7 +1746,7 @@ function Module2Transformation({ user }) {
                                             padding: '0 5px'
                                           }}
                                         >
-                                          {isExpanded ? '▼' : '▶'}
+                                          {isExpanded ? 'â–¼' : 'â–¶'}
                                         </button>
                                       )}
                                     </td>
@@ -1817,7 +1817,7 @@ function Module2Transformation({ user }) {
                                     }}>
                                       <td></td>
                                       <td style={{ paddingLeft: '30px', color: 'var(--text-secondary)' }}>
-                                        <small>📊 {t('weightedAverageMix')}</small>
+                                        <small>ðŸ“Š {t('weightedAverageMix')}</small>
                                       </td>
                                       <td>-</td>
                                       <td><small>{channel.kg.toLocaleString(undefined, { maximumFractionDigits: 2 })}</small></td>
@@ -1862,7 +1862,7 @@ function Module2Transformation({ user }) {
                 <h2>{t('comparison')}</h2>
                 <div style={{ marginBottom: '20px', padding: '15px', background: 'var(--bg-tertiary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                   <p style={{ margin: '0 0 10px 0', fontSize: '0.95em', fontWeight: 'bold', color: 'var(--accent-warning)' }}>
-                    📊 {t('note')}: {t('whatAreWeComparing')}
+                    ðŸ“Š {t('note')}: {t('whatAreWeComparing')}
                   </p>
                   <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9em', color: 'var(--text-secondary)' }}>
                     <li><strong>{t('rawMilkSaleModule1')}</strong> {t('directSaleExplanation')}</li>
@@ -1896,7 +1896,7 @@ function Module2Transformation({ user }) {
                         <td><strong>{t('difference')}</strong></td>
                         <td colSpan="2">
                           {formatMoney(Math.abs(results.transformation_margin - results.milk_margin))}
-                          {' '}({['transform', 'transformation', 'transformación'].includes(results.better_option) ? t('betterTransform') : t('betterSellDirect')})
+                          {' '}({['transform', 'transformation', 'transformaciÃ³n'].includes(results.better_option) ? t('betterTransform') : t('betterSellDirect')})
                         </td>
                       </tr>
                     </tbody>
@@ -1909,7 +1909,7 @@ function Module2Transformation({ user }) {
                 <div className="chart-header">
                   <div>
                     <h2 className="chart-title">
-                      <span className="chart-title-icon">📈</span>
+                      <span className="chart-title-icon">ðŸ“ˆ</span>
                       {t('visualization')}
                     </h2>
                     <p className="chart-subtitle">{t('module2CompareSubtitle')}</p>
@@ -2177,7 +2177,7 @@ function Module2Transformation({ user }) {
                     </>
                   ) : (
                     <div className="chart-empty">
-                      <div className="chart-empty-icon">📊</div>
+                      <div className="chart-empty-icon">ðŸ“Š</div>
                       <p className="chart-empty-text">{t('noDataToShow')}</p>
                     </div>
                   )}
@@ -2190,7 +2190,7 @@ function Module2Transformation({ user }) {
                   <div className="chart-header">
                     <div>
                       <h2 className="chart-title">
-                        <span className="chart-title-icon">🎯</span>
+                        <span className="chart-title-icon">ðŸŽ¯</span>
                         {t('integratedDashboard')}
                       </h2>
                       <p className="chart-subtitle">{t('dashboardDescription')}</p>
@@ -2377,4 +2377,5 @@ function Module2Transformation({ user }) {
 }
 
 export default Module2Transformation;
+
 

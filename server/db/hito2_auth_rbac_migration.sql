@@ -1,4 +1,4 @@
--- ============================================================================
+﻿-- ============================================================================
 -- Hito 2 - Auth, Profile, RBAC, and Legal Foundations
 -- Run this after complete_migration.sql
 -- ============================================================================
@@ -107,7 +107,7 @@ INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id
 FROM roles r
 JOIN permissions p ON p.permission_key IN ('view_module1', 'view_module2', 'view_module3', 'view_module5', 'view_advanced_analysis', 'manage_account')
-WHERE r.name = 'pro'
+WHERE r.name IN ('pro', 'pro_user')
 ON CONFLICT (role_id, permission_id) DO NOTHING;
 
 INSERT INTO role_permissions (role_id, permission_id)
@@ -135,3 +135,4 @@ AND NOT EXISTS (
   WHERE ur.user_id = u.id
 )
 ON CONFLICT (user_id) DO NOTHING;
+

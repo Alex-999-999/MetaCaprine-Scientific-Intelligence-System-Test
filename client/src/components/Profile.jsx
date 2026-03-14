@@ -32,7 +32,7 @@ function Profile({ user, onUserUpdate }) {
   const [success, setSuccess] = useState('');
   const [billingNotice, setBillingNotice] = useState('');
 
-  const hasProAccess = ['pro', 'admin'].includes(user?.role) || (user?.features || []).includes('module2');
+  const hasProAccess = ['pro', 'pro_user', 'premium', 'admin'].includes(user?.role) || (user?.features || []).includes('module2');
   const canManageBilling = hasProAccess || billingStatus.has_paid_access;
 
   const getBillingErrorMessage = (billingError) => {
@@ -444,3 +444,4 @@ function Profile({ user, onUserUpdate }) {
 }
 
 export default Profile;
+

@@ -321,7 +321,7 @@ function Module1Production({ user }) {
     { name: t('other'), value: Number(formData.other_costs_per_liter) || 0 },
   ].filter(item => !isNaN(item.value)) : [];
 
-  const isProUser = ['pro', 'admin'].includes(user?.role);
+  const isProUser = ['pro', 'pro_user', 'premium', 'admin'].includes(user?.role);
   const hasAdvancedAnalysis = isProUser || (user?.features || []).includes('advanced_calculations');
   const infoIcon = '\u2139';
   const lockIcon = '\u{1F512}';
@@ -994,3 +994,4 @@ function Module1Production({ user }) {
 }
 
 export default Module1Production;
+

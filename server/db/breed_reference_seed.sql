@@ -1,0 +1,33 @@
+TRUNCATE TABLE public.breed_reference CASCADE;
+
+INSERT INTO public.breed_reference (
+  breed_name, breed_key, country_or_system, source_tags, notes, milk_kg_yr, fat_pct, protein_pct, lact_days_avg, lactations_lifetime_avg, fat_kg_yr, protein_kg_yr, fat_plus_protein_pct, fat_plus_protein_kg_yr, ecm_kg_yr, ecm_kg_lifetime, approx_liters_note, image_asset_key
+) VALUES
+  ('Dutch', 'dutch', 'CRV/NRS/ZuivelNL/WUR', ARRAY['CRV', 'NRS', 'ZuivelNL', 'WUR']::text[], 'CRV/NRS/ZuivelNL/WUR', 1150, 4.3, 3.65, 330, 5, 49.5, 42, 7.95, 91.5, 1406.8, 7034, '~ 1117 L/year', 'dutch'),
+  ('Saanen Americana', 'saanen_americana', 'ADGA/DHI/USDA', ARRAY['ADGA', 'DHI', 'USDA']::text[], 'ADGA/DHI/USDA', 1290, 3.42, 3.02, 305, 5, 44.1, 38.9, 6.44, 83, 1403.7, 7018.5, '~ 1252 L/year', 'saanen_americana'),
+  ('Alpina Americana', 'alpina_americana', 'ADGA/DHI/USDA', ARRAY['ADGA', 'DHI', 'USDA']::text[], 'ADGA/DHI/USDA', 1150, 3.55, 2.89, 305, 5, 40.8, 33.2, 6.44, 74, 1304.9, 6524.5, '~ 1117 L/year', 'alpina_americana'),
+  ('Alpina Francesa', 'alpina_francesa', 'INRAE', ARRAY['INRAE']::text[], 'INRAE', 1027, 3.78, 3.38, 337, 5, 38.8, 34.7, 7.16, 73.5, 1207.7, 6038.5, '~ 997 L/year', 'alpina_francesa'),
+  ('Saanen Francesa', 'saanen_francesa', 'INRAE', ARRAY['INRAE']::text[], 'INRAE', 1027, 3.78, 3.38, 337, 5, 38.8, 34.7, 7.16, 73.5, 1207.7, 6038.5, '~ 997 L/year', 'saanen_francesa'),
+  ('LaMancha', 'lamancha', 'ADGA/DHI/USDA', ARRAY['ADGA', 'DHI', 'USDA']::text[], 'ADGA/DHI/USDA', 1010, 3.95, 2.99, 305, 5, 39.9, 30.2, 6.94, 70.1, 1155.7, 5778.5, '~ 981 L/year', 'lamancha'),
+  ('Alpina Británica', 'alpina_britanica', 'BGS', ARRAY['BGS']::text[], 'BGS', 900, 3.7, 3.1, 280, 5, 33.3, 27.9, 6.8, 61.2, 1049.2, 5246, '~ 874 L/year', 'alpina_britanica'),
+  ('Alpina (genérica)', 'alpina_generica', 'ICAR / FAO-DAD-IS /AEA', ARRAY['ICAR', 'FAO-DAD-IS', 'AEA']::text[], 'ICAR / FAO-DAD-IS /AEA', 900, 3.6, 3.1, 270, 5, 32.4, 27.9, 6.7, 60.3, 1040.7, 5203.5, '~ 874 L/year', 'alpina_generica'),
+  ('Saanen (genérica)', 'saanen_generica', 'ICAR / FAO-DAD-IS /AEA', ARRAY['ICAR', 'FAO-DAD-IS', 'AEA']::text[], 'ICAR / FAO-DAD-IS /AEA', 900, 3.3, 3, 280, 5, 29.7, 27, 6.3, 56.7, 1002.6, 5013, '~ 874 L/year', 'saanen_generica'),
+  ('Toggenburg Americana', 'toggenburg_americana', 'ADGA/DHI/USDA', ARRAY['ADGA', 'DHI', 'USDA']::text[], 'ADGA/DHI/USDA', 870, 3.29, 2.85, 305, 5, 28.6, 24.8, 6.14, 53.4, 947.3, 4736.5, '~ 845 L/year', 'toggenburg_americana'),
+  ('Sable', 'sable', 'ADGA/DHI/USDA', ARRAY['ADGA', 'DHI', 'USDA']::text[], 'ADGA/DHI/USDA', 675, 4.53, 3.33, 305, 5, 30.6, 22.5, 7.86, 53.1, 840, 4200, '~ 655 L/year', 'sable'),
+  ('Florida', 'florida', 'ACRIFLOR', ARRAY['ACRIFLOR']::text[], 'ACRIFLOR', 600, 5, 3.7, 230, 5.5, 30, 22.2, 8.7, 52.2, 726.6, 3996.3, '~ 583 L/year', 'florida'),
+  ('Poitevine', 'poitevine', 'INRAE/FGÉ/Capgenes', ARRAY['INRAE', 'FGÉ', 'Capgenes']::text[], 'INRAE/FGÉ/Capgenes', 700, 3.8, 3.3, 270, 5, 26.6, 23.1, 7.1, 49.7, 781.3, 3906.5, '~ 680 L/year', 'poitevine'),
+  ('Murciano-Granadina', 'murciano_granadina', 'CAPRIGRAN / ACRIMUR / UC', ARRAY['CAPRIGRAN', 'ACRIMUR', 'UC']::text[], 'CAPRIGRAN / ACRIMUR / UC', 584, 5.3, 3.6, 287, 5.5, 31, 21, 8.9, 52, 708.1, 3894.6, '~ 567 L/year', 'murciano_granadina'),
+  ('Malagueña', 'malaguena', 'CABRAMA', ARRAY['CABRAMA']::text[], 'CABRAMA', 550, 5.35, 3.96, 230, 5.5, 29.4, 21.8, 9.31, 51.2, 692.4, 3808.2, '~ 534 L/year', 'malaguena'),
+  ('Oberhasli', 'oberhasli', 'ADGA/DHI/USDA', ARRAY['ADGA', 'DHI', 'USDA']::text[], 'ADGA/DHI/USDA', 665, 3.93, 3.29, 305, 5, 26.1, 21.9, 7.22, 48, 756.3, 3781.5, '~ 646 L/year', 'oberhasli'),
+  ('Nubian', 'nubian', 'ADGA/DHI/USDA', ARRAY['ADGA', 'DHI', 'USDA']::text[], 'ADGA/DHI/USDA', 625, 4.57, 3.52, 305, 4.5, 28.6, 22, 8.09, 50.6, 768, 3456, '~ 607 L/year', 'nubian'),
+  ('Majorera', 'majorera', 'ACRIM', ARRAY['ACRIM']::text[], 'ACRIM', 500, 4.8, 3.6, 220, 5.5, 24, 18, 8.4, 42, 604.4, 3324.2, '~ 485 L/year', 'majorera'),
+  ('Serrana', 'serrana', 'PAMG / MAPA', ARRAY['PAMG', 'MAPA']::text[], 'PAMG / MAPA', 400, 5, 3.7, 220, 6, 20, 14.8, 8.7, 34.8, 484, 2904, '~ 388 L/year', 'serrana'),
+  ('Nigerian Dwarf', 'nigerian_dwarf', 'ADGA/DHI/USDA', ARRAY['ADGA', 'DHI', 'USDA']::text[], 'ADGA/DHI/USDA', 255, 4.7, 2.51, 285, 5.5, 12, 6.4, 7.21, 18.4, 292.3, 1607.7, '~ 248 L/year', 'nigerian_dwarf'),
+  ('Mestiza (genérica)', 'mestiza_generica', 'ICAR / FAO-DAD-IS / D LATAM', ARRAY['ICAR', 'FAO-DAD-IS', 'D LATAM']::text[], 'ICAR / FAO-DAD-IS / D LATAM', 200, 4.5, 3.5, 160, 6, 9, 7, 8, 16, 241.3, 1447.8, '~ 194 L/year', 'mestiza_generica'),
+  ('Criolla argentina', 'criolla_argentina', 'INTA', ARRAY['INTA']::text[], 'INTA', 120, 4.5, 3.5, 150, 6.5, 5.4, 4.2, 8, 9.6, 138.4, 899.6, '~ 117 L/year', 'criolla_argentina'),
+  ('Criolla mexicana', 'criolla_mexicana', 'INIFAP', ARRAY['INIFAP']::text[], 'INIFAP', 110, 4.8, 3.5, 140, 6.5, 5.3, 3.9, 8.3, 9.2, 130, 845, '~ 107 L/year', 'criolla_mexicana'),
+  ('Criolla (genérica)', 'criolla_generica', 'INIA/INTA', ARRAY['INIA', 'INTA']::text[], 'INIA/INTA', 100, 5, 3.8, 140, 6.5, 5, 3.8, 8.8, 8.8, 121.1, 787.2, '~ 97 L/year', 'criolla_generica'),
+  ('Criolla colombiana', 'criolla_colombiana', 'AGROSAVIA', ARRAY['AGROSAVIA']::text[], 'AGROSAVIA', 100, 5, 3.7, 140, 6.5, 5, 3.7, 8.7, 8.7, 120.3, 781.9, '~ 97 L/year', 'criolla_colombiana'),
+  ('Criolla venezolana', 'criolla_venezolana', 'INIA/UCV', ARRAY['INIA', 'UCV']::text[], 'INIA/UCV', 90, 5.4, 3.8, 140, 6.5, 4.9, 3.4, 9.2, 8.3, 113.7, 739.1, '~ 87 L/year', 'criolla_venezolana'),
+  ('Criolla peruana', 'criolla_peruana', 'INIA Perú', ARRAY['INIA Perú']::text[], 'INIA Perú', 80, 5.8, 4, 130, 6.5, 4.6, 3.2, 9.8, 7.8, 104.9, 682, '~ 78 L/year', 'criolla_peruana')
+;
