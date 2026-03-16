@@ -23,7 +23,7 @@ ON CONFLICT (role_id, permission_id) DO NOTHING;
 WITH target_user AS (
   SELECT id
   FROM users
-  WHERE LOWER(email) = LOWER('ghostlady0613@gmail.com')
+  WHERE LOWER(email) = LOWER('Your Email')
   LIMIT 1
 ),
 target_role AS (
@@ -44,7 +44,7 @@ ON CONFLICT (user_id) DO UPDATE SET
 WITH target_user AS (
   SELECT id
   FROM users
-  WHERE LOWER(email) = LOWER('ghostlady0613@gmail.com')
+  WHERE LOWER(email) = LOWER('Your Email')
   LIMIT 1
 ),
 target_plan AS (

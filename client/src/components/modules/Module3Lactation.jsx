@@ -120,26 +120,16 @@ function Module3Lactation({ user }) {
     return clean;
   };
 
-  const toFriendlyValidationMessage = (details = []) => {
-    if (!Array.isArray(details) || details.length === 0) {
-      return t('module3ValidationGeneric');
-    }
-
-    const mapped = details.map((detail) => {
-      const text = String(detail || '').toLowerCase();
-
-      if (text.includes('milk_kg_yr')) return t('module3ValidationMilk');
-      if (text.includes('fat_pct')) return t('module3ValidationFat');
-      if (text.includes('protein_pct')) return t('module3ValidationProtein');
-      if (text.includes('lact_days_avg')) return t('module3ValidationLactDays');
-      if (text.includes('lactations_lifetime_avg')) return t('module3ValidationLactations');
-      if (text.includes('herd_size')) return t('module3ValidationHerd');
-
-      return t('module3ValidationRangeFallback');
-    });
-
-    const uniqueMessages = [...new Set(mapped)];
-    return `${t('module3ValidationIntro')} ${uniqueMessages.join(' ')}`;
+  
+  const isUpgradeWarningError = (error) => {
+    const backendError = String(error?.response?.data?.error || '').toLowerCase();
+    const backendMessage = String(error?.response?.data?.message || '').toLowerCase();
+    return (
+      error?.response?.data?.upgrade_required === true ||
+      backendError.includes('feature access required') ||
+      backendMessage.includes('desbloquea el nivel pro') ||
+      backendMessage.includes('unlock pro')
+    );
   };
 
   const loadBreeds = async () => {
@@ -242,7 +232,7 @@ function Module3Lactation({ user }) {
       setAlertModal({
         isOpen: true,
         message: validationMessage || error.response?.data?.error || t('errorCalculating'),
-        type: 'error'
+        type: isUpgradeWarningError(error) ? 'info' : 'error'
       });
     } finally {
       setLoading(false);
@@ -281,7 +271,7 @@ function Module3Lactation({ user }) {
       setAlertModal({
         isOpen: true,
         message: validationMessage || error.response?.data?.error || t('errorRunningComparison'),
-        type: 'error'
+        type: isUpgradeWarningError(error) ? 'info' : 'error'
       });
     } finally {
       setLoading(false);
@@ -377,7 +367,7 @@ function Module3Lactation({ user }) {
           marginBottom: '16px'
         }}>
           <p style={{ margin: '0 0 12px 0', fontSize: '15px', lineHeight: '1.6', color: 'var(--accent-success)' }}>
-            ðŸ§¬ {t('module3Explanation')}
+            {t('module3Explanation')}
           </p>
           <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.6', color: 'var(--text-secondary)', fontStyle: 'italic', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
             <strong>{labelWithHelp('ECM', t('ecmDefinition'))}:</strong> {t('ecmDefinition')}
@@ -505,7 +495,6 @@ function Module3Lactation({ user }) {
                   type="number"
                   value={singleOverrides.milk_kg_yr}
                   onChange={(e) => handleOverrideChange('milk_kg_yr', e.target.value, 'single')}
-                  placeholder={t('leaveEmptyForDefault')}
                   step="0.1"
                 />
               </div>
@@ -515,7 +504,6 @@ function Module3Lactation({ user }) {
                   type="number"
                   value={singleOverrides.fat_pct}
                   onChange={(e) => handleOverrideChange('fat_pct', e.target.value, 'single')}
-                  placeholder={t('leaveEmptyForDefault')}
                   step="0.01"
                 />
               </div>
@@ -525,7 +513,6 @@ function Module3Lactation({ user }) {
                   type="number"
                   value={singleOverrides.protein_pct}
                   onChange={(e) => handleOverrideChange('protein_pct', e.target.value, 'single')}
-                  placeholder={t('leaveEmptyForDefault')}
                   step="0.01"
                 />
               </div>
@@ -535,7 +522,6 @@ function Module3Lactation({ user }) {
                   type="number"
                   value={singleOverrides.lact_days_avg}
                   onChange={(e) => handleOverrideChange('lact_days_avg', e.target.value, 'single')}
-                  placeholder={t('leaveEmptyForDefault')}
                   step="1"
                 />
               </div>
@@ -545,7 +531,6 @@ function Module3Lactation({ user }) {
                   type="number"
                   value={singleOverrides.lactations_lifetime_avg}
                   onChange={(e) => handleOverrideChange('lactations_lifetime_avg', e.target.value, 'single')}
-                  placeholder={t('leaveEmptyForDefault')}
                   step="0.1"
                 />
               </div>
@@ -599,7 +584,7 @@ function Module3Lactation({ user }) {
         {/* Compare A vs B View */}
         {viewMode === 'compare' && (
           <div className="card">
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1.5rem' }}>âš–ï¸ {t('compareTwoBreeds')}</h2>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1.5rem' }}> {t('compareTwoBreeds')}</h2>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '30px', marginBottom: '20px' }}>
               {/* Breed A */}
@@ -639,7 +624,6 @@ function Module3Lactation({ user }) {
                           type="number"
                           value={overridesA.milk_kg_yr}
                           onChange={(e) => handleOverrideChange('milk_kg_yr', e.target.value, 'A')}
-                          placeholder={t('leaveEmptyForDefault')}
                         />
                       </div>
                       <div className="form-group">
@@ -648,7 +632,6 @@ function Module3Lactation({ user }) {
                           type="number"
                           value={overridesA.fat_pct}
                           onChange={(e) => handleOverrideChange('fat_pct', e.target.value, 'A')}
-                          placeholder={t('leaveEmptyForDefault')}
                           step="0.01"
                         />
                       </div>
@@ -658,7 +641,6 @@ function Module3Lactation({ user }) {
                           type="number"
                           value={overridesA.protein_pct}
                           onChange={(e) => handleOverrideChange('protein_pct', e.target.value, 'A')}
-                          placeholder={t('leaveEmptyForDefault')}
                           step="0.01"
                         />
                       </div>
@@ -704,7 +686,6 @@ function Module3Lactation({ user }) {
                           type="number"
                           value={overridesB.milk_kg_yr}
                           onChange={(e) => handleOverrideChange('milk_kg_yr', e.target.value, 'B')}
-                          placeholder={t('leaveEmptyForDefault')}
                         />
                       </div>
                       <div className="form-group">
@@ -713,7 +694,6 @@ function Module3Lactation({ user }) {
                           type="number"
                           value={overridesB.fat_pct}
                           onChange={(e) => handleOverrideChange('fat_pct', e.target.value, 'B')}
-                          placeholder={t('leaveEmptyForDefault')}
                           step="0.01"
                         />
                       </div>
@@ -723,7 +703,6 @@ function Module3Lactation({ user }) {
                           type="number"
                           value={overridesB.protein_pct}
                           onChange={(e) => handleOverrideChange('protein_pct', e.target.value, 'B')}
-                          placeholder={t('leaveEmptyForDefault')}
                           step="0.01"
                         />
                       </div>
@@ -1758,5 +1737,7 @@ function Module3Lactation({ user }) {
 }
 
 export default Module3Lactation;
+
+
 
 
