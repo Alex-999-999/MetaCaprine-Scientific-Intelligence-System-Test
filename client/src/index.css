@@ -987,14 +987,14 @@ label {
 }
 
 .sidebar-nav-link.active {
-  background-color: #2d5016;
+  background: linear-gradient(90deg, #2d5016 0%, #2d5016 82%, #ffffff 100%);
   color: white;
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(45, 80, 22, 0.2);
 }
 
 .sidebar-nav-link.active:hover {
-  background-color: #1e3d0f;
+  background: linear-gradient(90deg, #1e3d0f 0%, #1e3d0f 82%, #ffffff 100%);
   color: white;
 }
 
@@ -2877,7 +2877,7 @@ label {
 }
 
 .dark-mode .sidebar-nav-link.active {
-  background-color: var(--accent-color);
+  background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-color) 82%, var(--sidebar-bg) 100%);
   color: white;
 }
 
