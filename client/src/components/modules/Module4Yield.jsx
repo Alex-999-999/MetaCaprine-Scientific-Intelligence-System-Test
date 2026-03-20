@@ -232,7 +232,7 @@ function Module4Yield({ user }) {
   ].filter(item => !isNaN(item.value)) : [];
 
   return (
-    <div className="container">
+    <div className="container module-compact">
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ marginTop: '20px' }}>{t('module4Title')}</h1>
       </header>

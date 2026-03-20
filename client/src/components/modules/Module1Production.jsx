@@ -345,18 +345,18 @@ function Module1Production({ user }) {
   );
 
   return (
-    <div className="container">
+    <div className="container module-compact module1-compact">
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ marginTop: '20px' }}>{t('module1Title')}</h1>
         <div style={{
           marginTop: '16px',
-          padding: '18px 24px',
+          padding: '14px 18px',
           background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
-          borderRadius: '12px',
+          borderRadius: '10px',
           borderLeft: '4px solid #2d5016',
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
         }}>
-          <p style={{ margin: 0, fontSize: '15px', lineHeight: '1.6', color: '#1565c0' }}>
+          <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.5', color: '#1565c0' }}>
             {t('module1Explanation')}
           </p>
         </div>
@@ -397,7 +397,7 @@ function Module1Production({ user }) {
                 <li>{t('module1FormulaGrossMargin')}</li>
               </ul>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '15px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
               <div className="form-group">
                 <label>{labelWithHelp(t('dailyProduction'), `${t('dailyProduction')} x ${t('animalsCount')} x ${t('productionDays')} = ${t('totalProduction')}`)}</label>
                 <input
@@ -458,7 +458,7 @@ function Module1Production({ user }) {
                 </button>
               </div>
             )}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '15px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
               <div className="form-group">
                 <label>{labelWithHelp(t('feedCost'), `${t('feedCost')} (${t('perLiter')})`)}</label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>

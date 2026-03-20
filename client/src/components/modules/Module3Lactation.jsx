@@ -355,7 +355,7 @@ function Module3Lactation({ user }) {
   );
 
   return (
-    <div className="container">
+    <div className="container module-compact">
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ marginTop: '20px' }}>{t('module3Title')}</h1>
         <div style={{

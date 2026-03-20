@@ -264,7 +264,7 @@ function Module5Gestation({ user }) {
   };
 
   return (
-    <div className="container">
+    <div className="container module-compact">
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ marginTop: '20px' }}>{t('module5Title')}</h1>
         <p style={{ color: '#666', fontSize: '0.95em', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>

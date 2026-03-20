@@ -741,7 +741,7 @@ function Module2Transformation({ user }) {
   }
 
   return (
-    <div className="container">
+    <div className="container module-compact">
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ marginTop: '20px' }}>{t('module2Title')}</h1>
         <div style={{

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
 
 * {
   margin: 0;
@@ -4379,3 +4379,100 @@ label {
 .avatar-dropdown-placeholder {
   border-radius: 50% !important;
 }
+
+/* Module 1 compact sizing */
+.module-compact {
+  font-size: 0.94rem;
+}
+
+.module-compact .card {
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.module-compact h1 {
+  font-size: clamp(1.6rem, 2.3vw, 2.2rem);
+}
+
+.module-compact h2 {
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+}
+
+.module-compact h3 {
+  font-size: 1rem;
+}
+
+.module-compact label {
+  font-size: 0.9rem;
+}
+
+.module-compact input,
+.module-compact select,
+.module-compact textarea {
+  font-size: 0.92rem;
+  padding: 10px 12px;
+}
+
+.module-compact .btn {
+  font-size: 0.85rem;
+  padding: 8px 12px;
+}
+
+.module-compact .form-group {
+  margin-bottom: 14px;
+}
+
+.module-compact .pedagogy-block,
+.module-compact .upgrade-info-block,
+.module-compact .results-insight-block {
+  padding: 12px 14px;
+}
+
+.module-compact .input-hint {
+  font-size: 0.74rem;
+}
+
+.module-compact .metrics-grid {
+  gap: 12px;
+}
+
+.module-compact .metric-card {
+  padding: 14px;
+}
+
+.module-compact .metric-label {
+  font-size: 0.78rem;
+}
+
+.module-compact .metric-value {
+  font-size: clamp(1rem, 2.2vw, 1.5rem);
+}
+
+.module-compact .chart-card {
+  padding: 18px;
+}
+
+.module-compact .chart-header {
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+}
+
+.module-compact .chart-title {
+  font-size: 1.05rem;
+}
+
+.module-compact .chart-subtitle {
+  font-size: 0.8rem;
+}
+
+.module-compact .chart-container {
+  padding: 14px;
+}
+
+.module-compact .table th,
+.module-compact .table td {
+  padding: 8px 10px;
+  font-size: 0.86rem;
+}
+
