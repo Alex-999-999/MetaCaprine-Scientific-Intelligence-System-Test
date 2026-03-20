@@ -741,7 +741,7 @@ function Module2Transformation({ user }) {
   }
 
   return (
-    <div className="container module-compact">
+    <div className="container module-compact module2-page">
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ marginTop: '20px' }}>{t('module2Title')}</h1>
         <div style={{
@@ -824,7 +824,7 @@ function Module2Transformation({ user }) {
                 <li>{t('module2PedagogyPracticalTip')}</li>
               </ul>
             </div>
-            <div className="module2-input-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
+            <div className="module2-input-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '15px' }}>
               <div className="form-group">
                 <label>{labelWithHelp(t('dailyProduction'), `${t('dailyProduction')} x ${t('productionDays')} x ${t('animalsCount')}`)}</label>
                 <input
@@ -941,7 +941,7 @@ function Module2Transformation({ user }) {
               {t('module2MilkCostInterpretationHint')}
             </p>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '30px', marginBottom: '15px' }}>
+            <div className="module2-section-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '30px', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
               <h3 style={{ margin: 0 }}>{t('productMix')}</h3>
               <button
                 type="button"
@@ -1079,8 +1079,8 @@ function Module2Transformation({ user }) {
                     <label style={{ marginBottom: '8px', display: 'block', fontWeight: '600' }}>
                       {t('processingCost')}
                     </label>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '8px' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '120px' }}>
+                    <div className="module2-unit-cost-row" style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '8px' }}>
+                      <div className="module2-unit-select-col" style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '120px' }}>
                         <label style={{ fontSize: '0.85em', color: 'var(--text-tertiary)', fontWeight: '500' }}>{t('unitLabel')}:</label>
                         <select
                           value={product.processing_cost_unit || 'liter'}
@@ -1156,8 +1156,8 @@ function Module2Transformation({ user }) {
                     <label style={{ marginBottom: '8px', display: 'block', fontWeight: '600' }}>
                       {t('packagingCost')}
                     </label>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '8px' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '120px' }}>
+                    <div className="module2-unit-cost-row" style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '8px' }}>
+                      <div className="module2-unit-select-col" style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '120px' }}>
                         <label style={{ fontSize: '0.85em', color: 'var(--text-tertiary)', fontWeight: '500' }}>{t('unitLabel')}:</label>
                         <select
                           value={product.packaging_cost_unit || 'kg'}
@@ -1256,7 +1256,7 @@ function Module2Transformation({ user }) {
                   );
                 })()}
 
-                <div style={{
+                <div className="module2-sales-channels-grid" style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
                   gap: '15px'
