@@ -397,7 +397,7 @@ function Module1Production({ user }) {
                 <li>{t('module1FormulaGrossMargin')}</li>
               </ul>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+            <div className="module1-input-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
               <div className="form-group">
                 <label>{labelWithHelp(t('dailyProduction'), `${t('dailyProduction')} x ${t('animalsCount')} x ${t('productionDays')} = ${t('totalProduction')}`)}</label>
                 <input
@@ -458,10 +458,10 @@ function Module1Production({ user }) {
                 </button>
               </div>
             )}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+            <div className="module1-input-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
               <div className="form-group">
                 <label>{labelWithHelp(t('feedCost'), `${t('feedCost')} (${t('perLiter')})`)}</label>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div className="input-with-action">
                   <input
                     type="number"
                     name="feed_cost_per_liter"
@@ -472,9 +472,8 @@ function Module1Production({ user }) {
                     style={{ flex: 1 }}
                   />
                   <button
-                    className="btn btn-secondary"
+                    className="btn btn-secondary estimate-cost-btn"
                     onClick={() => openCostCalculator('feed', 'feed_cost_per_liter')}
-                    style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
                   >
                     {t('estimateCost')}
@@ -484,7 +483,7 @@ function Module1Production({ user }) {
               </div>
               <div className={`form-group ${!hasAdvancedAnalysis ? 'locked-field-group' : ''}`}>
                 <label>{labelWithHelp(t('laborCost'), `${t('laborCost')} (${t('perLiter')})`, !hasAdvancedAnalysis)}</label>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div className="input-with-action">
                   <input
                     type="number"
                     name="labor_cost_per_liter"
@@ -497,9 +496,8 @@ function Module1Production({ user }) {
                     style={{ flex: 1 }}
                   />
                   <button
-                    className="btn btn-secondary"
+                    className="btn btn-secondary estimate-cost-btn"
                     onClick={() => openCostCalculator('labor', 'labor_cost_per_liter')}
-                    style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
                     disabled={!hasAdvancedAnalysis}
                   >
@@ -510,7 +508,7 @@ function Module1Production({ user }) {
               </div>
               <div className="form-group">
                 <label>{labelWithHelp(t('healthCost'), `${t('healthCost')} (${t('perLiter')})`)}</label>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div className="input-with-action">
                   <input
                     type="number"
                     name="health_cost_per_liter"
@@ -521,9 +519,8 @@ function Module1Production({ user }) {
                     style={{ flex: 1 }}
                   />
                   <button
-                    className="btn btn-secondary"
+                    className="btn btn-secondary estimate-cost-btn"
                     onClick={() => openCostCalculator('health', 'health_cost_per_liter')}
-                    style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
                   >
                     {t('estimateCost')}
@@ -533,7 +530,7 @@ function Module1Production({ user }) {
               </div>
               <div className={`form-group ${!hasAdvancedAnalysis ? 'locked-field-group' : ''}`}>
                 <label>{labelWithHelp(t('infrastructureCost'), `${t('infrastructureCost')} (${t('perLiter')})`, !hasAdvancedAnalysis)}</label>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div className="input-with-action">
                   <input
                     type="number"
                     name="infrastructure_cost_per_liter"
@@ -546,9 +543,8 @@ function Module1Production({ user }) {
                     style={{ flex: 1 }}
                   />
                   <button
-                    className="btn btn-secondary"
+                    className="btn btn-secondary estimate-cost-btn"
                     onClick={() => openCostCalculator('services', 'infrastructure_cost_per_liter')}
-                    style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
                     disabled={!hasAdvancedAnalysis}
                   >
@@ -559,7 +555,7 @@ function Module1Production({ user }) {
               </div>
               <div className={`form-group ${!hasAdvancedAnalysis ? 'locked-field-group' : ''}`}>
                 <label>{labelWithHelp(t('otherCosts'), `${t('otherCosts')} (${t('perLiter')})`, !hasAdvancedAnalysis)}</label>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div className="input-with-action">
                   <input
                     type="number"
                     name="other_costs_per_liter"
@@ -572,9 +568,8 @@ function Module1Production({ user }) {
                     style={{ flex: 1 }}
                   />
                   <button
-                    className="btn btn-secondary"
+                    className="btn btn-secondary estimate-cost-btn"
                     onClick={() => openCostCalculator('rearing', 'other_costs_per_liter')}
-                    style={{ padding: '8px 12px', fontSize: '0.85em', whiteSpace: 'nowrap' }}
                     title={t('estimateCost')}
                     disabled={!hasAdvancedAnalysis}
                   >
