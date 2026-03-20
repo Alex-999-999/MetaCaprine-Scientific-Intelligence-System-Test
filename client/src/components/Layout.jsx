@@ -318,23 +318,15 @@ function Header({ user, onLogout, showSidebar, setShowSidebar, showFooter, setSh
   return (
     <header className="site-header">
       <div className="header-content">
-        {!hasSidebar && (
-          <div className="header-left">
-            <LanguageSwitcher className="header-language-menu" />
+        <div className="header-left">
+          {!hasSidebar && (
             <Link to="/dashboard" className="logo-link">
               <div className="logo-container">
                 <img src={BRAND_ASSETS.logo} alt="MetaCaprine Logo" className="logo-image" />
               </div>
-              <h1 className="site-title">{t('appTitle')}</h1>
             </Link>
-          </div>
-        )}
-        {hasSidebar && (
-          <div className="header-left">
-            <LanguageSwitcher className="header-language-menu" />
-            <h1 className="site-title">{t('appTitle')}</h1>
-          </div>
-        )}
+          )}
+        </div>
         <nav className="header-nav">
           {isAuthenticated && !hasSidebar && (
             <>
@@ -345,6 +337,7 @@ function Header({ user, onLogout, showSidebar, setShowSidebar, showFooter, setSh
           )}
         </nav>
         <div className="header-right">
+          <LanguageSwitcher className="header-language-menu" />
           {isAuthenticated && (
             <>
               <Settings
