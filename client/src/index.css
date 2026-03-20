@@ -1884,23 +1884,28 @@ label {
 
 /* Search and Filters */
 .card-filters {
-  padding: 20px 24px;
-  margin-bottom: 24px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e8f0e0;
+  padding: 0;
+  margin-bottom: 16px;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
+
+.card.card-filters:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: transparent;
 }
 
 .filters-container {
   display: flex;
-  gap: 16px;
+  gap: 10px;
   align-items: center;
 }
 
 .search-box {
   flex: 2;
-  min-width: 300px;
+  min-width: 220px;
   position: relative;
   display: flex;
   align-items: center;
@@ -1908,18 +1913,18 @@ label {
 
 .search-icon {
   position: absolute;
-  left: 14px;
-  font-size: 18px;
+  left: 12px;
+  font-size: 16px;
   color: #718096;
   z-index: 1;
 }
 
 .search-input {
   width: 100%;
-  padding: 16px 18px 16px 48px;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 18px;
+  padding: 11px 14px 11px 40px;
+  border: 1px solid #d3dde9;
+  border-radius: 8px;
+  font-size: 15px;
   transition: all 0.2s;
   background-color: #f8f9fa;
 }
@@ -1937,18 +1942,18 @@ label {
 }
 
 .filter-select {
-  padding: 16px 20px;
-  padding-right: 48px;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 18px;
+  padding: 11px 14px;
+  padding-right: 38px;
+  border: 1px solid #d3dde9;
+  border-radius: 8px;
+  font-size: 15px;
   background-color: #f8f9fa;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='10' viewBox='0 0 14 10'%3E%3Cpath fill='%232d5016' d='M7 10L0 0h14z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%232d5016' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 16px center;
-  background-size: 14px;
+  background-position: right 12px center;
+  background-size: 12px;
   cursor: pointer;
-  min-width: 200px;
+  min-width: 170px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 500;
   color: #2d3748;
@@ -1972,10 +1977,10 @@ label {
 }
 
 .filter-select option {
-  padding: 12px 18px;
+  padding: 10px 14px;
   background-color: #fff;
   color: #2d3748;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 400;
   cursor: pointer;
   transition: all 0.2s;
@@ -2000,21 +2005,21 @@ label {
 /* Scenarios Grid */
 .scenarios-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .scenario-card {
   background: white;
-  border-radius: 16px;
-  padding: 24px;
+  border-radius: 12px;
+  padding: 16px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 2px solid #f0f4f8;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
   position: relative;
   overflow: hidden;
 }
@@ -2048,7 +2053,7 @@ label {
 .scenario-header {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
+  gap: 12px;
   position: relative;
 }
 
@@ -2172,13 +2177,13 @@ label {
 }
 
 .scenario-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: 22px;
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
@@ -2194,10 +2199,10 @@ label {
 }
 
 .scenario-name {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   color: #1a3d0f;
-  margin: 0 0 10px 0;
+  margin: 0 0 6px 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2206,19 +2211,19 @@ label {
 
 .scenario-badge {
   display: inline-block;
-  padding: 6px 14px;
+  padding: 4px 10px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
   text-transform: uppercase;
 }
 
 .scenario-meta {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-top: 16px;
+  gap: 6px;
+  padding-top: 10px;
   border-top: 2px solid #f0f4f8;
   margin-top: 4px;
 }
@@ -2230,13 +2235,16 @@ label {
 }
 
 .meta-label {
-  font-size: 16px;
+  font-size: 14px;
   color: #718096;
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .meta-value {
-  font-size: 17px;
+  font-size: 15px;
   color: #2d3748;
   font-weight: 600;
 }
@@ -3164,8 +3172,9 @@ label {
 
 /* Search and filters */
 .dark-mode .card-filters {
-  background: var(--card-bg);
-  border-color: var(--border-color);
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .dark-mode .search-input {
