@@ -205,4 +205,4 @@ SQL policies.md
 *.pid.lock
 .npm
 .eslintcache
-.stylelintcache
+.stylelintcache 

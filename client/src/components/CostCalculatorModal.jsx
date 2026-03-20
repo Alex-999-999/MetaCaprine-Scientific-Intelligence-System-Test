@@ -29,6 +29,8 @@ function CostCalculatorModal({
   const [feedData, setFeedData] = useState({
     concentrate_kg_per_day: '',
     concentrate_price_per_kg: '',
+    bag_price: '',
+    bag_weight_kg: '',
     forage_kg_per_day: '',
     forage_price_per_kg: '',
     supplement_kg_per_day: '',
@@ -38,11 +40,13 @@ function CostCalculatorModal({
   
   // Labor Calculator State
   const [laborData, setLaborData] = useState({
+    labor_mode: 'hourly',
     hours_per_day_per_worker: '',
     workers_count: '',
     wage_per_hour: '',
+    wage_per_day_per_worker: '',
     monthly_wage_per_worker: '',
-    use_monthly: false,
+    monthly_total_labor_cost: '',
   });
   
   // Health Calculator State
@@ -75,23 +79,31 @@ function CostCalculatorModal({
       calculateCost();
     }
   }, [isOpen, feedData, laborData, healthData, servicesData, rearingData, currentAnimals, currentDailyProduction]);
+
+  const parseNonNegativeNumber = (value) => {
+    const parsed = parseFloat(value);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return 0;
+    }
+    return parsed;
+  };
   
   const calculateCost = () => {
-    const animals = parseFloat(currentAnimals) || 1;
-    const dailyProd = parseFloat(currentDailyProduction) || 1;
+    const animals = parseNonNegativeNumber(currentAnimals) || 1;
+    const dailyProd = parseNonNegativeNumber(currentDailyProduction) || 1;
     const totalDailyProduction = dailyProd * animals;
     
     let costPerLiter = 0;
     
     switch (calculatorType) {
       case 'feed':
-        const concentrateKg = parseFloat(feedData.concentrate_kg_per_day) || 0;
-        const concentratePrice = parseFloat(feedData.concentrate_price_per_kg) || 0;
-        const forageKg = parseFloat(feedData.forage_kg_per_day) || 0;
-        const foragePrice = parseFloat(feedData.forage_price_per_kg) || 0;
-        const supplementKg = parseFloat(feedData.supplement_kg_per_day) || 0;
-        const supplementPrice = parseFloat(feedData.supplement_price_per_kg) || 0;
-        const mineralMonthly = parseFloat(feedData.mineral_monthly_cost) || 0;
+        const concentrateKg = parseNonNegativeNumber(feedData.concentrate_kg_per_day);
+        const concentratePrice = parseNonNegativeNumber(feedData.concentrate_price_per_kg);
+        const forageKg = parseNonNegativeNumber(feedData.forage_kg_per_day);
+        const foragePrice = parseNonNegativeNumber(feedData.forage_price_per_kg);
+        const supplementKg = parseNonNegativeNumber(feedData.supplement_kg_per_day);
+        const supplementPrice = parseNonNegativeNumber(feedData.supplement_price_per_kg);
+        const mineralMonthly = parseNonNegativeNumber(feedData.mineral_monthly_cost);
         
         const dailyFeedCost = (concentrateKg * concentratePrice) + (forageKg * foragePrice) + (supplementKg * supplementPrice);
         const dailyMineralCost = mineralMonthly / 30;
@@ -101,16 +113,20 @@ function CostCalculatorModal({
         break;
         
       case 'labor':
-        const useMonthly = laborData.use_monthly;
-        const workers = parseFloat(laborData.workers_count) || 0;
+        const workers = parseNonNegativeNumber(laborData.workers_count);
         let dailyLaborCost = 0;
-        
-        if (useMonthly) {
-          const monthlyWage = parseFloat(laborData.monthly_wage_per_worker) || 0;
-          dailyLaborCost = (monthlyWage * workers) / 30;
+
+        if (laborData.labor_mode === 'monthly') {
+          const monthlyTotal = parseNonNegativeNumber(laborData.monthly_total_labor_cost);
+          const monthlyWage = parseNonNegativeNumber(laborData.monthly_wage_per_worker);
+          const monthlyLaborCost = monthlyTotal > 0 ? monthlyTotal : (monthlyWage * workers);
+          dailyLaborCost = monthlyLaborCost / 30;
+        } else if (laborData.labor_mode === 'daily') {
+          const wagePerDay = parseNonNegativeNumber(laborData.wage_per_day_per_worker);
+          dailyLaborCost = wagePerDay * workers;
         } else {
-          const hoursPerDay = parseFloat(laborData.hours_per_day_per_worker) || 0;
-          const wagePerHour = parseFloat(laborData.wage_per_hour) || 0;
+          const hoursPerDay = parseNonNegativeNumber(laborData.hours_per_day_per_worker);
+          const wagePerHour = parseNonNegativeNumber(laborData.wage_per_hour);
           dailyLaborCost = hoursPerDay * wagePerHour * workers;
         }
         
@@ -118,10 +134,10 @@ function CostCalculatorModal({
         break;
         
       case 'health':
-        const annualHealthPerAnimal = parseFloat(healthData.annual_health_cost_per_animal) || 0;
-        const vaccineCost = parseFloat(healthData.vaccine_cost_annual) || 0;
-        const dewormingCost = parseFloat(healthData.deworming_cost_annual) || 0;
-        const vetVisits = parseFloat(healthData.vet_visits_annual) || 0;
+        const annualHealthPerAnimal = parseNonNegativeNumber(healthData.annual_health_cost_per_animal);
+        const vaccineCost = parseNonNegativeNumber(healthData.vaccine_cost_annual);
+        const dewormingCost = parseNonNegativeNumber(healthData.deworming_cost_annual);
+        const vetVisits = parseNonNegativeNumber(healthData.vet_visits_annual);
         
         const totalAnnualHealth = (annualHealthPerAnimal > 0 ? annualHealthPerAnimal : (vaccineCost + dewormingCost + vetVisits)) * animals;
         const dailyHealthCost = totalAnnualHealth / 365;
@@ -130,10 +146,10 @@ function CostCalculatorModal({
         break;
         
       case 'services':
-        const electricity = parseFloat(servicesData.electricity_monthly) || 0;
-        const water = parseFloat(servicesData.water_monthly) || 0;
-        const maintenance = parseFloat(servicesData.maintenance_monthly) || 0;
-        const transport = parseFloat(servicesData.transport_monthly) || 0;
+        const electricity = parseNonNegativeNumber(servicesData.electricity_monthly);
+        const water = parseNonNegativeNumber(servicesData.water_monthly);
+        const maintenance = parseNonNegativeNumber(servicesData.maintenance_monthly);
+        const transport = parseNonNegativeNumber(servicesData.transport_monthly);
         
         const totalMonthlyServices = electricity + water + maintenance + transport;
         const dailyServicesCost = totalMonthlyServices / 30;
@@ -142,9 +158,8 @@ function CostCalculatorModal({
         break;
         
       case 'rearing':
-        const rearingCostPerAnimal = parseFloat(rearingData.rearing_cost_per_animal) || 0;
-        const productiveYears = parseFloat(rearingData.productive_years) || 5;
-        const replacementRate = parseFloat(rearingData.replacement_rate_percent) || 20;
+        const rearingCostPerAnimal = parseNonNegativeNumber(rearingData.rearing_cost_per_animal);
+        const replacementRate = parseNonNegativeNumber(rearingData.replacement_rate_percent) || 20;
         
         const annualReplacementAnimals = animals * (replacementRate / 100);
         const annualRearingCost = annualReplacementAnimals * rearingCostPerAnimal;
@@ -164,30 +179,55 @@ function CostCalculatorModal({
     onApply(calculatedCost);
     onClose();
   };
+
+  const sanitizeNumericInput = (value) => {
+    if (value === '' || value === null || value === undefined) {
+      return '';
+    }
+    const normalized = String(value).replace(',', '.');
+    return /^\d*\.?\d*$/.test(normalized) ? normalized : null;
+  };
   
   const handleInputChange = (e, dataType) => {
-    const { name, value, type, checked } = e.target;
-    const newValue = type === 'checkbox' ? checked : value;
+    const { name, value } = e.target;
+    const isModeSelector = dataType === 'labor' && name === 'labor_mode';
+    const sanitizedValue = isModeSelector ? value : sanitizeNumericInput(value);
+
+    if (sanitizedValue === null) {
+      return;
+    }
     
     switch (dataType) {
       case 'feed':
-        setFeedData(prev => ({ ...prev, [name]: newValue }));
+        setFeedData(prev => ({ ...prev, [name]: sanitizedValue }));
         break;
       case 'labor':
-        setLaborData(prev => ({ ...prev, [name]: newValue }));
+        setLaborData(prev => ({ ...prev, [name]: sanitizedValue }));
         break;
       case 'health':
-        setHealthData(prev => ({ ...prev, [name]: newValue }));
+        setHealthData(prev => ({ ...prev, [name]: sanitizedValue }));
         break;
       case 'services':
-        setServicesData(prev => ({ ...prev, [name]: newValue }));
+        setServicesData(prev => ({ ...prev, [name]: sanitizedValue }));
         break;
       case 'rearing':
-        setRearingData(prev => ({ ...prev, [name]: newValue }));
+        setRearingData(prev => ({ ...prev, [name]: sanitizedValue }));
         break;
       default:
         break;
     }
+  };
+
+  const bagPrice = parseNonNegativeNumber(feedData.bag_price);
+  const bagWeightKg = parseNonNegativeNumber(feedData.bag_weight_kg);
+  const computedPricePerKg = bagPrice > 0 && bagWeightKg > 0 ? (bagPrice / bagWeightKg) : 0;
+
+  const applyComputedPricePerKg = () => {
+    if (computedPricePerKg <= 0) return;
+    setFeedData(prev => ({
+      ...prev,
+      concentrate_price_per_kg: computedPricePerKg.toFixed(4)
+    }));
   };
   
   if (!isOpen) return null;
@@ -235,6 +275,53 @@ function CostCalculatorModal({
                   step="0.01"
                   placeholder="0.45"
                 />
+                <p className="input-hint">{t('feedConcentratePriceHint')}</p>
+              </div>
+
+              <div className="pedagogy-block" style={{ marginBottom: '15px' }}>
+                <p className="pedagogy-title">{t('feedBagCalculatorTitle')}</p>
+                <p className="input-hint" style={{ marginTop: 0 }}>{t('feedBagCalculatorHint')}</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '10px', marginBottom: '10px' }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label>{t('bagPrice')} ({currencySymbol})</label>
+                    <input
+                      type="number"
+                      name="bag_price"
+                      value={feedData.bag_price}
+                      onChange={(e) => handleInputChange(e, 'feed')}
+                      step="0.01"
+                      placeholder="29"
+                    />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label>{t('bagWeightKg')} (kg)</label>
+                    <input
+                      type="number"
+                      name="bag_weight_kg"
+                      value={feedData.bag_weight_kg}
+                      onChange={(e) => handleInputChange(e, 'feed')}
+                      step="0.01"
+                      placeholder="35"
+                    />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label>{t('computedPricePerKg')} ({currencySymbol}/kg)</label>
+                    <input
+                      type="number"
+                      value={computedPricePerKg > 0 ? computedPricePerKg.toFixed(4) : ''}
+                      readOnly
+                      placeholder="0.82"
+                    />
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={applyComputedPricePerKg}
+                  disabled={computedPricePerKg <= 0}
+                >
+                  {t('applyComputedPricePerKg')}
+                </button>
               </div>
               
               <div className="form-group">
@@ -308,16 +395,21 @@ function CostCalculatorModal({
               </p>
               
               <div className="form-group">
-                <label>
-                  <input
-                    type="checkbox"
-                    name="use_monthly"
-                    checked={laborData.use_monthly}
-                    onChange={(e) => handleInputChange(e, 'labor')}
-                    style={{ marginRight: '8px' }}
-                  />
-                  {t('useMonthlyWage')}
-                </label>
+                <label>{t('laborMode')}</label>
+                <select
+                  name="labor_mode"
+                  value={laborData.labor_mode}
+                  onChange={(e) => handleInputChange(e, 'labor')}
+                >
+                  <option value="hourly">{t('laborModeHourly')}</option>
+                  <option value="daily">{t('laborModeDaily')}</option>
+                  <option value="monthly">{t('laborModeMonthly')}</option>
+                </select>
+                <p className="input-hint">
+                  {laborData.labor_mode === 'hourly' && t('laborModeHourlyDescription')}
+                  {laborData.labor_mode === 'daily' && t('laborModeDailyDescription')}
+                  {laborData.labor_mode === 'monthly' && t('laborModeMonthlyDescription')}
+                </p>
               </div>
               
               <div className="form-group">
@@ -331,21 +423,10 @@ function CostCalculatorModal({
                   min="0"
                   placeholder="2"
                 />
+                <p className="input-hint">{t('workersCountHint')}</p>
               </div>
               
-              {laborData.use_monthly ? (
-                <div className="form-group">
-                  <label>{t('monthlyWagePerWorker')} ({currencySymbol}/month)</label>
-                  <input
-                    type="number"
-                    name="monthly_wage_per_worker"
-                    value={laborData.monthly_wage_per_worker}
-                    onChange={(e) => handleInputChange(e, 'labor')}
-                    step="0.01"
-                    placeholder="400"
-                  />
-                </div>
-              ) : (
+              {laborData.labor_mode === 'hourly' && (
                 <>
                   <div className="form-group">
                     <label>{t('hoursPerDayPerWorker')}</label>
@@ -357,6 +438,7 @@ function CostCalculatorModal({
                       step="0.5"
                       placeholder="8"
                     />
+                    <p className="input-hint">{t('laborHourlyFormulaHint')}</p>
                   </div>
                   
                   <div className="form-group">
@@ -370,6 +452,52 @@ function CostCalculatorModal({
                       placeholder="2.50"
                     />
                   </div>
+                </>
+              )}
+
+              {laborData.labor_mode === 'daily' && (
+                <div className="form-group">
+                  <label>{t('wagePerDayPerWorker')} ({currencySymbol}/day)</label>
+                  <input
+                    type="number"
+                    name="wage_per_day_per_worker"
+                    value={laborData.wage_per_day_per_worker}
+                    onChange={(e) => handleInputChange(e, 'labor')}
+                    step="0.01"
+                    placeholder="18"
+                  />
+                  <p className="input-hint">{t('laborDailyFormulaHint')}</p>
+                </div>
+              )}
+
+              {laborData.labor_mode === 'monthly' && (
+                <>
+                  <div className="form-group">
+                    <label>{t('monthlyTotalLaborCost')} ({currencySymbol}/month)</label>
+                    <input
+                      type="number"
+                      name="monthly_total_labor_cost"
+                      value={laborData.monthly_total_labor_cost}
+                      onChange={(e) => handleInputChange(e, 'labor')}
+                      step="0.01"
+                      placeholder="800"
+                    />
+                    <p className="input-hint">{t('monthlyTotalLaborCostHint')}</p>
+                  </div>
+                  <p className="optional-label">{t('laborMonthlyOptionalBreakdown')}</p>
+                  <div className="form-group">
+                    <label>{t('monthlyWagePerWorker')} ({currencySymbol}/month)</label>
+                    <input
+                      type="number"
+                      name="monthly_wage_per_worker"
+                      value={laborData.monthly_wage_per_worker}
+                      onChange={(e) => handleInputChange(e, 'labor')}
+                      step="0.01"
+                      placeholder="400"
+                    />
+                  </div>
+                  <p className="input-hint">{t('laborMonthlyFormulaHint')}</p>
+                  <p className="input-hint">{t('laborMonthlyEducationalNote')}</p>
                 </>
               )}
             </div>

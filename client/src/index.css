@@ -4164,6 +4164,59 @@ label {
   font-variant-numeric: tabular-nums;
 }
 
+.metrics-grid {
+  align-items: stretch;
+}
+
+.metric-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.metric-value {
+  font-size: clamp(1.15rem, 2.5vw, 2rem);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.numeric-value.metric-value,
+.metric-value.numeric-value {
+  white-space: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+.input-hint {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  font-style: normal;
+}
+
+.pedagogy-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pedagogy-block .input-hint {
+  margin-top: 0;
+}
+
+.results-insight-block {
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .metric-card {
+    padding: 16px;
+  }
+}
+
 .dark-mode .term-help-icon {
   background: rgba(96, 165, 250, 0.2);
   color: #93c5fd;

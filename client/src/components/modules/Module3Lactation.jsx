@@ -372,6 +372,9 @@ function Module3Lactation({ user }) {
           <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.6', color: 'var(--text-secondary)', fontStyle: 'italic', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
             <strong>{labelWithHelp('ECM', t('ecmDefinition'))}:</strong> {t('ecmDefinition')}
           </p>
+          <p className="input-hint" style={{ marginBottom: 0, marginTop: '10px' }}>
+            {t('module3PedagogyHint')}
+          </p>
         </div>
       </header>
 

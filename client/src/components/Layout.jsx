@@ -35,8 +35,8 @@ function Sidebar({ user, onLogout }) {
       iconFallback: '🐐',
       label: `M3 - ${t('moduleTypes.lactation')}`,
     },
-    { path: '/module4', icon: '📈', label: 'Conversión - Rendimiento Quesero' },
-    { path: '/module5', icon: '📋', label: 'Gestación Predictiva' },
+    { path: '/module4', icon: '📈', label: t('sidebarConversionYield') },
+    { path: '/module5', icon: '📋', label: t('sidebarPredictiveGestation') },
   ];
 
   return (
@@ -464,5 +464,4 @@ function Layout({ children, user, onLogout }) {
 }
 
 export default Layout;
-
 

@@ -820,6 +820,7 @@ function Module2Transformation({ user }) {
                 <li>{`${t('totalDistribution')} = 100%`}</li>
                 <li>{`${t('totalProductionCost')} = ${t('totalMilkCost')} + ${t('totalProcessingCost')} + ${t('totalPackagingCost')}`}</li>
                 <li>{`${t('margin')} = ${t('income')} - ${t('totalCosts')}`}</li>
+                <li>{t('module2PedagogyPracticalTip')}</li>
               </ul>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
@@ -935,6 +936,9 @@ function Module2Transformation({ user }) {
                 (Number(productionData.other_costs_per_liter) || 0)
               ).toFixed(2)}
             </div>
+            <p className="input-hint" style={{ marginTop: '8px' }}>
+              {t('module2MilkCostInterpretationHint')}
+            </p>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '30px', marginBottom: '15px' }}>
               <h3 style={{ margin: 0 }}>{t('productMix')}</h3>

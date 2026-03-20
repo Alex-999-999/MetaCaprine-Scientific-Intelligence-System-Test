@@ -340,6 +340,9 @@ function Module1Production({ user }) {
       )}
     </span>
   );
+  const renderInputHint = (key) => (
+    <p className="input-hint">{t(key)}</p>
+  );
 
   return (
     <div className="container">
@@ -384,14 +387,17 @@ function Module1Production({ user }) {
           <div className="card">
             <h2>{t('productionData')}</h2>
             <div className="pedagogy-block">
-              <p className="pedagogy-title">{t('dashboardDescription')}</p>
+              <p className="pedagogy-title">{t('module1PedagogyTitle')}</p>
+              <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+                {t('module1PedagogyIntro')}
+              </p>
               <ul className="pedagogy-list">
-                <li>{`${t('totalProduction')} = ${t('dailyProduction')} x ${t('productionDays')} x ${t('animalsCount')}`}</li>
-                <li>{`${t('totalCosts')} = ${t('costPerLiter')} x ${t('totalProduction')}`}</li>
-                <li>{`${t('grossMargin')} = ${t('totalRevenue')} - ${t('totalCosts')}`}</li>
+                <li>{t('module1FormulaTotalProduction')}</li>
+                <li>{t('module1FormulaTotalCosts')}</li>
+                <li>{t('module1FormulaGrossMargin')}</li>
               </ul>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '15px' }}>
               <div className="form-group">
                 <label>{labelWithHelp(t('dailyProduction'), `${t('dailyProduction')} x ${t('animalsCount')} x ${t('productionDays')} = ${t('totalProduction')}`)}</label>
                 <input
@@ -402,6 +408,7 @@ function Module1Production({ user }) {
                   onFocus={handleInputFocus}
                   step="0.01"
                 />
+                {renderInputHint('module1HintDailyProduction')}
               </div>
               <div className="form-group">
                 <label>{labelWithHelp(t('productionDays'), `${t('productionDays')} (${t('perLactation')})`)}</label>
@@ -412,6 +419,7 @@ function Module1Production({ user }) {
                   onChange={handleInputChange}
                   onFocus={handleInputFocus}
                 />
+                {renderInputHint('module1HintProductionDays')}
               </div>
               <div className="form-group">
                 <label>{labelWithHelp(t('animalsCount'), `${t('animalsCount')} (${t('lactationCycle')})`)}</label>
@@ -422,6 +430,7 @@ function Module1Production({ user }) {
                   onChange={handleInputChange}
                   onFocus={handleInputFocus}
                 />
+                {renderInputHint('module1HintAnimalsCount')}
               </div>
               <div className="form-group">
                 <label>{labelWithHelp(t('milkPrice'), `${t('milkPrice')} (${t('revenuePerLiter')})`)}</label>
@@ -433,6 +442,7 @@ function Module1Production({ user }) {
                   onFocus={handleInputFocus}
                   step="0.01"
                 />
+                {renderInputHint('module1HintMilkPrice')}
               </div>
             </div>
 
@@ -448,7 +458,7 @@ function Module1Production({ user }) {
                 </button>
               </div>
             )}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '15px' }}>
               <div className="form-group">
                 <label>{labelWithHelp(t('feedCost'), `${t('feedCost')} (${t('perLiter')})`)}</label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -470,6 +480,7 @@ function Module1Production({ user }) {
                     {t('estimateCost')}
                   </button>
                 </div>
+                {renderInputHint('module1HintFeedCost')}
               </div>
               <div className={`form-group ${!hasAdvancedAnalysis ? 'locked-field-group' : ''}`}>
                 <label>{labelWithHelp(t('laborCost'), `${t('laborCost')} (${t('perLiter')})`, !hasAdvancedAnalysis)}</label>
@@ -495,6 +506,7 @@ function Module1Production({ user }) {
                     {t('estimateCost')}
                   </button>
                 </div>
+                {renderInputHint('module1HintLaborCost')}
               </div>
               <div className="form-group">
                 <label>{labelWithHelp(t('healthCost'), `${t('healthCost')} (${t('perLiter')})`)}</label>
@@ -517,6 +529,7 @@ function Module1Production({ user }) {
                     {t('estimateCost')}
                   </button>
                 </div>
+                {renderInputHint('module1HintHealthCost')}
               </div>
               <div className={`form-group ${!hasAdvancedAnalysis ? 'locked-field-group' : ''}`}>
                 <label>{labelWithHelp(t('infrastructureCost'), `${t('infrastructureCost')} (${t('perLiter')})`, !hasAdvancedAnalysis)}</label>
@@ -542,6 +555,7 @@ function Module1Production({ user }) {
                     {t('estimateCost')}
                   </button>
                 </div>
+                {renderInputHint('module1HintInfrastructureCost')}
               </div>
               <div className={`form-group ${!hasAdvancedAnalysis ? 'locked-field-group' : ''}`}>
                 <label>{labelWithHelp(t('otherCosts'), `${t('otherCosts')} (${t('perLiter')})`, !hasAdvancedAnalysis)}</label>
@@ -567,6 +581,7 @@ function Module1Production({ user }) {
                     {t('estimateCost')}
                   </button>
                 </div>
+                {renderInputHint('module1HintOtherCosts')}
               </div>
             </div>
 
@@ -612,6 +627,44 @@ function Module1Production({ user }) {
                   </div>
                 </div>
               </div>
+              {(() => {
+                const grossMargin = Number(results.gross_margin) || 0;
+                const totalRevenue = Number(results.total_revenue) || 0;
+                const nearBreakEvenByRevenue = totalRevenue > 0 && Math.abs(grossMargin / totalRevenue) <= 0.05;
+                const nearBreakEvenByAbsolute = totalRevenue <= 0 && Math.abs(grossMargin) <= 0.01;
+
+                let marginInterpretation = t('module1MarginNegative');
+                if (nearBreakEvenByRevenue || nearBreakEvenByAbsolute) {
+                  marginInterpretation = t('module1MarginNearBreakEven');
+                } else if (grossMargin > 0) {
+                  marginInterpretation = t('module1MarginProfitable');
+                }
+
+                const largestCostComponent = costBreakdown.reduce((largest, current) => (
+                  current.value > largest.value ? current : largest
+                ), { name: '', value: 0 });
+                const largestCostShare = (Number(results.cost_per_liter) || 0) > 0
+                  ? (largestCostComponent.value / Number(results.cost_per_liter)) * 100
+                  : 0;
+
+                return (
+                  <div className="pedagogy-block results-insight-block">
+                    <p className="pedagogy-title">{t('module1InterpretationTitle')}</p>
+                    <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+                      {marginInterpretation}
+                    </p>
+                    {largestCostComponent.value > 0 && (
+                      <p className="input-hint">
+                        {t('module1LargestCostInsight', {
+                          component: largestCostComponent.name,
+                          share: largestCostShare.toFixed(1),
+                          value: formatMoney(largestCostComponent.value, { minimumFractionDigits: 4, maximumFractionDigits: 4 })
+                        })}
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Results Table Card */}
               <div className="chart-card">
