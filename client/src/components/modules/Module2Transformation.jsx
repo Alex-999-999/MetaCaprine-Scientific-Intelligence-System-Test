@@ -824,7 +824,7 @@ function Module2Transformation({ user }) {
                 <li>{t('module2PedagogyPracticalTip')}</li>
               </ul>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
+            <div className="module2-input-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
               <div className="form-group">
                 <label>{labelWithHelp(t('dailyProduction'), `${t('dailyProduction')} x ${t('productionDays')} x ${t('animalsCount')}`)}</label>
                 <input
@@ -1019,7 +1019,7 @@ function Module2Transformation({ user }) {
                   )}
                 </div>
 
-                <div style={{
+                <div className="module2-sales-grid" style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
                   gap: '15px'
