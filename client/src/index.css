@@ -3029,6 +3029,15 @@ label {
   border: none;
 }
 
+.dark-mode .settings-button {
+  color: #ffffff;
+}
+
+.dark-mode .settings-icon-svg {
+  width: 22px;
+  height: 22px;
+}
+
 .dark-mode .language-menu-dropdown {
   background: var(--card-bg);
   border-color: var(--border-color);
