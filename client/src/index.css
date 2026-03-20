@@ -6,7 +6,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   overflow: hidden;
 }
@@ -22,7 +23,12 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   letter-spacing: 0.02em;
 }
@@ -189,7 +195,9 @@ code {
   font-weight: 600;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   width: 100%;
   padding: 14px 18px;
   border: 2px solid #e0e0e0;
@@ -231,7 +239,9 @@ select:hover {
   background-color: #f8f9fa;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
   border-color: #2d5016;
   box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.1);
@@ -271,7 +281,8 @@ select option:focus {
   outline: none;
 }
 
-.form-input, .form-select {
+.form-input,
+.form-select {
   width: 100%;
   padding: 14px 18px;
   border: 2px solid #e0e0e0;
@@ -299,7 +310,8 @@ select option:focus {
   background-color: #f8f9fa;
 }
 
-.form-input:focus, .form-select:focus {
+.form-input:focus,
+.form-select:focus {
   outline: none;
   border-color: #2d5016;
   box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.1);
@@ -751,7 +763,9 @@ label {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive Login Page */
@@ -927,7 +941,7 @@ label {
 
 .sidebar-nav {
   flex: 1;
-  padding: 12px 8px;
+  padding: 12px 0px;
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
@@ -1452,15 +1466,15 @@ label {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.toggle-switch input:checked + .toggle-slider {
+.toggle-switch input:checked+.toggle-slider {
   background-color: #2d5016;
 }
 
-.toggle-switch input:checked + .toggle-slider:before {
+.toggle-switch input:checked+.toggle-slider:before {
   transform: translateX(24px);
 }
 
-.toggle-switch input:focus + .toggle-slider {
+.toggle-switch input:focus+.toggle-slider {
   box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.1);
 }
 
@@ -2089,6 +2103,7 @@ label {
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -2267,7 +2282,9 @@ label {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Form Improvements */
@@ -2598,15 +2615,15 @@ label {
   .radio-group {
     grid-template-columns: 1fr;
   }
-  
+
   .metrics-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .comparison-table {
     font-size: 0.875rem;
   }
-  
+
   .comparison-table th,
   .comparison-table td {
     padding: 0.75rem 0.5rem;
@@ -2621,20 +2638,20 @@ label {
   /* ============================================
      LIGHT MODE - Professional SaaS Dashboard
      ============================================ */
-  
+
   /* Backgrounds */
   --bg-primary: #f0f5ec;
   --bg-gradient: linear-gradient(135deg, #f0f5ec 0%, #d4e4c4 100%);
   --bg-secondary: #ffffff;
   --bg-tertiary: #f1f3f5;
   --bg-quaternary: #e9ecef;
-  
+
   /* Text */
   --text-primary: #1a1f2e;
   --text-secondary: #495057;
   --text-tertiary: #868e96;
   --text-inverse: #ffffff;
-  
+
   /* Semantic Accents */
   --accent-success: #16a34a;
   --accent-success-hover: #15803d;
@@ -2644,7 +2661,7 @@ label {
   --accent-warning-hover: #a16207;
   --accent-error: #dc2626;
   --accent-error-hover: #b91c1c;
-  
+
   /* Legacy accent support (green for primary actions) */
   --accent-color: #16a34a;
   --accent-hover: #15803d;
@@ -2653,18 +2670,18 @@ label {
   --error-color: #dc2626;
   --warning-color: #ca8a04;
   --info-color: #2563eb;
-  
+
   /* Borders & Dividers */
   --border-color: #dee2e6;
   --border-secondary: #ced4da;
   --border-light: #e9ecef;
   --border-subtle: #e9ecef;
-  
+
   /* Shadows */
   --shadow-color: rgba(0, 0, 0, 0.05);
   --shadow-hover: rgba(0, 0, 0, 0.08);
   --shadow-heavy: rgba(0, 0, 0, 0.15);
-  
+
   /* Chart Colors */
   --chart-primary: #2563eb;
   --chart-secondary: #16a34a;
@@ -2673,7 +2690,7 @@ label {
   --chart-quinary: #ea580c;
   --chart-grid: #e9ecef;
   --chart-axis: #868e96;
-  
+
   /* Component-specific (backward compatibility) */
   --card-bg: #ffffff;
   --input-bg: #ffffff;
@@ -2687,20 +2704,20 @@ label {
   /* ============================================
      DARK MODE - Professional SaaS Dashboard
      ============================================ */
-  
+
   /* Backgrounds */
   --bg-primary: #0f1419;
   --bg-gradient: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
   --bg-secondary: #1a1f2e;
   --bg-tertiary: #252b3a;
   --bg-quaternary: #2d3443;
-  
+
   /* Text */
   --text-primary: #f4f6f8;
   --text-secondary: #cbd5e0;
   --text-tertiary: #9ca3af;
   --text-inverse: #0f1419;
-  
+
   /* Semantic Accents */
   --accent-success: #22c55e;
   --accent-success-hover: #16a34a;
@@ -2710,7 +2727,7 @@ label {
   --accent-warning-hover: #f59e0b;
   --accent-error: #ef4444;
   --accent-error-hover: #dc2626;
-  
+
   /* Legacy accent support (green for primary actions) */
   --accent-color: #22c55e;
   --accent-hover: #16a34a;
@@ -2719,18 +2736,18 @@ label {
   --error-color: #ef4444;
   --warning-color: #eab308;
   --info-color: #3b82f6;
-  
+
   /* Borders & Dividers */
   --border-color: #2d3443;
   --border-secondary: #3a4251;
   --border-light: #3a4251;
   --border-subtle: #1f2532;
-  
+
   /* Shadows */
   --shadow-color: rgba(0, 0, 0, 0.2);
   --shadow-hover: rgba(0, 0, 0, 0.3);
   --shadow-heavy: rgba(0, 0, 0, 0.5);
-  
+
   /* Chart Colors */
   --chart-primary: #3b82f6;
   --chart-secondary: #22c55e;
@@ -2739,7 +2756,7 @@ label {
   --chart-quinary: #f97316;
   --chart-grid: #2d3443;
   --chart-axis: #7a8494;
-  
+
   /* Component-specific (backward compatibility) */
   --card-bg: #1a1f2e;
   --input-bg: #1a1f2e;
@@ -3738,7 +3755,7 @@ label {
 
 /* Chart Container */
 .chart-container {
-  background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(248,250,247,0.5) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 247, 0.5) 100%);
   border-radius: 16px;
   padding: 20px;
   border: 1px solid rgba(45, 80, 22, 0.06);
