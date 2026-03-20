@@ -1286,6 +1286,22 @@ label {
   margin-right: 0;
 }
 
+.header-right .language-menu-trigger {
+  min-width: auto;
+  width: auto;
+  height: 40px;
+  padding: 0 4px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+}
+
+.header-right .language-menu-trigger:hover {
+  border: none;
+  background: transparent;
+}
+
 .login-language-menu .language-menu-trigger {
   border-color: rgba(255, 255, 255, 0.75);
   background: rgba(255, 255, 255, 0.14);
@@ -1320,8 +1336,7 @@ label {
 
 .settings-button {
   background: transparent;
-  border: 2px solid #ddd;
-  border-radius: 8px;
+  border: none;
   padding: 8px 12px;
   cursor: pointer;
   font-size: 18px;
@@ -1334,8 +1349,8 @@ label {
 }
 
 .settings-button:hover {
-  border-color: #2d5016;
-  background-color: #f8f9fa;
+  border: none;
+  background: transparent;
   transform: rotate(90deg);
 }
 
@@ -1451,8 +1466,7 @@ label {
 
 .user-avatar-button {
   background: transparent;
-  border: 2px solid #e0e0e0;
-  border-radius: 50%;
+  border: none;
   width: 40px;
   height: 40px;
   padding: 0;
@@ -1465,8 +1479,8 @@ label {
 }
 
 .user-avatar-button:hover {
-  border-color: #2d5016;
-  box-shadow: 0 2px 8px rgba(45, 80, 22, 0.2);
+  border: none;
+  box-shadow: none;
   transform: scale(1.05);
 }
 
@@ -2956,9 +2970,19 @@ label {
   color: var(--text-primary);
 }
 
+.dark-mode .header-right .language-menu-trigger {
+  background: transparent;
+  border: none;
+}
+
 .dark-mode .language-menu-trigger:hover {
   background: var(--bg-tertiary);
   border-color: var(--border-light);
+}
+
+.dark-mode .header-right .language-menu-trigger:hover {
+  background: transparent;
+  border: none;
 }
 
 .dark-mode .language-menu-dropdown {
@@ -4299,5 +4323,14 @@ label {
 /* Exception requested: loading indicators remain circular. */
 .spinner,
 .login-spinner {
+  border-radius: 50% !important;
+}
+
+.user-avatar-button,
+.user-avatar-image,
+.user-avatar-placeholder,
+.avatar-dropdown-avatar,
+.avatar-dropdown-image,
+.avatar-dropdown-placeholder {
   border-radius: 50% !important;
 }
