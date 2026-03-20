@@ -106,6 +106,7 @@ function Dashboard({ user, onLogout }) {
 
   const normalizeScenarioType = (type) => {
     if (type === 'summary') return 'gestation';
+    if (type === 'conversion') return 'yield';
     return type;
   };
 
@@ -144,7 +145,7 @@ function Dashboard({ user, onLogout }) {
       milk_sale: 'chartBar',
       transformation: 'package',
       lactation: 'heartPulse',
-      yield: 'dashboard',
+      yield: 'conversionYield',
       gestation: 'calendar',
     };
     return iconMap[normalizedType] || 'fileText';

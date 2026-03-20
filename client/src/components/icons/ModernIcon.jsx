@@ -201,6 +201,12 @@ const iconRegistry = {
       <path d="M12 21s-7-4.5-9-9a5.5 5.5 0 0 1 9-6 5.5 5.5 0 0 1 9 6c-2 4.5-9 9-9 9Z" />
     </>
   ),
+  conversionYield: () => (
+    <>
+      <path d="M3 20h18" />
+      <path d="M4 16l5-5 4 3 7-8" />
+    </>
+  ),
   home: () => (
     <>
       <path d="m3 11 9-8 9 8" />
