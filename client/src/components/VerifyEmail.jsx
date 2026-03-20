@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
 import { useI18n } from '../i18n/I18nContext';
+import ModernIcon from './icons/ModernIcon';
 
 function VerifyEmail() {
   const { t } = useI18n();
@@ -52,7 +53,9 @@ function VerifyEmail() {
       <div className="card" style={{ maxWidth: '500px', width: '100%', textAlign: 'center' }}>
         {status === 'verifying' && (
           <>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
+            <div style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>
+              <ModernIcon name="hourglass" size={48} />
+            </div>
             <h2 style={{ marginBottom: '1rem' }}>{t('verifyingEmail')}</h2>
             <p style={{ color: 'var(--text-secondary)' }}>{t('verifyEmailWait')}</p>
           </>
@@ -60,7 +63,9 @@ function VerifyEmail() {
 
         {status === 'success' && (
           <>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
+            <div style={{ marginBottom: '1rem', color: 'var(--accent-success)' }}>
+              <ModernIcon name="checkCircle" size={48} />
+            </div>
             <h2 style={{ marginBottom: '1rem', color: 'var(--accent-success)' }}>{t('emailVerifiedTitle')}</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
               {message}
@@ -80,7 +85,9 @@ function VerifyEmail() {
 
         {status === 'error' && (
           <>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>❌</div>
+            <div style={{ marginBottom: '1rem', color: 'var(--accent-error)' }}>
+              <ModernIcon name="xCircle" size={48} />
+            </div>
             <h2 style={{ marginBottom: '1rem', color: 'var(--accent-error)' }}>{t('verificationFailedTitle')}</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
               {message}

@@ -8,6 +8,7 @@ import { useI18n } from '../../i18n/I18nContext';
 import AlertModal from '../AlertModal';
 import { useChartColors } from '../../hooks/useDarkMode';
 import { getBreedImage, getBreedInitials } from '../../utils/breedImages';
+import ModernIcon from '../icons/ModernIcon';
 import '../../styles/Module3.css';
 
 /**
@@ -1069,7 +1070,9 @@ function Module3Lactation({ user }) {
                 <h3 className="breed-ranking-title" style={{ margin: 0 }}>
                   {t('rankingByEcmProductiveLife')}
                 </h3>
-                <span style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)' }}>â–¼</span>
+                <span style={{ color: 'var(--text-tertiary)', display: 'inline-flex', alignItems: 'center' }}>
+                  <ModernIcon name="chevronDown" size={14} />
+                </span>
               </div>
               <p className="breed-ranking-subtitle" style={{
                 fontSize: '0.875rem',

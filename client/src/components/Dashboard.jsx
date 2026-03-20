@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { useI18n } from '../i18n/I18nContext';
 import Modal from './Modal';
+import ModernIcon from './icons/ModernIcon';
 
 function Dashboard({ user, onLogout }) {
   const { t } = useI18n();
@@ -140,13 +141,13 @@ function Dashboard({ user, onLogout }) {
   const getModuleIcon = (type) => {
     const normalizedType = normalizeScenarioType(type);
     const iconMap = {
-      milk_sale: 'M1',
-      transformation: 'M2',
-      lactation: 'M3',
-      yield: 'M4',
-      gestation: 'M5',
+      milk_sale: 'chartBar',
+      transformation: 'package',
+      lactation: 'heartPulse',
+      yield: 'dashboard',
+      gestation: 'calendar',
     };
-    return iconMap[normalizedType] || 'SC';
+    return iconMap[normalizedType] || 'fileText';
   };
 
   // Configurable menu items - easily extendable
@@ -155,26 +156,17 @@ function Dashboard({ user, onLogout }) {
       {
         id: 'duplicate',
         label: t('duplicate'),
-        icon: '📋',
+        icon: 'duplicate',
         action: 'duplicate',
         danger: false
       },
       {
         id: 'delete',
         label: t('delete'),
-        icon: '🗑️',
+        icon: 'trash',
         action: 'delete',
         danger: true
       }
-      // Add more menu items here as needed
-      // Example:
-      // {
-      //   id: 'edit',
-      //   label: t('edit'),
-      //   icon: '✏️',
-      //   action: 'edit',
-      //   danger: false
-      // }
     ];
   };
 
@@ -247,7 +239,7 @@ function Dashboard({ user, onLogout }) {
               gap: '12px',
               marginBottom: '8px'
             }}>
-              <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+              <ModernIcon name="warning" size={22} />
               <strong style={{ fontSize: '1.125rem', color: 'var(--text-primary)' }}>
                 {t('verifyEmailTitle')}
               </strong>
@@ -261,12 +253,15 @@ function Dashboard({ user, onLogout }) {
               {t('verifyEmailMessage')}
               {emailResent && (
                 <span style={{ 
-                  display: 'block', 
                   marginTop: '8px', 
                   color: 'var(--accent-success)',
-                  fontWeight: '600'
+                  fontWeight: '600',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
                 }}>
-                  ✅ {t('verifyEmailSent')}
+                  <ModernIcon name="checkCircle" size={16} />
+                  {t('verifyEmailSent')}
                 </span>
               )}
             </p>
@@ -300,7 +295,9 @@ function Dashboard({ user, onLogout }) {
         <div className="card card-filters">
           <div className="filters-container">
             <div className="search-box">
-              <span className="search-icon">🔍</span>
+              <span className="search-icon">
+                <ModernIcon name="search" size={18} />
+              </span>
               <input
                 type="text"
                 placeholder={t('searchScenarios')}
@@ -333,7 +330,9 @@ function Dashboard({ user, onLogout }) {
       ) : filteredScenarios.length === 0 ? (
         <div className="card card-empty">
           <div className="empty-state">
-            <div className="empty-icon">📋</div>
+            <div className="empty-icon">
+              <ModernIcon name="fileText" size={52} />
+            </div>
             <h3>{scenarios.length === 0 ? t('noScenarios') : t('noResults')}</h3>
             <p>{scenarios.length === 0 ? t('getStarted') : t('tryAdjustingSearch')}</p>
             {scenarios.length === 0 && (
@@ -354,7 +353,7 @@ function Dashboard({ user, onLogout }) {
             >
               <div className="scenario-header">
                 <div className="scenario-icon" style={{ backgroundColor: `${getModuleColor(scenario.type)}20`, color: getModuleColor(scenario.type) }}>
-                  {getModuleIcon(scenario.type)}
+                  <ModernIcon name={getModuleIcon(scenario.type)} size={26} />
                 </div>
                 <div className="scenario-info">
                   <h3 className="scenario-name">{scenario.name}</h3>
@@ -368,7 +367,9 @@ function Dashboard({ user, onLogout }) {
                   onClick={(e) => handleMenuToggle(e, scenario.id)}
                 >
                   <button className="scenario-menu-button" title={t('moreOptions')}>
-                    <span className="menu-dots">⋯</span>
+                    <span className="menu-dots">
+                      <ModernIcon name="moreHorizontal" size={18} />
+                    </span>
                   </button>
                   {openMenuId === scenario.id && (
                     <div className="scenario-menu-dropdown">
@@ -378,7 +379,9 @@ function Dashboard({ user, onLogout }) {
                           className={`menu-item ${item.danger ? 'menu-item-danger' : ''}`}
                           onClick={(e) => handleMenuAction(e, scenario.id, item.action)}
                         >
-                          <span className="menu-icon">{item.icon}</span>
+                          <span className="menu-icon">
+                            <ModernIcon name={item.icon} size={16} />
+                          </span>
                           <span>{item.label}</span>
                         </button>
                       ))}
@@ -388,17 +391,26 @@ function Dashboard({ user, onLogout }) {
               </div>
               <div className="scenario-meta">
                 <span className="meta-item">
-                  <span className="meta-label">📅 {t('created')}:</span>
+                  <span className="meta-label">
+                    <ModernIcon name="calendar" size={14} />
+                    {t('created')}:
+                  </span>
                   <span className="meta-value">{new Date(scenario.created_at).toLocaleDateString()}</span>
                 </span>
                 {scenario.updated_at && scenario.updated_at !== scenario.created_at && (
                   <span className="meta-item">
-                    <span className="meta-label">🔄 {t('updated')}:</span>
+                    <span className="meta-label">
+                      <ModernIcon name="refresh" size={14} />
+                      {t('updated')}:
+                    </span>
                     <span className="meta-value">{new Date(scenario.updated_at).toLocaleDateString()}</span>
                   </span>
                 )}
                 <span className="meta-item">
-                  <span className="meta-label">📝 {t('status')}:</span>
+                  <span className="meta-label">
+                    <ModernIcon name="clipboardCheck" size={14} />
+                    {t('status')}:
+                  </span>
                   <span className="meta-value" style={{ 
                     color: scenario.updated_at && scenario.updated_at !== scenario.created_at ? 'var(--accent-success)' : 'var(--text-tertiary)',
                     fontWeight: '500'

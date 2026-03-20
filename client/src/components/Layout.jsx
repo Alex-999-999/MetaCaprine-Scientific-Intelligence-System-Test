@@ -6,6 +6,7 @@ import { getAvatar } from '../utils/avatar';
 import { BRAND_ASSETS } from '../utils/assetCatalog';
 import OnboardingModal from './OnboardingModal';
 import LanguageSwitcher from './LanguageSwitcher';
+import ModernIcon from './icons/ModernIcon';
 
 function Sidebar({ user, onLogout }) {
   const { t } = useI18n();
@@ -310,11 +311,15 @@ function UserAvatar({ user, onLogout }) {
           </div>
           <div className="avatar-dropdown-divider"></div>
           <button className="avatar-dropdown-item" onClick={handleProfileClick}>
-            <span className="avatar-dropdown-icon">ðŸ‘¤</span>
+            <span className="avatar-dropdown-icon">
+              <ModernIcon name="user" size={18} />
+            </span>
             <span>{t('profile')}</span>
           </button>
           <button className="avatar-dropdown-item avatar-dropdown-item-danger" onClick={handleLogoutClick}>
-            <span className="avatar-dropdown-icon">ðŸšª</span>
+            <span className="avatar-dropdown-icon">
+              <ModernIcon name="logout" size={18} />
+            </span>
             <span>{t('logout')}</span>
           </button>
         </div>

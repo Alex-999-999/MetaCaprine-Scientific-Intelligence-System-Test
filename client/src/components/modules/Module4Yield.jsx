@@ -5,6 +5,7 @@ import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import AlertModal from '../AlertModal';
 import { useChartColors } from '../../hooks/useDarkMode';
+import ModernIcon from '../icons/ModernIcon';
 
 function Module4Yield({ user }) {
   const { t } = useI18n();
@@ -368,7 +369,9 @@ function Module4Yield({ user }) {
                 <div className="chart-header">
                   <div>
                     <h2 className="chart-title">
-                      <span className="chart-title-icon">📋</span>
+                      <span className="chart-title-icon">
+                        <ModernIcon name="fileText" size={18} />
+                      </span>
                       {t('results')}
                     </h2>
                     <p className="chart-subtitle">{t('yieldResultsSubtitle')}</p>
@@ -419,7 +422,9 @@ function Module4Yield({ user }) {
                 <div className="chart-header">
                   <div>
                     <h2 className="chart-title">
-                      <span className="chart-title-icon">📊</span>
+                      <span className="chart-title-icon">
+                        <ModernIcon name="chartBar" size={18} />
+                      </span>
                       {t('visualization')}
                     </h2>
                     <p className="chart-subtitle">{t('yieldVisualSubtitle')}</p>

@@ -6,6 +6,7 @@ import { useI18n } from '../../i18n/I18nContext';
 import AlertModal from '../AlertModal';
 import { useChartColors } from '../../hooks/useDarkMode';
 import { formatCurrency, formatCurrencyCompact, normalizeCurrency } from '../../utils/currency';
+import ModernIcon from '../icons/ModernIcon';
 
 function Module5Summary({ user }) {
   const { t } = useI18n();
@@ -255,9 +256,24 @@ function Module5Summary({ user }) {
                       <td>{Number(item.results.marginPercentage || 0).toFixed(2)}%</td>
                       <td>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85em' }}>
-                          {isBestRevenue && <span style={{ color: '#1976d2' }}>🥇 {t('bestByRevenue')}</span>}
-                          {isBestMargin && <span style={{ color: '#2e7d32' }}>🥇 {t('bestByMargin')}</span>}
-                          {isBestMarginPercent && <span style={{ color: '#7b1fa2' }}>🥇 {t('bestByMarginPercent')}</span>}
+                          {isBestRevenue && (
+                            <span style={{ color: '#1976d2', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                              <ModernIcon name="trophy" size={14} />
+                              {t('bestByRevenue')}
+                            </span>
+                          )}
+                          {isBestMargin && (
+                            <span style={{ color: '#2e7d32', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                              <ModernIcon name="trophy" size={14} />
+                              {t('bestByMargin')}
+                            </span>
+                          )}
+                          {isBestMarginPercent && (
+                            <span style={{ color: '#7b1fa2', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                              <ModernIcon name="trophy" size={14} />
+                              {t('bestByMarginPercent')}
+                            </span>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -272,7 +288,9 @@ function Module5Summary({ user }) {
             <div className="chart-header">
               <div>
                 <h2 className="chart-title">
-                  <span className="chart-title-icon">📊</span>
+                  <span className="chart-title-icon">
+                    <ModernIcon name="chartBar" size={18} />
+                  </span>
                   {t('comparativeVisualization')}
                 </h2>
                 <p className="chart-subtitle">{t('financialMetricsComparisonSubtitle')}</p>
@@ -408,7 +426,9 @@ function Module5Summary({ user }) {
               <div className="chart-header">
                 <div>
                   <h2 className="chart-title">
-                    <span className="chart-title-icon">🥧</span>
+                    <span className="chart-title-icon">
+                      <ModernIcon name="pieChart" size={18} />
+                    </span>
                     {t('mixAnalysis')}
                   </h2>
                   <p className="chart-subtitle">{t('productChannelDistributionSubtitle')}</p>
@@ -580,7 +600,9 @@ function Module5Summary({ user }) {
                     })}
                   >
                     <h3 style={{ margin: 0 }}>{item.scenario.name} - {getScenarioTypeLabel(item)}</h3>
-                    <span>{isExpanded ? '▼' : '▶'}</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                      <ModernIcon name={isExpanded ? 'chevronDown' : 'chevronRight'} size={16} />
+                    </span>
                   </div>
                   
                   {isExpanded && (

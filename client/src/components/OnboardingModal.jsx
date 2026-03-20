@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useI18n } from '../i18n/I18nContext';
 import api from '../utils/api';
 import { BRAND_ASSETS } from '../utils/assetCatalog';
+import ModernIcon from './icons/ModernIcon';
 import '../styles/OnboardingModal.css';
 
 function OnboardingModal({ user, onClose }) {
@@ -69,27 +70,35 @@ function OnboardingModal({ user, onClose }) {
                   }}
                 />
               </div>
-              <div className="onboarding-icon">🐐</div>
+              <div className="onboarding-icon">
+                <ModernIcon name="rocket" size={58} />
+              </div>
               <h2>{t('onboardingWelcomeTitle')}</h2>
               <p>{t('onboardingWelcomeText')}</p>
               
               <div className="onboarding-features">
                 <div className="onboarding-feature">
-                  <span className="feature-icon">📊</span>
+                  <span className="feature-icon">
+                    <ModernIcon name="chartBar" size={32} />
+                  </span>
                   <div>
                     <h3>{t('onboardingFeature1Title')}</h3>
                     <p>{t('onboardingFeature1Text')}</p>
                   </div>
                 </div>
                 <div className="onboarding-feature">
-                  <span className="feature-icon">🧀</span>
+                  <span className="feature-icon">
+                    <ModernIcon name="package" size={32} />
+                  </span>
                   <div>
                     <h3>{t('onboardingFeature2Title')}</h3>
                     <p>{t('onboardingFeature2Text')}</p>
                   </div>
                 </div>
                 <div className="onboarding-feature">
-                  <span className="feature-icon">🔬</span>
+                  <span className="feature-icon">
+                    <ModernIcon name="flask" size={32} />
+                  </span>
                   <div>
                     <h3>{t('onboardingFeature3Title')}</h3>
                     <p>{t('onboardingFeature3Text')}</p>
@@ -101,7 +110,9 @@ function OnboardingModal({ user, onClose }) {
 
           {step === 2 && (
             <div className="onboarding-step">
-              <div className="onboarding-icon">⚖️</div>
+              <div className="onboarding-icon">
+                <ModernIcon name="scale" size={58} />
+              </div>
               <h2>{t('onboardingLegalTitle')}</h2>
               <div className="onboarding-legal-content">
                 <h3>{t('onboardingDataSources')}</h3>
@@ -130,7 +141,9 @@ function OnboardingModal({ user, onClose }) {
 
           {step === 3 && (
             <div className="onboarding-step">
-              <div className="onboarding-icon">📧</div>
+              <div className="onboarding-icon">
+                <ModernIcon name="mail" size={58} />
+              </div>
               <h2>{t('onboardingEmailTitle')}</h2>
               <p>{t('onboardingEmailText')}</p>
               <div className="onboarding-email-display">
@@ -163,7 +176,9 @@ function OnboardingModal({ user, onClose }) {
               
               {emailVerified && (
                 <div className="onboarding-success">
-                  <span style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</span>
+                  <span style={{ marginBottom: '1rem', color: 'var(--success-color)' }}>
+                    <ModernIcon name="checkCircle" size={48} />
+                  </span>
                   <p>{t('onboardingEmailSent')}</p>
                 </div>
               )}

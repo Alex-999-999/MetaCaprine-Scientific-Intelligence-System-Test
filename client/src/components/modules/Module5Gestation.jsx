@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import AlertModal from '../AlertModal';
+import ModernIcon from '../icons/ModernIcon';
 
 /**
  * Module 5: Gestation Simulator + Reproductive Calendar
@@ -242,13 +243,13 @@ function Module5Gestation({ user }) {
     return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
-  const getAlertIcon = (type) => {
+  const getAlertIconName = (type) => {
     switch (type) {
-      case 'error': return '🚨';
-      case 'warning': return '⚠️';
-      case 'success': return '✅';
-      case 'info': return 'ℹ️';
-      default: return '📋';
+      case 'error': return 'bell';
+      case 'warning': return 'warning';
+      case 'success': return 'checkCircle';
+      case 'info': return 'infoCircle';
+      default: return 'fileText';
     }
   };
 
@@ -266,8 +267,9 @@ function Module5Gestation({ user }) {
     <div className="container">
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ marginTop: '20px' }}>{t('module5Title')}</h1>
-        <p style={{ color: '#666', fontSize: '0.95em' }}>
-          🐐 {t('module5Subtitle')}
+        <p style={{ color: '#666', fontSize: '0.95em', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          <ModernIcon name="calendar" size={16} />
+          {t('module5Subtitle')}
         </p>
       </header>
 
@@ -390,7 +392,10 @@ function Module5Gestation({ user }) {
                   
                   {calculatedData.hasGivenBirth && (
                     <div style={{ padding: '15px', background: '#e8f5e9', borderRadius: '8px' }}>
-                      <h3 style={{ marginTop: 0, fontSize: '1em', color: '#388e3c' }}>📣 {t('status')}</h3>
+                      <h3 style={{ marginTop: 0, fontSize: '1em', color: '#388e3c', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                        <ModernIcon name="megaphone" size={14} />
+                        {t('status')}
+                      </h3>
                       <p style={{ margin: 0, fontSize: '1.2em', fontWeight: 'bold' }}>
                         {t('birthOccurred')}
                       </p>
@@ -451,7 +456,12 @@ function Module5Gestation({ user }) {
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                         <div>
                           <h3 style={{ margin: 0, fontSize: '1.1em' }}>
-                            {week.isCurrent && '📍 '}{t('week')} {week.week}
+                            {week.isCurrent && (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '6px', color: 'var(--accent-warning)' }}>
+                                <ModernIcon name="mapPin" size={14} />
+                              </span>
+                            )}
+                            {t('week')} {week.week}
                             {week.isCurrent && ` (${t('current')})`}
                           </h3>
                           <p style={{ margin: '5px 0 0 0', fontSize: '0.9em', color: 'var(--text-tertiary)' }}>
@@ -482,8 +492,9 @@ function Module5Gestation({ user }) {
                                 border: `1px solid ${alert.type === 'error' ? 'var(--accent-error)' : alert.type === 'warning' ? 'var(--accent-warning)' : 'var(--border-color)'}`,
                               }}
                             >
-                              <p style={{ margin: 0, fontSize: '0.9em' }}>
-                                {getAlertIcon(alert.type)} {alert.message}
+                              <p style={{ margin: 0, fontSize: '0.9em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <ModernIcon name={getAlertIconName(alert.type)} size={14} />
+                                <span>{alert.message}</span>
                               </p>
                             </div>
                           ))}
@@ -499,7 +510,10 @@ function Module5Gestation({ user }) {
                 <h2>{t('generalCareChecklist')}</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '15px' }}>
                   <div style={{ padding: '15px', background: '#e3f2fd', borderRadius: '8px' }}>
-                    <h3 style={{ marginTop: 0, fontSize: '1em' }}>📋 {t('nutrition')}</h3>
+                    <h3 style={{ marginTop: 0, fontSize: '1em', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      <ModernIcon name="leaf" size={14} />
+                      {t('nutrition')}
+                    </h3>
                     <ul style={{ marginLeft: '20px', lineHeight: '1.8' }}>
                       <li>{t('nutritionItem1')}</li>
                       <li>{t('nutritionItem2')}</li>
@@ -508,7 +522,10 @@ function Module5Gestation({ user }) {
                   </div>
                   
                   <div style={{ padding: '15px', background: '#fff3e0', borderRadius: '8px' }}>
-                    <h3 style={{ marginTop: 0, fontSize: '1em' }}>🏥 {t('healthMonitoring')}</h3>
+                    <h3 style={{ marginTop: 0, fontSize: '1em', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      <ModernIcon name="heartPulse" size={14} />
+                      {t('healthMonitoring')}
+                    </h3>
                     <ul style={{ marginLeft: '20px', lineHeight: '1.8' }}>
                       <li>{t('healthItem1')}</li>
                       <li>{t('healthItem2')}</li>
@@ -517,7 +534,10 @@ function Module5Gestation({ user }) {
                   </div>
                   
                   <div style={{ padding: '15px', background: '#e8f5e9', borderRadius: '8px' }}>
-                    <h3 style={{ marginTop: 0, fontSize: '1em' }}>🏠 {t('environment')}</h3>
+                    <h3 style={{ marginTop: 0, fontSize: '1em', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      <ModernIcon name="home" size={14} />
+                      {t('environment')}
+                    </h3>
                     <ul style={{ marginLeft: '20px', lineHeight: '1.8' }}>
                       <li>{t('environmentItem1')}</li>
                       <li>{t('environmentItem2')}</li>

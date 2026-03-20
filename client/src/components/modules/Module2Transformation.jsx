@@ -6,6 +6,7 @@ import { useI18n } from '../../i18n/I18nContext';
 import AlertModal from '../AlertModal';
 import { useChartColors } from '../../hooks/useDarkMode';
 import { formatCurrency, formatCurrencyCompact, getCurrencySymbol, normalizeCurrency } from '../../utils/currency';
+import ModernIcon from '../icons/ModernIcon';
 
 function Module2Transformation({ user }) {
   const { t } = useI18n();
@@ -1749,7 +1750,7 @@ function Module2Transformation({ user }) {
                                             padding: '0 5px'
                                           }}
                                         >
-                                          {isExpanded ? 'â–¼' : 'â–¶'}
+                                          <ModernIcon name={isExpanded ? 'chevronDown' : 'chevronRight'} size={16} />
                                         </button>
                                       )}
                                     </td>

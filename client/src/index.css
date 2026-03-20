@@ -1317,14 +1317,19 @@ label {
 }
 
 .login-language-menu .language-menu-trigger {
-  border-color: rgba(255, 255, 255, 0.75);
-  background: rgba(255, 255, 255, 0.14);
+  min-width: auto;
+  width: auto;
+  height: 40px;
+  padding: 0 4px;
+  border: none;
+  background: transparent;
   color: #ffffff;
+  box-shadow: none;
 }
 
 .login-language-menu .language-menu-trigger:hover {
-  border-color: #ffffff;
-  background: rgba(255, 255, 255, 0.22);
+  border: none;
+  background: transparent;
 }
 
 .login-language-menu .language-menu-dropdown {
@@ -1862,7 +1867,6 @@ label {
 }
 
 .page-title {
-  font-size: 3rem;
   font-weight: 800;
   color: #1a3d0f;
   margin: 0 0 12px 0;
@@ -3004,6 +3008,16 @@ label {
 }
 
 .dark-mode .header-right .language-menu-trigger:hover {
+  background: transparent;
+  border: none;
+}
+
+.dark-mode .login-language-menu .language-menu-trigger {
+  background: transparent;
+  border: none;
+}
+
+.dark-mode .login-language-menu .language-menu-trigger:hover {
   background: transparent;
   border: none;
 }

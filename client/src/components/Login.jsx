@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+﻿import { useMemo, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../utils/api';
 import { useI18n } from '../i18n/I18nContext';
 import { BRAND_ASSETS } from '../utils/assetCatalog';
 import LanguageSwitcher from './LanguageSwitcher';
+import ModernIcon from './icons/ModernIcon';
 
 function Login({ onLogin }) {
   const { t, language } = useI18n();
@@ -215,7 +216,10 @@ function Login({ onLogin }) {
               marginBottom: '16px',
               fontSize: '14px'
             }}>
-              ✅ {success}
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <ModernIcon name="checkCircle" size={16} />
+                {success}
+              </span>
             </div>
           )}
 
@@ -386,7 +390,7 @@ function Login({ onLogin }) {
                   disabled={loading}
                   title={showPassword ? t('hidePassword') : t('showPassword')}
                 >
-                  {showPassword ? '🙈' : '👁️'}
+                  <ModernIcon name={showPassword ? 'eyeOff' : 'eye'} size={18} />
                 </button>
               </div>
             </div>
@@ -471,4 +475,5 @@ function Login({ onLogin }) {
 }
 
 export default Login;
+
 
