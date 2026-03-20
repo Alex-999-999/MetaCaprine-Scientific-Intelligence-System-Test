@@ -153,7 +153,20 @@ function Settings({ showSidebar, setShowSidebar, showFooter, setShowFooter, dark
         onClick={() => setIsOpen(!isOpen)}
         title={t('settings')}
       >
-        âš™ï¸
+        <svg
+          className="settings-icon-svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <circle cx="12" cy="12" r="3.2" />
+          <path d="M19.4 12a7.4 7.4 0 0 0-.06-.94l2.03-1.58-1.9-3.28-2.47.74a7.9 7.9 0 0 0-1.64-.95L15 3h-6l-.36 2.99c-.58.22-1.13.53-1.64.95l-2.47-.74-1.9 3.28 2.03 1.58a7.4 7.4 0 0 0 0 1.88L2.63 14.5l1.9 3.28 2.47-.74c.51.42 1.06.73 1.64.95L9 21h6l.36-2.99c.58-.22 1.13-.53 1.64-.95l2.47.74 1.9-3.28-2.03-1.56c.04-.31.06-.63.06-.96Z" />
+        </svg>
       </button>
       {isOpen && (
         <div className="settings-dropdown">
