@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useI18n } from '../i18n/I18nContext';
 import { formatCurrency, getCurrencySymbol, normalizeCurrency } from '../utils/currency';
 
@@ -236,7 +236,7 @@ function CostCalculatorModal({
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '700px', maxHeight: '90vh', overflowY: 'auto' }}>
         <div className="modal-header">
-          <h2>📊 {t('costEstimator')} - {t(`calc${calculatorType.charAt(0).toUpperCase() + calculatorType.slice(1)}`)}</h2>
+          <h2>{t('costEstimator')} - {t(`calc${calculatorType.charAt(0).toUpperCase() + calculatorType.slice(1)}`)}</h2>
           <button className="modal-close" onClick={onClose}>&times;</button>
         </div>
         
@@ -688,7 +688,7 @@ function CostCalculatorModal({
               <span style={{ color: 'var(--text-tertiary)' }}>{t('perLiter')}</span>
             </div>
             <p style={{ fontSize: '0.9em', color: 'var(--text-tertiary)', margin: 0 }}>
-              {t('basedOnCurrentHerdSize')}: {currentAnimals} {t('animals')} × {currentDailyProduction} L/day = {(currentAnimals * currentDailyProduction).toFixed(1)} L/day {t('total')}
+              {t('basedOnCurrentHerdSize')}: {currentAnimals} {t('animals')} x {currentDailyProduction} L/day = {(currentAnimals * currentDailyProduction).toFixed(1)} L/day {t('total')}
             </p>
           </div>
         </div>
@@ -698,7 +698,7 @@ function CostCalculatorModal({
             {t('cancel')}
           </button>
           <button className="btn btn-primary" onClick={handleApply}>
-            ✅ {t('applyToModule1')}
+            {t('applyToModule1')}
           </button>
         </div>
       </div>
@@ -707,3 +707,4 @@ function CostCalculatorModal({
 }
 
 export default CostCalculatorModal;
+

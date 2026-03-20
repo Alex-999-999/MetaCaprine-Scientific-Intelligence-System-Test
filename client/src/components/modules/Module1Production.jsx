@@ -170,7 +170,7 @@ function Module1Production({ user }) {
 
       setAlertModal({
         isOpen: true,
-        message: `${t('costEstimator')}: ${t('estimatedCost')} ${formatMoney(calculatedCost, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} ${t('perLiter')} ${t('applyToModule1')} âœ“`,
+        message: `${t('costEstimator')}: ${t('estimatedCost')} ${formatMoney(calculatedCost, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} ${t('perLiter')} ${t('applyToModule1')}`,
         type: 'success'
       });
     }
@@ -743,7 +743,6 @@ function Module1Production({ user }) {
                 <div className="chart-header">
                   <div>
                     <h2 className="chart-title">
-                      <span className="chart-title-icon">ðŸ“ˆ</span>
                       {t('visualization')}
                     </h2>
                     <p className="chart-subtitle">{t('financialOverview')}</p>
@@ -918,7 +917,6 @@ function Module1Production({ user }) {
                     </ResponsiveContainer>
                   ) : (
                     <div className="chart-empty">
-                      <div className="chart-empty-icon">ðŸ’°</div>
                       <p className="chart-empty-text">{t('noCostDataToShow')}</p>
                     </div>
                   )}

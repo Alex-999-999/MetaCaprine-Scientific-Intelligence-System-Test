@@ -17,9 +17,9 @@ import '../../styles/Module3.css';
  * Key Features:
  * - Automatic breed ranking by lifetime ECM
  * - Compare 2 breeds side-by-side
- * - Herd size scenarios (e.g., 2000 MalagueÃ±a vs 700 LaMancha)
+ * - Herd size scenarios (e.g., 2000 Malaguena vs 700 LaMancha)
  * - User can override base parameters per breed
- * - All calculations in kg (display note: â‰ˆ L)
+ * - All calculations in kg (display note: ~ L)
  */
 function Module3Lactation({ user }) {
   const { t } = useI18n();
@@ -568,7 +568,7 @@ function Module3Lactation({ user }) {
                     <p style={{ color: 'var(--text-primary)', fontSize: '1rem', marginBottom: '0.5rem' }}><strong style={{ fontSize: '1rem' }}>{t('protein')}:</strong> <span style={{ fontSize: '1.125rem', fontWeight: '600' }}>{formatNumber(singleResult.protein_kg_lifetime)} kg</span></p>
                     <p style={{ color: 'var(--text-primary)', fontSize: '1rem', marginBottom: '0.5rem' }}><strong style={{ fontSize: '1rem' }}>{t('fat')} + {t('protein')}:</strong> <span style={{ fontSize: '1.125rem', fontWeight: '600' }}>{formatNumber(singleResult.fat_plus_protein_kg_lifetime)} kg</span></p>
                     <p style={{ color: 'var(--text-primary)', fontSize: '1rem', marginBottom: '0.5rem' }}><strong style={{ fontSize: '1rem' }}>{t('ecmLifetime')}:</strong> <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--accent-success)' }}>{formatNumber(singleResult.ecm_kg_lifetime)} kg</span></p>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '0.75rem' }}><small>({formatNumber(singleResult.lactations_lifetime_avg, 1)} {t('lactationsPerLife')} Ã— {formatNumber(singleResult.lact_days_avg, 0)} {t('days')})</small></p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '0.75rem' }}><small>({formatNumber(singleResult.lactations_lifetime_avg, 1)} {t('lactationsPerLife')} x {formatNumber(singleResult.lact_days_avg, 0)} {t('days')})</small></p>
                   </div>
                   <div style={{ padding: '20px', background: 'rgba(234, 179, 8, 0.1)', borderRadius: '8px', border: '1px solid var(--accent-warning)', color: 'var(--text-primary)' }}>
                     <h3 style={{ marginTop: 0, fontSize: '1.125rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '1rem' }}>{t('herdTotal')} ({formatNumber(singleResult.herd_size, 0)} {t('animals')})</h3>
@@ -734,7 +734,6 @@ function Module3Lactation({ user }) {
                   border: `3px solid ${comparisonResult.winner === 'A' ? 'var(--accent-info)' : 'var(--chart-quaternary)'}`,
                   textAlign: 'center'
                 }}>
-                  <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>ðŸ†</div>
                   <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.5rem', fontWeight: '700', color: 'var(--text-primary)' }}>
                     {comparisonResult.winner === 'A' ? comparisonResult.aScenario.breed_name : comparisonResult.bScenario.breed_name}
                   </h3>
@@ -1051,7 +1050,6 @@ function Module3Lactation({ user }) {
             <div className="chart-header">
               <div>
                 <h2 className="chart-title" style={{ fontSize: '1.75rem', fontWeight: '700' }}>
-                  <span className="chart-title-icon">ðŸ†</span>
                   {t('breedRankingByEcmLifetime')}
                 </h2>
                 <p className="chart-subtitle" style={{ fontSize: '1rem' }}>{t('breedRankingSubtitle')}</p>

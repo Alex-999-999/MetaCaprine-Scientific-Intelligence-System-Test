@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { useI18n } from '../i18n/I18nContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getAuthToken } from '../utils/auth';
@@ -14,29 +14,86 @@ function Sidebar({ user, onLogout }) {
 
   if (!isAuthenticated) return null;
 
+  const NavIcon = ({ children }) => (
+    <svg
+      className="nav-icon-svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {children}
+    </svg>
+  );
+
   const menuItems = [
-    { path: '/dashboard', icon: '📊', label: t('dashboard') },
-    { path: '/module1', icon: '🥛', label: `M1 - ${t('moduleTypes.milk_sale')}` },
-    { path: '/module2', icon: '🧀', label: `M2 - ${t('moduleTypes.transformation')}` },
+    {
+      path: '/dashboard',
+      icon: (
+        <NavIcon>
+          <path d="M3 20h18" />
+          <path d="M6 20v-9" />
+          <path d="M12 20V6" />
+          <path d="M18 20v-5" />
+        </NavIcon>
+      ),
+      label: t('dashboard')
+    },
+    {
+      path: '/module1',
+      icon: (
+        <NavIcon>
+          <path d="M12 3C9.5 6.6 7.5 9.2 7.5 12.8a4.5 4.5 0 1 0 9 0C16.5 9.2 14.5 6.6 12 3Z" />
+          <path d="M10.2 14.2a2.4 2.4 0 0 0 3.6 0" />
+        </NavIcon>
+      ),
+      label: `M1 - ${t('moduleTypes.milk_sale')}`
+    },
+    {
+      path: '/module2',
+      icon: (
+        <NavIcon>
+          <path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Z" />
+          <path d="M4 7.5V16.5L12 21l8-4.5V7.5" />
+          <path d="M12 12v9" />
+        </NavIcon>
+      ),
+      label: `M2 - ${t('moduleTypes.transformation')}`
+    },
     {
       path: '/module3',
       icon: (
-        <img
-          src={BRAND_ASSETS.goatMirabella}
-          alt="Goat"
-          className="nav-icon-image"
-          onError={(e) => {
-            e.currentTarget.style.display = 'none';
-            const fallback = e.currentTarget.nextElementSibling;
-            if (fallback) fallback.style.display = 'inline';
-          }}
-        />
+        <NavIcon>
+          <path d="M3 12h4l2.5-5 5 10 2.5-5H21" />
+        </NavIcon>
       ),
-      iconFallback: '🐐',
       label: `M3 - ${t('moduleTypes.lactation')}`,
     },
-    { path: '/module4', icon: '📈', label: t('sidebarConversionYield') },
-    { path: '/module5', icon: '📋', label: t('sidebarPredictiveGestation') },
+    {
+      path: '/module4',
+      icon: (
+        <NavIcon>
+          <path d="M3 20h18" />
+          <path d="M4 16l5-5 4 3 7-8" />
+        </NavIcon>
+      ),
+      label: t('sidebarConversionYield')
+    },
+    {
+      path: '/module5',
+      icon: (
+        <NavIcon>
+          <rect x="3" y="5" width="18" height="16" rx="2" />
+          <path d="M8 3v4M16 3v4M3 10h18" />
+          <path d="M8 14h3M13 14h3M8 18h3" />
+        </NavIcon>
+      ),
+      label: t('sidebarPredictiveGestation')
+    },
   ];
 
   return (
@@ -58,10 +115,7 @@ function Sidebar({ user, onLogout }) {
               to={item.path}
               className={`sidebar-nav-link ${isActive ? 'active' : ''}`}
             >
-              <span className="nav-icon">
-                {item.icon}
-                {item.iconFallback && <span style={{ display: 'none' }}>{item.iconFallback}</span>}
-              </span>
+              <span className="nav-icon">{item.icon}</span>
               <span className="nav-text">{item.label}</span>
             </Link>
           );
@@ -99,7 +153,7 @@ function Settings({ showSidebar, setShowSidebar, showFooter, setShowFooter, dark
         onClick={() => setIsOpen(!isOpen)}
         title={t('settings')}
       >
-        ⚙️
+        âš™ï¸
       </button>
       {isOpen && (
         <div className="settings-dropdown">
@@ -243,11 +297,11 @@ function UserAvatar({ user, onLogout }) {
           </div>
           <div className="avatar-dropdown-divider"></div>
           <button className="avatar-dropdown-item" onClick={handleProfileClick}>
-            <span className="avatar-dropdown-icon">👤</span>
+            <span className="avatar-dropdown-icon">ðŸ‘¤</span>
             <span>{t('profile')}</span>
           </button>
           <button className="avatar-dropdown-item avatar-dropdown-item-danger" onClick={handleLogoutClick}>
-            <span className="avatar-dropdown-icon">🚪</span>
+            <span className="avatar-dropdown-icon">ðŸšª</span>
             <span>{t('logout')}</span>
           </button>
         </div>
@@ -464,4 +518,5 @@ function Layout({ children, user, onLogout }) {
 }
 
 export default Layout;
+
 

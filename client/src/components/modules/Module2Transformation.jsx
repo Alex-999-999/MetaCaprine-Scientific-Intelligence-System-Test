@@ -1234,7 +1234,7 @@ function Module2Transformation({ user }) {
                   {t('salesChannels')}
                 </h4>
                 <div style={{ marginBottom: '15px', padding: '10px', background: 'rgba(234, 179, 8, 0.1)', borderRadius: '6px', border: '1px solid var(--accent-warning)', fontSize: '0.9em' }}>
-                  <strong>ðŸ“Œ {t('note')}:</strong> {t('salesChannelsNote')}
+                  <strong>{t('note')}:</strong> {t('salesChannelsNote')}
                 </div>
                 {(() => {
                   const totalChannelPct = parseFloat(product.sales_channel_direct_percentage || 0) +
@@ -1349,7 +1349,6 @@ function Module2Transformation({ user }) {
               {selectedScenario?.results && (
                 <div className="card" style={{ background: 'rgba(22, 163, 74, 0.1)', border: '1px solid var(--accent-success)', marginBottom: '20px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--accent-success)' }}>
-                    <span style={{ fontSize: '1.2em' }}>âœ“</span>
                     <strong>{t('autoLoadedResults')}</strong>
                   </div>
                 </div>
@@ -1703,7 +1702,7 @@ function Module2Transformation({ user }) {
                   return (
                     <>
                       <div style={{ marginBottom: '15px', padding: '12px', background: 'rgba(37, 99, 235, 0.1)', borderRadius: '6px', border: '1px solid var(--accent-info)', fontSize: '0.9em' }}>
-                        <strong>âœ… {t('note')}:</strong> {t('module2ProductTableNote')}
+                        <strong>{t('note')}:</strong> {t('module2ProductTableNote')}
                       </div>
                       <div className="table-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                         <table className="table numeric-table" style={{ minWidth: '800px' }}>
@@ -1900,7 +1899,7 @@ function Module2Transformation({ user }) {
                         <td><strong>{t('difference')}</strong></td>
                         <td colSpan="2">
                           {formatMoney(Math.abs(results.transformation_margin - results.milk_margin))}
-                          {' '}({['transform', 'transformation', 'transformaciÃ³n'].includes(results.better_option) ? t('betterTransform') : t('betterSellDirect')})
+                          {' '}({['transform', 'transformation', 'transformacion', 'transformación'].includes(results.better_option) ? t('betterTransform') : t('betterSellDirect')})
                         </td>
                       </tr>
                     </tbody>
@@ -1913,7 +1912,6 @@ function Module2Transformation({ user }) {
                 <div className="chart-header">
                   <div>
                     <h2 className="chart-title">
-                      <span className="chart-title-icon">ðŸ“ˆ</span>
                       {t('visualization')}
                     </h2>
                     <p className="chart-subtitle">{t('module2CompareSubtitle')}</p>
@@ -2181,7 +2179,6 @@ function Module2Transformation({ user }) {
                     </>
                   ) : (
                     <div className="chart-empty">
-                      <div className="chart-empty-icon">ðŸ“Š</div>
                       <p className="chart-empty-text">{t('noDataToShow')}</p>
                     </div>
                   )}
@@ -2194,7 +2191,6 @@ function Module2Transformation({ user }) {
                   <div className="chart-header">
                     <div>
                       <h2 className="chart-title">
-                        <span className="chart-title-icon">ðŸŽ¯</span>
                         {t('integratedDashboard')}
                       </h2>
                       <p className="chart-subtitle">{t('dashboardDescription')}</p>
