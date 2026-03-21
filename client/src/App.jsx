@@ -12,6 +12,7 @@ import Module3Lactation from './components/modules/Module3Lactation';
 import Module4Yield from './components/modules/Module4Yield';
 import Module5Gestation from './components/modules/Module5Gestation';
 import VerifyEmail from './components/VerifyEmail';
+import { AboutPage, ContactPage, PrivacyPage, TermsPage } from './components/FooterLegalPages';
 import { getAuthToken, setAuthToken, removeAuthToken, getUser, setUser as saveUserToStorage } from './utils/auth';
 import api from './utils/api';
 
@@ -162,6 +163,10 @@ function AppContent() {
             )
           }
         />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
         <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
       </Routes>
     </Layout>

@@ -4411,6 +4411,73 @@ label {
   color: var(--text-secondary);
 }
 
+/* Footer Legal Pages */
+.footer-page-wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.footer-page-card {
+  padding: 28px;
+}
+
+.footer-page-title {
+  font-size: clamp(1.4rem, 1.2rem + 1.2vw, 2rem);
+  line-height: 1.2;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.footer-page-lead {
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+.footer-page-paragraph {
+  font-size: 0.97rem;
+  line-height: 1.72;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.footer-page-section + .footer-page-section {
+  margin-top: 16px;
+}
+
+.footer-page-section-title {
+  font-size: 1.03rem;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.footer-page-list,
+.footer-page-ordered-list {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 10px;
+}
+
+.footer-page-list li,
+.footer-page-ordered-list li {
+  color: var(--text-secondary);
+  line-height: 1.68;
+  font-size: 0.96rem;
+}
+
+.dark-mode .footer-page-card {
+  background: var(--card-bg);
+}
+
+@media (max-width: 768px) {
+  .footer-page-card {
+    padding: 20px 16px;
+  }
+}
+
 /* Container policy: large containers must be square (no rounded corners). */
 .card,
 .site-header,

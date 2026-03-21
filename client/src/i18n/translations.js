@@ -3940,3 +3940,88 @@ Object.assign(translations.pt, {
   chartViewScale: 'Scale (Margin Structure)',
 });
 // STEP24_MODULE2_COMPARISON_AND_CHART_MODES_END
+
+// STEP25_FOOTER_LEGAL_PAGES_START
+Object.assign(translations.en, {
+  footerAboutPageTitle: 'About',
+  footerAboutLead: 'MetaCaprine Intelligence is the first technology platform designed exclusively to transform dairy goat farming into a structured, profitable, and predictable business model.',
+  footerAboutParagraph1: 'Created by Richard Mendoza, author of "Caprinocultura: Un Modelo de Negocio", this platform was built with a clear purpose: translate herd biology and daily operations into exact financial metrics. MetaCaprine Intelligence replaces intuition-based decisions with clear control over costs, transformation margins, and growth projections.',
+  footerAboutParagraph2: 'We do not just count liters; we calculate profitability.',
+  footerContactPageTitle: 'Contact',
+  footerContactLead: 'Need help with your account or want to take your operation to the next level?',
+  footerContactSupportTitle: 'Platform Technical Support',
+  footerContactSupportBody: 'For access issues, billing, or system errors, email: soporte@metacaprine.com. Response time: 24-72 business hours.',
+  footerContactConsultingTitle: 'Private Consulting and Mentoring',
+  footerContactConsultingBody: 'If you need direct strategic support with Richard Mendoza to structure your farm, send the word ASESORIA by direct message to the official Instagram: @metacaprine.',
+  footerPrivacyPageTitle: 'Privacy Policy',
+  footerPrivacyItem1Title: 'Absolute Operational Privacy',
+  footerPrivacyItem1Body: 'We understand that production costs and metrics entered in MetaCaprine Intelligence are confidential business information. Your individual financial data will not be sold, rented, or shared with third parties under any circumstances.',
+  footerPrivacyItem2Title: 'Data Usage for the Platform',
+  footerPrivacyItem2Body: 'The information you enter is used exclusively to generate your personal dashboards and perform the requested calculations.',
+  footerPrivacyItem3Title: 'Aggregated Data (Anonymized)',
+  footerPrivacyItem3Body: 'MetaCaprine may use data in strictly anonymous and global form (without identifying the user or farm) to create industry statistics, regional average-cost reports, and predictive algorithm improvements.',
+  footerTermsPageTitle: 'Terms of Service',
+  footerTermsPurposeTitle: 'Purpose',
+  footerTermsPurposeBody: 'These terms protect intellectual property and clarify that the software is an analytical calculation tool, not a guarantee of economic success. Final business risk and execution responsibility belong to the producer.',
+  footerTermsClause1Title: '1. Nature of the Tool (Liability Disclaimer)',
+  footerTermsClause1Body: 'MetaCaprine Intelligence provides calculations, estimates, and projections based on user-entered data. The platform is an analytical support tool and does not constitute official financial or accounting advice. MetaCaprine and Richard Mendoza are not responsible for economic losses, bankruptcy, or investment decisions made from platform outputs. Final profitability depends on the user operational execution on the farm.',
+  footerTermsClause2Title: '2. Exclusive Intellectual Property',
+  footerTermsClause2Body: 'All algorithms, calculation formulas, costing methodologies, software architecture, and trademarks inside MetaCaprine Intelligence are the exclusive intellectual property of Richard Mendoza.',
+  footerTermsClause3Title: '3. Reproduction Prohibition',
+  footerTermsClause3Body: 'Copying, reverse engineering, distribution, massive screenshot capture, or commercialization of calculators and internal logic to build competing tools is strictly prohibited. Any infringement may be subject to legal action.',
+  footerTermsClause4Title: '4. Data Accuracy',
+  footerTermsClause4Body: 'Cost-per-liter precision and projections depend 100% on the accuracy and truthfulness of the information entered by the user.',
+});
+
+Object.assign(translations.es, {
+  footerAboutPageTitle: 'Acerca de',
+  footerAboutLead: 'MetaCaprine Intelligence es la primera plataforma tecnologica disenada exclusivamente para transformar la ganaderia caprina en un modelo de negocio estructurado, rentable y predecible.',
+  footerAboutParagraph1: 'Creada por Richard Mendoza, autor del libro "Caprinocultura: Un Modelo de Negocio", esta herramienta nace con un proposito claro: traducir la biologia y la operacion diaria del rebano en metricas financieras exactas. MetaCaprine Intelligence elimina las decisiones basadas en intuicion y proporciona a los productores control sobre sus costos, margenes de transformacion y proyecciones de crecimiento.',
+  footerAboutParagraph2: 'No solo contamos litros; calculamos rentabilidad.',
+  footerContactPageTitle: 'Contacto',
+  footerContactLead: 'Necesitas asistencia con tu cuenta o quieres llevar tu operacion al siguiente nivel?',
+  footerContactSupportTitle: 'Soporte Tecnico de la Plataforma',
+  footerContactSupportBody: 'Para problemas de acceso, facturacion o errores del sistema, escribenos a: soporte@metacaprine.com. Tiempo de respuesta: 24-72 horas habiles.',
+  footerContactConsultingTitle: 'Consultoria y Mentoria Privada',
+  footerContactConsultingBody: 'Si buscas acompanamiento estrategico directo con Richard Mendoza para estructurar tu granja, envia la palabra ASESORIA por mensaje directo a nuestro Instagram oficial: @metacaprine.',
+  footerPrivacyPageTitle: 'Politica de Privacidad',
+  footerPrivacyItem1Title: 'Privacidad Absoluta de la Operacion',
+  footerPrivacyItem1Body: 'Entendemos que los costos y metricas productivas ingresadas en MetaCaprine Intelligence son informacion comercial confidencial. Tus datos financieros individuales no seran vendidos, alquilados ni compartidos con terceros en ninguna circunstancia.',
+  footerPrivacyItem2Title: 'Uso de Datos para el Sistema',
+  footerPrivacyItem2Body: 'La informacion que ingresas se utiliza exclusivamente para generar tus dashboards personales y realizar los calculos solicitados.',
+  footerPrivacyItem3Title: 'Datos Agregados (Anonimizados)',
+  footerPrivacyItem3Body: 'MetaCaprine se reserva el derecho de utilizar datos de forma estrictamente anonima y global (sin identificar al usuario ni a la granja) para generar reportes estadisticos de la industria, promedios de costos regionales y mejoras en los algoritmos predictivos de la plataforma.',
+  footerTermsPageTitle: 'Terminos de Servicio',
+  footerTermsPurposeTitle: 'Proposito',
+  footerTermsPurposeBody: 'Estos terminos protegen la metodologia intelectual y dejan claro que el software es una herramienta de calculo y apoyo analitico, no una garantia automatica de exito. El riesgo final y la ejecucion del negocio corresponden al productor.',
+  footerTermsClause1Title: '1. Naturaleza de la Herramienta (Exencion de Responsabilidad)',
+  footerTermsClause1Body: 'MetaCaprine Intelligence proporciona calculos, estimaciones y proyecciones basadas en los datos ingresados por el usuario. La plataforma es una herramienta de apoyo analitico y NO constituye asesoria financiera ni contable oficial. MetaCaprine y Richard Mendoza no se hacen responsables por perdidas economicas, quiebras o decisiones de inversion tomadas a partir de los resultados mostrados. La rentabilidad final depende de la ejecucion operativa del usuario en su granja.',
+  footerTermsClause2Title: '2. Propiedad Intelectual Exclusiva',
+  footerTermsClause2Body: 'Todos los algoritmos, formulas de calculo, metodologias de costeo, arquitectura de software y marcas comerciales dentro de MetaCaprine Intelligence son propiedad intelectual exclusiva de Richard Mendoza.',
+  footerTermsClause3Title: '3. Prohibicion de Reproduccion',
+  footerTermsClause3Body: 'Queda estrictamente prohibida la copia, ingenieria inversa, distribucion, captura de pantalla masiva o comercializacion de las calculadoras y logicas internas de este sistema para crear herramientas competidoras. Cualquier infraccion podra derivar en acciones legales.',
+  footerTermsClause4Title: '4. Exactitud de los Datos',
+  footerTermsClause4Body: 'La precision de los costos por litro y proyecciones depende 100% de la veracidad de la informacion que el usuario introduzca en las calculadoras.',
+});
+
+Object.assign(translations.fr, {
+  footerAboutPageTitle: 'About',
+  footerContactPageTitle: 'Contact',
+  footerPrivacyPageTitle: 'Privacy Policy',
+  footerTermsPageTitle: 'Terms of Service',
+});
+
+Object.assign(translations.it, {
+  footerAboutPageTitle: 'About',
+  footerContactPageTitle: 'Contact',
+  footerPrivacyPageTitle: 'Privacy Policy',
+  footerTermsPageTitle: 'Terms of Service',
+});
+
+Object.assign(translations.pt, {
+  footerAboutPageTitle: 'Sobre',
+  footerContactPageTitle: 'Contato',
+  footerPrivacyPageTitle: 'Politica de Privacidade',
+  footerTermsPageTitle: 'Termos de Servico',
+});
+// STEP25_FOOTER_LEGAL_PAGES_END
