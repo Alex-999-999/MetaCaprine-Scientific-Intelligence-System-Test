@@ -1,4 +1,4 @@
-import { resolveBreedImagePath } from './assetCatalog';
+import { resolveBreedImagePath, shouldMirrorBreedImage as shouldMirrorBreedImageFromCatalog } from './assetCatalog';
 
 /**
  * Resolve breed image from DB asset key (preferred) and fallback breed name.
@@ -8,6 +8,10 @@ import { resolveBreedImagePath } from './assetCatalog';
  */
 export function getBreedImage(breedName, imageAssetKey) {
   return resolveBreedImagePath({ breedName, imageAssetKey });
+}
+
+export function shouldMirrorBreedImage(breedName, imageAssetKey) {
+  return shouldMirrorBreedImageFromCatalog({ breedName, imageAssetKey });
 }
 
 /**

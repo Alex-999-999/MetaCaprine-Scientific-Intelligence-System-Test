@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../i18n/I18nContext';
 
 const LANGUAGES = [
-  { value: 'es', label: 'Espanol' },
+  { value: 'es', label: 'Espa\u00f1ol' },
   { value: 'en', label: 'English' },
   { value: 'fr', label: 'Francais' },
   { value: 'it', label: 'Italiano' },
@@ -13,7 +13,7 @@ function LanguageSwitcher({ className = '' }) {
   const { language, changeLanguage } = useI18n();
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
-  const activeCode = (language || 'en').toUpperCase();
+  const activeCode = language === 'es' ? 'ES\u00d1' : (language || 'en').toUpperCase();
 
   useEffect(() => {
     const onDocumentClick = (event) => {

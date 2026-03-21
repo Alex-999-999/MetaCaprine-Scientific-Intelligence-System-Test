@@ -73,33 +73,47 @@ function Login({ onLogin }) {
   };
 
   const countryOptions = useMemo(() => {
-    const latamPriority = [
-      'Argentina',
-      'Bolivia',
-      'Brazil',
-      'Chile',
-      'Colombia',
-      'Costa Rica',
-      'Cuba',
-      'Dominican Republic',
-      'Ecuador',
-      'El Salvador',
-      'Guatemala',
-      'Honduras',
-      'Mexico',
-      'Nicaragua',
-      'Panama',
-      'Paraguay',
-      'Peru',
-      'Puerto Rico',
-      'Uruguay',
-      'Venezuela',
+    const latamPriorityCodes = [
+      'AR', // Argentina
+      'BO', // Bolivia
+      'BR', // Brazil
+      'CL', // Chile
+      'CO', // Colombia
+      'CR', // Costa Rica
+      'CU', // Cuba
+      'DO', // Dominican Republic
+      'EC', // Ecuador
+      'SV', // El Salvador
+      'GT', // Guatemala
+      'HN', // Honduras
+      'MX', // Mexico
+      'NI', // Nicaragua
+      'PA', // Panama
+      'PY', // Paraguay
+      'PE', // Peru
+      'PR', // Puerto Rico
+      'UY', // Uruguay
+      'VE', // Venezuela
+      'BZ', // Belize
+      'GY', // Guyana
+      'HT', // Haiti
+      'JM', // Jamaica
+      'SR', // Suriname
+      'TT', // Trinidad and Tobago
+      'BS', // Bahamas
+      'BB', // Barbados
+      'AG', // Antigua and Barbuda
+      'DM', // Dominica
+      'GD', // Grenada
+      'KN', // Saint Kitts and Nevis
+      'LC', // Saint Lucia
+      'VC', // Saint Vincent and the Grenadines
     ];
 
     const prioritizeLatam = (options) => {
-      const byValue = new Map(options.map((option) => [option.value, option]));
-      const prioritized = latamPriority
-        .map((countryName) => byValue.get(countryName))
+      const byCode = new Map(options.map((option) => [option.code, option]));
+      const prioritized = latamPriorityCodes
+        .map((countryCode) => byCode.get(countryCode))
         .filter(Boolean);
       const prioritizedValues = new Set(prioritized.map((option) => option.value));
       const remaining = options.filter((option) => !prioritizedValues.has(option.value));
@@ -107,9 +121,14 @@ function Login({ onLogin }) {
     };
 
     const fallbackCountries = [
+      { code: 'AG', value: 'Antigua and Barbuda', label: 'Antigua and Barbuda' },
       { code: 'AR', value: 'Argentina', label: 'Argentina' },
+      { code: 'BS', value: 'Bahamas', label: 'Bahamas' },
+      { code: 'BB', value: 'Barbados', label: 'Barbados' },
+      { code: 'BZ', value: 'Belize', label: 'Belize' },
       { code: 'BO', value: 'Bolivia', label: 'Bolivia' },
       { code: 'BR', value: 'Brazil', label: 'Brazil' },
+      { code: 'DM', value: 'Dominica', label: 'Dominica' },
       { code: 'CA', value: 'Canada', label: 'Canada' },
       { code: 'CL', value: 'Chile', label: 'Chile' },
       { code: 'CO', value: 'Colombia', label: 'Colombia' },
@@ -120,15 +139,30 @@ function Login({ onLogin }) {
       { code: 'SV', value: 'El Salvador', label: 'El Salvador' },
       { code: 'FR', value: 'France', label: 'France' },
       { code: 'DE', value: 'Germany', label: 'Germany' },
+      { code: 'GD', value: 'Grenada', label: 'Grenada' },
+      { code: 'GT', value: 'Guatemala', label: 'Guatemala' },
+      { code: 'GY', value: 'Guyana', label: 'Guyana' },
+      { code: 'HT', value: 'Haiti', label: 'Haiti' },
+      { code: 'HN', value: 'Honduras', label: 'Honduras' },
       { code: 'IT', value: 'Italy', label: 'Italy' },
+      { code: 'JM', value: 'Jamaica', label: 'Jamaica' },
+      { code: 'KN', value: 'Saint Kitts and Nevis', label: 'Saint Kitts and Nevis' },
+      { code: 'LC', value: 'Saint Lucia', label: 'Saint Lucia' },
       { code: 'MX', value: 'Mexico', label: 'Mexico' },
+      { code: 'NI', value: 'Nicaragua', label: 'Nicaragua' },
+      { code: 'PA', value: 'Panama', label: 'Panama' },
+      { code: 'PY', value: 'Paraguay', label: 'Paraguay' },
       { code: 'PE', value: 'Peru', label: 'Peru' },
       { code: 'PT', value: 'Portugal', label: 'Portugal' },
+      { code: 'PR', value: 'Puerto Rico', label: 'Puerto Rico' },
       { code: 'ES', value: 'Spain', label: 'Spain' },
+      { code: 'SR', value: 'Suriname', label: 'Suriname' },
+      { code: 'TT', value: 'Trinidad and Tobago', label: 'Trinidad and Tobago' },
       { code: 'GB', value: 'United Kingdom', label: 'United Kingdom' },
       { code: 'US', value: 'United States', label: 'United States' },
       { code: 'UY', value: 'Uruguay', label: 'Uruguay' },
       { code: 'VE', value: 'Venezuela', label: 'Venezuela' },
+      { code: 'VC', value: 'Saint Vincent and the Grenadines', label: 'Saint Vincent and the Grenadines' },
     ];
 
     if (
@@ -308,7 +342,13 @@ function Login({ onLogin }) {
                   <label>{t('country')}</label>
                   <select
                     value={country}
-                    onChange={(e) => setCountry(e.target.value)}
+                    onChange={(e) => {
+                      const nextCountry = e.target.value;
+                      setCountry(nextCountry);
+                      if (nextCountry !== '__other__') {
+                        setCustomCountry('');
+                      }
+                    }}
                     required
                     disabled={loading}
                   >

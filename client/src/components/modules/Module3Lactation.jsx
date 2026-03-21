@@ -7,7 +7,7 @@ import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import AlertModal from '../AlertModal';
 import { useChartColors } from '../../hooks/useDarkMode';
-import { getBreedImage, getBreedInitials } from '../../utils/breedImages';
+import { getBreedImage, getBreedInitials, shouldMirrorBreedImage } from '../../utils/breedImages';
 import ModernIcon from '../icons/ModernIcon';
 import '../../styles/Module3.css';
 
@@ -108,6 +108,23 @@ function Module3Lactation({ user }) {
     if (!normalized) return null;
     const parsed = Number(normalized);
     return Number.isFinite(parsed) ? parsed : null;
+  };
+
+  const getBreedDropdownLabel = (breed) => {
+    const rawLabel = String(breed?.breed_name || breed?.breed_key || '').trim();
+    if (!rawLabel) return '';
+
+    let cleanedLabel = rawLabel
+      // Remove trailing metric blobs like "- 7034 kg ECM Vida Productiva ..."
+      .replace(/\s*[-–]\s*\d+(?:[.,]\d+)?\s*kg\b.*$/i, '')
+      // Remove trailing source blocks in square brackets.
+      .replace(/\s*\[[^\]]+\]\s*$/, '')
+      // Remove trailing parenthesized source acronyms, keep meaningful breed qualifiers.
+      .replace(/\s*\((?:[^)]*\b(?:ADGA|USDA|INRAE|ICAR|FAO|CAPRI|ACRIM|NVDW|DHI|WUR|NRS|CAR|FAD|BAM|UCD|UC)\b[^)]*)\)\s*$/i, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+
+    return cleanedLabel || rawLabel;
   };
 
   const buildCleanOverrides = (overrides) => {
@@ -444,7 +461,7 @@ function Module3Lactation({ user }) {
                 <option value="">{t('chooseBreed')}</option>
                 {breeds.map(breed => (
                   <option key={breed.breed_key} value={breed.breed_key}>
-                    {breed.breed_name}
+                    {getBreedDropdownLabel(breed)}
                   </option>
                 ))}
               </select>
@@ -611,7 +628,7 @@ function Module3Lactation({ user }) {
                     <option value="">{t('chooseBreed')}</option>
                     {breeds.map(breed => (
                       <option key={breed.breed_key} value={breed.breed_key}>
-                        {breed.breed_name}
+                        {getBreedDropdownLabel(breed)}
                       </option>
                     ))}
                   </select>
@@ -673,7 +690,7 @@ function Module3Lactation({ user }) {
                     <option value="">{t('chooseBreed')}</option>
                     {breeds.map(breed => (
                       <option key={breed.breed_key} value={breed.breed_key}>
-                        {breed.breed_name}
+                        {getBreedDropdownLabel(breed)}
                       </option>
                     ))}
                   </select>
@@ -1105,7 +1122,7 @@ function Module3Lactation({ user }) {
                         <img
                           src={getBreedImage(breed.breed_name, breed.image_asset_key)}
                           alt={breed.breed_name}
-                          className="breed-image"
+                          className={`breed-image ${shouldMirrorBreedImage(breed.breed_name, breed.image_asset_key) ? 'mirrored' : ''}`}
                           onError={(e) => {
                             e.target.style.display = 'none';
                             const placeholder = e.target.nextSibling;
@@ -1454,7 +1471,7 @@ function Module3Lactation({ user }) {
                       width: '100%',
                       height: '100%',
                       objectFit: 'contain',
-                      transform: imageHover.isHovering ? 'scale(2.5)' : 'scale(1)',
+                      transform: `${shouldMirrorBreedImage(selectedBreedDetail.breed_name, selectedBreedDetail.image_asset_key) ? 'scaleX(-1) ' : ''}${imageHover.isHovering ? 'scale(2.5)' : 'scale(1)'}`,
                       transformOrigin: `${imageHover.x}% ${imageHover.y}%`,
                       transition: imageHover.isHovering ? 'none' : 'transform 0.3s ease-out'
                     }}

@@ -136,7 +136,7 @@ function Module5Summary({ user }) {
   return (
     <div className="container module-compact">
       <header style={{ marginBottom: '20px' }}>
-        <h1 style={{ marginTop: '20px' }}>{t('module5Title')}</h1>
+        <h1 style={{ marginTop: '20px' }}>{t('module5SummaryTitle')}</h1>
         <div className="pedagogy-block" style={{ marginTop: '12px' }}>
           <p className="pedagogy-title">{t('module5SummaryPedagogyTitle')}</p>
           <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.55 }}>

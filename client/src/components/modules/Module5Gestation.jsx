@@ -269,7 +269,7 @@ function Module5Gestation({ user }) {
   return (
     <div className="container module-compact">
       <header style={{ marginBottom: '20px' }}>
-        <h1 style={{ marginTop: '20px' }}>{t('module5Title')}</h1>
+        <h1 style={{ marginTop: '20px' }}>{t('module5GestationTitle')}</h1>
         <p style={{ color: '#666', fontSize: '0.95em', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
           <ModernIcon name="calendar" size={16} />
           {t('module5Subtitle')}

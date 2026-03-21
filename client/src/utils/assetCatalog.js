@@ -38,6 +38,12 @@ const BREED_IMAGE_FILENAME_BY_CANONICAL_KEY = Object.freeze({
   criolla_peruana: 'CriollaPeruana.png',
 });
 
+const MIRRORED_BREED_CANONICAL_KEYS = new Set([
+  'alpine_francesa',
+  'saanen_francesa',
+  'saanen_generica',
+]);
+
 const BREED_ALIAS_TO_CANONICAL = Object.freeze({
   dutch: 'dutch',
   holandesa: 'dutch',
@@ -175,6 +181,22 @@ function resolveImagePathFromAssetKey(imageAssetKey) {
   return fileName ? toBreedImagePath(fileName) : null;
 }
 
+function resolveCanonicalFromAssetKey(imageAssetKey) {
+  if (!imageAssetKey) return null;
+
+  const raw = String(imageAssetKey).trim();
+  if (!raw) return null;
+
+  const rawFileName = raw.split('/').pop();
+  const rawFileNameWithoutExt = rawFileName.replace(/\.[^.]+$/, '');
+
+  return (
+    resolveCanonicalBreedKey(raw) ||
+    resolveCanonicalBreedKey(rawFileName) ||
+    resolveCanonicalBreedKey(rawFileNameWithoutExt)
+  );
+}
+
 function resolveImagePathFromBreedName(breedName) {
   const normalizedName = normalizeLookup(breedName);
   if (!normalizedName) return null;
@@ -202,4 +224,12 @@ export function resolveBreedImagePath({ breedName, imageAssetKey } = {}) {
     resolveImagePathFromBreedName(breedName) ||
     BREED_DEFAULT_IMAGE
   );
+}
+
+export function shouldMirrorBreedImage({ breedName, imageAssetKey } = {}) {
+  const canonicalKey =
+    resolveCanonicalFromAssetKey(imageAssetKey) ||
+    resolveCanonicalBreedKey(breedName);
+
+  return MIRRORED_BREED_CANONICAL_KEYS.has(canonicalKey);
 }
