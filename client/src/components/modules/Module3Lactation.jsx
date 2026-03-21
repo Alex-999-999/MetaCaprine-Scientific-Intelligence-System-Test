@@ -35,7 +35,7 @@ function Module3Lactation({ user }) {
   // Single breed simulation
   const [selectedBreed, setSelectedBreed] = useState('');
   const [singleOverrides, setSingleOverrides] = useState({
-    herd_size: 1,
+    herd_size: 0,
     milk_kg_yr: '',
     fat_pct: '',
     protein_pct: '',
@@ -48,7 +48,7 @@ function Module3Lactation({ user }) {
   const [breedA, setBreedA] = useState('');
   const [breedB, setBreedB] = useState('');
   const [overridesA, setOverridesA] = useState({
-    herd_size: 1,
+    herd_size: 0,
     milk_kg_yr: '',
     fat_pct: '',
     protein_pct: '',
@@ -56,7 +56,7 @@ function Module3Lactation({ user }) {
     lactations_lifetime_avg: ''
   });
   const [overridesB, setOverridesB] = useState({
-    herd_size: 1,
+    herd_size: 0,
     milk_kg_yr: '',
     fat_pct: '',
     protein_pct: '',
@@ -181,7 +181,7 @@ function Module3Lactation({ user }) {
         const saved = savedResponse.data.scenarios[0];
         setSelectedBreed(saved.breed_key);
         setSingleOverrides({
-          herd_size: saved.herd_size || 1,
+          herd_size: saved.herd_size ?? 0,
           milk_kg_yr: saved.milk_kg_yr_override || '',
           fat_pct: saved.fat_pct_override || '',
           protein_pct: saved.protein_pct_override || '',
@@ -190,7 +190,7 @@ function Module3Lactation({ user }) {
         });
         // Auto-calculate
         await handleSimulateSingle(saved.breed_key, {
-          herd_size: saved.herd_size || 1,
+          herd_size: saved.herd_size ?? 0,
           milk_kg_yr: saved.milk_kg_yr_override || '',
           fat_pct: saved.fat_pct_override || '',
           protein_pct: saved.protein_pct_override || '',
@@ -436,7 +436,7 @@ function Module3Lactation({ user }) {
                 <option value="">{t('chooseBreed')}</option>
                 {breeds.map(breed => (
                   <option key={breed.breed_key} value={breed.breed_key}>
-                    {breed.breed_name} ({breed.country_or_system}) - {formatNumber(breed.ecm_kg_lifetime)} kg {t('ecmLifetime')}
+                    {breed.breed_name}
                   </option>
                 ))}
               </select>
@@ -489,7 +489,7 @@ function Module3Lactation({ user }) {
                   type="number"
                   value={singleOverrides.herd_size}
                   onChange={(e) => handleOverrideChange('herd_size', e.target.value, 'single')}
-                  min="1"
+                  min="0"
                   step="1"
                 />
               </div>
@@ -616,7 +616,7 @@ function Module3Lactation({ user }) {
                         type="number"
                         value={overridesA.herd_size}
                         onChange={(e) => handleOverrideChange('herd_size', e.target.value, 'A')}
-                        min="1"
+                        min="0"
                       />
                     </div>
                     <details>
@@ -678,7 +678,7 @@ function Module3Lactation({ user }) {
                         type="number"
                         value={overridesB.herd_size}
                         onChange={(e) => handleOverrideChange('herd_size', e.target.value, 'B')}
-                        min="1"
+                        min="0"
                       />
                     </div>
                     <details>
@@ -1446,7 +1446,7 @@ function Module3Lactation({ user }) {
                       width: '100%',
                       height: '100%',
                       objectFit: 'contain',
-                      transform: imageHover.isHovering ? 'scaleX(-1) scale(2.5)' : 'scaleX(-1) scale(1)',
+                      transform: imageHover.isHovering ? 'scale(2.5)' : 'scale(1)',
                       transformOrigin: `${imageHover.x}% ${imageHover.y}%`,
                       transition: imageHover.isHovering ? 'none' : 'transform 0.3s ease-out'
                     }}

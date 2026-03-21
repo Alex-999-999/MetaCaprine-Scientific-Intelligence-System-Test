@@ -13,6 +13,7 @@ function Login({ onLogin }) {
   const [name, setName] = useState('');
   const [lastName, setLastName] = useState('');
   const [country, setCountry] = useState('');
+  const [customCountry, setCustomCountry] = useState('');
   const [city, setCity] = useState('');
   const [goatsCount, setGoatsCount] = useState('');
   const [transformsProducts, setTransformsProducts] = useState('no');
@@ -50,6 +51,9 @@ function Login({ onLogin }) {
     if (!name.trim()) return friendlyText('Completa tu nombre.', 'Please enter your first name.');
     if (!lastName.trim()) return friendlyText('Completa tu apellido.', 'Please enter your last name.');
     if (!country.trim()) return friendlyText('Selecciona tu país.', 'Please select your country.');
+    if (country === '__other__' && !customCountry.trim()) {
+      return friendlyText('Escribe tu país.', 'Please type your country.');
+    }
     if (!city.trim()) return friendlyText('Ingresa tu ciudad.', 'Please enter your city.');
     if (goatsCount === '' || Number(goatsCount) < 0) {
       return friendlyText('Ingresa una cantidad válida de cabras.', 'Please enter a valid number of goats.');
@@ -69,18 +73,70 @@ function Login({ onLogin }) {
   };
 
   const countryOptions = useMemo(() => {
+    const latamPriority = [
+      'Argentina',
+      'Bolivia',
+      'Brazil',
+      'Chile',
+      'Colombia',
+      'Costa Rica',
+      'Cuba',
+      'Dominican Republic',
+      'Ecuador',
+      'El Salvador',
+      'Guatemala',
+      'Honduras',
+      'Mexico',
+      'Nicaragua',
+      'Panama',
+      'Paraguay',
+      'Peru',
+      'Puerto Rico',
+      'Uruguay',
+      'Venezuela',
+    ];
+
+    const prioritizeLatam = (options) => {
+      const byValue = new Map(options.map((option) => [option.value, option]));
+      const prioritized = latamPriority
+        .map((countryName) => byValue.get(countryName))
+        .filter(Boolean);
+      const prioritizedValues = new Set(prioritized.map((option) => option.value));
+      const remaining = options.filter((option) => !prioritizedValues.has(option.value));
+      return [...prioritized, ...remaining];
+    };
+
     const fallbackCountries = [
-      'Argentina', 'Australia', 'Brazil', 'Canada', 'Chile', 'Colombia',
-      'France', 'Germany', 'Italy', 'Mexico', 'Peru', 'Portugal',
-      'Spain', 'United Kingdom', 'United States', 'Uruguay'
-    ].map((name) => ({ code: name.slice(0, 2).toUpperCase(), value: name, label: name }));
+      { code: 'AR', value: 'Argentina', label: 'Argentina' },
+      { code: 'BO', value: 'Bolivia', label: 'Bolivia' },
+      { code: 'BR', value: 'Brazil', label: 'Brazil' },
+      { code: 'CA', value: 'Canada', label: 'Canada' },
+      { code: 'CL', value: 'Chile', label: 'Chile' },
+      { code: 'CO', value: 'Colombia', label: 'Colombia' },
+      { code: 'CR', value: 'Costa Rica', label: 'Costa Rica' },
+      { code: 'CU', value: 'Cuba', label: 'Cuba' },
+      { code: 'DO', value: 'Dominican Republic', label: 'Dominican Republic' },
+      { code: 'EC', value: 'Ecuador', label: 'Ecuador' },
+      { code: 'SV', value: 'El Salvador', label: 'El Salvador' },
+      { code: 'FR', value: 'France', label: 'France' },
+      { code: 'DE', value: 'Germany', label: 'Germany' },
+      { code: 'IT', value: 'Italy', label: 'Italy' },
+      { code: 'MX', value: 'Mexico', label: 'Mexico' },
+      { code: 'PE', value: 'Peru', label: 'Peru' },
+      { code: 'PT', value: 'Portugal', label: 'Portugal' },
+      { code: 'ES', value: 'Spain', label: 'Spain' },
+      { code: 'GB', value: 'United Kingdom', label: 'United Kingdom' },
+      { code: 'US', value: 'United States', label: 'United States' },
+      { code: 'UY', value: 'Uruguay', label: 'Uruguay' },
+      { code: 'VE', value: 'Venezuela', label: 'Venezuela' },
+    ];
 
     if (
       typeof Intl === 'undefined' ||
       typeof Intl.DisplayNames !== 'function' ||
       typeof Intl.supportedValuesOf !== 'function'
     ) {
-      return fallbackCountries;
+      return prioritizeLatam(fallbackCountries);
     }
 
     try {
@@ -97,9 +153,9 @@ function Login({ onLogin }) {
           };
         })
         .sort((a, b) => a.label.localeCompare(b.label, locale));
-      return options.length ? options : fallbackCountries;
+      return options.length ? prioritizeLatam(options) : prioritizeLatam(fallbackCountries);
     } catch {
-      return fallbackCountries;
+      return prioritizeLatam(fallbackCountries);
     }
   }, [locale]);
 
@@ -126,7 +182,7 @@ function Login({ onLogin }) {
               password,
               name,
               last_name: lastName,
-              country,
+              country: country === '__other__' ? customCountry.trim() : country,
               city,
               goats_count: goatsCount,
               transforms_products: transformsProducts === 'yes',
@@ -262,8 +318,22 @@ function Login({ onLogin }) {
                         {countryOption.label}
                       </option>
                     ))}
+                    <option value="__other__">{t('countryOtherOption')}</option>
                   </select>
                 </div>
+                {country === '__other__' && (
+                  <div className="form-group">
+                    <label>{t('specifyCountry')}</label>
+                    <input
+                      type="text"
+                      value={customCountry}
+                      onChange={(e) => setCustomCountry(e.target.value)}
+                      placeholder={t('specifyCountry')}
+                      required
+                      disabled={loading}
+                    />
+                  </div>
+                )}
                 <div className="form-group">
                   <label>{t('city')}</label>
                   <input
@@ -439,6 +509,7 @@ function Login({ onLogin }) {
                 setName('');
                 setLastName('');
                 setCountry('');
+                setCustomCountry('');
                 setCity('');
                 setGoatsCount('');
                 setTransformsProducts('no');

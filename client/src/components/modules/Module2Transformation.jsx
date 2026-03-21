@@ -37,20 +37,20 @@ function Module2Transformation({ user }) {
       id: Date.now(), // Temporary ID for React key
       product_type: 'queso_fresco',
       product_type_custom: '',
-      distribution_percentage: '100',
-      liters_per_kg_product: '',
-      processing_cost_per_liter: '',
-      processing_cost_per_kg: '',
+      distribution_percentage: '0',
+      liters_per_kg_product: '0',
+      processing_cost_per_liter: '0',
+      processing_cost_per_kg: '0',
       processing_cost_unit: 'liter', // 'liter' or 'kg'
-      packaging_cost_per_liter: '',
-      packaging_cost_per_kg: '',
+      packaging_cost_per_liter: '0',
+      packaging_cost_per_kg: '0',
       packaging_cost_unit: 'kg', // 'liter' or 'kg'
-      sales_channel_direct_percentage: '100',
-      sales_channel_distributors_percentage: '',
-      sales_channel_third_percentage: '',
-      direct_sale_price_per_kg: '',
-      distributors_price_per_kg: '',
-      third_channel_price_per_kg: '',
+      sales_channel_direct_percentage: '0',
+      sales_channel_distributors_percentage: '0',
+      sales_channel_third_percentage: '0',
+      direct_sale_price_per_kg: '0',
+      distributors_price_per_kg: '0',
+      third_channel_price_per_kg: '0',
     }
   ]);
 
@@ -58,16 +58,16 @@ function Module2Transformation({ user }) {
   const [transformationData, setTransformationData] = useState({
     product_type: 'queso_fresco',
     product_type_custom: '',
-    liters_per_kg_product: '',
-    processing_cost_per_liter: '',
-    packaging_cost_per_kg: '',
-    product_price_per_kg: '',
-    sales_channel_direct_percentage: '100',
-    sales_channel_distributors_percentage: '',
-    sales_channel_third_percentage: '',
-    direct_sale_price_per_kg: '',
-    distributors_price_per_kg: '',
-    third_channel_price_per_kg: '',
+    liters_per_kg_product: '0',
+    processing_cost_per_liter: '0',
+    packaging_cost_per_kg: '0',
+    product_price_per_kg: '0',
+    sales_channel_direct_percentage: '0',
+    sales_channel_distributors_percentage: '0',
+    sales_channel_third_percentage: '0',
+    direct_sale_price_per_kg: '0',
+    distributors_price_per_kg: '0',
+    third_channel_price_per_kg: '0',
   });
 
   const [results, setResults] = useState(null);
@@ -171,9 +171,9 @@ function Module2Transformation({ user }) {
 
       // Load transformation products (Product Mix) or fall back to legacy single product
       const convertToInputValue = (value) => {
-        if (value === null || value === undefined || value === '') return '';
+        if (value === null || value === undefined || value === '') return '0';
         const num = typeof value === 'number' ? value : parseFloat(value);
-        return isNaN(num) || num === 0 ? '' : num.toString();
+        return isNaN(num) ? '0' : num.toString();
       };
 
       if (scenario.transformationProducts && scenario.transformationProducts.length > 0) {
@@ -182,7 +182,7 @@ function Module2Transformation({ user }) {
           id: product.id || Date.now() + index,
           product_type: product.product_type || 'queso_fresco',
           product_type_custom: product.product_type_custom || '',
-          distribution_percentage: convertToInputValue(product.distribution_percentage) || '',
+          distribution_percentage: convertToInputValue(product.distribution_percentage) || '0',
           liters_per_kg_product: convertToInputValue(product.liters_per_kg_product),
           processing_cost_per_liter: convertToInputValue(product.processing_cost_per_liter),
           processing_cost_per_kg: convertToInputValue(product.processing_cost_per_kg),
@@ -190,12 +190,12 @@ function Module2Transformation({ user }) {
           packaging_cost_per_liter: convertToInputValue(product.packaging_cost_per_liter),
           packaging_cost_per_kg: convertToInputValue(product.packaging_cost_per_kg),
           packaging_cost_unit: product.packaging_cost_unit || 'kg',
-          sales_channel_direct_percentage: convertToInputValue(product.sales_channel_direct_percentage) || '100',
-          sales_channel_distributors_percentage: convertToInputValue(product.sales_channel_distributors_percentage),
-          sales_channel_third_percentage: convertToInputValue(product.sales_channel_third_percentage),
-          direct_sale_price_per_kg: convertToInputValue(product.direct_sale_price_per_kg),
-          distributors_price_per_kg: convertToInputValue(product.distributors_price_per_kg),
-          third_channel_price_per_kg: convertToInputValue(product.third_channel_price_per_kg),
+          sales_channel_direct_percentage: convertToInputValue(product.sales_channel_direct_percentage) || '0',
+          sales_channel_distributors_percentage: convertToInputValue(product.sales_channel_distributors_percentage) || '0',
+          sales_channel_third_percentage: convertToInputValue(product.sales_channel_third_percentage) || '0',
+          direct_sale_price_per_kg: convertToInputValue(product.direct_sale_price_per_kg) || '0',
+          distributors_price_per_kg: convertToInputValue(product.distributors_price_per_kg) || '0',
+          third_channel_price_per_kg: convertToInputValue(product.third_channel_price_per_kg) || '0',
         }));
         setProducts(loadedProducts);
       } else if (scenario.transformationData) {
@@ -204,16 +204,16 @@ function Module2Transformation({ user }) {
           id: Date.now(),
           product_type: scenario.transformationData.product_type || 'queso_fresco',
           product_type_custom: scenario.transformationData.product_type_custom || '',
-          distribution_percentage: '100',
+          distribution_percentage: '0',
           liters_per_kg_product: convertToInputValue(scenario.transformationData.liters_per_kg_product),
           processing_cost_per_liter: convertToInputValue(scenario.transformationData.processing_cost_per_liter),
           packaging_cost_per_kg: convertToInputValue(scenario.transformationData.packaging_cost_per_kg),
-          sales_channel_direct_percentage: convertToInputValue(scenario.transformationData.sales_channel_direct_percentage) || '100',
-          sales_channel_distributors_percentage: convertToInputValue(scenario.transformationData.sales_channel_distributors_percentage),
-          sales_channel_third_percentage: convertToInputValue(scenario.transformationData.sales_channel_third_percentage),
-          direct_sale_price_per_kg: convertToInputValue(scenario.transformationData.direct_sale_price_per_kg),
-          distributors_price_per_kg: convertToInputValue(scenario.transformationData.distributors_price_per_kg),
-          third_channel_price_per_kg: convertToInputValue(scenario.transformationData.third_channel_price_per_kg),
+          sales_channel_direct_percentage: convertToInputValue(scenario.transformationData.sales_channel_direct_percentage) || '0',
+          sales_channel_distributors_percentage: convertToInputValue(scenario.transformationData.sales_channel_distributors_percentage) || '0',
+          sales_channel_third_percentage: convertToInputValue(scenario.transformationData.sales_channel_third_percentage) || '0',
+          direct_sale_price_per_kg: convertToInputValue(scenario.transformationData.direct_sale_price_per_kg) || '0',
+          distributors_price_per_kg: convertToInputValue(scenario.transformationData.distributors_price_per_kg) || '0',
+          third_channel_price_per_kg: convertToInputValue(scenario.transformationData.third_channel_price_per_kg) || '0',
         }]);
 
         // Also set legacy state for backward compatibility
@@ -224,12 +224,12 @@ function Module2Transformation({ user }) {
           processing_cost_per_liter: convertToInputValue(scenario.transformationData.processing_cost_per_liter),
           packaging_cost_per_kg: convertToInputValue(scenario.transformationData.packaging_cost_per_kg),
           product_price_per_kg: convertToInputValue(scenario.transformationData.product_price_per_kg),
-          sales_channel_direct_percentage: convertToInputValue(scenario.transformationData.sales_channel_direct_percentage) || '100',
-          sales_channel_distributors_percentage: convertToInputValue(scenario.transformationData.sales_channel_distributors_percentage),
-          sales_channel_third_percentage: convertToInputValue(scenario.transformationData.sales_channel_third_percentage),
-          direct_sale_price_per_kg: convertToInputValue(scenario.transformationData.direct_sale_price_per_kg),
-          distributors_price_per_kg: convertToInputValue(scenario.transformationData.distributors_price_per_kg),
-          third_channel_price_per_kg: convertToInputValue(scenario.transformationData.third_channel_price_per_kg),
+          sales_channel_direct_percentage: convertToInputValue(scenario.transformationData.sales_channel_direct_percentage) || '0',
+          sales_channel_distributors_percentage: convertToInputValue(scenario.transformationData.sales_channel_distributors_percentage) || '0',
+          sales_channel_third_percentage: convertToInputValue(scenario.transformationData.sales_channel_third_percentage) || '0',
+          direct_sale_price_per_kg: convertToInputValue(scenario.transformationData.direct_sale_price_per_kg) || '0',
+          distributors_price_per_kg: convertToInputValue(scenario.transformationData.distributors_price_per_kg) || '0',
+          third_channel_price_per_kg: convertToInputValue(scenario.transformationData.third_channel_price_per_kg) || '0',
         });
       }
       if (scenario.results) {
@@ -382,20 +382,20 @@ function Module2Transformation({ user }) {
       id: Date.now() + Math.random(),
       product_type: 'queso_fresco',
       product_type_custom: '',
-      distribution_percentage: '',
-      liters_per_kg_product: '',
-      processing_cost_per_liter: '',
-      processing_cost_per_kg: '',
+      distribution_percentage: '0',
+      liters_per_kg_product: '0',
+      processing_cost_per_liter: '0',
+      processing_cost_per_kg: '0',
       processing_cost_unit: 'liter',
-      packaging_cost_per_liter: '',
-      packaging_cost_per_kg: '',
+      packaging_cost_per_liter: '0',
+      packaging_cost_per_kg: '0',
       packaging_cost_unit: 'kg',
-      sales_channel_direct_percentage: '100',
-      sales_channel_distributors_percentage: '',
-      sales_channel_third_percentage: '',
-      direct_sale_price_per_kg: '',
-      distributors_price_per_kg: '',
-      third_channel_price_per_kg: '',
+      sales_channel_direct_percentage: '0',
+      sales_channel_distributors_percentage: '0',
+      sales_channel_third_percentage: '0',
+      direct_sale_price_per_kg: '0',
+      distributors_price_per_kg: '0',
+      third_channel_price_per_kg: '0',
     }]);
   };
 
@@ -1237,6 +1237,9 @@ function Module2Transformation({ user }) {
                 <div style={{ marginBottom: '15px', padding: '10px', background: 'rgba(234, 179, 8, 0.1)', borderRadius: '6px', border: '1px solid var(--accent-warning)', fontSize: '0.9em' }}>
                   <strong>{t('note')}:</strong> {t('salesChannelsNote')}
                 </div>
+                <p className="input-hint" style={{ marginBottom: '14px' }}>
+                  {t('salesChannelsMarginHint')}
+                </p>
                 {(() => {
                   const totalChannelPct = parseFloat(product.sales_channel_direct_percentage || 0) +
                     parseFloat(product.sales_channel_distributors_percentage || 0) +
@@ -1934,25 +1937,25 @@ function Module2Transformation({ user }) {
                         className={`chart-view-btn ${chartViewType === 'grouped' ? 'active' : ''}`}
                         onClick={() => setChartViewType('grouped')}
                       >
-                        Bar
+                        {t('chartViewGrouped')}
                       </button>
                       <button
                         className={`chart-view-btn ${chartViewType === 'donut' ? 'active' : ''}`}
                         onClick={() => setChartViewType('donut')}
                       >
-                        Donut
+                        {t('chartViewDonut')}
                       </button>
                       <button
                         className={`chart-view-btn ${chartViewType === 'stacked' ? 'active' : ''}`}
                         onClick={() => setChartViewType('stacked')}
                       >
-                        Stack
+                        {t('chartViewStacked')}
                       </button>
                       <button
                         className={`chart-view-btn ${chartViewType === 'waterfall' ? 'active' : ''}`}
                         onClick={() => setChartViewType('waterfall')}
                       >
-                        Flow
+                        {t('chartViewWaterfall')}
                       </button>
                     </div>
                   </div>
@@ -1968,7 +1971,7 @@ function Module2Transformation({ user }) {
                           const margin = Number(item[t('margin')]) || 0;
                           return {
                             name: item.name,
-                            [t('income')]: income > 0 ? ((margin / income) * 100) : 0,
+                            [t('income')]: income > 0 ? 100 : 0,
                             [t('totalCosts')]: income > 0 ? ((costs / income) * 100) : 0,
                             [t('margin')]: income > 0 ? ((margin / income) * 100) : 0,
                           };
@@ -2128,7 +2131,7 @@ function Module2Transformation({ user }) {
                           const margin = Number(item[t('margin')]) || 0;
                           return {
                             name: item.name,
-                            [t('income')]: income > 0 ? ((margin / income) * 100) : 0,
+                            [t('income')]: income > 0 ? 100 : 0,
                             [t('totalCosts')]: income > 0 ? ((costs / income) * 100) : 0,
                             [t('margin')]: income > 0 ? ((margin / income) * 100) : 0,
                           };

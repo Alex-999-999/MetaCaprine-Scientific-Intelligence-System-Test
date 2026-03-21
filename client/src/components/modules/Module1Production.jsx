@@ -19,15 +19,15 @@ function Module1Production({ user }) {
   const formatMoneyCompact = (value) => formatCurrencyCompact(value, preferredCurrency);
 
   const [formData, setFormData] = useState({
-    daily_production_liters: '',
-    production_days: '',
-    animals_count: '',
-    feed_cost_per_liter: '',
-    labor_cost_per_liter: '',
-    health_cost_per_liter: '',
-    infrastructure_cost_per_liter: '',
-    other_costs_per_liter: '',
-    milk_price_per_liter: '',
+    daily_production_liters: '0',
+    production_days: '0',
+    animals_count: '0',
+    feed_cost_per_liter: '0',
+    labor_cost_per_liter: '0',
+    health_cost_per_liter: '0',
+    infrastructure_cost_per_liter: '0',
+    other_costs_per_liter: '0',
+    milk_price_per_liter: '0',
   });
 
   const [results, setResults] = useState(null);
@@ -78,22 +78,44 @@ function Module1Production({ user }) {
       const scenario = response.data;
       setSelectedScenario(scenario);
       if (scenario.productionData) {
-        // Convert numeric values to strings for input fields (empty string if 0 or null)
-        const normalizedData = {};
+        // Convert numeric values to strings for input fields and keep zeros visible.
+        const normalizedData = {
+          daily_production_liters: '0',
+          production_days: '0',
+          animals_count: '0',
+          feed_cost_per_liter: '0',
+          labor_cost_per_liter: '0',
+          health_cost_per_liter: '0',
+          infrastructure_cost_per_liter: '0',
+          other_costs_per_liter: '0',
+          milk_price_per_liter: '0',
+        };
         Object.keys(scenario.productionData).forEach(key => {
           const value = scenario.productionData[key];
           if (value === null || value === undefined || value === '') {
-            normalizedData[key] = '';
+            normalizedData[key] = '0';
           } else if (typeof value === 'number') {
-            normalizedData[key] = value === 0 ? '' : value.toString();
+            normalizedData[key] = value.toString();
           } else if (typeof value === 'string') {
             const numValue = parseFloat(value);
-            normalizedData[key] = isNaN(numValue) || numValue === 0 ? '' : value;
+            normalizedData[key] = isNaN(numValue) ? '0' : numValue.toString();
           } else {
-            normalizedData[key] = '';
+            normalizedData[key] = '0';
           }
         });
         setFormData(normalizedData);
+      } else {
+        setFormData({
+          daily_production_liters: '0',
+          production_days: '0',
+          animals_count: '0',
+          feed_cost_per_liter: '0',
+          labor_cost_per_liter: '0',
+          health_cost_per_liter: '0',
+          infrastructure_cost_per_liter: '0',
+          other_costs_per_liter: '0',
+          milk_price_per_liter: '0',
+        });
       }
       if (scenario.results) {
         // Normalize all numeric values in results to ensure they are numbers

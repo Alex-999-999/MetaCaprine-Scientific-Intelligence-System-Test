@@ -27,49 +27,51 @@ function CostCalculatorModal({
   
   // Feed Calculator State
   const [feedData, setFeedData] = useState({
-    concentrate_kg_per_day: '',
-    concentrate_price_per_kg: '',
-    bag_price: '',
-    bag_weight_kg: '',
-    forage_kg_per_day: '',
-    forage_price_per_kg: '',
-    supplement_kg_per_day: '',
-    supplement_price_per_kg: '',
-    mineral_monthly_cost: '',
+    concentrate_kg_per_day: '0',
+    concentrate_price_per_kg: '0',
+    bag_price: '0',
+    bag_weight_kg: '0',
+    forage_kg_per_day: '0',
+    forage_price_per_kg: '0',
+    forage_bale_price: '0',
+    forage_bale_weight_kg: '0',
+    supplement_kg_per_day: '0',
+    supplement_price_per_kg: '0',
+    mineral_monthly_cost: '0',
   });
   
   // Labor Calculator State
   const [laborData, setLaborData] = useState({
     labor_mode: 'hourly',
-    hours_per_day_per_worker: '',
-    workers_count: '',
-    wage_per_hour: '',
-    wage_per_day_per_worker: '',
-    monthly_wage_per_worker: '',
-    monthly_total_labor_cost: '',
+    hours_per_day_per_worker: '0',
+    workers_count: '0',
+    wage_per_hour: '0',
+    wage_per_day_per_worker: '0',
+    monthly_wage_per_worker: '0',
+    monthly_total_labor_cost: '0',
   });
   
   // Health Calculator State
   const [healthData, setHealthData] = useState({
-    annual_health_cost_per_animal: '',
-    vaccine_cost_annual: '',
-    deworming_cost_annual: '',
-    vet_visits_annual: '',
+    annual_health_cost_per_animal: '0',
+    vaccine_cost_annual: '0',
+    deworming_cost_annual: '0',
+    vet_visits_annual: '0',
   });
   
   // Services Calculator State
   const [servicesData, setServicesData] = useState({
-    electricity_monthly: '',
-    water_monthly: '',
-    maintenance_monthly: '',
-    transport_monthly: '',
+    electricity_monthly: '0',
+    water_monthly: '0',
+    maintenance_monthly: '0',
+    transport_monthly: '0',
   });
   
   // Rearing Calculator State
   const [rearingData, setRearingData] = useState({
-    rearing_cost_per_animal: '',
-    productive_years: '5',
-    replacement_rate_percent: '20',
+    rearing_cost_per_animal: '0',
+    productive_years: '0',
+    replacement_rate_percent: '0',
   });
   
   const [calculatedCost, setCalculatedCost] = useState(0);
@@ -159,7 +161,7 @@ function CostCalculatorModal({
         
       case 'rearing':
         const rearingCostPerAnimal = parseNonNegativeNumber(rearingData.rearing_cost_per_animal);
-        const replacementRate = parseNonNegativeNumber(rearingData.replacement_rate_percent) || 20;
+        const replacementRate = parseNonNegativeNumber(rearingData.replacement_rate_percent);
         
         const annualReplacementAnimals = animals * (replacementRate / 100);
         const annualRearingCost = annualReplacementAnimals * rearingCostPerAnimal;
@@ -221,12 +223,25 @@ function CostCalculatorModal({
   const bagPrice = parseNonNegativeNumber(feedData.bag_price);
   const bagWeightKg = parseNonNegativeNumber(feedData.bag_weight_kg);
   const computedPricePerKg = bagPrice > 0 && bagWeightKg > 0 ? (bagPrice / bagWeightKg) : 0;
+  const forageBalePrice = parseNonNegativeNumber(feedData.forage_bale_price);
+  const forageBaleWeightKg = parseNonNegativeNumber(feedData.forage_bale_weight_kg);
+  const computedForagePricePerKg = forageBalePrice > 0 && forageBaleWeightKg > 0
+    ? (forageBalePrice / forageBaleWeightKg)
+    : 0;
 
   const applyComputedPricePerKg = () => {
     if (computedPricePerKg <= 0) return;
     setFeedData(prev => ({
       ...prev,
       concentrate_price_per_kg: computedPricePerKg.toFixed(4)
+    }));
+  };
+
+  const applyComputedForagePricePerKg = () => {
+    if (computedForagePricePerKg <= 0) return;
+    setFeedData(prev => ({
+      ...prev,
+      forage_price_per_kg: computedForagePricePerKg.toFixed(4)
     }));
   };
   
@@ -346,6 +361,53 @@ function CostCalculatorModal({
                   step="0.01"
                   placeholder="0.15"
                 />
+                <p className="input-hint">{t('forageCostHint')}</p>
+              </div>
+
+              <div className="pedagogy-block" style={{ marginBottom: '15px' }}>
+                <p className="pedagogy-title">{t('forageBaleCalculatorTitle')}</p>
+                <p className="input-hint" style={{ marginTop: 0 }}>{t('forageBaleCalculatorHint')}</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '10px', marginBottom: '10px' }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label>{t('forageBalePrice')} ({currencySymbol})</label>
+                    <input
+                      type="number"
+                      name="forage_bale_price"
+                      value={feedData.forage_bale_price}
+                      onChange={(e) => handleInputChange(e, 'feed')}
+                      step="0.01"
+                      placeholder="6.5"
+                    />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label>{t('forageBaleWeightKg')} (kg)</label>
+                    <input
+                      type="number"
+                      name="forage_bale_weight_kg"
+                      value={feedData.forage_bale_weight_kg}
+                      onChange={(e) => handleInputChange(e, 'feed')}
+                      step="0.01"
+                      placeholder="22"
+                    />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label>{t('computedPricePerKg')} ({currencySymbol}/kg)</label>
+                    <input
+                      type="number"
+                      value={computedForagePricePerKg > 0 ? computedForagePricePerKg.toFixed(4) : ''}
+                      readOnly
+                      placeholder="0.30"
+                    />
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={applyComputedForagePricePerKg}
+                  disabled={computedForagePricePerKg <= 0}
+                >
+                  {t('applyComputedForagePricePerKg')}
+                </button>
               </div>
               
               <div className="form-group">
@@ -510,6 +572,9 @@ function CostCalculatorModal({
               <p style={{ fontSize: '0.9em', color: 'var(--text-tertiary)', marginBottom: '15px' }}>
                 {t('healthCalcDescription')}
               </p>
+              <p className="input-hint" style={{ marginBottom: '12px' }}>
+                {t('healthPreventiveCostHint')}
+              </p>
               
               <div className="form-group">
                 <label>{t('annualHealthCostPerAnimal')} ({currencySymbol}/animal/year)</label>
@@ -575,6 +640,9 @@ function CostCalculatorModal({
               <p style={{ fontSize: '0.9em', color: 'var(--text-tertiary)', marginBottom: '15px' }}>
                 {t('servicesCalcDescription')}
               </p>
+              <p className="input-hint" style={{ marginBottom: '12px' }}>
+                {t('servicesHiddenCostHint')}
+              </p>
               
               <div className="form-group">
                 <label>{t('electricityMonthly')} ({currencySymbol}/month)</label>
@@ -632,6 +700,9 @@ function CostCalculatorModal({
               <h3>{t('rearingCostCalculator')}</h3>
               <p style={{ fontSize: '0.9em', color: 'var(--text-tertiary)', marginBottom: '15px' }}>
                 {t('rearingCalcDescription')}
+              </p>
+              <p className="input-hint" style={{ marginBottom: '12px' }}>
+                {t('replacementHiddenCostHint')}
               </p>
               
               <div className="form-group">
