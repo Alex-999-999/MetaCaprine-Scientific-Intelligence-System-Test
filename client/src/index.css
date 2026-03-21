@@ -4634,11 +4634,12 @@ label {
 }
 
 .metric-value {
-  font-size: clamp(1rem, 2.15vw, 1.85rem);
+  font-size: clamp(0.98rem, 1.95vw, 1.65rem);
   line-height: 1.1;
   letter-spacing: -0.01em;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
 }
 
 .numeric-value,
@@ -4648,6 +4649,26 @@ label {
   font-feature-settings: 'tnum' 1, 'lnum' 1;
   direction: ltr;
   unicode-bidi: plaintext;
+  white-space: nowrap;
+  text-wrap: nowrap;
+}
+
+.chart-control-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  min-width: clamp(175px, 24vw, 260px);
+  padding-right: 36px;
+  line-height: 1.3;
+  white-space: nowrap;
+  background-position: right 12px center;
+}
+
+@media (max-width: 768px) {
+  .chart-control-select {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .chart-view-toggle {

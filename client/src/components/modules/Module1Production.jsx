@@ -1053,8 +1053,8 @@ function Module1Production({ user }) {
         onClose={() => setCostCalculatorModal({ isOpen: false, calculatorType: null, targetField: null })}
         calculatorType={costCalculatorModal.calculatorType}
         onApply={applyCostToForm}
-        currentAnimals={parseFloat(formData.animals_count) || 1}
-        currentDailyProduction={parseFloat(formData.daily_production_liters) || 1}
+        currentAnimals={parseFloat(formData.animals_count) || 0}
+        currentDailyProduction={parseFloat(formData.daily_production_liters) || 0}
         preferredCurrency={preferredCurrency}
       />
     </div>

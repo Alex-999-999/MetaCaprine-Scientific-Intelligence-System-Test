@@ -76,7 +76,7 @@ function Module2Transformation({ user }) {
   const [loading, setLoading] = useState(false);
   const [creatingScenario, setCreatingScenario] = useState(false);
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: '', type: 'success' });
-  const [chartViewType, setChartViewType] = useState('grouped'); // 'grouped', 'donut', 'stacked', 'waterfall'
+  const [chartViewType, setChartViewType] = useState('bars'); // 'bars', 'pie', 'scale'
   const [expandedChannels, setExpandedChannels] = useState({}); // Track which channels have expanded product details
   const [marginViewMode, setMarginViewMode] = useState('dollars'); // 'dollars' or 'percent' for charts
 
@@ -1237,6 +1237,20 @@ function Module2Transformation({ user }) {
                 <div style={{ marginBottom: '15px', padding: '10px', background: 'rgba(234, 179, 8, 0.1)', borderRadius: '6px', border: '1px solid var(--accent-warning)', fontSize: '0.9em' }}>
                   <strong>{t('note')}:</strong> {t('salesChannelsNote')}
                 </div>
+                <div className="pedagogy-block" style={{ marginBottom: '14px' }}>
+                  <p className="pedagogy-title">{t('module2SalesPedagogyTitle')}</p>
+                  <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+                    {t('module2SalesPedagogyIntro')}
+                  </p>
+                  <ul className="pedagogy-list">
+                    <li><strong>{t('salesChannelDirect')}:</strong> {t('module2SalesChannelDirectDesc')}</li>
+                    <li><strong>{t('salesChannelDistributors')}:</strong> {t('module2SalesChannelDistributorsDesc')}</li>
+                    <li><strong>{t('salesChannelThird')}:</strong> {t('module2SalesChannelThirdDesc')}</li>
+                  </ul>
+                  <p className="input-hint" style={{ marginTop: 0 }}>
+                    {t('module2SalesPedagogyHowTo')}
+                  </p>
+                </div>
                 <p className="input-hint" style={{ marginBottom: '14px' }}>
                   {t('salesChannelsMarginHint')}
                 </p>
@@ -1275,6 +1289,7 @@ function Module2Transformation({ user }) {
                       max="100"
                       step="0.01"
                     />
+                    <p className="input-hint">{t('module2DirectSaleFieldHint')}</p>
                   </div>
                   <div className="form-group">
                     <label>{t('directSalePrice')}</label>
@@ -1297,6 +1312,7 @@ function Module2Transformation({ user }) {
                       max="100"
                       step="0.01"
                     />
+                    <p className="input-hint">{t('module2DistributorsFieldHint')}</p>
                   </div>
                   <div className="form-group">
                     <label>{t('distributorsPrice')}</label>
@@ -1321,6 +1337,7 @@ function Module2Transformation({ user }) {
                       readOnly
                       style={{ background: 'var(--bg-tertiary)' }}
                     />
+                    <p className="input-hint">{t('module2ThirdChannelFieldHint')}</p>
                     <small style={{ color: 'var(--text-tertiary)', fontSize: '0.85em', display: 'block', marginTop: '5px' }}>{t('autoCalculated')}</small>
                   </div>
                   <div className="form-group">
@@ -1903,7 +1920,7 @@ function Module2Transformation({ user }) {
                         <td><strong>{t('difference')}</strong></td>
                         <td colSpan="2">
                           {formatMoney(Math.abs(results.transformation_margin - results.milk_margin))}
-                          {' '}({['transform', 'transformation', 'transformacion', 'transformación'].includes(results.better_option) ? t('betterTransform') : t('betterSellDirect')})
+                          {' '}({['transform', 'transformation', 'transformacion', 'transformación'].includes(results.better_option) ? t('betterTransform') : t('betterSellRawMilk')})
                         </td>
                       </tr>
                     </tbody>
@@ -1934,28 +1951,22 @@ function Module2Transformation({ user }) {
                     </div>
                     <div className="chart-view-toggle">
                       <button
-                        className={`chart-view-btn ${chartViewType === 'grouped' ? 'active' : ''}`}
-                        onClick={() => setChartViewType('grouped')}
+                        className={`chart-view-btn ${chartViewType === 'bars' ? 'active' : ''}`}
+                        onClick={() => setChartViewType('bars')}
                       >
-                        {t('chartViewGrouped')}
+                        {t('chartViewBars')}
                       </button>
                       <button
-                        className={`chart-view-btn ${chartViewType === 'donut' ? 'active' : ''}`}
-                        onClick={() => setChartViewType('donut')}
+                        className={`chart-view-btn ${chartViewType === 'pie' ? 'active' : ''}`}
+                        onClick={() => setChartViewType('pie')}
                       >
-                        {t('chartViewDonut')}
+                        {t('chartViewPie')}
                       </button>
                       <button
-                        className={`chart-view-btn ${chartViewType === 'stacked' ? 'active' : ''}`}
-                        onClick={() => setChartViewType('stacked')}
+                        className={`chart-view-btn ${chartViewType === 'scale' ? 'active' : ''}`}
+                        onClick={() => setChartViewType('scale')}
                       >
-                        {t('chartViewStacked')}
-                      </button>
-                      <button
-                        className={`chart-view-btn ${chartViewType === 'waterfall' ? 'active' : ''}`}
-                        onClick={() => setChartViewType('waterfall')}
-                      >
-                        {t('chartViewWaterfall')}
+                        {t('chartViewScale')}
                       </button>
                     </div>
                   </div>
@@ -1964,7 +1975,7 @@ function Module2Transformation({ user }) {
                 <div className="chart-container">
                   {comparisonData.length > 0 ? (
                     <>
-                      {chartViewType === 'grouped' && (() => {
+                      {chartViewType === 'bars' && (() => {
                         const chartData = marginViewMode === 'percent' ? comparisonData.map(item => {
                           const income = Number(item[t('income')]) || 0;
                           const costs = Number(item[t('totalCosts')]) || 0;
@@ -2017,7 +2028,7 @@ function Module2Transformation({ user }) {
                           </ResponsiveContainer>
                         );
                       })()}
-                      {chartViewType === 'donut' && (() => {
+                      {chartViewType === 'pie' && (() => {
                         const totalLiters = (productionData.daily_production_liters || 0) * (productionData.production_days || 0) * (productionData.animals_count || 0);
                         const channelData = {
                           direct: { kg: 0, revenue: 0 },
@@ -2076,55 +2087,7 @@ function Module2Transformation({ user }) {
                           </ResponsiveContainer>
                         );
                       })()}
-                      {chartViewType === 'stacked' && (() => {
-                        const totalLiters = (productionData.daily_production_liters || 0) * (productionData.production_days || 0) * (productionData.animals_count || 0);
-                        const productData = products.map(product => {
-                          const distributionPct = parseFloat(product.distribution_percentage) || 0;
-                          const litersPerKg = parseFloat(product.liters_per_kg_product) || 1;
-                          const productLiters = totalLiters * (distributionPct / 100);
-                          const productKg = productLiters / litersPerKg;
-                          return {
-                            name: product.product_type_custom || t(`productTypes.${product.product_type}`) || product.product_type,
-                            kg: productKg,
-                          };
-                        });
-                        return (
-                          <ResponsiveContainer width="100%" height={340}>
-                            <BarChart data={productData} barCategoryGap="20%">
-                              <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
-                              <XAxis
-                                dataKey="name"
-                                stroke={chartColors.axis.tick}
-                                tick={{ fill: chartColors.text.secondary, fontSize: 11, fontWeight: 500 }}
-                                tickLine={false}
-                              />
-                              <YAxis
-                                stroke={chartColors.axis.tick}
-                                tick={{ fill: chartColors.text.secondary, fontSize: 11 }}
-                                axisLine={false}
-                                tickLine={false}
-                              />
-                              <Tooltip
-                                formatter={(value) => `${Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} kg`}
-                                contentStyle={{
-                                  backgroundColor: chartColors.tooltip.bg,
-                                  border: `1px solid ${chartColors.tooltip.border}`,
-                                  borderRadius: '12px',
-                                  boxShadow: chartColors.tooltip.shadow
-                                }}
-                                cursor={{ fill: chartColors.background.hover }}
-                              />
-                              <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="roundRect" />
-                              <Bar dataKey="kg" stackId="a" fill={chartColors.primary} name={t('productMix')} radius={[8, 8, 0, 0]}>
-                                {productData.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={chartColors.palette[index % chartColors.palette.length]} />
-                                ))}
-                              </Bar>
-                            </BarChart>
-                          </ResponsiveContainer>
-                        );
-                      })()}
-                      {chartViewType === 'waterfall' && (() => {
+                      {chartViewType === 'scale' && (() => {
                         const chartData = marginViewMode === 'percent' ? comparisonData.map(item => {
                           const income = Number(item[t('income')]) || 0;
                           const costs = Number(item[t('totalCosts')]) || 0;

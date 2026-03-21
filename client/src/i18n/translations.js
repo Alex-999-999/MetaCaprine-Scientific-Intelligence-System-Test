@@ -3622,3 +3622,321 @@ Object.assign(translations.pt, {
   module5SummaryTitle: 'M\u00f3dulo 5: Resumo/Painel',
 });
 // STEP19_FINAL_COPY_AND_TITLE_FIXES_END
+
+// STEP20_MODULE2_SALES_PEDAGOGY_START
+Object.assign(translations.en, {
+  module2SalesPedagogyTitle: 'Pedagogical note for sales channels',
+  module2SalesPedagogyIntro: 'Not all clients leave the same margin, and your real profitability depends on how you mix sales.',
+  module2SalesChannelDirectDesc: 'This is usually the highest-margin channel: you sell transformed product directly to final consumers (own store, fairs, or online) and keep full margin.',
+  module2SalesChannelDistributorsDesc: 'Distributors (supermarkets or third-party stores) usually require a lower price because they keep their margin, but they help move larger volume quickly.',
+  module2SalesChannelThirdDesc: 'Flexible strategic channel for sales to restaurants, hotels, or institutional agreements.',
+  module2SalesPedagogyHowTo: 'Enter the percentage of production and sale price for each channel. The system will calculate your real weighted income so you know how much money returns to the farm.',
+  module2DirectSaleFieldHint: 'Direct-to-consumer sales with higher unit margin.',
+  module2DistributorsFieldHint: 'Lower price channel, but useful for volume and speed.',
+  module2ThirdChannelFieldHint: 'Strategic channel for agreements and special clients.',
+});
+
+Object.assign(translations.es, {
+  module2SalesPedagogyTitle: 'Nota pedagógica para canales de venta',
+  module2SalesPedagogyIntro: 'No todos los clientes te dejan el mismo margen, y de cómo mezcles tus ventas dependerá tu rentabilidad real.',
+  module2SalesChannelDirectDesc: 'Suele ser tu canal de mayor ganancia: entregas el producto transformado al consumidor final (tienda propia, ferias o internet) y te quedas con todo el margen.',
+  module2SalesChannelDistributorsDesc: 'Los distribuidores (supermercados o tiendas de terceros) normalmente exigen un precio más bajo porque necesitan su propia ganancia, pero ayudan a mover volumen grande y rápido.',
+  module2SalesChannelThirdDesc: 'Canal flexible para ventas estratégicas, como restaurantes, hoteles o convenios institucionales.',
+  module2SalesPedagogyHowTo: 'Ingresa qué porcentaje de tu producción va por cada vía y a qué precio. El sistema calculará tu ingreso promedio real para que sepas cuánto dinero regresa a la granja.',
+  module2DirectSaleFieldHint: 'Venta al consumidor final, con mayor margen unitario.',
+  module2DistributorsFieldHint: 'Canal de menor precio, pero útil para volumen y velocidad.',
+  module2ThirdChannelFieldHint: 'Canal estratégico para convenios y clientes especiales.',
+});
+
+Object.assign(translations.fr, {
+  module2SalesPedagogyTitle: 'Pedagogical note for sales channels',
+  module2SalesPedagogyIntro: 'Not all clients leave the same margin, and your real profitability depends on how you mix sales.',
+  module2SalesChannelDirectDesc: 'Usually the highest-margin channel.',
+  module2SalesChannelDistributorsDesc: 'Lower price, but larger and faster volume.',
+  module2SalesChannelThirdDesc: 'Flexible strategic channel for special agreements.',
+  module2SalesPedagogyHowTo: 'Enter percentage and price per channel to calculate weighted real income.',
+  module2DirectSaleFieldHint: 'Higher unit margin channel.',
+  module2DistributorsFieldHint: 'Lower price, higher volume channel.',
+  module2ThirdChannelFieldHint: 'Strategic channel for special clients.',
+});
+
+Object.assign(translations.it, {
+  module2SalesPedagogyTitle: 'Pedagogical note for sales channels',
+  module2SalesPedagogyIntro: 'Not all clients leave the same margin, and your real profitability depends on how you mix sales.',
+  module2SalesChannelDirectDesc: 'Usually the highest-margin channel.',
+  module2SalesChannelDistributorsDesc: 'Lower price, but larger and faster volume.',
+  module2SalesChannelThirdDesc: 'Flexible strategic channel for special agreements.',
+  module2SalesPedagogyHowTo: 'Enter percentage and price per channel to calculate weighted real income.',
+  module2DirectSaleFieldHint: 'Higher unit margin channel.',
+  module2DistributorsFieldHint: 'Lower price, higher volume channel.',
+  module2ThirdChannelFieldHint: 'Strategic channel for special clients.',
+});
+
+Object.assign(translations.pt, {
+  module2SalesPedagogyTitle: 'Pedagogical note for sales channels',
+  module2SalesPedagogyIntro: 'Not all clients leave the same margin, and your real profitability depends on how you mix sales.',
+  module2SalesChannelDirectDesc: 'Usually the highest-margin channel.',
+  module2SalesChannelDistributorsDesc: 'Lower price, but larger and faster volume.',
+  module2SalesChannelThirdDesc: 'Flexible strategic channel for special agreements.',
+  module2SalesPedagogyHowTo: 'Enter percentage and price per channel to calculate weighted real income.',
+  module2DirectSaleFieldHint: 'Higher unit margin channel.',
+  module2DistributorsFieldHint: 'Lower price, higher volume channel.',
+  module2ThirdChannelFieldHint: 'Strategic channel for special clients.',
+});
+// STEP20_MODULE2_SALES_PEDAGOGY_END
+
+// STEP21_REARING_PEDAGOGY_NOTE_START
+Object.assign(translations.en, {
+  module2SalesPedagogyTitle: 'Pedagogical note for sales channels',
+  module2SalesPedagogyIntro: 'Not all clients leave the same margin, and your real profitability depends on how you mix sales.',
+  module2SalesChannelDirectDesc: 'This is usually your highest-margin channel: you deliver transformed product directly to final consumers (own store, fairs, or online) and keep full margin.',
+  module2SalesChannelDistributorsDesc: 'Distributors (supermarkets or third-party stores) usually demand a lower price because they need their own margin, but they move larger volume quickly.',
+  module2SalesChannelThirdDesc: 'Flexible strategic channel for sales such as restaurants, hotels, or institutional agreements.',
+  module2SalesPedagogyHowTo: 'Enter what percentage of production goes through each channel and at which price. The system calculates your real weighted income so you know exactly how much money returns to the farm.',
+  module2DirectSaleFieldHint: 'Direct-to-consumer sales with higher unit margin.',
+  module2DistributorsFieldHint: 'Lower price channel, useful for volume and speed.',
+  module2ThirdChannelFieldHint: 'Strategic channel for agreements and special clients.',
+  rearingPedagogyTitle: 'Pedagogical note: rearing and replacement estimator',
+  rearingPedagogyIntro: 'Replacement rearing is not free. All investment from birth to first kidding must be recovered. This tool estimates how many cents of each liter of milk should be reserved to pay for your next generation of goats.',
+  rearingPedagogyHowToTitle: 'How to fill the data',
+  rearingPedagogyHowToCost: 'Total investment (milk, feed, and health) to raise one female until she starts producing. Example: 300 USD.',
+  rearingPedagogyHowToYears: 'Average time a goat remains productive and profitable in your farm. Standard reference: 5 years.',
+  rearingPedagogyHowToRate: 'Percent of older animals replaced each year to keep herd age balanced. Standard reference: 20%.',
+  rearingPedagogyOutcome: 'Result: the system gives the exact cost per liter. If you do not include it in your sale price, you are financing herd growth from your own pocket.',
+  productiveYearsStandardHint: 'Practical reference: 5 years (adjust to your real herd performance).',
+  replacementRateStandardHint: 'Practical reference: 20% annual replacement rate.',
+});
+
+Object.assign(translations.es, {
+  module2SalesPedagogyTitle: 'Nota pedag\u00f3gica para canales de venta',
+  module2SalesPedagogyIntro: 'No todos los clientes te dejan el mismo margen, y de c\u00f3mo mezcles tus ventas depender\u00e1 tu rentabilidad real.',
+  module2SalesChannelDirectDesc: 'Suele ser tu canal de mayor ganancia: entregas el producto transformado al consumidor final (tienda propia, ferias o internet) y te quedas con todo el margen.',
+  module2SalesChannelDistributorsDesc: 'Los distribuidores (supermercados o tiendas de terceros) normalmente exigen un precio m\u00e1s bajo porque necesitan su propia ganancia, pero ayudan a mover volumen grande y r\u00e1pido.',
+  module2SalesChannelThirdDesc: 'Canal flexible para ventas estrat\u00e9gicas, como restaurantes, hoteles o convenios institucionales.',
+  module2SalesPedagogyHowTo: 'Ingresa qu\u00e9 porcentaje de tu producci\u00f3n va por cada v\u00eda y a qu\u00e9 precio. El sistema calcular\u00e1 tu ingreso promedio real para que sepas exactamente cu\u00e1nto dinero regresa a la granja.',
+  module2DirectSaleFieldHint: 'Venta al consumidor final, con mayor margen unitario.',
+  module2DistributorsFieldHint: 'Canal de menor precio, pero \u00fatil para volumen y velocidad.',
+  module2ThirdChannelFieldHint: 'Canal estrat\u00e9gico para convenios y clientes especiales.',
+  rearingPedagogyTitle: 'Nota pedag\u00f3gica: estimador de levante y reposici\u00f3n',
+  rearingPedagogyIntro: 'La cr\u00eda de reemplazo no es gratis. Toda la inversi\u00f3n desde que nace hasta su primer parto debe recuperarse. Esta herramienta calcula cu\u00e1ntos centavos de cada litro de leche debes guardar para pagar tu pr\u00f3xima generaci\u00f3n de cabras.',
+  rearingPedagogyHowToTitle: 'C\u00f3mo llenar los datos',
+  rearingPedagogyHowToCost: 'La inversi\u00f3n total (leche, alimento y sanidad) para criar una hembra hasta que empiece a producir. Ejemplo: 300 USD.',
+  rearingPedagogyHowToYears: 'El tiempo promedio que una cabra se mantiene rentable en tu granja. Referencia est\u00e1ndar: 5 a\u00f1os.',
+  rearingPedagogyHowToRate: 'El porcentaje de animales viejos que reemplazas cada a\u00f1o para no envejecer el reba\u00f1o. Referencia est\u00e1ndar: 20%.',
+  rearingPedagogyOutcome: 'Resultado: el sistema te dir\u00e1 el costo exacto por litro. Si no lo incluyes en tu precio de venta, est\u00e1s financiando el crecimiento de tu granja de tu propio bolsillo.',
+  productiveYearsStandardHint: 'Referencia pr\u00e1ctica: 5 a\u00f1os (ajusta seg\u00fan el desempe\u00f1o real de tu reba\u00f1o).',
+  replacementRateStandardHint: 'Referencia pr\u00e1ctica: 20% de reposici\u00f3n anual.',
+});
+
+Object.assign(translations.fr, {
+  rearingPedagogyTitle: 'Pedagogical note: rearing and replacement estimator',
+  rearingPedagogyIntro: 'Replacement rearing is not free. Investment from birth to first kidding must be recovered.',
+  rearingPedagogyHowToTitle: 'How to fill the data',
+  rearingPedagogyHowToCost: 'Total raising investment per female to first production.',
+  rearingPedagogyHowToYears: 'Average productive years in your farm.',
+  rearingPedagogyHowToRate: 'Annual replacement percentage to keep herd age balanced.',
+  rearingPedagogyOutcome: 'The system returns exact cost per liter for replacement recovery.',
+  productiveYearsStandardHint: 'Practical reference: 5 years.',
+  replacementRateStandardHint: 'Practical reference: 20% annual replacement.',
+});
+
+Object.assign(translations.it, {
+  rearingPedagogyTitle: 'Pedagogical note: rearing and replacement estimator',
+  rearingPedagogyIntro: 'Replacement rearing is not free. Investment from birth to first kidding must be recovered.',
+  rearingPedagogyHowToTitle: 'How to fill the data',
+  rearingPedagogyHowToCost: 'Total raising investment per female to first production.',
+  rearingPedagogyHowToYears: 'Average productive years in your farm.',
+  rearingPedagogyHowToRate: 'Annual replacement percentage to keep herd age balanced.',
+  rearingPedagogyOutcome: 'The system returns exact cost per liter for replacement recovery.',
+  productiveYearsStandardHint: 'Practical reference: 5 years.',
+  replacementRateStandardHint: 'Practical reference: 20% annual replacement.',
+});
+
+Object.assign(translations.pt, {
+  rearingPedagogyTitle: 'Pedagogical note: rearing and replacement estimator',
+  rearingPedagogyIntro: 'Replacement rearing is not free. Investment from birth to first kidding must be recovered.',
+  rearingPedagogyHowToTitle: 'How to fill the data',
+  rearingPedagogyHowToCost: 'Total raising investment per female to first production.',
+  rearingPedagogyHowToYears: 'Average productive years in your farm.',
+  rearingPedagogyHowToRate: 'Annual replacement percentage to keep herd age balanced.',
+  rearingPedagogyOutcome: 'The system returns exact cost per liter for replacement recovery.',
+  productiveYearsStandardHint: 'Practical reference: 5 years.',
+  replacementRateStandardHint: 'Practical reference: 20% annual replacement.',
+});
+// STEP21_REARING_PEDAGOGY_NOTE_END
+
+// STEP22_SERVICES_PEDAGOGY_NOTE_START
+Object.assign(translations.en, {
+  servicesPedagogyTitle: 'Pedagogical note: services and infrastructure cost estimator',
+  servicesPedagogyIntro: 'When calculating milk production cost per liter, many producers only look at feed. But your farm is a full operation: electricity, water, fuel, and ongoing repairs are hidden costs that silently reduce margin if ignored.',
+  servicesPedagogyHowToTitle: 'How to fill the data',
+  servicesPedagogyHowToElectricity: 'Average monthly electricity expense for milking and farm equipment.',
+  servicesPedagogyHowToWater: 'Average monthly water expense used in operation and cleaning.',
+  servicesPedagogyHowToMaintenance: 'Average monthly maintenance and repair expense in facilities and equipment.',
+  servicesPedagogyHowToTransport: 'Average monthly transport/fuel expense for moving inputs and products.',
+  servicesPedagogyOutcome: 'The system converts these monthly bills into operational cost per liter based on real liters sold. If you exclude these costs from your final price, you are subsidizing buyers from your own pocket.',
+  servicesElectricityFieldHint: 'Include milking room, cooling, pumps, and lighting consumption.',
+  servicesWaterFieldHint: 'Include water used for animals, cleaning, and milking hygiene.',
+  servicesMaintenanceFieldHint: 'Include routine and corrective repairs in corrals, milking room, and equipment.',
+  servicesTransportFieldHint: 'Include fuel/logistics for supplies, milk, and product movement.',
+});
+
+Object.assign(translations.es, {
+  servicesPedagogyTitle: 'Nota pedagógica: estimador de costos de servicios e infraestructura',
+  servicesPedagogyIntro: 'Es muy común que, al calcular cuánto cuesta producir un litro de leche, solo se piense en el alimento. Pero tu granja es una operación completa: electricidad, agua, combustible y reparaciones constantes son costos ocultos que se comen la ganancia si no los tienes en el radar.',
+  servicesPedagogyHowToTitle: 'Cómo llenar los datos',
+  servicesPedagogyHowToElectricity: 'Gasto promedio mensual de electricidad para equipos de ordeño y operación de la granja.',
+  servicesPedagogyHowToWater: 'Gasto promedio mensual de agua usada en operación y limpieza.',
+  servicesPedagogyHowToMaintenance: 'Gasto promedio mensual de mantenimiento y reparaciones en instalaciones y equipos.',
+  servicesPedagogyHowToTransport: 'Gasto promedio mensual de transporte/combustible para mover insumos y productos.',
+  servicesPedagogyOutcome: 'El sistema traduce esos recibos y divide esa carga operativa entre los litros reales que vendes. Si dejas estos gastos fuera de tu precio final, estás subsidiando a tus compradores y pagando de tu bolsillo por mantener la granja abierta.',
+  servicesElectricityFieldHint: 'Incluye consumo de sala de ordeño, enfriamiento, bombas e iluminación.',
+  servicesWaterFieldHint: 'Incluye agua para animales, limpieza e higiene de ordeño.',
+  servicesMaintenanceFieldHint: 'Incluye reparaciones preventivas y correctivas en corrales, sala de ordeño y equipos.',
+  servicesTransportFieldHint: 'Incluye combustible/logística para mover insumos, leche y productos.',
+});
+
+Object.assign(translations.fr, {
+  servicesPedagogyTitle: 'Pedagogical note: services and infrastructure cost estimator',
+  servicesPedagogyIntro: 'Electricity, water, fuel, and repairs are hidden costs that impact margin.',
+  servicesPedagogyHowToTitle: 'How to fill the data',
+  servicesPedagogyHowToElectricity: 'Average monthly electricity expense.',
+  servicesPedagogyHowToWater: 'Average monthly water expense.',
+  servicesPedagogyHowToMaintenance: 'Average monthly maintenance expense.',
+  servicesPedagogyHowToTransport: 'Average monthly transport/fuel expense.',
+  servicesPedagogyOutcome: 'The system converts monthly bills into cost per liter.',
+  servicesElectricityFieldHint: 'Include equipment and operational electricity.',
+  servicesWaterFieldHint: 'Include operational and cleaning water.',
+  servicesMaintenanceFieldHint: 'Include routine and corrective maintenance.',
+  servicesTransportFieldHint: 'Include fuel and logistics costs.',
+});
+
+Object.assign(translations.it, {
+  servicesPedagogyTitle: 'Pedagogical note: services and infrastructure cost estimator',
+  servicesPedagogyIntro: 'Electricity, water, fuel, and repairs are hidden costs that impact margin.',
+  servicesPedagogyHowToTitle: 'How to fill the data',
+  servicesPedagogyHowToElectricity: 'Average monthly electricity expense.',
+  servicesPedagogyHowToWater: 'Average monthly water expense.',
+  servicesPedagogyHowToMaintenance: 'Average monthly maintenance expense.',
+  servicesPedagogyHowToTransport: 'Average monthly transport/fuel expense.',
+  servicesPedagogyOutcome: 'The system converts monthly bills into cost per liter.',
+  servicesElectricityFieldHint: 'Include equipment and operational electricity.',
+  servicesWaterFieldHint: 'Include operational and cleaning water.',
+  servicesMaintenanceFieldHint: 'Include routine and corrective maintenance.',
+  servicesTransportFieldHint: 'Include fuel and logistics costs.',
+});
+
+Object.assign(translations.pt, {
+  servicesPedagogyTitle: 'Pedagogical note: services and infrastructure cost estimator',
+  servicesPedagogyIntro: 'Electricity, water, fuel, and repairs are hidden costs that impact margin.',
+  servicesPedagogyHowToTitle: 'How to fill the data',
+  servicesPedagogyHowToElectricity: 'Average monthly electricity expense.',
+  servicesPedagogyHowToWater: 'Average monthly water expense.',
+  servicesPedagogyHowToMaintenance: 'Average monthly maintenance expense.',
+  servicesPedagogyHowToTransport: 'Average monthly transport/fuel expense.',
+  servicesPedagogyOutcome: 'The system converts monthly bills into cost per liter.',
+  servicesElectricityFieldHint: 'Include equipment and operational electricity.',
+  servicesWaterFieldHint: 'Include operational and cleaning water.',
+  servicesMaintenanceFieldHint: 'Include routine and corrective maintenance.',
+  servicesTransportFieldHint: 'Include fuel and logistics costs.',
+});
+// STEP22_SERVICES_PEDAGOGY_NOTE_END
+
+// STEP23_HEALTH_PEDAGOGY_NOTE_START
+Object.assign(translations.en, {
+  healthPedagogyTitle: 'Pedagogical note: health cost estimator',
+  healthPedagogyIntro: 'A common mistake is to remember health costs only when an animal gets sick in an emergency. In practice, health should be preventive and planned maintenance of your biological assets. Vaccines, periodic deworming, and routine veterinary visits are fixed annual investments that protect daily production.',
+  healthPedagogyHowToTitle: 'How to fill the data',
+  healthPedagogyHowToAnnual: 'Enter annual total health cost per animal if you already track it.',
+  healthPedagogyHowToBreakdown: 'If preferred, use the detailed breakdown below by concept (vaccines, deworming, veterinary visits).',
+  healthPedagogyOutcome: 'The system converts this annual investment into cost per liter. If you sell without including preventive health cost in your final price, one outbreak or clinical emergency can wipe out your monthly profit.',
+  healthVaccineFieldHint: 'Include annual preventive vaccination plan per animal.',
+  healthDewormingFieldHint: 'Include periodic deworming program cost per animal.',
+  healthVetFieldHint: 'Include routine veterinary checks and preventive visits per animal.',
+});
+
+Object.assign(translations.es, {
+  healthPedagogyTitle: 'Nota pedag\u00f3gica: estimador de costos de sanidad',
+  healthPedagogyIntro: 'Un error muy frecuente es acordarse de los costos de salud solo cuando un animal se enferma de madrugada. En la realidad, la sanidad no deber\u00eda ser un gasto sorpresa, sino mantenimiento preventivo y programado de tus activos biol\u00f3gicos. Las vacunas, desparasitaciones peri\u00f3dicas y visitas de rutina del veterinario son inversiones anuales fijas que protegen tu producci\u00f3n diaria.',
+  healthPedagogyHowToTitle: 'C\u00f3mo llenar los datos',
+  healthPedagogyHowToAnnual: 'Ingresa tu costo total anual por cabra si ya lo tienes consolidado.',
+  healthPedagogyHowToBreakdown: 'Si lo prefieres, desgl\u00f3salo por concepto m\u00e1s abajo (vacunas, desparasitaci\u00f3n y visitas veterinarias).',
+  healthPedagogyOutcome: 'El sistema tomar\u00e1 esa inversi\u00f3n y te dir\u00e1 qu\u00e9 fracci\u00f3n de cada litro de leche debe destinarse a cubrirla. Si vendes sin incluir este costo preventivo en tu precio final, un brote o emergencia cl\u00ednica puede borrar las ganancias del mes.',
+  healthVaccineFieldHint: 'Incluye el plan anual de vacunaci\u00f3n preventiva por animal.',
+  healthDewormingFieldHint: 'Incluye el costo del programa peri\u00f3dico de desparasitaci\u00f3n por animal.',
+  healthVetFieldHint: 'Incluye controles de rutina y visitas preventivas del veterinario por animal.',
+});
+
+Object.assign(translations.fr, {
+  healthPedagogyTitle: 'Pedagogical note: health cost estimator',
+  healthPedagogyIntro: 'Preventive health costs are fixed annual investments that protect production.',
+  healthPedagogyHowToTitle: 'How to fill the data',
+  healthPedagogyHowToAnnual: 'Enter annual total health cost per animal.',
+  healthPedagogyHowToBreakdown: 'Or use detailed breakdown by concept.',
+  healthPedagogyOutcome: 'The system converts annual preventive cost into cost per liter.',
+  healthVaccineFieldHint: 'Include annual vaccination plan cost.',
+  healthDewormingFieldHint: 'Include periodic deworming cost.',
+  healthVetFieldHint: 'Include routine veterinary visit cost.',
+});
+
+Object.assign(translations.it, {
+  healthPedagogyTitle: 'Pedagogical note: health cost estimator',
+  healthPedagogyIntro: 'Preventive health costs are fixed annual investments that protect production.',
+  healthPedagogyHowToTitle: 'How to fill the data',
+  healthPedagogyHowToAnnual: 'Enter annual total health cost per animal.',
+  healthPedagogyHowToBreakdown: 'Or use detailed breakdown by concept.',
+  healthPedagogyOutcome: 'The system converts annual preventive cost into cost per liter.',
+  healthVaccineFieldHint: 'Include annual vaccination plan cost.',
+  healthDewormingFieldHint: 'Include periodic deworming cost.',
+  healthVetFieldHint: 'Include routine veterinary visit cost.',
+});
+
+Object.assign(translations.pt, {
+  healthPedagogyTitle: 'Pedagogical note: health cost estimator',
+  healthPedagogyIntro: 'Preventive health costs are fixed annual investments that protect production.',
+  healthPedagogyHowToTitle: 'How to fill the data',
+  healthPedagogyHowToAnnual: 'Enter annual total health cost per animal.',
+  healthPedagogyHowToBreakdown: 'Or use detailed breakdown by concept.',
+  healthPedagogyOutcome: 'The system converts annual preventive cost into cost per liter.',
+  healthVaccineFieldHint: 'Include annual vaccination plan cost.',
+  healthDewormingFieldHint: 'Include periodic deworming cost.',
+  healthVetFieldHint: 'Include routine veterinary visit cost.',
+});
+// STEP23_HEALTH_PEDAGOGY_NOTE_END
+
+// STEP24_MODULE2_COMPARISON_AND_CHART_MODES_START
+Object.assign(translations.en, {
+  betterSellRawMilk: 'Better to sell raw milk',
+  chartViewBars: 'Bars (Income/Costs/Margin)',
+  chartViewPie: 'Pie (Channel Mix)',
+  chartViewScale: 'Scale (Margin Structure)',
+});
+
+Object.assign(translations.es, {
+  betterSellRawMilk: 'Mejor vender leche cruda',
+  chartViewBars: 'Barras (Ingresos/Costos/Margen)',
+  chartViewPie: 'Torta (Mezcla por Canales)',
+  chartViewScale: 'Escala (Estructura de Margen)',
+});
+
+Object.assign(translations.fr, {
+  betterSellRawMilk: 'Better to sell raw milk',
+  chartViewBars: 'Bars (Income/Costs/Margin)',
+  chartViewPie: 'Pie (Channel Mix)',
+  chartViewScale: 'Scale (Margin Structure)',
+});
+
+Object.assign(translations.it, {
+  betterSellRawMilk: 'Better to sell raw milk',
+  chartViewBars: 'Bars (Income/Costs/Margin)',
+  chartViewPie: 'Pie (Channel Mix)',
+  chartViewScale: 'Scale (Margin Structure)',
+});
+
+Object.assign(translations.pt, {
+  betterSellRawMilk: 'Better to sell raw milk',
+  chartViewBars: 'Bars (Income/Costs/Margin)',
+  chartViewPie: 'Pie (Channel Mix)',
+  chartViewScale: 'Scale (Margin Structure)',
+});
+// STEP24_MODULE2_COMPARISON_AND_CHART_MODES_END

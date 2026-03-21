@@ -1,6 +1,50 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useI18n } from '../i18n/I18nContext';
 import { formatCurrency, getCurrencySymbol, normalizeCurrency } from '../utils/currency';
+
+const INITIAL_FEED_DATA = {
+  concentrate_kg_per_day: '0',
+  concentrate_price_per_kg: '0',
+  bag_price: '0',
+  bag_weight_kg: '0',
+  forage_kg_per_day: '0',
+  forage_price_per_kg: '0',
+  forage_bale_price: '0',
+  forage_bale_weight_kg: '0',
+  supplement_kg_per_day: '0',
+  supplement_price_per_kg: '0',
+  mineral_monthly_cost: '0',
+};
+
+const INITIAL_LABOR_DATA = {
+  labor_mode: 'hourly',
+  hours_per_day_per_worker: '0',
+  workers_count: '0',
+  wage_per_hour: '0',
+  wage_per_day_per_worker: '0',
+  monthly_wage_per_worker: '0',
+  monthly_total_labor_cost: '0',
+};
+
+const INITIAL_HEALTH_DATA = {
+  annual_health_cost_per_animal: '0',
+  vaccine_cost_annual: '0',
+  deworming_cost_annual: '0',
+  vet_visits_annual: '0',
+};
+
+const INITIAL_SERVICES_DATA = {
+  electricity_monthly: '0',
+  water_monthly: '0',
+  maintenance_monthly: '0',
+  transport_monthly: '0',
+};
+
+const INITIAL_REARING_DATA = {
+  rearing_cost_per_animal: '0',
+  productive_years: '0',
+  replacement_rate_percent: '0',
+};
 
 /**
  * Module 4: Cost Mini-Calculator Modal
@@ -16,8 +60,8 @@ function CostCalculatorModal({
   onClose,
   calculatorType,
   onApply,
-  currentAnimals = 1,
-  currentDailyProduction = 1,
+  currentAnimals = 0,
+  currentDailyProduction = 0,
   preferredCurrency = 'USD',
 }) {
   const { t } = useI18n();
@@ -26,56 +70,38 @@ function CostCalculatorModal({
   const formatMoney = (value, options = {}) => formatCurrency(value, normalizedCurrency, options);
   
   // Feed Calculator State
-  const [feedData, setFeedData] = useState({
-    concentrate_kg_per_day: '0',
-    concentrate_price_per_kg: '0',
-    bag_price: '0',
-    bag_weight_kg: '0',
-    forage_kg_per_day: '0',
-    forage_price_per_kg: '0',
-    forage_bale_price: '0',
-    forage_bale_weight_kg: '0',
-    supplement_kg_per_day: '0',
-    supplement_price_per_kg: '0',
-    mineral_monthly_cost: '0',
-  });
+  const [feedData, setFeedData] = useState(INITIAL_FEED_DATA);
   
   // Labor Calculator State
-  const [laborData, setLaborData] = useState({
-    labor_mode: 'hourly',
-    hours_per_day_per_worker: '0',
-    workers_count: '0',
-    wage_per_hour: '0',
-    wage_per_day_per_worker: '0',
-    monthly_wage_per_worker: '0',
-    monthly_total_labor_cost: '0',
-  });
+  const [laborData, setLaborData] = useState(INITIAL_LABOR_DATA);
   
   // Health Calculator State
-  const [healthData, setHealthData] = useState({
-    annual_health_cost_per_animal: '0',
-    vaccine_cost_annual: '0',
-    deworming_cost_annual: '0',
-    vet_visits_annual: '0',
-  });
+  const [healthData, setHealthData] = useState(INITIAL_HEALTH_DATA);
   
   // Services Calculator State
-  const [servicesData, setServicesData] = useState({
-    electricity_monthly: '0',
-    water_monthly: '0',
-    maintenance_monthly: '0',
-    transport_monthly: '0',
-  });
+  const [servicesData, setServicesData] = useState(INITIAL_SERVICES_DATA);
   
   // Rearing Calculator State
-  const [rearingData, setRearingData] = useState({
-    rearing_cost_per_animal: '0',
-    productive_years: '0',
-    replacement_rate_percent: '0',
-  });
+  const [rearingData, setRearingData] = useState(INITIAL_REARING_DATA);
   
   const [calculatedCost, setCalculatedCost] = useState(0);
-  
+
+  const resetCalculatorData = () => {
+    setFeedData({ ...INITIAL_FEED_DATA });
+    setLaborData({ ...INITIAL_LABOR_DATA });
+    setHealthData({ ...INITIAL_HEALTH_DATA });
+    setServicesData({ ...INITIAL_SERVICES_DATA });
+    setRearingData({ ...INITIAL_REARING_DATA });
+    setCalculatedCost(0);
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      // Open calculators with explicit zero values each time.
+      resetCalculatorData();
+    }
+  }, [isOpen, calculatorType]);
+
   useEffect(() => {
     if (isOpen) {
       calculateCost();
@@ -91,8 +117,8 @@ function CostCalculatorModal({
   };
   
   const calculateCost = () => {
-    const animals = parseNonNegativeNumber(currentAnimals) || 1;
-    const dailyProd = parseNonNegativeNumber(currentDailyProduction) || 1;
+    const animals = parseNonNegativeNumber(currentAnimals);
+    const dailyProd = parseNonNegativeNumber(currentDailyProduction);
     const totalDailyProduction = dailyProd * animals;
     
     let costPerLiter = 0;
@@ -184,7 +210,7 @@ function CostCalculatorModal({
 
   const sanitizeNumericInput = (value) => {
     if (value === '' || value === null || value === undefined) {
-      return '';
+      return '0';
     }
     const normalized = String(value).replace(',', '.');
     return /^\d*\.?\d*$/.test(normalized) ? normalized : null;
@@ -276,7 +302,7 @@ function CostCalculatorModal({
                   value={feedData.concentrate_kg_per_day}
                   onChange={(e) => handleInputChange(e, 'feed')}
                   step="0.1"
-                  placeholder="0.5"
+                  placeholder="0"
                 />
               </div>
               
@@ -288,7 +314,7 @@ function CostCalculatorModal({
                   value={feedData.concentrate_price_per_kg}
                   onChange={(e) => handleInputChange(e, 'feed')}
                   step="0.01"
-                  placeholder="0.45"
+                  placeholder="0"
                 />
                 <p className="input-hint">{t('feedConcentratePriceHint')}</p>
               </div>
@@ -305,7 +331,7 @@ function CostCalculatorModal({
                       value={feedData.bag_price}
                       onChange={(e) => handleInputChange(e, 'feed')}
                       step="0.01"
-                      placeholder="29"
+                      placeholder="0"
                     />
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
@@ -316,16 +342,16 @@ function CostCalculatorModal({
                       value={feedData.bag_weight_kg}
                       onChange={(e) => handleInputChange(e, 'feed')}
                       step="0.01"
-                      placeholder="35"
+                      placeholder="0"
                     />
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label>{t('computedPricePerKg')} ({currencySymbol}/kg)</label>
                     <input
                       type="number"
-                      value={computedPricePerKg > 0 ? computedPricePerKg.toFixed(4) : ''}
+                      value={computedPricePerKg > 0 ? computedPricePerKg.toFixed(4) : '0'}
                       readOnly
-                      placeholder="0.82"
+                      placeholder="0"
                     />
                   </div>
                 </div>
@@ -347,7 +373,7 @@ function CostCalculatorModal({
                   value={feedData.forage_kg_per_day}
                   onChange={(e) => handleInputChange(e, 'feed')}
                   step="0.1"
-                  placeholder="3.0"
+                  placeholder="0"
                 />
               </div>
               
@@ -359,7 +385,7 @@ function CostCalculatorModal({
                   value={feedData.forage_price_per_kg}
                   onChange={(e) => handleInputChange(e, 'feed')}
                   step="0.01"
-                  placeholder="0.15"
+                  placeholder="0"
                 />
                 <p className="input-hint">{t('forageCostHint')}</p>
               </div>
@@ -376,7 +402,7 @@ function CostCalculatorModal({
                       value={feedData.forage_bale_price}
                       onChange={(e) => handleInputChange(e, 'feed')}
                       step="0.01"
-                      placeholder="6.5"
+                      placeholder="0"
                     />
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
@@ -387,16 +413,16 @@ function CostCalculatorModal({
                       value={feedData.forage_bale_weight_kg}
                       onChange={(e) => handleInputChange(e, 'feed')}
                       step="0.01"
-                      placeholder="22"
+                      placeholder="0"
                     />
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label>{t('computedPricePerKg')} ({currencySymbol}/kg)</label>
                     <input
                       type="number"
-                      value={computedForagePricePerKg > 0 ? computedForagePricePerKg.toFixed(4) : ''}
+                      value={computedForagePricePerKg > 0 ? computedForagePricePerKg.toFixed(4) : '0'}
                       readOnly
-                      placeholder="0.30"
+                      placeholder="0"
                     />
                   </div>
                 </div>
@@ -418,7 +444,7 @@ function CostCalculatorModal({
                   value={feedData.supplement_kg_per_day}
                   onChange={(e) => handleInputChange(e, 'feed')}
                   step="0.1"
-                  placeholder="0.2"
+                  placeholder="0"
                 />
               </div>
               
@@ -430,7 +456,7 @@ function CostCalculatorModal({
                   value={feedData.supplement_price_per_kg}
                   onChange={(e) => handleInputChange(e, 'feed')}
                   step="0.01"
-                  placeholder="0.60"
+                  placeholder="0"
                 />
               </div>
               
@@ -442,7 +468,7 @@ function CostCalculatorModal({
                   value={feedData.mineral_monthly_cost}
                   onChange={(e) => handleInputChange(e, 'feed')}
                   step="0.01"
-                  placeholder="30"
+                  placeholder="0"
                 />
               </div>
             </div>
@@ -483,7 +509,7 @@ function CostCalculatorModal({
                   onChange={(e) => handleInputChange(e, 'labor')}
                   step="1"
                   min="0"
-                  placeholder="2"
+                  placeholder="0"
                 />
                 <p className="input-hint">{t('workersCountHint')}</p>
               </div>
@@ -498,7 +524,7 @@ function CostCalculatorModal({
                       value={laborData.hours_per_day_per_worker}
                       onChange={(e) => handleInputChange(e, 'labor')}
                       step="0.5"
-                      placeholder="8"
+                      placeholder="0"
                     />
                     <p className="input-hint">{t('laborHourlyFormulaHint')}</p>
                   </div>
@@ -511,7 +537,7 @@ function CostCalculatorModal({
                       value={laborData.wage_per_hour}
                       onChange={(e) => handleInputChange(e, 'labor')}
                       step="0.01"
-                      placeholder="2.50"
+                      placeholder="0"
                     />
                   </div>
                 </>
@@ -526,7 +552,7 @@ function CostCalculatorModal({
                     value={laborData.wage_per_day_per_worker}
                     onChange={(e) => handleInputChange(e, 'labor')}
                     step="0.01"
-                    placeholder="18"
+                    placeholder="0"
                   />
                   <p className="input-hint">{t('laborDailyFormulaHint')}</p>
                 </div>
@@ -542,7 +568,7 @@ function CostCalculatorModal({
                       value={laborData.monthly_total_labor_cost}
                       onChange={(e) => handleInputChange(e, 'labor')}
                       step="0.01"
-                      placeholder="800"
+                      placeholder="0"
                     />
                     <p className="input-hint">{t('monthlyTotalLaborCostHint')}</p>
                   </div>
@@ -555,7 +581,7 @@ function CostCalculatorModal({
                       value={laborData.monthly_wage_per_worker}
                       onChange={(e) => handleInputChange(e, 'labor')}
                       step="0.01"
-                      placeholder="400"
+                      placeholder="0"
                     />
                   </div>
                   <p className="input-hint">{t('laborMonthlyFormulaHint')}</p>
@@ -572,6 +598,22 @@ function CostCalculatorModal({
               <p style={{ fontSize: '0.9em', color: 'var(--text-tertiary)', marginBottom: '15px' }}>
                 {t('healthCalcDescription')}
               </p>
+              <div className="pedagogy-block" style={{ marginBottom: '14px' }}>
+                <p className="pedagogy-title">{t('healthPedagogyTitle')}</p>
+                <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+                  {t('healthPedagogyIntro')}
+                </p>
+                <p className="pedagogy-title" style={{ marginTop: '6px' }}>
+                  {t('healthPedagogyHowToTitle')}
+                </p>
+                <ul className="pedagogy-list">
+                  <li><strong>{t('annualHealthCostPerAnimal')}:</strong> {t('healthPedagogyHowToAnnual')}</li>
+                  <li><strong>{t('orBreakdownByConcept')}:</strong> {t('healthPedagogyHowToBreakdown')}</li>
+                </ul>
+                <p className="input-hint" style={{ marginTop: 0 }}>
+                  {t('healthPedagogyOutcome')}
+                </p>
+              </div>
               <p className="input-hint" style={{ marginBottom: '12px' }}>
                 {t('healthPreventiveCostHint')}
               </p>
@@ -584,7 +626,7 @@ function CostCalculatorModal({
                   value={healthData.annual_health_cost_per_animal}
                   onChange={(e) => handleInputChange(e, 'health')}
                   step="0.01"
-                  placeholder="25"
+                  placeholder="0"
                 />
                 <small style={{ display: 'block', marginTop: '5px', color: 'var(--text-tertiary)' }}>
                   {t('healthCostHint')}
@@ -603,8 +645,9 @@ function CostCalculatorModal({
                   value={healthData.vaccine_cost_annual}
                   onChange={(e) => handleInputChange(e, 'health')}
                   step="0.01"
-                  placeholder="10"
+                  placeholder="0"
                 />
+                <p className="input-hint">{t('healthVaccineFieldHint')}</p>
               </div>
               
               <div className="form-group">
@@ -615,8 +658,9 @@ function CostCalculatorModal({
                   value={healthData.deworming_cost_annual}
                   onChange={(e) => handleInputChange(e, 'health')}
                   step="0.01"
-                  placeholder="5"
+                  placeholder="0"
                 />
+                <p className="input-hint">{t('healthDewormingFieldHint')}</p>
               </div>
               
               <div className="form-group">
@@ -627,8 +671,9 @@ function CostCalculatorModal({
                   value={healthData.vet_visits_annual}
                   onChange={(e) => handleInputChange(e, 'health')}
                   step="0.01"
-                  placeholder="10"
+                  placeholder="0"
                 />
+                <p className="input-hint">{t('healthVetFieldHint')}</p>
               </div>
             </div>
           )}
@@ -640,6 +685,24 @@ function CostCalculatorModal({
               <p style={{ fontSize: '0.9em', color: 'var(--text-tertiary)', marginBottom: '15px' }}>
                 {t('servicesCalcDescription')}
               </p>
+              <div className="pedagogy-block" style={{ marginBottom: '14px' }}>
+                <p className="pedagogy-title">{t('servicesPedagogyTitle')}</p>
+                <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+                  {t('servicesPedagogyIntro')}
+                </p>
+                <p className="pedagogy-title" style={{ marginTop: '6px' }}>
+                  {t('servicesPedagogyHowToTitle')}
+                </p>
+                <ul className="pedagogy-list">
+                  <li><strong>{t('electricityMonthly')}:</strong> {t('servicesPedagogyHowToElectricity')}</li>
+                  <li><strong>{t('waterMonthly')}:</strong> {t('servicesPedagogyHowToWater')}</li>
+                  <li><strong>{t('maintenanceMonthly')}:</strong> {t('servicesPedagogyHowToMaintenance')}</li>
+                  <li><strong>{t('transportMonthly')}:</strong> {t('servicesPedagogyHowToTransport')}</li>
+                </ul>
+                <p className="input-hint" style={{ marginTop: 0 }}>
+                  {t('servicesPedagogyOutcome')}
+                </p>
+              </div>
               <p className="input-hint" style={{ marginBottom: '12px' }}>
                 {t('servicesHiddenCostHint')}
               </p>
@@ -652,8 +715,9 @@ function CostCalculatorModal({
                   value={servicesData.electricity_monthly}
                   onChange={(e) => handleInputChange(e, 'services')}
                   step="0.01"
-                  placeholder="50"
+                  placeholder="0"
                 />
+                <p className="input-hint">{t('servicesElectricityFieldHint')}</p>
               </div>
               
               <div className="form-group">
@@ -664,8 +728,9 @@ function CostCalculatorModal({
                   value={servicesData.water_monthly}
                   onChange={(e) => handleInputChange(e, 'services')}
                   step="0.01"
-                  placeholder="20"
+                  placeholder="0"
                 />
+                <p className="input-hint">{t('servicesWaterFieldHint')}</p>
               </div>
               
               <div className="form-group">
@@ -676,8 +741,9 @@ function CostCalculatorModal({
                   value={servicesData.maintenance_monthly}
                   onChange={(e) => handleInputChange(e, 'services')}
                   step="0.01"
-                  placeholder="30"
+                  placeholder="0"
                 />
+                <p className="input-hint">{t('servicesMaintenanceFieldHint')}</p>
               </div>
               
               <div className="form-group">
@@ -688,8 +754,9 @@ function CostCalculatorModal({
                   value={servicesData.transport_monthly}
                   onChange={(e) => handleInputChange(e, 'services')}
                   step="0.01"
-                  placeholder="40"
+                  placeholder="0"
                 />
+                <p className="input-hint">{t('servicesTransportFieldHint')}</p>
               </div>
             </div>
           )}
@@ -701,6 +768,23 @@ function CostCalculatorModal({
               <p style={{ fontSize: '0.9em', color: 'var(--text-tertiary)', marginBottom: '15px' }}>
                 {t('rearingCalcDescription')}
               </p>
+              <div className="pedagogy-block" style={{ marginBottom: '14px' }}>
+                <p className="pedagogy-title">{t('rearingPedagogyTitle')}</p>
+                <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+                  {t('rearingPedagogyIntro')}
+                </p>
+                <p className="pedagogy-title" style={{ marginTop: '6px' }}>
+                  {t('rearingPedagogyHowToTitle')}
+                </p>
+                <ul className="pedagogy-list">
+                  <li><strong>{t('rearingCostPerAnimal')}:</strong> {t('rearingPedagogyHowToCost')}</li>
+                  <li><strong>{t('productiveYears')}:</strong> {t('rearingPedagogyHowToYears')}</li>
+                  <li><strong>{t('replacementRatePercent')}:</strong> {t('rearingPedagogyHowToRate')}</li>
+                </ul>
+                <p className="input-hint" style={{ marginTop: 0 }}>
+                  {t('rearingPedagogyOutcome')}
+                </p>
+              </div>
               <p className="input-hint" style={{ marginBottom: '12px' }}>
                 {t('replacementHiddenCostHint')}
               </p>
@@ -713,7 +797,7 @@ function CostCalculatorModal({
                   value={rearingData.rearing_cost_per_animal}
                   onChange={(e) => handleInputChange(e, 'rearing')}
                   step="0.01"
-                  placeholder="300"
+                  placeholder="0"
                 />
                 <small style={{ display: 'block', marginTop: '5px', color: 'var(--text-tertiary)' }}>
                   {t('rearingCostHint')}
@@ -728,8 +812,9 @@ function CostCalculatorModal({
                   value={rearingData.productive_years}
                   onChange={(e) => handleInputChange(e, 'rearing')}
                   step="0.5"
-                  placeholder="5"
+                  placeholder="0"
                 />
+                <p className="input-hint">{t('productiveYearsStandardHint')}</p>
               </div>
               
               <div className="form-group">
@@ -740,8 +825,9 @@ function CostCalculatorModal({
                   value={rearingData.replacement_rate_percent}
                   onChange={(e) => handleInputChange(e, 'rearing')}
                   step="1"
-                  placeholder="20"
+                  placeholder="0"
                 />
+                <p className="input-hint">{t('replacementRateStandardHint')}</p>
                 <small style={{ display: 'block', marginTop: '5px', color: 'var(--text-tertiary)' }}>
                   {t('replacementRateHint')}
                 </small>
@@ -778,4 +864,5 @@ function CostCalculatorModal({
 }
 
 export default CostCalculatorModal;
+
 
