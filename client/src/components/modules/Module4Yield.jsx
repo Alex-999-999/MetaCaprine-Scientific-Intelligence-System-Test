@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, LineChart, Line, PieChart, Pie, ComposedChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import AlertModal from '../AlertModal';
@@ -30,6 +30,7 @@ function Module4Yield({ user }) {
   const [selectedScenario, setSelectedScenario] = useState(null);
   const [loading, setLoading] = useState(false);
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: '', type: 'success' });
+  const [chartViewType, setChartViewType] = useState('bars'); // 'bars', 'pie', 'scale'
 
   useEffect(() => {
     loadScenarios();
@@ -456,87 +457,292 @@ function Module4Yield({ user }) {
                     </h2>
                     <p className="chart-subtitle">{t('yieldVisualSubtitle')}</p>
                   </div>
+                  <div className="chart-controls">
+                    <div className="chart-view-toggle">
+                      <button
+                        className={`chart-view-btn ${chartViewType === 'bars' ? 'active' : ''}`}
+                        onClick={() => setChartViewType('bars')}
+                      >
+                        {t('chartViewBars')}
+                      </button>
+                      <button
+                        className={`chart-view-btn ${chartViewType === 'pie' ? 'active' : ''}`}
+                        onClick={() => setChartViewType('pie')}
+                      >
+                        {t('chartViewPie')}
+                      </button>
+                      <button
+                        className={`chart-view-btn ${chartViewType === 'scale' ? 'active' : ''}`}
+                        onClick={() => setChartViewType('scale')}
+                      >
+                        {t('chartViewScale')}
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="chart-container">
                   <h3 className="chart-section-title">{t('milkToProductConversion')}</h3>
-                  <ResponsiveContainer width="100%" height={320}>
-                    <BarChart data={conversionData} barCategoryGap="20%">
-                      <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
-                      <XAxis 
-                        dataKey="name" 
-                        stroke={chartColors.axis.tick}
-                        tick={{ fill: chartColors.text.secondary, fontSize: 11, fontWeight: 500 }}
-                        tickLine={false}
-                      />
-                      <YAxis 
-                        stroke={chartColors.axis.tick}
-                        tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <Tooltip 
-                        formatter={(value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                        contentStyle={{ 
-                          backgroundColor: chartColors.tooltip.bg, 
-                          border: `1px solid ${chartColors.tooltip.border}`,
-                          borderRadius: '12px',
-                          boxShadow: chartColors.tooltip.shadow,
-                          padding: '12px 16px'
-                        }}
-                        cursor={{ fill: chartColors.background.hover }}
-                      />
-                      <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="roundRect" />
-                      <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                        {conversionData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={chartColors.palette[index % chartColors.palette.length]} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+                  {(() => {
+                    const utilizationPieData = [
+                      { name: t('effectiveLiters'), value: Number(results.effectiveLiters || 0) },
+                      { name: t('wasteLiters'), value: Number(results.wasteLiters || 0) },
+                    ].filter((item) => item.value > 0);
+
+                    if (chartViewType === 'pie') {
+                      return utilizationPieData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={320}>
+                          <PieChart>
+                            <Pie
+                              data={utilizationPieData}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={58}
+                              outerRadius={118}
+                              dataKey="value"
+                              paddingAngle={3}
+                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                            >
+                              {utilizationPieData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={chartColors.palette[index % chartColors.palette.length]} />
+                              ))}
+                            </Pie>
+                            <Tooltip
+                              formatter={(value) => `${Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} L`}
+                              contentStyle={{
+                                backgroundColor: chartColors.tooltip.bg,
+                                border: `1px solid ${chartColors.tooltip.border}`,
+                                borderRadius: '12px',
+                                boxShadow: chartColors.tooltip.shadow,
+                                padding: '12px 16px'
+                              }}
+                            />
+                            <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="chart-empty">
+                          <p className="chart-empty-text">{t('noDataToShow')}</p>
+                        </div>
+                      );
+                    }
+
+                    if (chartViewType === 'scale') {
+                      return (
+                        <ResponsiveContainer width="100%" height={320}>
+                          <ComposedChart data={conversionData}>
+                            <defs>
+                              <linearGradient id="module4ConversionScaleFill" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor={chartColors.primary} stopOpacity={0.35} />
+                                <stop offset="95%" stopColor={chartColors.primary} stopOpacity={0.05} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
+                            <XAxis
+                              dataKey="name"
+                              stroke={chartColors.axis.tick}
+                              tick={{ fill: chartColors.text.secondary, fontSize: 11, fontWeight: 500 }}
+                              tickLine={false}
+                            />
+                            <YAxis
+                              stroke={chartColors.axis.tick}
+                              tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
+                              axisLine={false}
+                              tickLine={false}
+                            />
+                            <Tooltip
+                              formatter={(value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                              contentStyle={{
+                                backgroundColor: chartColors.tooltip.bg,
+                                border: `1px solid ${chartColors.tooltip.border}`,
+                                borderRadius: '12px',
+                                boxShadow: chartColors.tooltip.shadow,
+                                padding: '12px 16px'
+                              }}
+                            />
+                            <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="line" />
+                            <Area type="monotone" dataKey="value" fill="url(#module4ConversionScaleFill)" stroke={chartColors.primary} strokeWidth={2} />
+                            <Line type="monotone" dataKey="value" stroke={chartColors.primary} strokeWidth={3} dot={{ r: 4 }} />
+                          </ComposedChart>
+                        </ResponsiveContainer>
+                      );
+                    }
+
+                    return (
+                      <ResponsiveContainer width="100%" height={320}>
+                        <BarChart data={conversionData} barCategoryGap="20%">
+                          <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
+                          <XAxis
+                            dataKey="name"
+                            stroke={chartColors.axis.tick}
+                            tick={{ fill: chartColors.text.secondary, fontSize: 11, fontWeight: 500 }}
+                            tickLine={false}
+                          />
+                          <YAxis
+                            stroke={chartColors.axis.tick}
+                            tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
+                            axisLine={false}
+                            tickLine={false}
+                          />
+                          <Tooltip
+                            formatter={(value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                            contentStyle={{
+                              backgroundColor: chartColors.tooltip.bg,
+                              border: `1px solid ${chartColors.tooltip.border}`,
+                              borderRadius: '12px',
+                              boxShadow: chartColors.tooltip.shadow,
+                              padding: '12px 16px'
+                            }}
+                            cursor={{ fill: chartColors.background.hover }}
+                          />
+                          <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="roundRect" />
+                          <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                            {conversionData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={chartColors.palette[index % chartColors.palette.length]} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    );
+                  })()}
                 </div>
 
                 <div className="chart-container" style={{ marginTop: '24px' }}>
                   <h3 className="chart-section-title">{t('efficiencyAndConversion')}</h3>
-                  <ResponsiveContainer width="100%" height={320}>
-                    <BarChart data={efficiencyData} barCategoryGap="30%">
-                      <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
-                      <XAxis 
-                        dataKey="name" 
-                        stroke={chartColors.axis.tick}
-                        tick={{ fill: chartColors.text.secondary, fontSize: 11, fontWeight: 500 }}
-                        tickLine={false}
-                      />
-                      <YAxis 
-                        stroke={chartColors.axis.tick}
-                        tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
-                        axisLine={false}
-                        tickLine={false}
-                        domain={[0, 100]}
-                        tickFormatter={(value) => `${value}%`}
-                      />
-                      <Tooltip 
-                        formatter={(value) => `${Number(value).toFixed(2)}%`}
-                        contentStyle={{ 
-                          backgroundColor: chartColors.tooltip.bg, 
-                          border: `1px solid ${chartColors.tooltip.border}`,
-                          borderRadius: '12px',
-                          boxShadow: chartColors.tooltip.shadow,
-                          padding: '12px 16px'
-                        }}
-                        cursor={{ fill: chartColors.background.hover }}
-                      />
-                      <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="roundRect" />
-                      <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                        {efficiencyData.map((entry, index) => (
-                          <Cell 
-                            key={`cell-${index}`} 
-                            fill={entry.value >= 90 ? chartColors.margin : entry.value >= 70 ? chartColors.quaternary : chartColors.costs} 
+                  {(() => {
+                    if (chartViewType === 'pie') {
+                      const efficiencyPieData = efficiencyData
+                        .map((item) => ({
+                          name: item.name,
+                          value: Math.max(0, Number(item.value || 0)),
+                        }))
+                        .filter((item) => item.value > 0);
+
+                      return efficiencyPieData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={320}>
+                          <PieChart>
+                            <Pie
+                              data={efficiencyPieData}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={58}
+                              outerRadius={118}
+                              dataKey="value"
+                              paddingAngle={3}
+                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                            >
+                              {efficiencyPieData.map((entry, index) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={entry.value >= 90 ? chartColors.margin : entry.value >= 70 ? chartColors.quaternary : chartColors.costs}
+                                />
+                              ))}
+                            </Pie>
+                            <Tooltip
+                              formatter={(value) => `${Number(value || 0).toFixed(2)}%`}
+                              contentStyle={{
+                                backgroundColor: chartColors.tooltip.bg,
+                                border: `1px solid ${chartColors.tooltip.border}`,
+                                borderRadius: '12px',
+                                boxShadow: chartColors.tooltip.shadow,
+                                padding: '12px 16px'
+                              }}
+                            />
+                            <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="chart-empty">
+                          <p className="chart-empty-text">{t('noDataToShow')}</p>
+                        </div>
+                      );
+                    }
+
+                    if (chartViewType === 'scale') {
+                      return (
+                        <ResponsiveContainer width="100%" height={320}>
+                          <LineChart data={efficiencyData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
+                            <XAxis
+                              dataKey="name"
+                              stroke={chartColors.axis.tick}
+                              tick={{ fill: chartColors.text.secondary, fontSize: 11, fontWeight: 500 }}
+                              tickLine={false}
+                            />
+                            <YAxis
+                              stroke={chartColors.axis.tick}
+                              tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
+                              axisLine={false}
+                              tickLine={false}
+                              domain={[0, 100]}
+                              tickFormatter={(value) => `${value}%`}
+                            />
+                            <Tooltip
+                              formatter={(value) => `${Number(value || 0).toFixed(2)}%`}
+                              contentStyle={{
+                                backgroundColor: chartColors.tooltip.bg,
+                                border: `1px solid ${chartColors.tooltip.border}`,
+                                borderRadius: '12px',
+                                boxShadow: chartColors.tooltip.shadow,
+                                padding: '12px 16px'
+                              }}
+                            />
+                            <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="line" />
+                            <Line
+                              type="monotone"
+                              dataKey="value"
+                              stroke={chartColors.margin}
+                              strokeWidth={3}
+                              dot={{ r: 5 }}
+                              activeDot={{ r: 7 }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      );
+                    }
+
+                    return (
+                      <ResponsiveContainer width="100%" height={320}>
+                        <BarChart data={efficiencyData} barCategoryGap="30%">
+                          <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
+                          <XAxis
+                            dataKey="name"
+                            stroke={chartColors.axis.tick}
+                            tick={{ fill: chartColors.text.secondary, fontSize: 11, fontWeight: 500 }}
+                            tickLine={false}
                           />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+                          <YAxis
+                            stroke={chartColors.axis.tick}
+                            tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
+                            axisLine={false}
+                            tickLine={false}
+                            domain={[0, 100]}
+                            tickFormatter={(value) => `${value}%`}
+                          />
+                          <Tooltip
+                            formatter={(value) => `${Number(value).toFixed(2)}%`}
+                            contentStyle={{
+                              backgroundColor: chartColors.tooltip.bg,
+                              border: `1px solid ${chartColors.tooltip.border}`,
+                              borderRadius: '12px',
+                              boxShadow: chartColors.tooltip.shadow,
+                              padding: '12px 16px'
+                            }}
+                            cursor={{ fill: chartColors.background.hover }}
+                          />
+                          <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="roundRect" />
+                          <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                            {efficiencyData.map((entry, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={entry.value >= 90 ? chartColors.margin : entry.value >= 70 ? chartColors.quaternary : chartColors.costs}
+                              />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    );
+                  })()}
                 </div>
               </div>
             </>

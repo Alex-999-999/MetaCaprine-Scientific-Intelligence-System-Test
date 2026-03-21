@@ -315,10 +315,6 @@ function Module3Lactation({ user }) {
     }
   };
 
-  const getBreedData = (breedKey) => {
-    return breeds.find(b => b.breed_key === breedKey);
-  };
-
   const formatNumber = (num, decimals = 1) => {
     if (num === null || num === undefined || isNaN(num)) return '0';
     return Number(num).toLocaleString(undefined, { maximumFractionDigits: decimals });
@@ -466,44 +462,6 @@ function Module3Lactation({ user }) {
                 ))}
               </select>
             </div>
-
-            {selectedBreed && getBreedData(selectedBreed) && (
-              <div style={{
-                marginBottom: '20px',
-                padding: '15px',
-                background: 'var(--bg-tertiary)',
-                borderRadius: '8px',
-                border: '2px solid var(--accent-error)',
-                color: 'var(--text-primary)'
-              }}>
-                <h3 style={{ marginTop: 0, color: 'var(--text-primary)' }}>{t('baseParameters')} ({t('fromDatabase')})</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', color: 'var(--text-primary)' }}>
-                  <div>
-                    <strong style={{ color: 'var(--text-primary)' }}>{t('milkKgPerYear')}:</strong> <span style={{ color: 'var(--text-primary)' }}>{formatNumber(getBreedData(selectedBreed).milk_kg_yr)}</span>
-                  </div>
-                  <div>
-                    <strong style={{ color: 'var(--text-primary)' }}>{t('fatPercent')}:</strong> <span style={{ color: 'var(--text-primary)' }}>{formatNumber(getBreedData(selectedBreed).fat_pct, 2)}</span>
-                  </div>
-                  <div>
-                    <strong style={{ color: 'var(--text-primary)' }}>{t('proteinPercent')}:</strong> <span style={{ color: 'var(--text-primary)' }}>{formatNumber(getBreedData(selectedBreed).protein_pct, 2)}</span>
-                  </div>
-                  <div>
-                    <strong style={{ color: 'var(--text-primary)' }}>{t('lactationDaysAvg')}:</strong> <span style={{ color: 'var(--text-primary)' }}>{formatNumber(getBreedData(selectedBreed).lact_days_avg, 0)}</span>
-                  </div>
-                  <div>
-                    <strong style={{ color: 'var(--text-primary)' }}>{t('lactationsPerLife')}:</strong> <span style={{ color: 'var(--text-primary)' }}>{formatNumber(getBreedData(selectedBreed).lactations_lifetime_avg, 1)}</span>
-                  </div>
-                  <div>
-                    <strong style={{ color: 'var(--text-primary)' }}>{t('ecmLifetime')}:</strong> <span style={{ color: 'var(--text-primary)' }}>{formatNumber(getBreedData(selectedBreed).ecm_kg_lifetime, 1)} kg</span>
-                  </div>
-                </div>
-                {getBreedData(selectedBreed).notes && (
-                  <p style={{ marginTop: '10px', fontSize: '0.9em', color: 'var(--text-secondary)' }}>
-                    <strong>{t('source')}:</strong> {getBreedData(selectedBreed).notes}
-                  </p>
-                )}
-              </div>
-            )}
 
             <h3>{t('overridesOptional')}</h3>
             {renderOverrideRangeGuide()}

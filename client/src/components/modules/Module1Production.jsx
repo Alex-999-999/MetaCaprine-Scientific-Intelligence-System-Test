@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import AlertModal from '../AlertModal';
@@ -37,6 +37,7 @@ function Module1Production({ user }) {
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: '', type: 'success' });
   const [viewPeriod, setViewPeriod] = useState('lactation'); // 'daily', 'monthly', 'lactation'
   const [marginViewMode, setMarginViewMode] = useState('dollars'); // 'dollars' or 'percent' for charts
+  const [chartViewType, setChartViewType] = useState('bars'); // 'bars', 'pie', 'scale'
 
   // Module 4: Cost Calculator Modal State
   const [costCalculatorModal, setCostCalculatorModal] = useState({
@@ -776,6 +777,26 @@ function Module1Production({ user }) {
                         <option value="percent">{t('viewInPercent')}</option>
                       </select>
                     </div>
+                    <div className="chart-view-toggle">
+                      <button
+                        className={`chart-view-btn ${chartViewType === 'bars' ? 'active' : ''}`}
+                        onClick={() => setChartViewType('bars')}
+                      >
+                        {t('chartViewBars')}
+                      </button>
+                      <button
+                        className={`chart-view-btn ${chartViewType === 'pie' ? 'active' : ''}`}
+                        onClick={() => setChartViewType('pie')}
+                      >
+                        {t('chartViewPie')}
+                      </button>
+                      <button
+                        className={`chart-view-btn ${chartViewType === 'scale' ? 'active' : ''}`}
+                        onClick={() => setChartViewType('scale')}
+                      >
+                        {t('chartViewScale')}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -801,6 +822,101 @@ function Module1Production({ user }) {
                         item.name === t('totalCosts') ? chartColors.costs :
                           chartColors.margin
                     }));
+
+                    const financialPieData = enhancedChartData
+                      .map((item) => ({
+                        ...item,
+                        value: Math.abs(Number(item.value) || 0),
+                      }))
+                      .filter((item) => item.value > 0);
+
+                    if (chartViewType === 'pie') {
+                      return financialPieData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={320}>
+                          <PieChart>
+                            <Pie
+                              data={financialPieData}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={58}
+                              outerRadius={118}
+                              paddingAngle={3}
+                              dataKey="value"
+                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                            >
+                              {financialPieData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.fill || chartColors.palette[index % chartColors.palette.length]} />
+                              ))}
+                            </Pie>
+                            <Tooltip
+                              formatter={(value) =>
+                                marginViewMode === 'percent'
+                                  ? `${Number(value || 0).toFixed(1)}%`
+                                  : formatMoney(value)
+                              }
+                              contentStyle={{
+                                backgroundColor: chartColors.tooltip.bg,
+                                border: `1px solid ${chartColors.tooltip.border}`,
+                                borderRadius: '12px',
+                                boxShadow: chartColors.tooltip.shadow,
+                                padding: '12px 16px'
+                              }}
+                            />
+                            <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="chart-empty">
+                          <p className="chart-empty-text">{t('noDataToShow')}</p>
+                        </div>
+                      );
+                    }
+
+                    if (chartViewType === 'scale') {
+                      return (
+                        <ResponsiveContainer width="100%" height={320}>
+                          <LineChart data={enhancedChartData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
+                            <XAxis
+                              dataKey="name"
+                              stroke={chartColors.axis.tick}
+                              tick={{ fill: chartColors.text.secondary, fontSize: 12, fontWeight: 500 }}
+                              tickLine={false}
+                            />
+                            <YAxis
+                              stroke={chartColors.axis.tick}
+                              tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
+                              axisLine={false}
+                              tickLine={false}
+                              tickFormatter={(value) => marginViewMode === 'percent' ? `${value}%` : formatMoneyCompact(value)}
+                            />
+                            <Tooltip
+                              formatter={(value) =>
+                                marginViewMode === 'percent'
+                                  ? `${Number(value || 0).toFixed(1)}%`
+                                  : formatMoney(value)
+                              }
+                              contentStyle={{
+                                backgroundColor: chartColors.tooltip.bg,
+                                border: `1px solid ${chartColors.tooltip.border}`,
+                                borderRadius: '12px',
+                                boxShadow: chartColors.tooltip.shadow,
+                                padding: '12px 16px'
+                              }}
+                            />
+                            <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="line" />
+                            <Line
+                              type="monotone"
+                              dataKey="value"
+                              stroke={chartColors.primary}
+                              strokeWidth={3}
+                              dot={{ r: 5 }}
+                              activeDot={{ r: 7 }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      );
+                    }
 
                     return (
                       <ResponsiveContainer width="100%" height={320}>
@@ -877,61 +993,151 @@ function Module1Production({ user }) {
                 <div className="chart-container" style={{ marginTop: '24px' }}>
                   <h3 className="chart-section-title">{t('costBreakdown')}</h3>
                   {costBreakdown.length > 0 && costBreakdown.some(item => item.value > 0) ? (
-                    <ResponsiveContainer width="100%" height={320}>
-                      <BarChart data={costBreakdown} barCategoryGap="15%">
-                        <defs>
-                          <linearGradient id="costBarGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={chartColors.secondary} stopOpacity={1} />
-                            <stop offset="100%" stopColor={chartColors.secondary} stopOpacity={0.7} />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
-                        <XAxis
-                          dataKey="name"
-                          stroke={chartColors.axis.tick}
-                          tick={{ fill: chartColors.text.secondary, fontSize: 11, fontWeight: 500 }}
-                          axisLine={{ stroke: chartColors.grid }}
-                          tickLine={false}
-                          interval={0}
-                          angle={-20}
-                          textAnchor="end"
-                          height={60}
-                        />
-                        <YAxis
-                          stroke={chartColors.axis.tick}
-                          tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
-                          axisLine={false}
-                          tickLine={false}
-                          tickFormatter={(value) => formatMoney(value)}
-                        />
-                        <Tooltip
-                          formatter={(value) => `${formatMoney(value, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} / L`}
-                          contentStyle={{
-                            backgroundColor: chartColors.tooltip.bg,
-                            border: `1px solid ${chartColors.tooltip.border}`,
-                            borderRadius: '12px',
-                            boxShadow: chartColors.tooltip.shadow,
-                            padding: '12px 16px'
-                          }}
-                          labelStyle={{ color: chartColors.text.primary, fontWeight: 600, marginBottom: '4px' }}
-                          itemStyle={{ color: chartColors.text.secondary }}
-                          cursor={{ fill: chartColors.background.hover }}
-                        />
-                        <Legend
-                          wrapperStyle={{ paddingTop: '20px' }}
-                          iconType="roundRect"
-                        />
-                        <Bar
-                          dataKey="value"
-                          fill="url(#costBarGradient)"
-                          radius={[8, 8, 0, 0]}
-                        >
-                          {costBreakdown.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={chartColors.palette[index % chartColors.palette.length]} />
-                          ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
+                    (() => {
+                      const positiveCostData = costBreakdown.filter((item) => Number(item.value) > 0);
+
+                      if (chartViewType === 'pie') {
+                        return positiveCostData.length > 0 ? (
+                          <ResponsiveContainer width="100%" height={320}>
+                            <PieChart>
+                              <Pie
+                                data={positiveCostData}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={58}
+                                outerRadius={118}
+                                dataKey="value"
+                                paddingAngle={3}
+                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                              >
+                                {positiveCostData.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={chartColors.palette[index % chartColors.palette.length]} />
+                                ))}
+                              </Pie>
+                              <Tooltip
+                                formatter={(value) => `${formatMoney(value, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} / L`}
+                                contentStyle={{
+                                  backgroundColor: chartColors.tooltip.bg,
+                                  border: `1px solid ${chartColors.tooltip.border}`,
+                                  borderRadius: '12px',
+                                  boxShadow: chartColors.tooltip.shadow,
+                                  padding: '12px 16px'
+                                }}
+                              />
+                              <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        ) : (
+                          <div className="chart-empty">
+                            <p className="chart-empty-text">{t('noCostDataToShow')}</p>
+                          </div>
+                        );
+                      }
+
+                      if (chartViewType === 'scale') {
+                        return (
+                          <ResponsiveContainer width="100%" height={320}>
+                            <LineChart data={costBreakdown}>
+                              <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
+                              <XAxis
+                                dataKey="name"
+                                stroke={chartColors.axis.tick}
+                                tick={{ fill: chartColors.text.secondary, fontSize: 11, fontWeight: 500 }}
+                                tickLine={false}
+                                interval={0}
+                                angle={-20}
+                                textAnchor="end"
+                                height={60}
+                              />
+                              <YAxis
+                                stroke={chartColors.axis.tick}
+                                tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
+                                axisLine={false}
+                                tickLine={false}
+                                tickFormatter={(value) => formatMoney(value)}
+                              />
+                              <Tooltip
+                                formatter={(value) => `${formatMoney(value, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} / L`}
+                                contentStyle={{
+                                  backgroundColor: chartColors.tooltip.bg,
+                                  border: `1px solid ${chartColors.tooltip.border}`,
+                                  borderRadius: '12px',
+                                  boxShadow: chartColors.tooltip.shadow,
+                                  padding: '12px 16px'
+                                }}
+                              />
+                              <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="line" />
+                              <Line
+                                type="monotone"
+                                dataKey="value"
+                                stroke={chartColors.secondary}
+                                strokeWidth={3}
+                                dot={{ r: 5 }}
+                                activeDot={{ r: 7 }}
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        );
+                      }
+
+                      return (
+                        <ResponsiveContainer width="100%" height={320}>
+                          <BarChart data={costBreakdown} barCategoryGap="15%">
+                            <defs>
+                              <linearGradient id="costBarGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor={chartColors.secondary} stopOpacity={1} />
+                                <stop offset="100%" stopColor={chartColors.secondary} stopOpacity={0.7} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
+                            <XAxis
+                              dataKey="name"
+                              stroke={chartColors.axis.tick}
+                              tick={{ fill: chartColors.text.secondary, fontSize: 11, fontWeight: 500 }}
+                              axisLine={{ stroke: chartColors.grid }}
+                              tickLine={false}
+                              interval={0}
+                              angle={-20}
+                              textAnchor="end"
+                              height={60}
+                            />
+                            <YAxis
+                              stroke={chartColors.axis.tick}
+                              tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
+                              axisLine={false}
+                              tickLine={false}
+                              tickFormatter={(value) => formatMoney(value)}
+                            />
+                            <Tooltip
+                              formatter={(value) => `${formatMoney(value, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} / L`}
+                              contentStyle={{
+                                backgroundColor: chartColors.tooltip.bg,
+                                border: `1px solid ${chartColors.tooltip.border}`,
+                                borderRadius: '12px',
+                                boxShadow: chartColors.tooltip.shadow,
+                                padding: '12px 16px'
+                              }}
+                              labelStyle={{ color: chartColors.text.primary, fontWeight: 600, marginBottom: '4px' }}
+                              itemStyle={{ color: chartColors.text.secondary }}
+                              cursor={{ fill: chartColors.background.hover }}
+                            />
+                            <Legend
+                              wrapperStyle={{ paddingTop: '20px' }}
+                              iconType="roundRect"
+                            />
+                            <Bar
+                              dataKey="value"
+                              fill="url(#costBarGradient)"
+                              radius={[8, 8, 0, 0]}
+                            >
+                              {costBreakdown.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={chartColors.palette[index % chartColors.palette.length]} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      );
+                    })()
                   ) : (
                     <div className="chart-empty">
                       <p className="chart-empty-text">{t('noCostDataToShow')}</p>

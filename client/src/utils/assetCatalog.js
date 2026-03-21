@@ -38,11 +38,8 @@ const BREED_IMAGE_FILENAME_BY_CANONICAL_KEY = Object.freeze({
   criolla_peruana: 'CriollaPeruana.png',
 });
 
-const MIRRORED_BREED_CANONICAL_KEYS = new Set([
-  'alpine_francesa',
-  'saanen_francesa',
-  'saanen_generica',
-]);
+// Keep breed orientation consistent with the majority of catalog images.
+const MIRRORED_BREED_CANONICAL_KEYS = new Set([]);
 
 const BREED_ALIAS_TO_CANONICAL = Object.freeze({
   dutch: 'dutch',
