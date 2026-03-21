@@ -917,12 +917,15 @@ label {
   box-sizing: border-box;
   display: flex;
   align-items: center;
+  justify-content: center;
   border-bottom: none;
 }
 
 .sidebar-header .logo-link {
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 100%;
   gap: 10px;
   text-decoration: none;
   color: inherit;
