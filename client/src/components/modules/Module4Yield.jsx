@@ -22,7 +22,7 @@ function Module4Yield({ user }) {
 
   const [yieldData, setYieldData] = useState({
     conversion_rate: 0,
-    efficiency_percentage: 100,
+    efficiency_percentage: 0,
   });
 
   const [results, setResults] = useState(null);
@@ -235,6 +235,17 @@ function Module4Yield({ user }) {
     <div className="container module-compact">
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ marginTop: '20px' }}>{t('module4Title')}</h1>
+        <div className="pedagogy-block" style={{ marginTop: '12px' }}>
+          <p className="pedagogy-title">{t('module4PedagogyTitle')}</p>
+          <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+            {t('module4PedagogyIntro')}
+          </p>
+          <ul className="pedagogy-list">
+            <li>{t('module4FormulaTotalLiters')}</li>
+            <li>{t('module4FormulaEffectiveLiters')}</li>
+            <li>{t('module4FormulaConvertedProduct')}</li>
+          </ul>
+        </div>
       </header>
 
       <div className="card">
@@ -272,6 +283,7 @@ function Module4Yield({ user }) {
                   onFocus={handleInputFocus}
                   step="0.01"
                 />
+                <p className="input-hint">{t('module4HintDailyProduction')}</p>
               </div>
               <div className="form-group">
                 <label>{t('productionDays')}</label>
@@ -282,6 +294,7 @@ function Module4Yield({ user }) {
                   onChange={handleProductionChange}
                   onFocus={handleInputFocus}
                 />
+                <p className="input-hint">{t('module4HintProductionDays')}</p>
               </div>
               <div className="form-group">
                 <label>{t('animalsCount')}</label>
@@ -292,6 +305,7 @@ function Module4Yield({ user }) {
                   onChange={handleProductionChange}
                   onFocus={handleInputFocus}
                 />
+                <p className="input-hint">{t('module4HintAnimalsCount')}</p>
               </div>
             </div>
 
@@ -308,6 +322,7 @@ function Module4Yield({ user }) {
                   step="0.0001"
                   placeholder={t('conversionRate')}
                 />
+                <p className="input-hint">{t('module4HintConversionRate')}</p>
               </div>
               <div className="form-group">
                 <label>{t('efficiencyPercentage')}</label>
@@ -321,6 +336,7 @@ function Module4Yield({ user }) {
                   min="0"
                   max="100"
                 />
+                <p className="input-hint">{t('module4HintEfficiency')}</p>
               </div>
             </div>
 
@@ -362,6 +378,17 @@ function Module4Yield({ user }) {
                     {Number(results.efficiencyPercentage || 0).toFixed(1)}%
                   </div>
                 </div>
+              </div>
+
+              <div className="pedagogy-block results-insight-block">
+                <p className="pedagogy-title">{t('module4InterpretationTitle')}</p>
+                <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+                  {(Number(results.efficiencyPercentage || 0) >= 90)
+                    ? t('module4InterpretationHigh')
+                    : (Number(results.efficiencyPercentage || 0) >= 70)
+                      ? t('module4InterpretationMedium')
+                      : t('module4InterpretationLow')}
+                </p>
               </div>
 
               {/* Results Table Card */}

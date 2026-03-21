@@ -25,7 +25,7 @@ function Module5Gestation({ user }) {
 
   const [formData, setFormData] = useState({
     mating_date: '',
-    gestation_days: 150, // Default for goats
+    gestation_days: 0,
     notes: '',
   });
 
@@ -48,6 +48,8 @@ function Module5Gestation({ user }) {
   useEffect(() => {
     if (formData.mating_date && formData.gestation_days) {
       calculateGestationTimeline();
+    } else {
+      setCalculatedData(null);
     }
   }, [formData.mating_date, formData.gestation_days]);
 
@@ -100,7 +102,8 @@ function Module5Gestation({ user }) {
     if (!formData.mating_date) return;
 
     const matingDate = new Date(formData.mating_date);
-    const gestationDays = parseInt(formData.gestation_days) || 150;
+    const gestationDays = parseInt(formData.gestation_days, 10) || 0;
+    if (gestationDays <= 0) return;
     
     // Calculate birth date
     const birthDate = new Date(matingDate);
@@ -271,6 +274,17 @@ function Module5Gestation({ user }) {
           <ModernIcon name="calendar" size={16} />
           {t('module5Subtitle')}
         </p>
+        <div className="pedagogy-block" style={{ marginTop: '12px' }}>
+          <p className="pedagogy-title">{t('module5PedagogyTitle')}</p>
+          <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+            {t('module5PedagogyIntro')}
+          </p>
+          <ul className="pedagogy-list">
+            <li>{t('module5FormulaBirthDate')}</li>
+            <li>{t('module5FormulaDaysUntilBirth')}</li>
+            <li>{t('module5InterpretationReminder')}</li>
+          </ul>
+        </div>
       </header>
 
       <div className="card">
@@ -318,13 +332,13 @@ function Module5Gestation({ user }) {
                   name="gestation_days"
                   value={formData.gestation_days}
                   onChange={handleInputChange}
-                  min="140"
-                  max="160"
+                  min="0"
                   step="1"
                 />
                 <small style={{ display: 'block', marginTop: '5px', color: '#666' }}>
                   {t('gestationDaysHint')}
                 </small>
+                <p className="input-hint">{t('module5GestationDaysPedagogyHint')}</p>
               </div>
             </div>
             
@@ -465,7 +479,7 @@ function Module5Gestation({ user }) {
                             {week.isCurrent && ` (${t('current')})`}
                           </h3>
                           <p style={{ margin: '5px 0 0 0', fontSize: '0.9em', color: 'var(--text-tertiary)' }}>
-                            {formatDate(week.startDate)} • {t('days')} {week.startDay}-{week.endDay}
+                            {formatDate(week.startDate)} - {t('days')} {week.startDay}-{week.endDay}
                           </p>
                         </div>
                         <div style={{ 

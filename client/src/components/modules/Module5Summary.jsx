@@ -137,6 +137,17 @@ function Module5Summary({ user }) {
     <div className="container module-compact">
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ marginTop: '20px' }}>{t('module5Title')}</h1>
+        <div className="pedagogy-block" style={{ marginTop: '12px' }}>
+          <p className="pedagogy-title">{t('module5SummaryPedagogyTitle')}</p>
+          <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+            {t('module5SummaryPedagogyIntro')}
+          </p>
+          <ul className="pedagogy-list">
+            <li>{t('module5SummaryRuleRevenue')}</li>
+            <li>{t('module5SummaryRuleMargin')}</li>
+            <li>{t('module5SummaryRuleDecision')}</li>
+          </ul>
+        </div>
       </header>
 
       <div className="card">

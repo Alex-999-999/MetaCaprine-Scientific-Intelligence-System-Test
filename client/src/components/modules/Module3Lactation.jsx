@@ -36,11 +36,11 @@ function Module3Lactation({ user }) {
   const [selectedBreed, setSelectedBreed] = useState('');
   const [singleOverrides, setSingleOverrides] = useState({
     herd_size: 0,
-    milk_kg_yr: '',
-    fat_pct: '',
-    protein_pct: '',
-    lact_days_avg: '',
-    lactations_lifetime_avg: ''
+    milk_kg_yr: 0,
+    fat_pct: 0,
+    protein_pct: 0,
+    lact_days_avg: 0,
+    lactations_lifetime_avg: 0
   });
   const [singleResult, setSingleResult] = useState(null);
 
@@ -49,19 +49,19 @@ function Module3Lactation({ user }) {
   const [breedB, setBreedB] = useState('');
   const [overridesA, setOverridesA] = useState({
     herd_size: 0,
-    milk_kg_yr: '',
-    fat_pct: '',
-    protein_pct: '',
-    lact_days_avg: '',
-    lactations_lifetime_avg: ''
+    milk_kg_yr: 0,
+    fat_pct: 0,
+    protein_pct: 0,
+    lact_days_avg: 0,
+    lactations_lifetime_avg: 0
   });
   const [overridesB, setOverridesB] = useState({
     herd_size: 0,
-    milk_kg_yr: '',
-    fat_pct: '',
-    protein_pct: '',
-    lact_days_avg: '',
-    lactations_lifetime_avg: ''
+    milk_kg_yr: 0,
+    fat_pct: 0,
+    protein_pct: 0,
+    lact_days_avg: 0,
+    lactations_lifetime_avg: 0
   });
   const [comparisonResult, setComparisonResult] = useState(null);
 
@@ -112,9 +112,17 @@ function Module3Lactation({ user }) {
 
   const buildCleanOverrides = (overrides) => {
     const clean = {};
+    const zeroAsEmptyFields = new Set([
+      'herd_size',
+      'milk_kg_yr',
+      'fat_pct',
+      'protein_pct',
+      'lact_days_avg',
+      'lactations_lifetime_avg',
+    ]);
     Object.keys(overrides || {}).forEach((key) => {
       const parsed = parseOverrideNumber(overrides[key]);
-      if (parsed !== null) {
+      if (parsed !== null && !(parsed === 0 && zeroAsEmptyFields.has(key))) {
         clean[key] = parsed;
       }
     });
@@ -182,20 +190,20 @@ function Module3Lactation({ user }) {
         setSelectedBreed(saved.breed_key);
         setSingleOverrides({
           herd_size: saved.herd_size ?? 0,
-          milk_kg_yr: saved.milk_kg_yr_override || '',
-          fat_pct: saved.fat_pct_override || '',
-          protein_pct: saved.protein_pct_override || '',
-          lact_days_avg: saved.lact_days_avg_override || '',
-          lactations_lifetime_avg: saved.lactations_lifetime_avg_override || ''
+          milk_kg_yr: saved.milk_kg_yr_override ?? 0,
+          fat_pct: saved.fat_pct_override ?? 0,
+          protein_pct: saved.protein_pct_override ?? 0,
+          lact_days_avg: saved.lact_days_avg_override ?? 0,
+          lactations_lifetime_avg: saved.lactations_lifetime_avg_override ?? 0
         });
         // Auto-calculate
         await handleSimulateSingle(saved.breed_key, {
           herd_size: saved.herd_size ?? 0,
-          milk_kg_yr: saved.milk_kg_yr_override || '',
-          fat_pct: saved.fat_pct_override || '',
-          protein_pct: saved.protein_pct_override || '',
-          lact_days_avg: saved.lact_days_avg_override || '',
-          lactations_lifetime_avg: saved.lactations_lifetime_avg_override || ''
+          milk_kg_yr: saved.milk_kg_yr_override ?? 0,
+          fat_pct: saved.fat_pct_override ?? 0,
+          protein_pct: saved.protein_pct_override ?? 0,
+          lact_days_avg: saved.lact_days_avg_override ?? 0,
+          lactations_lifetime_avg: saved.lactations_lifetime_avg_override ?? 0
         });
       }
     } catch (error) {
