@@ -104,7 +104,6 @@ function Sidebar({ user, onLogout }) {
           <div className="logo-container">
             <img src={BRAND_ASSETS.logo} alt="MetaCaprine Logo" className="logo-image" />
           </div>
-          <h1 className="site-title">{t('appTitle')}</h1>
         </Link>
       </div>
       <nav className="sidebar-nav">
