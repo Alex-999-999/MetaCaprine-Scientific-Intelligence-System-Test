@@ -8,6 +8,8 @@ import OnboardingModal from './OnboardingModal';
 import LanguageSwitcher from './LanguageSwitcher';
 import ModernIcon from './icons/ModernIcon';
 
+const CLIENT_DOCS_URL = 'https://docs.google.com/document/d/1kiE1Ft5iSZ6IKrReyAvUt_KJZKYuBQ5TW6NEWWJbG_Q/edit?tab=t.0';
+
 function Sidebar({ user, onLogout }) {
   const { t } = useI18n();
   const location = useLocation();
@@ -343,6 +345,17 @@ function Header({ user, onLogout, showSidebar, setShowSidebar, showFooter, setSh
               </div>
             </Link>
           )}
+        </div>
+        <div className="header-center">
+          <a
+            href={CLIENT_DOCS_URL}
+            className="header-center-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            title={CLIENT_DOCS_URL}
+          >
+            {CLIENT_DOCS_URL}
+          </a>
         </div>
         <nav className="header-nav">
           {isAuthenticated && !hasSidebar && (
