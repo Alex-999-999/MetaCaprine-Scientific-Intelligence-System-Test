@@ -8,6 +8,71 @@ import CostCalculatorModal from '../CostCalculatorModal';
 import { useChartColors } from '../../hooks/useDarkMode';
 import { formatCurrency, formatCurrencyCompact, normalizeCurrency } from '../../utils/currency';
 
+const parseNumericValue = (value) => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return 0;
+
+    let normalized = trimmed.replace(/\s/g, '');
+    if (/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(normalized)) {
+      normalized = normalized.replace(/,/g, '');
+    } else if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(normalized)) {
+      normalized = normalized.replace(/\./g, '').replace(',', '.');
+    } else if (/^-?\d+,\d+$/.test(normalized) && !normalized.includes('.')) {
+      normalized = normalized.replace(',', '.');
+    }
+
+    const parsed = Number.parseFloat(normalized);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const normalizeResultsPayload = (rawResults) => {
+  if (!rawResults || typeof rawResults !== 'object') return null;
+
+  const nestedResultsRaw = rawResults.results_data ?? rawResults.resultsData ?? null;
+  let nestedResults = null;
+  if (nestedResultsRaw && typeof nestedResultsRaw === 'object') {
+    nestedResults = nestedResultsRaw;
+  } else if (typeof nestedResultsRaw === 'string') {
+    try {
+      nestedResults = JSON.parse(nestedResultsRaw);
+    } catch {
+      nestedResults = null;
+    }
+  }
+
+  const getNumber = (...keys) => {
+    for (const key of keys) {
+      if (Object.prototype.hasOwnProperty.call(rawResults, key)) {
+        return parseNumericValue(rawResults[key]);
+      }
+      if (nestedResults && Object.prototype.hasOwnProperty.call(nestedResults, key)) {
+        return parseNumericValue(nestedResults[key]);
+      }
+    }
+    return 0;
+  };
+
+  return {
+    ...rawResults,
+    total_production_liters: getNumber('total_production_liters', 'totalProductionLiters'),
+    total_revenue: getNumber('total_revenue', 'totalRevenue'),
+    total_costs: getNumber('total_costs', 'totalCosts'),
+    gross_margin: getNumber('gross_margin', 'grossMargin'),
+    margin_percentage: getNumber('margin_percentage', 'marginPercentage'),
+    revenue_per_liter: getNumber('revenue_per_liter', 'revenuePerLiter'),
+    cost_per_liter: getNumber('cost_per_liter', 'costPerLiter'),
+  };
+};
+
 function Module1Production({ user }) {
   const { t } = useI18n();
   const location = useLocation();
@@ -119,24 +184,7 @@ function Module1Production({ user }) {
         });
       }
       if (scenario.results) {
-        // Normalize all numeric values in results to ensure they are numbers
-        const normalizedResults = {};
-        Object.keys(scenario.results).forEach(key => {
-          const value = scenario.results[key];
-          if (typeof value === 'number') {
-            normalizedResults[key] = value;
-          } else if (typeof value === 'string') {
-            const numValue = parseFloat(value);
-            normalizedResults[key] = isNaN(numValue) ? 0 : numValue;
-          } else {
-            normalizedResults[key] = value;
-          }
-        });
-        setResults(normalizedResults);
-        // Show notification that results were auto-loaded
-        if (normalizedResults.total_revenue || normalizedResults.gross_margin) {
-          // Silently load results - user will see them in the UI
-        }
+        setResults(normalizeResultsPayload(scenario.results));
       }
     } catch (error) {
       console.error('Error loading scenario:', error);
@@ -279,7 +327,7 @@ function Module1Production({ user }) {
     const grossMargin = totalRevenue - totalCosts;
     const marginPercentage = totalRevenue > 0 ? (grossMargin / totalRevenue) * 100 : 0;
 
-    setResults({
+    setResults(normalizeResultsPayload({
       total_production_liters: totalLiters,
       total_revenue: totalRevenue,
       total_costs: totalCosts,
@@ -290,7 +338,7 @@ function Module1Production({ user }) {
       // Store base values for period calculations
       daily_production: dailyProduction * animalsCount,
       production_days: productionDays,
-    });
+    }));
   };
 
   // Calculate values based on selected period
@@ -832,14 +880,14 @@ function Module1Production({ user }) {
 
                     if (chartViewType === 'pie') {
                       return financialPieData.length > 0 ? (
-                        <ResponsiveContainer width="100%" height={320}>
+                        <ResponsiveContainer width="100%" height={360}>
                           <PieChart>
                             <Pie
                               data={financialPieData}
                               cx="50%"
-                              cy="50%"
-                              innerRadius={58}
-                              outerRadius={118}
+                              cy="54%"
+                              innerRadius={52}
+                              outerRadius={96}
                               paddingAngle={3}
                               dataKey="value"
                               label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
@@ -862,7 +910,7 @@ function Module1Production({ user }) {
                                 padding: '12px 16px'
                               }}
                             />
-                            <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                            <Legend wrapperStyle={{ paddingTop: '14px' }} />
                           </PieChart>
                         </ResponsiveContainer>
                       ) : (
@@ -875,7 +923,7 @@ function Module1Production({ user }) {
                     if (chartViewType === 'scale') {
                       return (
                         <ResponsiveContainer width="100%" height={320}>
-                          <LineChart data={enhancedChartData}>
+                          <LineChart data={enhancedChartData} margin={{ top: 8, right: 16, left: 30, bottom: 8 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
                             <XAxis
                               dataKey="name"
@@ -888,6 +936,7 @@ function Module1Production({ user }) {
                               tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
                               axisLine={false}
                               tickLine={false}
+                              width={96}
                               tickFormatter={(value) => marginViewMode === 'percent' ? `${value}%` : formatMoneyCompact(value)}
                             />
                             <Tooltip
@@ -920,7 +969,7 @@ function Module1Production({ user }) {
 
                     return (
                       <ResponsiveContainer width="100%" height={320}>
-                        <BarChart data={enhancedChartData} barCategoryGap="20%">
+                        <BarChart data={enhancedChartData} barCategoryGap="20%" margin={{ top: 8, right: 16, left: 30, bottom: 8 }}>
                           <defs>
                             <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="0%" stopColor={chartColors.revenue} stopOpacity={1} />
@@ -948,6 +997,7 @@ function Module1Production({ user }) {
                             tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
                             axisLine={false}
                             tickLine={false}
+                            width={96}
                             tickFormatter={(value) => marginViewMode === 'percent' ? `${value}%` : formatMoneyCompact(value)}
                           />
                           <Tooltip
@@ -998,14 +1048,14 @@ function Module1Production({ user }) {
 
                       if (chartViewType === 'pie') {
                         return positiveCostData.length > 0 ? (
-                          <ResponsiveContainer width="100%" height={320}>
+                          <ResponsiveContainer width="100%" height={360}>
                             <PieChart>
                               <Pie
                                 data={positiveCostData}
                                 cx="50%"
-                                cy="50%"
-                                innerRadius={58}
-                                outerRadius={118}
+                                cy="54%"
+                                innerRadius={52}
+                                outerRadius={96}
                                 dataKey="value"
                                 paddingAngle={3}
                                 label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
@@ -1024,7 +1074,7 @@ function Module1Production({ user }) {
                                   padding: '12px 16px'
                                 }}
                               />
-                              <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                              <Legend wrapperStyle={{ paddingTop: '14px' }} />
                             </PieChart>
                           </ResponsiveContainer>
                         ) : (
@@ -1037,7 +1087,7 @@ function Module1Production({ user }) {
                       if (chartViewType === 'scale') {
                         return (
                           <ResponsiveContainer width="100%" height={320}>
-                            <LineChart data={costBreakdown}>
+                            <LineChart data={costBreakdown} margin={{ top: 8, right: 16, left: 30, bottom: 8 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
                               <XAxis
                                 dataKey="name"
@@ -1054,6 +1104,7 @@ function Module1Production({ user }) {
                                 tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
                                 axisLine={false}
                                 tickLine={false}
+                                width={96}
                                 tickFormatter={(value) => formatMoney(value)}
                               />
                               <Tooltip
@@ -1082,7 +1133,7 @@ function Module1Production({ user }) {
 
                       return (
                         <ResponsiveContainer width="100%" height={320}>
-                          <BarChart data={costBreakdown} barCategoryGap="15%">
+                          <BarChart data={costBreakdown} barCategoryGap="15%" margin={{ top: 8, right: 16, left: 30, bottom: 8 }}>
                             <defs>
                               <linearGradient id="costBarGradient" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0%" stopColor={chartColors.secondary} stopOpacity={1} />
@@ -1106,6 +1157,7 @@ function Module1Production({ user }) {
                               tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
                               axisLine={false}
                               tickLine={false}
+                              width={96}
                               tickFormatter={(value) => formatMoney(value)}
                             />
                             <Tooltip
@@ -1163,7 +1215,7 @@ function Module1Production({ user }) {
                     <h3 className="chart-section-title">{t('financialOverview')}</h3>
                     {chartData.length > 0 ? (
                       <ResponsiveContainer width="100%" height={280}>
-                        <BarChart data={chartData} barCategoryGap="20%">
+                        <BarChart data={chartData} barCategoryGap="20%" margin={{ top: 8, right: 16, left: 30, bottom: 8 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
                           <XAxis
                             dataKey="name"
@@ -1176,6 +1228,7 @@ function Module1Production({ user }) {
                             tick={{ fill: chartColors.text.secondary, fontSize: 11 }}
                             axisLine={false}
                             tickLine={false}
+                            width={96}
                           />
                           <Tooltip
                             formatter={(value) => formatMoney(value)}
@@ -1206,7 +1259,7 @@ function Module1Production({ user }) {
                     <h3 className="chart-section-title">{t('costBreakdown')}</h3>
                     {costBreakdown.length > 0 ? (
                       <ResponsiveContainer width="100%" height={280}>
-                        <BarChart data={costBreakdown} barCategoryGap="15%">
+                        <BarChart data={costBreakdown} barCategoryGap="15%" margin={{ top: 8, right: 16, left: 30, bottom: 8 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
                           <XAxis
                             dataKey="name"
@@ -1220,6 +1273,7 @@ function Module1Production({ user }) {
                             tick={{ fill: chartColors.text.secondary, fontSize: 11 }}
                             axisLine={false}
                             tickLine={false}
+                            width={96}
                           />
                           <Tooltip
                             formatter={(value) => formatMoney(value, { minimumFractionDigits: 4, maximumFractionDigits: 4 })}

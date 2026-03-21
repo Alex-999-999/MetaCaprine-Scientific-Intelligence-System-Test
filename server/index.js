@@ -14,10 +14,33 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+function normalizeOrigin(origin) {
+  const value = String(origin || '').trim();
+  if (!value) return '';
+  return value.replace(/\/+$/, '');
+}
+
+function matchesWildcardOrigin(origin, pattern) {
+  // Supported wildcard format: https://*.example.com
+  if (!pattern.includes('*')) return false;
+
+  try {
+    const originUrl = new URL(origin);
+    const patternUrl = new URL(pattern.replace('*.', 'wildcard.'));
+    const wildcardHost = patternUrl.hostname.replace(/^wildcard\./, '');
+    return (
+      originUrl.protocol === patternUrl.protocol &&
+      (originUrl.hostname === wildcardHost || originUrl.hostname.endsWith(`.${wildcardHost}`))
+    );
+  } catch {
+    return false;
+  }
+}
+
 function getAllowedOrigins() {
   const configured = (process.env.CORS_ALLOWED_ORIGINS || '')
     .split(',')
-    .map((origin) => origin.trim())
+    .map((origin) => normalizeOrigin(origin))
     .filter(Boolean);
 
   if (configured.length > 0) {
@@ -25,17 +48,28 @@ function getAllowedOrigins() {
   }
 
   return [...new Set([
-    process.env.APP_URL?.trim(),
+    normalizeOrigin(process.env.APP_URL),
+    process.env.VERCEL_URL ? `https://${normalizeOrigin(process.env.VERCEL_URL)}` : null,
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-  ].filter(Boolean))];
+  ].map((origin) => normalizeOrigin(origin)).filter(Boolean))];
 }
 
 const allowedOrigins = getAllowedOrigins();
+const isOriginAllowed = (origin) => {
+  const normalized = normalizeOrigin(origin);
+  if (!normalized) return true;
+
+  return allowedOrigins.some((allowedOrigin) => {
+    if (allowedOrigin === '*') return true;
+    if (allowedOrigin.includes('*')) return matchesWildcardOrigin(normalized, allowedOrigin);
+    return normalizeOrigin(allowedOrigin) === normalized;
+  });
+};
 
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (isOriginAllowed(origin)) {
       callback(null, true);
       return;
     }

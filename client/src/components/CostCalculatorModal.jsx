@@ -210,10 +210,57 @@ function CostCalculatorModal({
 
   const sanitizeNumericInput = (value) => {
     if (value === '' || value === null || value === undefined) {
-      return '0';
+      return '';
     }
-    const normalized = String(value).replace(',', '.');
-    return /^\d*\.?\d*$/.test(normalized) ? normalized : null;
+
+    const normalized = String(value).trim().replace(',', '.');
+    if (normalized === '') return '';
+    if (!/^\d*\.?\d*$/.test(normalized)) return null;
+
+    const [rawIntPart, rawDecimalPart] = normalized.split('.');
+    let intPart = rawIntPart || '';
+    if (intPart.length > 1) {
+      intPart = intPart.replace(/^0+(?=\d)/, '');
+    }
+    if (intPart === '') {
+      intPart = '0';
+    }
+
+    if (typeof rawDecimalPart !== 'undefined') {
+      return `${intPart}.${rawDecimalPart}`;
+    }
+    return intPart;
+  };
+
+  const getDataTypeByField = (fieldName) => {
+    if (Object.prototype.hasOwnProperty.call(INITIAL_FEED_DATA, fieldName)) return 'feed';
+    if (Object.prototype.hasOwnProperty.call(INITIAL_LABOR_DATA, fieldName)) return 'labor';
+    if (Object.prototype.hasOwnProperty.call(INITIAL_HEALTH_DATA, fieldName)) return 'health';
+    if (Object.prototype.hasOwnProperty.call(INITIAL_SERVICES_DATA, fieldName)) return 'services';
+    if (Object.prototype.hasOwnProperty.call(INITIAL_REARING_DATA, fieldName)) return 'rearing';
+    return null;
+  };
+
+  const updateCalculatorField = (dataType, fieldName, fieldValue) => {
+    switch (dataType) {
+      case 'feed':
+        setFeedData((prev) => ({ ...prev, [fieldName]: fieldValue }));
+        break;
+      case 'labor':
+        setLaborData((prev) => ({ ...prev, [fieldName]: fieldValue }));
+        break;
+      case 'health':
+        setHealthData((prev) => ({ ...prev, [fieldName]: fieldValue }));
+        break;
+      case 'services':
+        setServicesData((prev) => ({ ...prev, [fieldName]: fieldValue }));
+        break;
+      case 'rearing':
+        setRearingData((prev) => ({ ...prev, [fieldName]: fieldValue }));
+        break;
+      default:
+        break;
+    }
   };
   
   const handleInputChange = (e, dataType) => {
@@ -224,26 +271,34 @@ function CostCalculatorModal({
     if (sanitizedValue === null) {
       return;
     }
-    
-    switch (dataType) {
-      case 'feed':
-        setFeedData(prev => ({ ...prev, [name]: sanitizedValue }));
-        break;
-      case 'labor':
-        setLaborData(prev => ({ ...prev, [name]: sanitizedValue }));
-        break;
-      case 'health':
-        setHealthData(prev => ({ ...prev, [name]: sanitizedValue }));
-        break;
-      case 'services':
-        setServicesData(prev => ({ ...prev, [name]: sanitizedValue }));
-        break;
-      case 'rearing':
-        setRearingData(prev => ({ ...prev, [name]: sanitizedValue }));
-        break;
-      default:
-        break;
+
+    updateCalculatorField(dataType, name, sanitizedValue);
+  };
+
+  const handleNumericFocusCapture = (e) => {
+    const target = e.target;
+    if (!target || target.tagName !== 'INPUT' || target.type !== 'number' || target.readOnly) {
+      return;
     }
+
+    requestAnimationFrame(() => {
+      target.select();
+    });
+  };
+
+  const handleNumericBlurCapture = (e) => {
+    const target = e.target;
+    if (!target || target.tagName !== 'INPUT' || target.type !== 'number' || target.readOnly) {
+      return;
+    }
+
+    const fieldName = target.name;
+    if (!fieldName) return;
+    const dataType = getDataTypeByField(fieldName);
+    if (!dataType) return;
+
+    const normalized = sanitizeNumericInput(target.value);
+    updateCalculatorField(dataType, fieldName, normalized === null || normalized === '' ? '0' : normalized);
   };
 
   const bagPrice = parseNonNegativeNumber(feedData.bag_price);
@@ -281,7 +336,11 @@ function CostCalculatorModal({
           <button className="modal-close" onClick={onClose}>&times;</button>
         </div>
         
-        <div className="modal-body">
+        <div
+          className="modal-body"
+          onFocusCapture={handleNumericFocusCapture}
+          onBlurCapture={handleNumericBlurCapture}
+        >
           <p style={{ color: 'var(--text-tertiary)', marginBottom: '20px', fontSize: '0.95em' }}>
             {t('costEstimatorDescription')}
           </p>

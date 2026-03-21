@@ -41,10 +41,11 @@ function Module4Yield({ user }) {
 
   const loadScenarios = async () => {
     try {
-      const response = await api.get('/scenarios?type=yield');
-      setScenarios(response.data);
+      const response = await api.get('/scenarios');
+      const allScenarios = response.data || [];
+      setScenarios(allScenarios);
       if (scenarioId) {
-        const scenario = response.data.find(s => s.id === parseInt(scenarioId));
+        const scenario = allScenarios.find(s => s.id === parseInt(scenarioId, 10));
         setSelectedScenario(scenario);
       }
     } catch (error) {
