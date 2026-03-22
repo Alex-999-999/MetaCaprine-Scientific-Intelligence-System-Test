@@ -4405,6 +4405,45 @@ label {
   color: #5b21b6;
 }
 
+.module2-explanation-banner {
+  margin-top: 16px;
+  padding: 18px 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(20, 184, 166, 0.34);
+  border-left: 4px solid #14b8a6;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.14) 0%, rgba(45, 212, 191, 0.12) 100%);
+  box-shadow: 0 2px 8px var(--shadow-color);
+  color: var(--text-primary);
+}
+
+.module3-explanation-banner {
+  margin-top: 16px;
+  margin-bottom: 16px;
+  padding: 18px 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(245, 158, 11, 0.34);
+  border-left: 4px solid #f59e0b;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(251, 191, 36, 0.12) 100%);
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.module3-explanation-main {
+  margin: 0 0 12px 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.module3-explanation-ecm {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
 .pedagogy-block {
   display: flex;
   flex-direction: column;
@@ -4479,6 +4518,23 @@ label {
   border-left: 4px solid #a78bfa;
   background: linear-gradient(135deg, rgba(91, 33, 182, 0.3) 0%, rgba(76, 29, 149, 0.22) 100%);
   color: #e9d5ff;
+}
+
+.dark-mode .module2-explanation-banner {
+  border: 1px solid rgba(45, 212, 191, 0.42);
+  border-left: 4px solid #2dd4bf;
+  background: linear-gradient(135deg, rgba(15, 118, 110, 0.34) 0%, rgba(19, 78, 74, 0.24) 100%);
+  color: #d1faf5;
+}
+
+.dark-mode .module3-explanation-banner {
+  border: 1px solid rgba(251, 191, 36, 0.42);
+  border-left: 4px solid #fbbf24;
+  background: linear-gradient(135deg, rgba(180, 83, 9, 0.3) 0%, rgba(120, 53, 15, 0.22) 100%);
+}
+
+.dark-mode .module3-explanation-main {
+  color: #fde68a;
 }
 
 .dark-mode .sidebar-nav-link.module-m2.active .nav-icon {

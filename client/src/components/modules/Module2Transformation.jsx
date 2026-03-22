@@ -744,15 +744,8 @@ function Module2Transformation({ user }) {
     <div className="container module-compact module2-page">
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ marginTop: '20px' }}>{t('module2Title')}</h1>
-        <div style={{
-          marginTop: '16px',
-          padding: '18px 24px',
-          background: 'var(--bg-tertiary)',
-          borderRadius: '12px',
-          borderLeft: '4px solid var(--accent-info)',
-          boxShadow: '0 2px 8px var(--shadow-color)'
-        }}>
-          <p style={{ margin: 0, fontSize: '15px', lineHeight: '1.6', color: 'var(--text-primary)' }}>
+        <div className="module2-explanation-banner">
+          <p style={{ margin: 0, fontSize: '15px', lineHeight: '1.6' }}>
             {t('module2Explanation')}
           </p>
         </div>

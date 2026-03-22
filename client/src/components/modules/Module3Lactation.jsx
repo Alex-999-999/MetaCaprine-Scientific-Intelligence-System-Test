@@ -379,19 +379,11 @@ function Module3Lactation({ user }) {
     <div className="container module-compact">
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ marginTop: '20px' }}>{t('module3Title')}</h1>
-        <div style={{
-          marginTop: '16px',
-          padding: '18px 24px',
-          background: 'rgba(22, 163, 74, 0.1)',
-          borderRadius: '12px',
-          borderLeft: '4px solid var(--accent-success)',
-          boxShadow: '0 2px 8px var(--shadow-color)',
-          marginBottom: '16px'
-        }}>
-          <p style={{ margin: '0 0 12px 0', fontSize: '15px', lineHeight: '1.6', color: 'var(--accent-success)' }}>
+        <div className="module3-explanation-banner">
+          <p className="module3-explanation-main">
             {t('module3Explanation')}
           </p>
-          <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.6', color: 'var(--text-secondary)', fontStyle: 'italic', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
+          <p className="module3-explanation-ecm">
             <strong>{labelWithHelp('ECM', t('ecmDefinition'))}:</strong> {t('ecmDefinition')}
           </p>
           <p className="input-hint" style={{ marginBottom: 0, marginTop: '10px' }}>
