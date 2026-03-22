@@ -272,7 +272,7 @@ function Module5Gestation({ user }) {
           <ModernIcon name="calendar" size={16} />
           {t('module5Subtitle')}
         </p>
-        <div className="pedagogy-block" style={{ marginTop: '12px' }}>
+        <div className="pedagogy-block module5-pedagogy-block" style={{ marginTop: '12px' }}>
           <p className="pedagogy-title">{t('module5PedagogyTitle')}</p>
           <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
             {t('module5PedagogyIntro')}

@@ -1013,6 +1013,7 @@ label {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  color: #64748b;
 }
 
 .nav-icon-svg {
@@ -1031,6 +1032,54 @@ label {
 .nav-text {
   font-size: 17px;
   font-weight: 500;
+}
+
+.sidebar-nav-link.module-dashboard .nav-icon {
+  color: #3b82f6;
+}
+
+.sidebar-nav-link.module-m1 .nav-icon {
+  color: #22c55e;
+}
+
+.sidebar-nav-link.module-m2 .nav-icon {
+  color: #14b8a6;
+}
+
+.sidebar-nav-link.module-m3 .nav-icon {
+  color: #f59e0b;
+}
+
+.sidebar-nav-link.module-m4 .nav-icon {
+  color: #3b82f6;
+}
+
+.sidebar-nav-link.module-m5 .nav-icon {
+  color: #ef4444;
+}
+
+.sidebar-nav-link.module-dashboard.active .nav-icon {
+  color: #93c5fd;
+}
+
+.sidebar-nav-link.module-m1.active .nav-icon {
+  color: #86efac;
+}
+
+.sidebar-nav-link.module-m2.active .nav-icon {
+  color: #5eead4;
+}
+
+.sidebar-nav-link.module-m3.active .nav-icon {
+  color: #fcd34d;
+}
+
+.sidebar-nav-link.module-m4.active .nav-icon {
+  color: #93c5fd;
+}
+
+.sidebar-nav-link.module-m5.active .nav-icon {
+  color: #fca5a5;
 }
 
 .sidebar-footer {
@@ -4355,6 +4404,18 @@ label {
   margin-top: 0;
 }
 
+.module4-pedagogy-block {
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-left: 4px solid #3b82f6;
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.14) 0%, rgba(59, 130, 246, 0.08) 100%);
+}
+
+.module5-pedagogy-block {
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-left: 4px solid #ef4444;
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.14) 0%, rgba(239, 68, 68, 0.08) 100%);
+}
+
 .results-insight-block {
   margin-bottom: 20px;
 }
@@ -4368,6 +4429,66 @@ label {
 .dark-mode .term-help-icon {
   background: rgba(96, 165, 250, 0.2);
   color: #93c5fd;
+}
+
+.dark-mode .sidebar-nav-link.module-dashboard .nav-icon {
+  color: #60a5fa;
+}
+
+.dark-mode .sidebar-nav-link.module-m1 .nav-icon {
+  color: #4ade80;
+}
+
+.dark-mode .sidebar-nav-link.module-m2 .nav-icon {
+  color: #2dd4bf;
+}
+
+.dark-mode .sidebar-nav-link.module-m3 .nav-icon {
+  color: #fbbf24;
+}
+
+.dark-mode .sidebar-nav-link.module-m4 .nav-icon {
+  color: #60a5fa;
+}
+
+.dark-mode .sidebar-nav-link.module-m5 .nav-icon {
+  color: #f87171;
+}
+
+.dark-mode .sidebar-nav-link.module-dashboard.active .nav-icon {
+  color: #bfdbfe;
+}
+
+.dark-mode .sidebar-nav-link.module-m1.active .nav-icon {
+  color: #bbf7d0;
+}
+
+.dark-mode .sidebar-nav-link.module-m2.active .nav-icon {
+  color: #99f6e4;
+}
+
+.dark-mode .sidebar-nav-link.module-m3.active .nav-icon {
+  color: #fde68a;
+}
+
+.dark-mode .sidebar-nav-link.module-m4.active .nav-icon {
+  color: #bfdbfe;
+}
+
+.dark-mode .sidebar-nav-link.module-m5.active .nav-icon {
+  color: #fecaca;
+}
+
+.dark-mode .module4-pedagogy-block {
+  border: 1px solid rgba(96, 165, 250, 0.42);
+  border-left: 4px solid #60a5fa;
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.2) 0%, rgba(30, 64, 175, 0.16) 100%);
+}
+
+.dark-mode .module5-pedagogy-block {
+  border: 1px solid rgba(248, 113, 113, 0.42);
+  border-left: 4px solid #f87171;
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.2) 0%, rgba(153, 27, 27, 0.16) 100%);
 }
 
 .dark-mode .locked-field-group {

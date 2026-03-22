@@ -237,7 +237,7 @@ function Module4Yield({ user }) {
     <div className="container module-compact">
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ marginTop: '20px' }}>{t('module4Title')}</h1>
-        <div className="pedagogy-block" style={{ marginTop: '12px' }}>
+        <div className="pedagogy-block module4-pedagogy-block" style={{ marginTop: '12px' }}>
           <p className="pedagogy-title">{t('module4PedagogyTitle')}</p>
           <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
             {t('module4PedagogyIntro')}

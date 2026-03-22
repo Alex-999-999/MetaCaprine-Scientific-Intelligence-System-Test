@@ -36,6 +36,7 @@ function Sidebar({ user, onLogout }) {
   const menuItems = [
     {
       path: '/dashboard',
+      navClass: 'module-dashboard',
       icon: (
         <NavIcon>
           <path d="M3 20h18" />
@@ -48,6 +49,7 @@ function Sidebar({ user, onLogout }) {
     },
     {
       path: '/module1',
+      navClass: 'module-m1',
       icon: (
         <NavIcon>
           <path d="M12 3C9.5 6.6 7.5 9.2 7.5 12.8a4.5 4.5 0 1 0 9 0C16.5 9.2 14.5 6.6 12 3Z" />
@@ -58,6 +60,7 @@ function Sidebar({ user, onLogout }) {
     },
     {
       path: '/module2',
+      navClass: 'module-m2',
       icon: (
         <NavIcon>
           <path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Z" />
@@ -69,6 +72,7 @@ function Sidebar({ user, onLogout }) {
     },
     {
       path: '/module3',
+      navClass: 'module-m3',
       icon: (
         <NavIcon>
           <path d="M3 12h4l2.5-5 5 10 2.5-5H21" />
@@ -78,6 +82,7 @@ function Sidebar({ user, onLogout }) {
     },
     {
       path: '/module4',
+      navClass: 'module-m4',
       icon: (
         <NavIcon>
           <path d="M3 20h18" />
@@ -88,6 +93,7 @@ function Sidebar({ user, onLogout }) {
     },
     {
       path: '/module5',
+      navClass: 'module-m5',
       icon: (
         <NavIcon>
           <rect x="3" y="5" width="18" height="16" rx="2" />
@@ -115,7 +121,7 @@ function Sidebar({ user, onLogout }) {
             <Link
               key={item.path}
               to={item.path}
-              className={`sidebar-nav-link ${isActive ? 'active' : ''}`}
+              className={`sidebar-nav-link ${item.navClass || ''} ${isActive ? 'active' : ''}`}
             >
               <span className="nav-icon">{item.icon}</span>
               <span className="nav-text">{item.label}</span>
