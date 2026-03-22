@@ -214,6 +214,28 @@ router.get('/verify-email', async (req, res) => {
   }
 });
 
+// Public resend verification email (for users who cannot log in yet)
+router.post('/resend-verification-public', async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email || !String(email).trim()) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const result = await authService.resendVerificationEmailByEmail(email);
+    res.json(result);
+  } catch (error) {
+    console.error('Public resend verification error:', error);
+    if (error.message === 'Failed to send verification email') {
+      return res.status(500).json({
+        error: 'Failed to send verification email',
+        message: 'Please try again later or contact support.',
+      });
+    }
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Resend verification email
 router.post('/resend-verification', authenticateToken, async (req, res) => {
   try {

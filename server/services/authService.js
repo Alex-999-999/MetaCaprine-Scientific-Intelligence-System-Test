@@ -526,9 +526,14 @@ export async function verifyEmail(token) {
     [user.id]
   );
 
+  const hydratedUser = await hydrateUser(user.id);
+  const authToken = generateToken(hydratedUser.id, hydratedUser.email, hydratedUser.auth_user_id);
+
   return {
     success: true,
     message: 'Email verified successfully! You now have full access to the platform.',
+    user: hydratedUser,
+    token: authToken,
   };
 }
 
@@ -567,5 +572,55 @@ export async function resendVerificationEmail(userId) {
   return {
     success: true,
     message: 'Verification email sent. Please check your inbox.',
+  };
+}
+
+export async function resendVerificationEmailByEmail(email) {
+  const pool = getPool();
+  const normalizedEmail = normalizeNullableText(email);
+  if (!normalizedEmail) {
+    throw new Error('Email is required');
+  }
+
+  const result = await pool.query(
+    'SELECT id, email, name, email_verified FROM users WHERE LOWER(email) = LOWER($1) LIMIT 1',
+    [normalizedEmail]
+  );
+
+  // Do not reveal whether the email exists to the client.
+  if (result.rows.length === 0) {
+    return {
+      success: true,
+      message: 'If an account exists for this email, a verification email has been sent.',
+    };
+  }
+
+  const user = result.rows[0];
+  if (user.email_verified) {
+    return {
+      success: true,
+      message: 'If an account exists for this email, a verification email has been sent.',
+    };
+  }
+
+  const verificationToken = crypto.randomBytes(32).toString('hex');
+
+  await pool.query(
+    `UPDATE users
+     SET email_verification_token = $1,
+         email_verification_token_expires = CURRENT_TIMESTAMP + INTERVAL '24 hours',
+         updated_at = CURRENT_TIMESTAMP
+     WHERE id = $2`,
+    [verificationToken, user.id]
+  );
+
+  const emailSent = await sendVerificationEmail(user.email, user.name, verificationToken);
+  if (!emailSent) {
+    throw new Error('Failed to send verification email');
+  }
+
+  return {
+    success: true,
+    message: 'If an account exists for this email, a verification email has been sent.',
   };
 }

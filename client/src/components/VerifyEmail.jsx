@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
 import { useI18n } from '../i18n/I18nContext';
+import { setAuthToken, setUser } from '../utils/auth';
 import ModernIcon from './icons/ModernIcon';
 
 function VerifyEmail() {
@@ -25,10 +26,25 @@ function VerifyEmail() {
 
       try {
         const response = await api.get(`/auth/verify-email?token=${token}`);
+        const verifiedUser = response.data?.user;
+        const authToken = response.data?.token;
+
         setStatus('success');
         setMessage(response.data.message || t('emailVerifiedSuccess'));
-        
-        // Redirect to login after 3 seconds
+        setLoading(false);
+
+        // If backend returned an auth token, sign in immediately.
+        if (verifiedUser && authToken) {
+          const userWithToken = { ...verifiedUser, token: authToken };
+          setAuthToken(authToken);
+          setUser(userWithToken);
+          setTimeout(() => {
+            window.location.assign('/dashboard');
+          }, 1200);
+          return;
+        }
+
+        // Fallback to login redirect for compatibility.
         setTimeout(() => {
           navigate('/login');
         }, 3000);

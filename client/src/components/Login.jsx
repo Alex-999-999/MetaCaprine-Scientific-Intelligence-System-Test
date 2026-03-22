@@ -26,6 +26,7 @@ function Login({ onLogin }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resendingVerification, setResendingVerification] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const locale = useMemo(() => {
@@ -70,6 +71,44 @@ function Login({ onLogin }) {
     }
 
     return '';
+  };
+
+  const isEmailVerificationError = (value) => {
+    const normalized = String(value || '').toLowerCase();
+    return (
+      normalized.includes('email not verified') ||
+      normalized.includes('correo aun no esta verificado') ||
+      normalized.includes('verify your email') ||
+      normalized.includes('verifica tu correo')
+    );
+  };
+
+  const handleResendVerificationFromLogin = async () => {
+    if (!email.trim()) {
+      setError(friendlyText('Ingresa tu correo para reenviar la verificacion.', 'Enter your email to resend verification.'));
+      return;
+    }
+
+    setResendingVerification(true);
+    try {
+      const response = await api.post('/auth/resend-verification-public', { email: email.trim() });
+      setError('');
+      setSuccess(
+        response.data?.message ||
+          friendlyText(
+            'Si la cuenta existe, enviamos un nuevo enlace de verificacion.',
+            'If the account exists, we sent a new verification link.'
+          )
+      );
+    } catch (err) {
+      const message = err.response?.data?.error || err.response?.data?.message || friendlyText(
+        'No se pudo reenviar el email por ahora.',
+        'Could not resend the verification email right now.'
+      );
+      setError(message);
+    } finally {
+      setResendingVerification(false);
+    }
   };
 
   const countryOptions = useMemo(() => {
@@ -293,6 +332,19 @@ function Login({ onLogin }) {
           {error && (
             <div className="login-error-message">
               {error}
+            </div>
+          )}
+          {!isRegister && !isForgotPassword && isEmailVerificationError(error) && (
+            <div style={{ marginBottom: '14px' }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleResendVerificationFromLogin}
+                disabled={loading || resendingVerification}
+                style={{ width: '100%' }}
+              >
+                {resendingVerification ? t('sending') : t('resendEmail')}
+              </button>
             </div>
           )}
 
