@@ -1039,7 +1039,7 @@ label {
 }
 
 .sidebar-nav-link.module-m1 .nav-icon {
-  color: #22c55e;
+  color: #8b5cf6;
 }
 
 .sidebar-nav-link.module-m2 .nav-icon {
@@ -1063,7 +1063,7 @@ label {
 }
 
 .sidebar-nav-link.module-m1.active .nav-icon {
-  color: #86efac;
+  color: #c4b5fd;
 }
 
 .sidebar-nav-link.module-m2.active .nav-icon {
@@ -4394,6 +4394,17 @@ label {
   font-style: normal;
 }
 
+.module1-explanation-banner {
+  margin-top: 16px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(139, 92, 246, 0.34);
+  border-left: 4px solid #8b5cf6;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.18) 0%, rgba(196, 181, 253, 0.18) 100%);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+  color: #5b21b6;
+}
+
 .pedagogy-block {
   display: flex;
   flex-direction: column;
@@ -4436,7 +4447,7 @@ label {
 }
 
 .dark-mode .sidebar-nav-link.module-m1 .nav-icon {
-  color: #4ade80;
+  color: #a78bfa;
 }
 
 .dark-mode .sidebar-nav-link.module-m2 .nav-icon {
@@ -4460,7 +4471,14 @@ label {
 }
 
 .dark-mode .sidebar-nav-link.module-m1.active .nav-icon {
-  color: #bbf7d0;
+  color: #ddd6fe;
+}
+
+.dark-mode .module1-explanation-banner {
+  border: 1px solid rgba(167, 139, 250, 0.44);
+  border-left: 4px solid #a78bfa;
+  background: linear-gradient(135deg, rgba(91, 33, 182, 0.3) 0%, rgba(76, 29, 149, 0.22) 100%);
+  color: #e9d5ff;
 }
 
 .dark-mode .sidebar-nav-link.module-m2.active .nav-icon {

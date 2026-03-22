@@ -419,15 +419,8 @@ function Module1Production({ user }) {
     <div className="container module-compact module1-compact">
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ marginTop: '20px' }}>{t('module1Title')}</h1>
-        <div style={{
-          marginTop: '16px',
-          padding: '14px 18px',
-          background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
-          borderRadius: '10px',
-          borderLeft: '4px solid #2d5016',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-        }}>
-          <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.5', color: '#1565c0' }}>
+        <div className="module1-explanation-banner">
+          <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.5' }}>
             {t('module1Explanation')}
           </p>
         </div>
