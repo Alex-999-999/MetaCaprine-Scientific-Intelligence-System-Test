@@ -34,13 +34,29 @@ function AppContent() {
           saveUserToStorage(userWithToken);
         } catch (error) {
           console.error('Error fetching user data:', error);
-          // Fallback to localStorage if API call fails
-          const savedUser = getUser();
-          if (savedUser) {
-            setUser(savedUser);
-          } else {
-            // If no saved user and API fails, token might be invalid
+          const status = error?.response?.status;
+          const rawError = String(error?.response?.data?.error || error?.response?.data?.message || '').toLowerCase();
+          const isInvalidSessionError =
+            status === 401 ||
+            (status === 403 && (
+              rawError.includes('invalid or expired token') ||
+              rawError.includes('access token required') ||
+              rawError.includes('authentication required')
+            ));
+
+          if (isInvalidSessionError) {
             removeAuthToken();
+            setUser(null);
+          } else {
+            // Fallback to cached user only if a token still exists.
+            const savedUser = getUser();
+            const currentToken = getAuthToken();
+            if (savedUser && currentToken) {
+              setUser(savedUser);
+            } else {
+              removeAuthToken();
+              setUser(null);
+            }
           }
         }
       }

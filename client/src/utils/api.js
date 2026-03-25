@@ -157,21 +157,35 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // 401 means session is invalid. 403 can be a valid "no access" state (RBAC/feature gate).
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const backendError = String(error.response?.data?.error || '').toLowerCase();
+    const backendMessage = String(error.response?.data?.message || '').toLowerCase();
+    const invalidToken403 =
+      status === 403 &&
+      (
+        backendError.includes('invalid or expired token') ||
+        backendMessage.includes('invalid or expired token') ||
+        backendError.includes('access token required') ||
+        backendMessage.includes('access token required') ||
+        backendError.includes('authentication required') ||
+        backendMessage.includes('authentication required')
+      );
+
+    // 401 means session is invalid. Only selected 403 token errors should force logout.
+    if (status === 401 || invalidToken403) {
       removeAuthToken();
-      window.location.href = '/login';
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
 
-    const backendError = error.response?.data?.error;
-    const backendMessage = error.response?.data?.message;
-    const sourceMessage = backendMessage || backendError || error.message;
+    const sourceMessage = error.response?.data?.message || error.response?.data?.error || error.message;
     const uiMessage = friendlyMessage(sourceMessage);
 
     if (error.response?.data && typeof error.response.data === 'object') {
-      if (typeof backendError === 'string') {
+      if (typeof error.response.data.error === 'string') {
         error.response.data.error = uiMessage;
-      } else if (typeof backendMessage === 'string') {
+      } else if (typeof error.response.data.message === 'string') {
         error.response.data.message = uiMessage;
       }
     }
