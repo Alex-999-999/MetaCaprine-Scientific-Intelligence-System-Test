@@ -5,9 +5,10 @@ dotenv.config();
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY?.trim();
 const RESEND_FROM_EMAIL = (process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev').trim();
-const APP_URL =
+const APP_URL = (
   process.env.APP_URL?.trim() ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+).replace(/\/+$/, '');
 
 let resend = null;
 if (RESEND_API_KEY) {

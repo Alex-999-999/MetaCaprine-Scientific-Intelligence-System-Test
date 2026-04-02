@@ -7,7 +7,8 @@
  * 1. Check database connection
  * 2. Run the complete database migration
  * 3. Seed breed reference data for Module 3
- * 4. Verify the setup
+ * 4. Apply Module 4 schema and seed catalog from TABLA MAESTRA (m4_breeds_seed.json)
+ * 5. Verify the setup
  * 
  * Usage:
  *   node setup.js
@@ -19,6 +20,7 @@
  */
 
 import { readFileSync } from 'fs';
+import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import pg from 'pg';
@@ -230,6 +232,28 @@ async function seedBreedData() {
   }
 }
 
+async function runM4Setup() {
+  console.log('\n📊 Module 4 (La Cabra como Inversión) — schema y catálogo...');
+  try {
+    const m4sql = readFileSync(join(__dirname, 'server', 'db', 'm4_migration.sql'), 'utf8');
+    await pool.query(m4sql);
+    const result = spawnSync(process.execPath, [join(__dirname, 'server', 'scripts', 'seed-m4-breeds.js')], {
+      cwd: __dirname,
+      env: process.env,
+      stdio: 'inherit',
+    });
+    if (result.status !== 0) {
+      console.warn('⚠️  M4 seed script exited with code', result.status);
+      return false;
+    }
+    console.log('✅ Module 4 listo\n');
+    return true;
+  } catch (error) {
+    console.warn('⚠️  Module 4 omitido o con error:', error.message);
+    return false;
+  }
+}
+
 async function verifySetup() {
   console.log('🔍 Verifying setup...');
   
@@ -251,6 +275,12 @@ async function verifySetup() {
     // Check breed data
     const breedCount = await pool.query('SELECT COUNT(*) FROM public.breed_reference');
     console.log(`   ✅ ${breedCount.rows[0].count} breeds in database`);
+    try {
+      const m4Count = await pool.query('SELECT COUNT(*) FROM public.m4_breeds');
+      console.log(`   ✅ ${m4Count.rows[0].count} razas en catálogo M4`);
+    } catch (_) {
+      console.log('   ℹ️  Tabla m4_breeds no disponible aún');
+    }
     
     // Check if any users exist
     const userCount = await pool.query('SELECT COUNT(*) FROM users');
@@ -282,8 +312,10 @@ async function main() {
       console.error('\n❌ Setup failed at seeding step');
       process.exit(1);
     }
+
+    await runM4Setup();
     
-    // Step 4: Verify setup
+    // Step 5: Verify setup
     const verifySuccess = await verifySetup();
     if (!verifySuccess) {
       console.error('\n❌ Setup verification failed');

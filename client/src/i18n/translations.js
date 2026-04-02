@@ -3040,7 +3040,7 @@ Object.assign(translations.en, {
   module2PedagogyPracticalTip: 'Practical tip: validate liters per kg and channel percentages first, then compare margin against raw milk sale.',
   module2MilkCostInterpretationHint: 'This value feeds all transformation products. If it is underestimated, projected margins can look better than reality.',
   module3PedagogyHint: 'Interpretation tip: use this module to compare biological potential, then validate the economic impact in Modules 1 and 2.',
-  sidebarConversionYield: 'Conversion - Cheese Yield Performance',
+  sidebarConversionYield: 'M4 - The Goat as Investment',
   sidebarPredictiveGestation: 'Predictive Gestation'
 });
 
@@ -3092,7 +3092,7 @@ Object.assign(translations.es, {
   module2PedagogyPracticalTip: 'Consejo practico: valide primero litros por kg y porcentajes por canal, luego compare el margen contra la venta de leche cruda.',
   module2MilkCostInterpretationHint: 'Este valor alimenta todos los productos transformados. Si queda subestimado, el margen proyectado se vera mejor de lo real.',
   module3PedagogyHint: 'Consejo de interpretacion: use este modulo para comparar potencial biologico y valide el impacto economico en Modulos 1 y 2.',
-  sidebarConversionYield: 'Conversión - Rendimiento Quesero',
+  sidebarConversionYield: 'M4 - La Cabra como Inversión',
   sidebarPredictiveGestation: 'Gestación Predictiva'
 });
 
@@ -3142,7 +3142,7 @@ Object.assign(translations.fr, {
   module2PedagogyPracticalTip: 'Practical tip: validate liters per kg and channel percentages first.',
   module2MilkCostInterpretationHint: 'This value affects all transformed products.',
   module3PedagogyHint: 'Use this module for biological comparison, then validate economics in Modules 1 and 2.',
-  sidebarConversionYield: 'Conversion - Cheese Yield Performance',
+  sidebarConversionYield: 'M4 - La Chèvre comme Investissement',
   sidebarPredictiveGestation: 'Predictive Gestation'
 });
 
@@ -3192,7 +3192,7 @@ Object.assign(translations.it, {
   module2PedagogyPracticalTip: 'Practical tip: validate liters per kg and channel percentages first.',
   module2MilkCostInterpretationHint: 'This value affects all transformed products.',
   module3PedagogyHint: 'Use this module for biological comparison, then validate economics in Modules 1 and 2.',
-  sidebarConversionYield: 'Conversion - Cheese Yield Performance',
+  sidebarConversionYield: 'M4 - La Capra come Investimento',
   sidebarPredictiveGestation: 'Predictive Gestation'
 });
 
@@ -3242,7 +3242,7 @@ Object.assign(translations.pt, {
   module2PedagogyPracticalTip: 'Practical tip: validate liters per kg and channel percentages first.',
   module2MilkCostInterpretationHint: 'This value affects all transformed products.',
   module3PedagogyHint: 'Use this module for biological comparison, then validate economics in Modules 1 and 2.',
-  sidebarConversionYield: 'Conversion - Cheese Yield Performance',
+  sidebarConversionYield: 'M4 - A Cabra como Investimento',
   sidebarPredictiveGestation: 'Predictive Gestation'
 });
 // STEP16_MODULE1_PEDAGOGY_AND_CALCULATOR_UPGRADE_END
@@ -3286,7 +3286,7 @@ Object.assign(translations.es, {
   replacementHiddenCostHint: 'La reposición es un costo oculto por litro. Incluye levante y tasa de reemplazo anual para no subestimar el costo total.',
   directSaleExplanation: 'Venta de leche cruda del Módulo 1: vender leche por litro, sin transformación.',
   transformationExplanation: 'Transformación del Módulo 2: convertir leche en productos y comparar margen neto frente a leche cruda.',
-  sidebarConversionYield: 'Conversión - Rendimiento Quesero',
+  sidebarConversionYield: 'M4 - La Cabra como Inversión',
   sidebarPredictiveGestation: 'Gestación Predictiva',
   module1PedagogyTitle: 'Cómo funciona esta simulación',
   module1PedagogyIntro: 'Ingresa valores realistas de tu finca. El sistema calcula producción, costo por litro y margen bruto con las mismas fórmulas del escenario guardado.',
@@ -3537,7 +3537,7 @@ Object.assign(translations.es, {
   replacementHiddenCostHint: 'La reposici\u00f3n es un costo oculto por litro. Incluye levante y tasa de reemplazo anual para no subestimar el costo total.',
   directSaleExplanation: 'Venta de leche cruda del M\u00f3dulo 1: vender leche por litro, sin transformaci\u00f3n.',
   transformationExplanation: 'Transformaci\u00f3n del M\u00f3dulo 2: convertir leche en productos y comparar margen neto frente a leche cruda.',
-  sidebarConversionYield: 'Conversi\u00f3n - Rendimiento Quesero',
+  sidebarConversionYield: 'M4 - La Cabra como Inversi\u00f3n',
   sidebarPredictiveGestation: 'Gestaci\u00f3n Predictiva',
   module1PedagogyTitle: 'C\u00f3mo funciona esta simulaci\u00f3n',
   module1PedagogyIntro: 'Ingresa valores realistas de tu finca. El sistema calcula producci\u00f3n, costo por litro y margen bruto con las mismas f\u00f3rmulas del escenario guardado.',

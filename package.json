@@ -13,6 +13,8 @@
     "dev:client": "cd client && npm run dev",
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
     "export:breed-reference-seed": "node server/scripts/export-breed-reference-seed.js",
+    "parse:m4-master": "node server/scripts/parse-m4-master-csv.js",
+    "seed:m4": "node server/scripts/seed-m4-breeds.js",
     "build": "cd client && npm run build",
     "vercel-build": "npm install && cd server && npm install && cd ../client && npm install --include=dev && npm run build"
   },

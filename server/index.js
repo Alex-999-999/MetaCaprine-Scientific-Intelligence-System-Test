@@ -8,6 +8,7 @@ import moduleRoutes from './routes/modules.js';
 import breedRoutes from './routes/breeds.js';
 import module3Routes from './routes/module3.js';
 import billingRoutes, { handleStripeWebhook } from './routes/billing.js';
+import m4Routes from './routes/m4.js';
 
 dotenv.config();
 
@@ -15,9 +16,28 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 function normalizeOrigin(origin) {
-  const value = String(origin || '').trim();
-  if (!value) return '';
-  return value.replace(/\/+$/, '');
+  const raw = String(origin || '').trim();
+  if (!raw) return '';
+  if (raw === '*') return '*';
+
+  // Remove wrapping quotes from env values like:
+  // "https://app.example.com" or 'https://app.example.com'
+  const unquoted = raw.replace(/^['"]|['"]$/g, '');
+
+  // Keep wildcard marker, but normalize protocol and trailing slash.
+  if (unquoted.includes('*')) {
+    const wildcardWithProtocol = unquoted.includes('://') ? unquoted : `https://${unquoted}`;
+    return wildcardWithProtocol.replace(/\/+$/, '');
+  }
+
+  // Accept full URLs with paths and keep only protocol + host.
+  try {
+    const withProtocol = unquoted.includes('://') ? unquoted : `https://${unquoted}`;
+    const url = new URL(withProtocol);
+    return `${url.protocol}//${url.host}`.replace(/\/+$/, '');
+  } catch {
+    return unquoted.replace(/\/+$/, '');
+  }
 }
 
 function matchesWildcardOrigin(origin, pattern) {
@@ -37,28 +57,44 @@ function matchesWildcardOrigin(origin, pattern) {
   }
 }
 
+function isVercelAppOrigin(origin) {
+  try {
+    const normalized = normalizeOrigin(origin);
+    if (!normalized || normalized === '*') return false;
+    const hostname = new URL(normalized).hostname.toLowerCase();
+    return hostname === 'vercel.app' || hostname.endsWith('.vercel.app');
+  } catch {
+    return false;
+  }
+}
+
 function getAllowedOrigins() {
   const configured = (process.env.CORS_ALLOWED_ORIGINS || '')
     .split(',')
     .map((origin) => normalizeOrigin(origin))
     .filter(Boolean);
 
-  if (configured.length > 0) {
-    return configured;
-  }
-
-  return [...new Set([
+  const defaults = [
     normalizeOrigin(process.env.APP_URL),
-    process.env.VERCEL_URL ? `https://${normalizeOrigin(process.env.VERCEL_URL)}` : null,
+    normalizeOrigin(process.env.VERCEL_URL),
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-  ].map((origin) => normalizeOrigin(origin)).filter(Boolean))];
+  ].map((origin) => normalizeOrigin(origin)).filter(Boolean);
+
+  // Merge configured + defaults to avoid lockout when a whitelist is incomplete.
+  // This is especially important on Vercel preview URLs where origin can vary.
+  return [...new Set([...configured, ...defaults])];
 }
 
 const allowedOrigins = getAllowedOrigins();
 const isOriginAllowed = (origin) => {
   const normalized = normalizeOrigin(origin);
   if (!normalized) return true;
+
+  // On Vercel, allow Vercel-hosted frontend origins to avoid preview-domain lockouts.
+  if (process.env.VERCEL === '1' && isVercelAppOrigin(normalized)) {
+    return true;
+  }
 
   return allowedOrigins.some((allowedOrigin) => {
     if (allowedOrigin === '*') return true;
@@ -73,6 +109,7 @@ app.use(cors({
       callback(null, true);
       return;
     }
+    console.warn('CORS rejected origin:', origin, 'Allowed origins:', allowedOrigins);
     callback(new Error('Origin not allowed by CORS'));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -91,6 +128,7 @@ app.use('/api/modules', moduleRoutes);
 app.use('/api/breeds', breedRoutes);
 app.use('/api/module3', module3Routes);
 app.use('/api/billing', billingRoutes);
+app.use('/api/m4', m4Routes);
 
 // Health check
 app.get('/api/health', async (req, res) => {

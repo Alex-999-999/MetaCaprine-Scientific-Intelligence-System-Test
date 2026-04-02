@@ -1,0 +1,601 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   M4: La Cabra como Inversión — Styles
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.m4-root {
+  max-width: 1100px;
+}
+
+/* ── Header ────────────────────────────────────────────────────────────────── */
+.m4-header {
+  text-align: center;
+  margin-bottom: 28px;
+  padding: 32px 20px 18px;
+}
+
+.m4-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+}
+
+.m4-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+/* ── Section titles ────────────────────────────────────────────────────────── */
+.m4-section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.m4-section-subtitle {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+
+/* ── Pedagogic hint ────────────────────────────────────────────────────────── */
+.m4-pedagogic-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 8px 0 4px;
+  padding: 0;
+}
+
+.m4-hint-icon {
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+/* ── Help tooltip ──────────────────────────────────────────────────────────── */
+.m4-help-tip {
+  position: relative;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.m4-help-icon {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.m4-help-bubble {
+  position: absolute;
+  bottom: 130%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-primary, #fff);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  white-space: normal;
+  width: 260px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 50;
+  pointer-events: none;
+}
+
+/* ── Breed selector ────────────────────────────────────────────────────────── */
+.m4-selector-card {
+  text-align: center;
+}
+
+.m4-selector-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+.m4-breed-select {
+  width: 100%;
+  max-width: 420px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 2px solid var(--border-color, #e5e7eb);
+  background: var(--bg-primary, #fff);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.m4-breed-select:focus {
+  border-color: var(--accent-color, #2d5016);
+  outline: none;
+}
+
+/* ── Quick calculator ──────────────────────────────────────────────────────── */
+.m4-quick-calc {
+  background: linear-gradient(135deg, var(--bg-primary, #fff), var(--bg-secondary, #f8fafc));
+}
+
+.m4-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 16px 0 8px;
+}
+
+.m4-quick-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.m4-quick-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.m4-quick-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ── KPI Row ───────────────────────────────────────────────────────────────── */
+.m4-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.m4-kpi-card {
+  background: var(--bg-primary, #fff);
+  border: 2px solid var(--border-color, #f0f4f8);
+  border-radius: 14px;
+  padding: 20px 18px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.m4-kpi-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.m4-kpi-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+/* ── CAP Panel ─────────────────────────────────────────────────────────────── */
+.m4-cap-panel {
+  border-left: 4px solid var(--accent-color, #2d5016);
+}
+
+.m4-cap-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 14px 0 10px;
+}
+
+.m4-cap-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 0.95rem;
+  border-bottom: 1px solid var(--border-color, #f0f4f8);
+}
+
+.m4-cap-row.m4-cap-total {
+  font-weight: 700;
+  font-size: 1.05rem;
+  border-top: 2px solid var(--border-color, #e5e7eb);
+  border-bottom: none;
+  padding-top: 10px;
+}
+
+.m4-cap-row.m4-cap-ref {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border-bottom: none;
+}
+
+.m4-micro-quote {
+  font-style: italic;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-top: 12px;
+  opacity: 0.85;
+}
+
+/* ── Scenario Tabs ─────────────────────────────────────────────────────────── */
+.m4-scenario-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.m4-scenario-tab {
+  padding: 8px 16px;
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.m4-scenario-tab:hover:not(.locked) {
+  border-color: var(--accent-color, #2d5016);
+  color: var(--text-primary);
+}
+
+.m4-scenario-tab.active {
+  background: var(--accent-color, #2d5016);
+  color: #fff;
+  border-color: var(--accent-color, #2d5016);
+}
+
+.m4-scenario-tab.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Scenario KPIs ─────────────────────────────────────────────────────────── */
+.m4-scenario-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin: 16px 0 8px;
+}
+
+.m4-scenario-kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.m4-scenario-kpi-label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.m4-scenario-kpi-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* ── Value colors ──────────────────────────────────────────────────────────── */
+.m4-value-positive {
+  color: #16a34a;
+}
+
+.m4-value-negative {
+  color: #dc2626;
+}
+
+.dark-mode .m4-value-positive {
+  color: #4ade80;
+}
+
+.dark-mode .m4-value-negative {
+  color: #f87171;
+}
+
+/* ── Chart card ────────────────────────────────────────────────────────────── */
+.m4-chart-card {
+  padding-bottom: 12px;
+}
+
+/* ── Insight card ──────────────────────────────────────────────────────────── */
+.m4-insight-card {
+  border-left: 4px solid #0891b2;
+  background: linear-gradient(135deg, var(--bg-primary, #fff), var(--bg-secondary, #f8fafc));
+}
+
+/* ── Cheese Ranking ────────────────────────────────────────────────────────── */
+.m4-cheese-podium {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 18px 0;
+}
+
+.m4-cheese-podium-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 16px;
+  border-radius: 14px;
+  background: var(--bg-primary, #fff);
+  border: 2px solid var(--border-color, #f0f4f8);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.m4-cheese-podium-card.rank-1 {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, var(--bg-primary, #fff), rgba(245, 158, 11, 0.06));
+}
+
+.m4-cheese-podium-card.rank-2 {
+  border-color: #94a3b8;
+}
+
+.m4-cheese-podium-card.rank-3 {
+  border-color: #d97706;
+}
+
+.m4-cheese-medal {
+  font-size: 1.8rem;
+}
+
+.m4-cheese-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.m4-cheese-kg {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.m4-cheese-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--border-color, #e5e7eb);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.m4-cheese-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2d5016, #16a34a);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.dark-mode .m4-cheese-bar-fill {
+  background: linear-gradient(90deg, #4ade80, #22c55e);
+}
+
+.m4-cheese-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.m4-cheese-list-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 100px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 0.92rem;
+  border-bottom: 1px solid var(--border-color, #f0f4f8);
+}
+
+.m4-cheese-rank {
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.m4-cheese-pro-teaser {
+  text-align: center;
+  padding: 18px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* ── Profile ───────────────────────────────────────────────────────────────── */
+.m4-profile-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+}
+
+.m4-profile-kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.m4-profile-kpi span {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.m4-profile-kpi strong {
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.m4-profile-section {
+  margin: 18px 0 10px;
+}
+
+.m4-profile-section h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.m4-profile-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.m4-profile-list li {
+  position: relative;
+  padding: 4px 0 4px 20px;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.m4-profile-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.m4-limitations li::before {
+  content: '→';
+  color: #f59e0b;
+}
+
+.m4-profile-recommendation {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.m4-profile-closing {
+  text-align: center;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 20px;
+  font-size: 0.95rem;
+}
+
+/* ── PRO gate ──────────────────────────────────────────────────────────────── */
+.m4-pro-gate {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.m4-pro-gate-blur {
+  filter: blur(5px);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.6;
+}
+
+.m4-pro-gate-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 2;
+}
+
+.m4-pro-gate-overlay p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.m4-pro-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.08em;
+}
+
+/* ── CTA card ──────────────────────────────────────────────────────────────── */
+.m4-cta-card {
+  text-align: center;
+  border: 2px solid #f59e0b;
+  background: linear-gradient(135deg, var(--bg-primary, #fff), rgba(245, 158, 11, 0.05));
+  padding: 32px 24px;
+}
+
+.m4-cta-card h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 10px 0 8px;
+}
+
+.m4-cta-card p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .m4-title {
+    font-size: 1.5rem;
+  }
+
+  .m4-kpi-row,
+  .m4-scenario-kpis,
+  .m4-profile-kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .m4-cheese-podium {
+    grid-template-columns: 1fr;
+  }
+
+  .m4-cheese-list-row {
+    grid-template-columns: 30px 1fr 80px;
+  }
+
+  .m4-cheese-list-row .m4-cheese-bar {
+    display: none;
+  }
+
+  .m4-scenario-tabs {
+    flex-direction: column;
+  }
+
+  .m4-scenario-tab {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .m4-kpi-row,
+  .m4-scenario-kpis,
+  .m4-profile-kpi-row {
+    grid-template-columns: 1fr;
+  }
+
+  .m4-quick-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -9,7 +9,7 @@ import ResetPassword from './components/ResetPassword';
 import Module1Production from './components/modules/Module1Production';
 import Module2Transformation from './components/modules/Module2Transformation';
 import Module3Lactation from './components/modules/Module3Lactation';
-import Module4Yield from './components/modules/Module4Yield';
+import Module4Investment from './components/modules/Module4Investment';
 import Module5Gestation from './components/modules/Module5Gestation';
 import VerifyEmail from './components/VerifyEmail';
 import { AboutPage, ContactPage, PrivacyPage, TermsPage } from './components/FooterLegalPages';
@@ -153,7 +153,7 @@ function AppContent() {
           path="/module4"
           element={
             user ? (
-              <Module4Yield user={user} />
+              <Module4Investment user={user} />
             ) : (
               <Navigate to="/login" />
             )
