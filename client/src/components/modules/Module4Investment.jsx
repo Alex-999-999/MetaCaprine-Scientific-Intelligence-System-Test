@@ -7,6 +7,7 @@ import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import { useChartColors } from '../../hooks/useDarkMode';
 import { computeM4 } from '../../utils/m4Calculations';
+import ModernIcon from '../icons/ModernIcon';
 import '../../styles/Module4.css';
 
 const SCENARIO_KEYS = ['s1', 's2', 's3_c1', 's3_c2', 's3_c3'];
@@ -22,7 +23,7 @@ function HelpTip({ text }) {
   const [open, setOpen] = useState(false);
   return (
     <span className="m4-help-tip" onClick={() => setOpen(!open)} title={text}>
-      <span className="m4-help-icon">ℹ️</span>
+      <ModernIcon name="infoCircle" size={14} className="m4-help-icon" />
       {open && <span className="m4-help-bubble">{text}</span>}
     </span>
   );
@@ -31,7 +32,11 @@ function HelpTip({ text }) {
 function PedagogicHint({ icon, text }) {
   return (
     <p className="m4-pedagogic-hint">
-      {icon && <span className="m4-hint-icon">{icon}</span>}
+      {icon && (
+        <span className="m4-hint-icon">
+          <ModernIcon name={icon} size={16} />
+        </span>
+      )}
       <span>{text}</span>
     </p>
   );
@@ -52,18 +57,18 @@ function ProGate({ children, isPro, teaser }) {
 
 function InsightText({ payback }) {
   if (payback === null) {
-    return <PedagogicHint icon="⚠️" text="Este modelo no recupera la inversión dentro del horizonte productivo." />;
+    return <PedagogicHint icon="warning" text="Este modelo no recupera la inversión dentro del horizonte productivo." />;
   }
   if (payback < 2) {
-    return <PedagogicHint icon="⚡" text="Recuperación acelerada. Este modelo convierte producción en liquidez con rapidez." />;
+    return <PedagogicHint icon="rocket" text="Recuperación acelerada. Este modelo convierte producción en liquidez con rapidez." />;
   }
   if (payback < 4) {
-    return <PedagogicHint icon="📈" text="Recuperación saludable. El modelo es rentable y estructuralmente sólido." />;
+    return <PedagogicHint icon="chartBar" text="Recuperación saludable. El modelo es rentable y estructuralmente sólido." />;
   }
   if (payback < 6) {
-    return <PedagogicHint icon="⏳" text="Recuperación lenta. Hay rentabilidad, pero el diseño del negocio puede mejorar." />;
+    return <PedagogicHint icon="hourglass" text="Recuperación lenta. Hay rentabilidad, pero el diseño del negocio puede mejorar." />;
   }
-  return <PedagogicHint icon="⚠️" text="Recuperación débil. Este escenario exige rediseño estratégico." />;
+  return <PedagogicHint icon="warning" text="Recuperación débil. Este escenario exige rediseño estratégico." />;
 }
 
 function getBreedStrengths(breed, result) {
@@ -200,7 +205,7 @@ export default function Module4Investment({ user }) {
         <>
           {/* ─── 3. Calculadora Básica Dopamínica ──────────────────── */}
           <div className="card m4-quick-calc">
-            <h2 className="m4-section-title">💰 Estimación rápida — {breed.name}</h2>
+            <h2 className="m4-section-title m4-title-with-icon"><ModernIcon name="scale" size={18} className="m4-title-icon" />Estimación rápida — {breed.name}</h2>
             <div className="m4-quick-grid">
               <div className="m4-quick-item">
                 <span className="m4-quick-label">Producción por lactancia</span>
@@ -245,7 +250,7 @@ export default function Module4Investment({ user }) {
 
           {/* ─── 5. Panel CAP ────────────────────────────────────────── */}
           <div className="card m4-cap-panel">
-            <h2 className="m4-section-title">📊 Costo Real del Activo (CAP)</h2>
+            <h2 className="m4-section-title m4-title-with-icon"><ModernIcon name="chartBar" size={18} className="m4-title-icon" />Costo Real del Activo (CAP)</h2>
             <div className="m4-cap-breakdown">
               <div className="m4-cap-row"><span>Adquisición + logística</span><span>${fmt(breed.acquisition_logistics_cost, 2)}</span></div>
               <div className="m4-cap-row"><span>Costo de levante</span><span>${fmt(breed.raising_cost, 2)}</span></div>
@@ -265,7 +270,7 @@ export default function Module4Investment({ user }) {
 
           {/* ─── 6. Tabs de Escenarios ───────────────────────────────── */}
           <div className="card m4-scenarios-card">
-            <h2 className="m4-section-title">🎯 Escenarios de Monetización</h2>
+            <h2 className="m4-section-title m4-title-with-icon"><ModernIcon name="scale" size={18} className="m4-title-icon" />Escenarios de Monetización</h2>
             <PedagogicHint text="Cada escenario representa una forma distinta de monetizar la raza. No todas las razas expresan su valor en el mismo modelo." />
             <div className="m4-scenario-tabs">
               {SCENARIO_KEYS.map((key) => {
@@ -278,7 +283,7 @@ export default function Module4Investment({ user }) {
                     disabled={isLocked}
                   >
                     {scenarioLabels[key]}
-                    {isLocked && ' 🔒'}
+                    {isLocked && ' (PRO)'}
                   </button>
                 );
               })}
@@ -316,7 +321,7 @@ export default function Module4Investment({ user }) {
 
           {/* ─── 8. Gráfico Principal — Curva de Recuperación ───── */}
           <div className="card m4-chart-card">
-            <h2 className="m4-section-title">📈 Curva de Recuperación de Inversión</h2>
+            <h2 className="m4-section-title m4-title-with-icon"><ModernIcon name="chartBar" size={18} className="m4-title-icon" />Curva de Recuperación de Inversión</h2>
             <PedagogicHint text="La zona roja es dinero no recuperado. La zona verde es valor generado." />
             {activeKpi && (
               <ProGate isPro={isPro || activeScenario === 's1'} teaser="Gráfico interactivo completo en PRO">
@@ -381,7 +386,7 @@ export default function Module4Investment({ user }) {
 
           {/* ─── 10. Ranking de Queso ────────────────────────────── */}
           <div className="card m4-cheese-ranking-card">
-            <h2 className="m4-section-title">🧀 Ranking de Rendimiento Quesero</h2>
+            <h2 className="m4-section-title m4-title-with-icon"><ModernIcon name="trophy" size={18} className="m4-title-icon" />Ranking de Rendimiento Quesero</h2>
             <p className="m4-section-subtitle">Referencia comparativa del potencial de queso por raza durante su vida productiva.</p>
             <PedagogicHint text="Este ranking muestra cuánto queso puede producir una raza en su vida productiva. No define por sí solo cuál es la mejor decisión económica." />
 
@@ -389,7 +394,8 @@ export default function Module4Investment({ user }) {
             <div className="m4-cheese-podium">
               {cheeseRanking.slice(0, 3).map((r, i) => (
                 <div key={r.id} className={`m4-cheese-podium-card rank-${i + 1}`}>
-                  <span className="m4-cheese-medal">{['🥇', '🥈', '🥉'][i]}</span>
+                  <span className="m4-cheese-medal"><ModernIcon name="trophy" size={20} /></span>
+                  <span className="m4-cheese-rank-badge">#{i + 1}</span>
                   <span className="m4-cheese-name">{r.name}</span>
                   <span className="m4-cheese-kg">{fmt(r.lifetime_cheese_kg, 2)} kg</span>
                   <div className="m4-cheese-bar">
@@ -428,7 +434,7 @@ export default function Module4Investment({ user }) {
 
           {/* ─── 11. Perfil Económico por Raza ───────────────────── */}
           <div className="card m4-profile-card">
-            <h2 className="m4-section-title">📊 Perfil Económico — {breed.name}</h2>
+            <h2 className="m4-section-title m4-title-with-icon"><ModernIcon name="fileText" size={18} className="m4-title-icon" />Perfil Económico — {breed.name}</h2>
             <p className="m4-section-subtitle">Evaluación individual del potencial económico de esta raza dentro del sistema.</p>
             <PedagogicHint text="Aquí no se busca decir cuál raza es &quot;mejor&quot;, sino mostrar cómo esta raza puede generar valor cuando se usa correctamente." />
 
@@ -446,7 +452,7 @@ export default function Module4Investment({ user }) {
 
             {/* Strengths */}
             <div className="m4-profile-section">
-              <h3>💪 Fortalezas económicas</h3>
+              <h3 className="m4-title-with-icon"><ModernIcon name="checkCircle" size={16} className="m4-title-icon" />Fortalezas económicas</h3>
               <ul className="m4-profile-list m4-strengths">
                 {getBreedStrengths(breed, result).map((s, i) => <li key={i}>{s}</li>)}
               </ul>
@@ -455,7 +461,7 @@ export default function Module4Investment({ user }) {
             {/* Limitations (PRO) */}
             <ProGate isPro={isPro} teaser="Consideraciones del sistema en PRO">
               <div className="m4-profile-section">
-                <h3>⚠️ Consideraciones del sistema</h3>
+                <h3 className="m4-title-with-icon"><ModernIcon name="warning" size={16} className="m4-title-icon" />Consideraciones del sistema</h3>
                 <ul className="m4-profile-list m4-limitations">
                   {getBreedLimitations(breed, result).map((l, i) => <li key={i}>{l}</li>)}
                 </ul>
@@ -465,7 +471,7 @@ export default function Module4Investment({ user }) {
             {/* Recommendation (PRO) */}
             <ProGate isPro={isPro} teaser="Recomendación estratégica en PRO">
               <div className="m4-profile-section">
-                <h3>🎯 Cómo aprovechar esta raza</h3>
+                <h3 className="m4-title-with-icon"><ModernIcon name="fileText" size={16} className="m4-title-icon" />Cómo aprovechar esta raza</h3>
                 <p className="m4-profile-recommendation">{getBreedRecommendation(breed, result)}</p>
               </div>
             </ProGate>

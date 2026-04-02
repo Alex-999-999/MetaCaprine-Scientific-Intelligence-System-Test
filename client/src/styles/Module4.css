@@ -42,6 +42,17 @@
   margin-bottom: 14px;
 }
 
+.m4-title-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.m4-title-icon {
+  color: currentColor;
+  opacity: 0.9;
+}
+
 /* ── Pedagogic hint ────────────────────────────────────────────────────────── */
 .m4-pedagogic-hint {
   display: flex;
@@ -56,7 +67,8 @@
 
 .m4-hint-icon {
   flex-shrink: 0;
-  font-size: 1rem;
+  display: inline-flex;
+  color: currentColor;
 }
 
 /* ── Help tooltip ──────────────────────────────────────────────────────────── */
@@ -67,7 +79,8 @@
 }
 
 .m4-help-icon {
-  font-size: 0.9rem;
+  display: inline-flex;
+  color: currentColor;
   opacity: 0.7;
 }
 
@@ -351,7 +364,15 @@
 }
 
 .m4-cheese-medal {
-  font-size: 1.8rem;
+  display: inline-flex;
+  color: currentColor;
+}
+
+.m4-cheese-rank-badge {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 .m4-cheese-name {
