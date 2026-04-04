@@ -194,7 +194,7 @@ export default function Module4Investment({ user }) {
         >
           {breeds.map((b) => (
             <option key={b.id} value={b.id} disabled={b.locked}>
-              {b.name}{b.locked ? ' 🔒' : ''}
+              {b.name}{b.locked ? ' (PRO)' : ''}
             </option>
           ))}
         </select>
@@ -323,59 +323,72 @@ export default function Module4Investment({ user }) {
           <div className="card m4-chart-card">
             <h2 className="m4-section-title m4-title-with-icon"><ModernIcon name="chartBar" size={18} className="m4-title-icon" />Curva de Recuperación de Inversión</h2>
             <PedagogicHint text="La zona roja es dinero no recuperado. La zona verde es valor generado." />
-            {activeKpi && (
-              <ProGate isPro={isPro || activeScenario === 's1'} teaser="Gráfico interactivo completo en PRO">
-                <ResponsiveContainer width="100%" height={340}>
-                  <AreaChart data={activeKpi.recoveryCurve} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
-                    <defs>
-                      <linearGradient id="m4AreaPositive" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={chartColors.margin} stopOpacity={0.4} />
-                        <stop offset="95%" stopColor={chartColors.margin} stopOpacity={0.05} />
-                      </linearGradient>
-                      <linearGradient id="m4AreaNegative" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={chartColors.costs} stopOpacity={0.05} />
-                        <stop offset="95%" stopColor={chartColors.costs} stopOpacity={0.35} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
-                    <XAxis
-                      dataKey="year"
-                      tickFormatter={(y) => `Año ${y}`}
-                      stroke={chartColors.axis.tick}
-                      tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
-                    />
-                    <YAxis
-                      stroke={chartColors.axis.tick}
-                      tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
-                      tickFormatter={(v) => `$${(v / 1000).toFixed(1)}k`}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <Tooltip
-                      formatter={(value) => [`$${fmt(value, 2)}`, 'Valor acumulado']}
-                      labelFormatter={(y) => `Año ${y}`}
-                      contentStyle={{
-                        backgroundColor: chartColors.tooltip.bg,
-                        border: `1px solid ${chartColors.tooltip.border}`,
-                        borderRadius: '12px',
-                        boxShadow: chartColors.tooltip.shadow,
-                        padding: '12px 16px',
-                      }}
-                    />
-                    <ReferenceLine y={0} stroke={chartColors.axis.tick} strokeDasharray="3 3" />
-                    <Area
-                      type="monotone"
-                      dataKey="value"
-                      stroke={chartColors.primary}
-                      strokeWidth={3}
-                      fill="url(#m4AreaPositive)"
-                      dot={{ r: 5, fill: chartColors.primary }}
-                      activeDot={{ r: 7 }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </ProGate>
-            )}
+            {activeKpi && (() => {
+              const curveData = activeKpi.recoveryCurve.map((p) => ({
+                year: p.year,
+                value: p.value,
+                pos: p.value > 0 ? p.value : 0,
+                neg: p.value < 0 ? p.value : 0,
+              }));
+              return (
+                <ProGate isPro={isPro || activeScenario === 's1'} teaser="Gráfico interactivo completo en PRO">
+                  <ResponsiveContainer width="100%" height={340}>
+                    <AreaChart data={curveData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
+                      <defs>
+                        <linearGradient id="m4AreaPos" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={chartColors.margin} stopOpacity={0.4} />
+                          <stop offset="95%" stopColor={chartColors.margin} stopOpacity={0.05} />
+                        </linearGradient>
+                        <linearGradient id="m4AreaNeg" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={chartColors.costs} stopOpacity={0.05} />
+                          <stop offset="95%" stopColor={chartColors.costs} stopOpacity={0.35} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
+                      <XAxis
+                        dataKey="year"
+                        tickFormatter={(y) => `Año ${y}`}
+                        stroke={chartColors.axis.tick}
+                        tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
+                      />
+                      <YAxis
+                        stroke={chartColors.axis.tick}
+                        tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
+                        tickFormatter={(v) => `$${(v / 1000).toFixed(1)}k`}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <Tooltip
+                        formatter={(value, name) => {
+                          if (name === 'pos' || name === 'neg') return null;
+                          return [`$${fmt(value, 2)}`, 'Valor acumulado'];
+                        }}
+                        labelFormatter={(y) => `Año ${y}`}
+                        contentStyle={{
+                          backgroundColor: chartColors.tooltip.bg,
+                          border: `1px solid ${chartColors.tooltip.border}`,
+                          borderRadius: '12px',
+                          boxShadow: chartColors.tooltip.shadow,
+                          padding: '12px 16px',
+                        }}
+                      />
+                      <ReferenceLine y={0} stroke={chartColors.axis.tick} strokeWidth={2} strokeDasharray="6 3" label={{ value: 'Punto de equilibrio', position: 'right', fill: chartColors.text.secondary, fontSize: 11 }} />
+                      <Area type="monotone" dataKey="neg" stroke="none" fill="url(#m4AreaNeg)" isAnimationActive={false} />
+                      <Area type="monotone" dataKey="pos" stroke="none" fill="url(#m4AreaPos)" isAnimationActive={false} />
+                      <Area
+                        type="monotone"
+                        dataKey="value"
+                        stroke={chartColors.primary}
+                        strokeWidth={3}
+                        fill="none"
+                        dot={{ r: 5, fill: chartColors.primary }}
+                        activeDot={{ r: 7 }}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </ProGate>
+              );
+            })()}
           </div>
 
           {/* ─── 9. Insight dinámico ─────────────────────────────── */}
@@ -442,7 +455,7 @@ export default function Module4Investment({ user }) {
             <div className="m4-profile-kpi-row">
               <div className="m4-profile-kpi"><span>Raza</span><strong>{breed.name}</strong></div>
               <div className="m4-profile-kpi"><span>Valor máximo</span><strong>${fmt(result.bestScenarioValue, 2)}</strong></div>
-              <div className="m4-profile-kpi"><span>Mejor escenario</span><strong>{scenarioLabels[result.bestScenarioKey]}</strong></div>
+              <div className="m4-profile-kpi"><span>Mejor escenario</span><strong><span className="m4-best-badge">Mejor</span> {scenarioLabels[result.bestScenarioKey]}</strong></div>
               <div className="m4-profile-kpi">
                 <span>Payback</span>
                 <strong>{fmtYears(result.scenarios[result.bestScenarioKey]?.payback)}</strong>
@@ -471,7 +484,7 @@ export default function Module4Investment({ user }) {
             {/* Recommendation (PRO) */}
             <ProGate isPro={isPro} teaser="Recomendación estratégica en PRO">
               <div className="m4-profile-section">
-                <h3 className="m4-title-with-icon"><ModernIcon name="fileText" size={16} className="m4-title-icon" />Cómo aprovechar esta raza</h3>
+                <h3 className="m4-title-with-icon"><ModernIcon name="rocket" size={16} className="m4-title-icon" />Cómo aprovechar esta raza</h3>
                 <p className="m4-profile-recommendation">{getBreedRecommendation(breed, result)}</p>
               </div>
             </ProGate>

@@ -126,5 +126,8 @@ export function computeM4(breed) {
     },
     bestScenarioKey: bestKey,
     bestScenarioValue: raw[bestKey] ?? 0,
+    milkPerLactation: v(breed, 'milk_per_lactation_kg'),
+    lifetimeMilkKg: lmk,
+    lifetimeCheeseKg: lck,
   };
 }
