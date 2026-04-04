@@ -173,11 +173,25 @@ export default function Module4Investment({ user }) {
   return (
     <div className="container module-compact m4-root">
 
-      {/* ─── 1. Header ───────────────────────────────────────────────── */}
-      <header className="m4-header">
-        <h1 className="m4-title">La Cabra como Inversión</h1>
-        <p className="m4-subtitle">Convierte biología en rentabilidad</p>
-        <PedagogicHint text="Este módulo te ayuda a entender cuánto valor económico puede generar una raza y cómo aprovecharla mejor según el sistema." />
+      {/* ─── 1. Header (layout aligned with Module 3: hero band + explanation banner) ─ */}
+      <header className="m4-module-header">
+        <div className="m4-hero-band">
+          <h1 className="m4-title m4-hero-title">{t('module4InvestmentHeroTitle')}</h1>
+          <p className="m4-hero-subtitle">{t('module4InvestmentHeroSubtitle')}</p>
+          <p className="m4-hero-description">{t('module4InvestmentHeroLead')}</p>
+        </div>
+        <div className="m4-explanation-banner">
+          <p className="m4-explanation-main">{t('module4InvestmentBannerIntro')}</p>
+          <p className="m4-explanation-cap">
+            <strong className="m4-cap-term">
+              CAP
+              <HelpTip text={t('module4CapTooltip')} />
+              :
+            </strong>{' '}
+            {t('module4CapDefinition')}
+          </p>
+          <p className="input-hint m4-explanation-hint">{t('module4InvestmentPedagogyHint')}</p>
+        </div>
       </header>
 
       {/* ─── 2. Selector de raza ─────────────────────────────────────── */}

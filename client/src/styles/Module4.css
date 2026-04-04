@@ -6,11 +6,109 @@
   max-width: 1100px;
 }
 
-/* ── Header ────────────────────────────────────────────────────────────────── */
-.m4-header {
+/* ── Header (Module 3–style: gradient hero + bordered callout, M4 blue = sidebar module-m4) ─ */
+.m4-module-header {
+  margin-bottom: 24px;
+}
+
+.m4-hero-band {
   text-align: center;
-  margin-bottom: 28px;
-  padding: 32px 20px 18px;
+  padding: 48px 28px 52px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #dbeafe 0%, #eff6ff 42%, #f8fafc 100%);
+  border: 1px solid rgba(59, 130, 246, 0.22);
+  box-shadow: 0 2px 12px var(--shadow-color, rgba(15, 23, 42, 0.06));
+}
+
+.m4-hero-title {
+  margin: 0 0 10px 0;
+  font-size: clamp(1.5rem, 4.2vw, 2.05rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.m4-hero-subtitle {
+  margin: 0 0 14px 0;
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.45;
+}
+
+.m4-hero-description {
+  margin: 0 auto;
+  max-width: 720px;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.m4-explanation-banner {
+  margin-top: 0;
+  margin-bottom: 8px;
+  padding: 18px 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.34);
+  border-left: 4px solid #3b82f6;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.14) 0%, rgba(147, 197, 253, 0.1) 100%);
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.m4-explanation-main {
+  margin: 0 0 12px 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.m4-explanation-cap {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.m4-cap-term {
+  font-style: normal;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--text-primary);
+}
+
+.m4-explanation-hint {
+  margin-bottom: 0 !important;
+  margin-top: 10px;
+}
+
+.dark-mode .m4-hero-band {
+  background: linear-gradient(
+    90deg,
+    rgba(30, 64, 175, 0.38) 0%,
+    rgba(15, 23, 42, 0.78) 50%,
+    rgba(30, 41, 59, 0.58) 100%
+  );
+  border-color: rgba(96, 165, 250, 0.32);
+}
+
+.dark-mode .m4-explanation-banner {
+  border: 1px solid rgba(96, 165, 250, 0.42);
+  border-left: 4px solid #60a5fa;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(30, 64, 175, 0.14) 100%);
+}
+
+.dark-mode .m4-explanation-main {
+  color: #e2e8f0;
+}
+
+.dark-mode .m4-explanation-cap {
+  color: #cbd5e1;
 }
 
 .m4-title {
@@ -598,6 +696,14 @@
 @media (max-width: 768px) {
   .m4-title {
     font-size: 1.5rem;
+  }
+
+  .m4-hero-band {
+    padding: 36px 18px 40px;
+  }
+
+  .m4-hero-title {
+    font-size: 1.45rem;
   }
 
   .m4-kpi-row,

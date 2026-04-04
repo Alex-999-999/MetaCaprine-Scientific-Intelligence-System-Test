@@ -620,6 +620,17 @@ export const translations = {
     
     // Module 4 - Yield
     module4Title: 'Module 4: Yield/Conversion',
+    module4InvestmentHeroTitle: 'Module 4: The Goat as an Investment',
+    module4InvestmentHeroSubtitle: 'Turn biology into profitability',
+    module4InvestmentHeroLead:
+      'This module helps you understand how much economic value a breed can generate and how to capture it better for your system.',
+    module4InvestmentBannerIntro:
+      'Welcome to the economic simulator by breed. Estimate the real asset cost (CAP), compare monetization scenarios (direct milk, milk plus replacements, cheese tiers), and see investment recovery over time. This is not an emotional breed ranking—it is a structured way to see where each breed expresses its value under your assumptions.',
+    module4CapDefinition:
+      'CAP (Cost of the Productive Asset) is the total cost to put a productive goat in place, including acquisition, logistics, raising, replacement, and mortality risk.',
+    module4CapTooltip: 'CAP = full cost to put this goat into production.',
+    module4InvestmentPedagogyHint:
+      'Interpretation tip: use this module to explore scenarios for one breed at a time rather than using it as a primary ranking between breeds.',
     yieldData: 'Yield/Conversion Data',
     conversionRate: 'Conversion Rate',
     conversionRateDescription: 'Conversion Rate (product per liter)',
@@ -1311,6 +1322,17 @@ export const translations = {
     
     // Module 4 - Yield
     module4Title: 'Módulo 4: Rendimiento/Conversión',
+    module4InvestmentHeroTitle: 'Módulo 4: La Cabra como Inversión',
+    module4InvestmentHeroSubtitle: 'Convierte biología en rentabilidad',
+    module4InvestmentHeroLead:
+      'Este módulo te ayuda a entender cuánto valor económico puede generar una raza y cómo aprovecharla mejor según el sistema.',
+    module4InvestmentBannerIntro:
+      'Bienvenido al simulador económico por raza. Aquí puedes estimar el costo real del activo (CAP), comparar escenarios de monetización (leche directa, leche + hijas, quesos) y ver la recuperación de la inversión en el tiempo. No es un ranking emocional de razas: es una forma estructurada de ver dónde cada raza expresa mejor su valor bajo tus supuestos.',
+    module4CapDefinition:
+      'El CAP (Costo del Activo Productivo) es el costo total de poner en producción una cabra, incluyendo adquisición, logística, levante, reposición y riesgo de mortalidad.',
+    module4CapTooltip: 'CAP = costo real de poner a producir esta cabra.',
+    module4InvestmentPedagogyHint:
+      'Consejo de interpretación: usa este módulo para explorar escenarios de una raza a la vez, no como ranking principal entre razas.',
     yieldData: 'Datos de Rendimiento/Conversión',
     conversionRate: 'Tasa de Conversión',
     conversionRateDescription: 'Tasa de Conversión (producto por litro)',
