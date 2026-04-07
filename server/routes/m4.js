@@ -86,7 +86,7 @@ router.get('/ranking/cheese', async (req, res) => {
   try {
     const pool = getPool();
     const { rows } = await pool.query(
-      'SELECT id, name, lifetime_cheese_kg FROM m4_breeds ORDER BY lifetime_cheese_kg DESC'
+      'SELECT id, name, lifetime_cheese_kg, cheese_yield_liters_per_kg FROM m4_breeds ORDER BY lifetime_cheese_kg DESC'
     );
 
     const isPro = await hasFeatureAccess(req.user.userId, 'advanced_calculations');

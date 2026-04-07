@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useI18n } from '../i18n/I18nContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getAuthToken } from '../utils/auth';
@@ -114,7 +114,9 @@ function Sidebar({ user, onLogout }) {
       </div>
       <nav className="sidebar-nav">
         {menuItems.map((item) => {
-          const isActive = location.pathname === item.path;
+          const isActive =
+            location.pathname === item.path ||
+            (item.path === '/module4' && location.pathname.startsWith('/module4'));
           return (
             <Link
               key={item.path}

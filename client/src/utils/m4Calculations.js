@@ -5,6 +5,13 @@
 
 const HORIZON = 5;
 
+/** Must match server/core/m4Engine.js */
+export const MILK_KG_PER_LITER = 1.03;
+
+export function lifetimeMilkLitersFromKg(lifetimeMilkKg) {
+  return lifetimeMilkKg / MILK_KG_PER_LITER;
+}
+
 export function calculateCAP(acqLogCost, raisingCost, mortalityPct, replacementPct) {
   if (mortalityPct >= 1) return 0;
   return ((acqLogCost + raisingCost) / (1 - mortalityPct)) * (1 + replacementPct);
@@ -15,11 +22,13 @@ export function calculateFemaleDaughters(daughtersPerLife, femaleRatio) {
 }
 
 export function scenarioS1(lifetimeMilkKg, milkMargin, cap) {
-  return lifetimeMilkKg * milkMargin - cap;
+  const liters = lifetimeMilkLitersFromKg(lifetimeMilkKg);
+  return liters * milkMargin - cap;
 }
 
 export function scenarioS2(lifetimeMilkKg, milkMargin, femaleDaughters, femaleValue, cap) {
-  return lifetimeMilkKg * milkMargin + femaleDaughters * femaleValue - cap;
+  const liters = lifetimeMilkLitersFromKg(lifetimeMilkKg);
+  return liters * milkMargin + femaleDaughters * femaleValue - cap;
 }
 
 export function scenarioS3(femaleDaughters, femaleValue, lifetimeCheeseKg, cheeseMargin, cap) {
@@ -70,6 +79,14 @@ export function getBestScenarioKey(scenarios) {
   return bestKey;
 }
 
+export function getMedianScenarioKey(scenarios) {
+  const entries = Object.entries(scenarios).filter(([, v]) => typeof v === 'number' && Number.isFinite(v));
+  if (entries.length === 0) return null;
+  const sorted = [...entries].sort((a, b) => a[1] - b[1]);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted[mid][0];
+}
+
 function v(breed, field) {
   return Number(breed[field]) || 0;
 }
@@ -113,6 +130,7 @@ export function computeM4(breed) {
 
   const raw = { s1, s2, s3_c1: s3c1, s3_c2: s3c2, s3_c3: s3c3 };
   const bestKey = getBestScenarioKey(raw);
+  const medianKey = getMedianScenarioKey(raw);
 
   return {
     cap,
@@ -126,6 +144,8 @@ export function computeM4(breed) {
     },
     bestScenarioKey: bestKey,
     bestScenarioValue: raw[bestKey] ?? 0,
+    medianScenarioKey: medianKey,
+    medianScenarioValue: medianKey != null ? raw[medianKey] ?? 0 : 0,
     milkPerLactation: v(breed, 'milk_per_lactation_kg'),
     lifetimeMilkKg: lmk,
     lifetimeCheeseKg: lck,

@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine,
@@ -6,11 +7,13 @@ import {
 import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import { useChartColors } from '../../hooks/useDarkMode';
-import { computeM4 } from '../../utils/m4Calculations';
+import { computeM4, MILK_KG_PER_LITER } from '../../utils/m4Calculations';
+import { getBreedImage, shouldMirrorBreedImage } from '../../utils/breedImages';
 import ModernIcon from '../icons/ModernIcon';
 import '../../styles/Module4.css';
 
 const SCENARIO_KEYS = ['s1', 's2', 's3_c1', 's3_c2', 's3_c3'];
+const HORIZON = 5;
 
 const fmt = (n, d = 0) =>
   n == null ? '—' : Number(n).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -29,9 +32,9 @@ function HelpTip({ text }) {
   );
 }
 
-function PedagogicHint({ icon, text }) {
+function PedagogicHint({ icon, text, variant = 'info' }) {
   return (
-    <p className="m4-pedagogic-hint">
+    <p className={`m4-pedagogic-hint m4-pedagogic-hint--${variant}`}>
       {icon && (
         <span className="m4-hint-icon">
           <ModernIcon name={icon} size={16} />
@@ -57,18 +60,34 @@ function ProGate({ children, isPro, teaser }) {
 
 function InsightText({ payback }) {
   if (payback === null) {
-    return <PedagogicHint icon="warning" text="Este modelo no recupera la inversión dentro del horizonte productivo." />;
+    return <PedagogicHint icon="warning" variant="negative" text="Este modelo no recupera la inversión dentro del horizonte productivo." />;
   }
   if (payback < 2) {
-    return <PedagogicHint icon="rocket" text="Recuperación acelerada. Este modelo convierte producción en liquidez con rapidez." />;
+    return <PedagogicHint icon="rocket" variant="positive" text="Recuperación acelerada. Este modelo convierte producción en liquidez con rapidez." />;
   }
   if (payback < 4) {
-    return <PedagogicHint icon="chartBar" text="Recuperación saludable. El modelo es rentable y estructuralmente sólido." />;
+    return <PedagogicHint icon="chartBar" variant="positive" text="Recuperación saludable. El modelo es rentable y estructuralmente sólido." />;
   }
   if (payback < 6) {
-    return <PedagogicHint icon="hourglass" text="Recuperación lenta. Hay rentabilidad, pero el diseño del negocio puede mejorar." />;
+    return <PedagogicHint icon="hourglass" variant="warning" text="Recuperación lenta. Hay rentabilidad, pero el diseño del negocio puede mejorar." />;
   }
-  return <PedagogicHint icon="warning" text="Recuperación débil. Este escenario exige rediseño estratégico." />;
+  return <PedagogicHint icon="warning" variant="negative" text="Recuperación débil. Este escenario exige rediseño estratégico." />;
+}
+
+function scenarioTabLabel(key, t) {
+  if (key === 's1') return t('module4ScenarioS1Name');
+  if (key === 's2') return t('module4ScenarioS2Name');
+  if (key === 's3_c1') return t('module4Channel1Name');
+  if (key === 's3_c2') return t('module4Channel2Name');
+  if (key === 's3_c3') return t('module4Channel3Name');
+  return key;
+}
+
+function scenarioTabSubtitle(key, t) {
+  if (key === 's3_c1') return t('module4Channel1Line');
+  if (key === 's3_c2') return t('module4Channel2Line');
+  if (key === 's3_c3') return t('module4Channel3Line');
+  return '';
 }
 
 function getBreedStrengths(breed, result) {
@@ -106,7 +125,24 @@ function getBreedRecommendation(breed, result) {
   return 'Evalúe distintos escenarios para determinar el mejor modelo de negocio con esta raza.';
 }
 
-export default function Module4Investment({ user }) {
+const OVERRIDE_FIELDS = [
+  { key: 'lifetime_milk_kg', label: 'Leche vitalicia (kg)' },
+  { key: 'lifetime_cheese_kg', label: 'Queso vitalicio (kg)' },
+  { key: 'cheese_yield_liters_per_kg', label: 'Rend. quesero (L/kg)' },
+  { key: 'acquisition_logistics_cost', label: 'Adquisición + logística' },
+  { key: 'raising_cost', label: 'Levante' },
+  { key: 'mortality_pct', label: 'Mortalidad (0–1)' },
+  { key: 'replacement_pct', label: 'Reposición (0–1)' },
+  { key: 'raw_milk_margin_per_liter', label: 'Margen leche ($/L)' },
+  { key: 'cheese_margin_c1', label: 'Margen queso canal 1' },
+  { key: 'cheese_margin_c2', label: 'Margen queso canal 2' },
+  { key: 'cheese_margin_c3', label: 'Margen queso canal 3' },
+  { key: 'daughters_per_life', label: 'Hijas / vida' },
+  { key: 'female_ratio', label: 'Ratio hembras' },
+  { key: 'female_value', label: 'Valor hija' },
+];
+
+export default function Module4Investment() {
   const { t } = useI18n();
   const chartColors = useChartColors();
 
@@ -115,12 +151,13 @@ export default function Module4Investment({ user }) {
   const [isPro, setIsPro] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeScenario, setActiveScenario] = useState('s1');
-  const [cheeseRanking, setCheeseRanking] = useState([]);
-  const [rankingTotal, setRankingTotal] = useState(0);
+  const [scaleScenario, setScaleScenario] = useState('s1');
+  const [herdCount, setHerdCount] = useState(10);
+  const [chartMode, setChartMode] = useState('goat');
+  const [proOverrides, setProOverrides] = useState({});
 
   useEffect(() => {
     loadBreeds();
-    loadCheeseRanking();
   }, []);
 
   const loadBreeds = async () => {
@@ -139,31 +176,83 @@ export default function Module4Investment({ user }) {
     }
   };
 
-  const loadCheeseRanking = async () => {
-    try {
-      const { data } = await api.get('/m4/ranking/cheese');
-      setCheeseRanking(data.ranking || []);
-      setRankingTotal(data.total || 0);
-    } catch (err) {
-      console.error('Error loading cheese ranking:', err);
-    }
-  };
-
   const breed = useMemo(
     () => breeds.find((b) => b.id === selectedBreedId) || null,
     [breeds, selectedBreedId],
   );
 
-  const result = useMemo(() => (breed && !breed.locked ? computeM4(breed) : null), [breed]);
+  const breedForCalc = useMemo(() => {
+    if (!breed || breed.locked) return null;
+    return { ...breed, ...proOverrides };
+  }, [breed, proOverrides]);
+
+  const result = useMemo(() => (breedForCalc ? computeM4(breedForCalc) : null), [breedForCalc]);
 
   const activeKpi = result?.scenarios?.[activeScenario] || null;
+  const scaleKpi = result?.scenarios?.[scaleScenario] || null;
 
-  const scenarioLabels = {
-    s1: 'Solo Leche',
-    s2: 'Leche + Hijas',
-    s3_c1: 'Queso + Hijas C1',
-    s3_c2: 'Queso + Hijas C2',
-    s3_c3: 'Queso + Hijas C3',
+  const imgSrc = breed && !breed.locked ? getBreedImage(breed.name, null) : null;
+  const mirrorImg = breed && shouldMirrorBreedImage(breed.name, null);
+
+  const herdN = Math.min(10000, Math.max(1, Math.round(Number(herdCount) || 1)));
+
+  const scaleMetrics = useMemo(() => {
+    if (!result || !scaleKpi) return null;
+    const perNet = scaleKpi.result;
+    const cap = result.cap;
+    const totalNet = perNet * herdN;
+    const totalCap = cap * herdN;
+    const annual = (perNet / HORIZON) * herdN;
+    const roi = totalCap > 0 ? totalNet / totalCap : null;
+    const payback = scaleKpi.payback;
+    return { totalNet, totalCap, annual, roi, payback };
+  }, [result, scaleKpi, herdN]);
+
+  const chartCurveData = useMemo(() => {
+    if (!activeKpi || !result) return [];
+    const n = chartMode === 'herd' ? herdN : 1;
+    const cap = result.cap * n;
+    const annualFlow = (activeKpi.result / HORIZON) * n;
+    return Array.from({ length: HORIZON + 1 }, (_, year) => ({
+      year,
+      value: -cap + annualFlow * year,
+      pos: Math.max(0, -cap + annualFlow * year),
+      neg: Math.min(0, -cap + annualFlow * year),
+    }));
+  }, [activeKpi, result, chartMode, herdN]);
+
+  const breakEvenYear = useMemo(() => {
+    const p = chartCurveData.find((x) => x.value >= 0);
+    return p != null ? p.year : null;
+  }, [chartCurveData]);
+
+  const handleOverrideChange = useCallback((key, raw) => {
+    setProOverrides((prev) => {
+      const next = { ...prev };
+      if (raw === '' || raw == null) {
+        delete next[key];
+        return next;
+      }
+      const n = Number(raw);
+      if (Number.isFinite(n)) next[key] = n;
+      return next;
+    });
+  }, []);
+
+  const recalculatePro = async () => {
+    if (!breed || !isPro) return;
+    try {
+      const { data } = await api.post('/m4/calculate', {
+        breed_id: breed.id,
+        overrides: proOverrides,
+      });
+      if (data?.result) {
+        /* Server truth — merge numeric outputs into local display by keeping overrides */
+        console.info('M4 server result OK', data.result);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   if (loading) {
@@ -172,15 +261,25 @@ export default function Module4Investment({ user }) {
 
   return (
     <div className="container module-compact m4-root">
+      <div className="m4-mandatory-banner" role="note">
+        <ModernIcon name="infoCircle" size={18} className="m4-mandatory-icon" />
+        <p>{t('module4MandatoryDisclaimer')}</p>
+      </div>
 
-      {/* ─── 1. Header (layout aligned with Module 3: hero band + explanation banner) ─ */}
+      <nav className="m4-subnav" aria-label="M4">
+        <span className="m4-subnav-link m4-subnav-link--active">{t('module4NavInvestment')}</span>
+        <Link to="/module4/queso" className="m4-subnav-link">
+          {t('module4NavCheeseAnalysis')}
+        </Link>
+      </nav>
+
       <header className="m4-module-header">
         <div className="m4-hero-band">
           <h1 className="m4-title m4-hero-title">{t('module4InvestmentHeroTitle')}</h1>
           <p className="m4-hero-subtitle">{t('module4InvestmentHeroSubtitle')}</p>
           <p className="m4-hero-description">{t('module4InvestmentHeroLead')}</p>
         </div>
-        <div className="m4-explanation-banner">
+        <div className="m4-explanation-banner m4-explanation-banner--info">
           <p className="m4-explanation-main">{t('module4InvestmentBannerIntro')}</p>
           <p className="m4-explanation-cap">
             <strong className="m4-cap-term">
@@ -194,9 +293,8 @@ export default function Module4Investment({ user }) {
         </div>
       </header>
 
-      {/* ─── 2. Selector de raza ─────────────────────────────────────── */}
       <div className="card m4-selector-card">
-        <label className="m4-selector-label" htmlFor="m4-breed-select">Selecciona una raza</label>
+        <label className="m4-selector-label" htmlFor="m4-breed-select">{t('breed')}</label>
         <select
           id="m4-breed-select"
           className="m4-breed-select"
@@ -204,6 +302,8 @@ export default function Module4Investment({ user }) {
           onChange={(e) => {
             setSelectedBreedId(Number(e.target.value));
             setActiveScenario('s1');
+            setScaleScenario('s1');
+            setProOverrides({});
           }}
         >
           {breeds.map((b) => (
@@ -217,59 +317,95 @@ export default function Module4Investment({ user }) {
 
       {breed && !breed.locked && result && (
         <>
-          {/* ─── 3. Calculadora Básica Dopamínica ──────────────────── */}
-          <div className="card m4-quick-calc">
-            <h2 className="m4-section-title m4-title-with-icon"><ModernIcon name="scale" size={18} className="m4-title-icon" />Estimación rápida — {breed.name}</h2>
+          {imgSrc && (
+            <div className="m4-breed-image-wrap">
+              <img
+                src={imgSrc}
+                alt=""
+                className={`m4-breed-profile-img ${mirrorImg ? 'm4-breed-profile-img--mirror' : ''}`}
+              />
+            </div>
+          )}
+
+          <div className="card m4-quick-calc m4-layer-explore">
+            <h2 className="m4-section-title m4-title-with-icon">
+              <ModernIcon name="scale" size={18} className="m4-title-icon" />
+              {t('module4LayerQuickTitle')}
+            </h2>
             <div className="m4-quick-grid">
               <div className="m4-quick-item">
-                <span className="m4-quick-label">Producción por lactancia</span>
+                <span className="m4-quick-label">{t('module4ProductionPerLactation')}</span>
                 <span className="m4-quick-value">{fmt(breed.milk_per_lactation_kg)} kg</span>
+                <span className="m4-quick-sub muted">{t('module4MilkKgPerLiterNote', { density: MILK_KG_PER_LITER })}</span>
               </div>
               <div className="m4-quick-item">
-                <span className="m4-quick-label">Queso vitalicio</span>
+                <span className="m4-quick-label">{t('module4LifetimeCheeseKg')}</span>
                 <span className="m4-quick-value">{fmt(breed.lifetime_cheese_kg, 2)} kg</span>
               </div>
               <div className="m4-quick-item">
-                <span className="m4-quick-label">Ganancia estimada (mejor esc.)</span>
-                <span className="m4-quick-value m4-value-positive">${fmt(result.bestScenarioValue, 2)}</span>
+                <span className="m4-quick-label">{t('module4QuickMedianLabel')}</span>
+                <span className={`m4-quick-value ${result.medianScenarioValue >= 0 ? 'm4-value-positive' : 'm4-value-negative'}`}>
+                  ${fmt(result.medianScenarioValue, 2)}
+                </span>
+                <span className="m4-quick-sub muted">
+                  ({scenarioTabLabel(result.medianScenarioKey, t)})
+                </span>
               </div>
             </div>
-            <PedagogicHint text="Esta es una lectura rápida para despertar interés. El análisis completo considera costos reales, escenarios y velocidad de recuperación." />
+            <p className="m4-mandatory-inline">{t('module4QuickEstimateDisclaimer')}</p>
           </div>
 
-          {/* ─── 4. KPI Cards ────────────────────────────────────────── */}
-          <div className="m4-kpi-row">
-            <div className="m4-kpi-card">
-              <div className="m4-kpi-label">CAP <HelpTip text="CAP = costo real de poner a producir esta cabra." /></div>
-              <div className="m4-kpi-value">${fmt(result.cap, 2)}</div>
+          <div className="card m4-scale-card m4-layer-explore">
+            <h2 className="m4-section-title m4-title-with-icon">
+              <ModernIcon name="chartBar" size={18} className="m4-title-icon" />
+              {t('module4ScaleTitle')}
+            </h2>
+            <div className="m4-scale-grid">
+              <label className="m4-scale-field">
+                {t('module4ScaleHerdCount')}
+                <input
+                  type="number"
+                  min={1}
+                  max={10000}
+                  className="m4-input"
+                  value={herdN}
+                  onChange={(e) => setHerdCount(e.target.value)}
+                />
+              </label>
+              <label className="m4-scale-field">
+                {t('module4ScaleScenario')}
+                <select className="m4-breed-select" value={scaleScenario} onChange={(e) => setScaleScenario(e.target.value)}>
+                  {SCENARIO_KEYS.map((k) => (
+                    <option key={k} value={k}>{scenarioTabLabel(k, t)}</option>
+                  ))}
+                </select>
+              </label>
             </div>
-            <ProGate isPro={isPro} teaser="ROI disponible en PRO">
-              <div className="m4-kpi-card">
-                <div className="m4-kpi-label">ROI <HelpTip text="Muestra cuánto dinero genera esta raza en relación con lo invertido." /></div>
-                <div className="m4-kpi-value">{fmtPct(activeKpi?.roi)}</div>
+            {scaleMetrics && (
+              <div className="m4-scale-results">
+                <div><span className="muted">{t('module4ScaleAnnualFlow')}</span> <strong>${fmt(scaleMetrics.annual, 2)}</strong></div>
+                <div><span className="muted">{t('module4ScaleTotalNet')}</span> <strong>${fmt(scaleMetrics.totalNet, 2)}</strong></div>
+                <div><span className="muted">{t('module4ScaleRoi')}</span> <strong>{fmtPct(scaleMetrics.roi)}</strong></div>
+                <div><span className="muted">{t('module4ScalePayback')}</span> <strong>{fmtYears(scaleMetrics.payback)}</strong></div>
+                <div><span className="muted">{t('module4ScaleHerdInvestment')}</span> <strong>${fmt(scaleMetrics.totalCap, 2)}</strong></div>
               </div>
-            </ProGate>
-            <ProGate isPro={isPro} teaser="ROI anual en PRO">
-              <div className="m4-kpi-card">
-                <div className="m4-kpi-label">ROI Anual <HelpTip text="Es el rendimiento promedio por año durante la vida económica analizada." /></div>
-                <div className="m4-kpi-value">{fmtPct(activeKpi?.annualROI)}</div>
-              </div>
-            </ProGate>
-            <div className="m4-kpi-card">
-              <div className="m4-kpi-label">Payback <HelpTip text="Indica en cuántos años recuperas tu inversión." /></div>
-              <div className="m4-kpi-value">{fmtYears(activeKpi?.payback)}</div>
-            </div>
+            )}
           </div>
-          <PedagogicHint text="Este es uno de los indicadores más importantes para entender el riesgo." />
 
-          {/* ─── 5. Panel CAP ────────────────────────────────────────── */}
-          <div className="card m4-cap-panel">
-            <h2 className="m4-section-title m4-title-with-icon"><ModernIcon name="chartBar" size={18} className="m4-title-icon" />Costo Real del Activo (CAP)</h2>
+          <div className="m4-pedagogy-block m4-pedagogy--amber">
+            <p className="m4-pedagogy-block-text">{t('module4PedagogyBeforeScenarios')}</p>
+          </div>
+
+          <div className="card m4-cap-panel m4-layer-structured">
+            <h2 className="m4-section-title m4-title-with-icon">
+              <ModernIcon name="chartBar" size={18} className="m4-title-icon" />
+              {t('module4CapPanelTitle')}
+            </h2>
             <div className="m4-cap-breakdown">
-              <div className="m4-cap-row"><span>Adquisición + logística</span><span>${fmt(breed.acquisition_logistics_cost, 2)}</span></div>
-              <div className="m4-cap-row"><span>Costo de levante</span><span>${fmt(breed.raising_cost, 2)}</span></div>
-              <div className="m4-cap-row"><span>Reposición</span><span>{fmtPct(breed.replacement_pct)}</span></div>
-              <div className="m4-cap-row"><span>Mortalidad</span><span>{fmtPct(breed.mortality_pct)}</span></div>
+              <div className="m4-cap-row"><span>Adquisición + logística</span><span>${fmt(breedForCalc.acquisition_logistics_cost, 2)}</span></div>
+              <div className="m4-cap-row"><span>Costo de levante</span><span>${fmt(breedForCalc.raising_cost, 2)}</span></div>
+              <div className="m4-cap-row"><span>Reposición</span><span>{fmtPct(breedForCalc.replacement_pct)}</span></div>
+              <div className="m4-cap-row"><span>Mortalidad</span><span>{fmtPct(breedForCalc.mortality_pct)}</span></div>
               <div className="m4-cap-row m4-cap-total"><span>CAP total (motor)</span><span>${fmt(result.cap, 2)}</span></div>
               {breed.cap_reference != null && Number(breed.cap_reference) > 0 && (
                 <div className="m4-cap-row m4-cap-ref">
@@ -279,205 +415,203 @@ export default function Module4Investment({ user }) {
               )}
             </div>
             <PedagogicHint text="No es solo el precio de compra. Incluye levante, mortalidad y reposición." />
-            <p className="m4-micro-quote">"No estás evaluando una cabra. Estás evaluando un activo."</p>
           </div>
 
-          {/* ─── 6. Tabs de Escenarios ───────────────────────────────── */}
-          <div className="card m4-scenarios-card">
-            <h2 className="m4-section-title m4-title-with-icon"><ModernIcon name="scale" size={18} className="m4-title-icon" />Escenarios de Monetización</h2>
-            <PedagogicHint text="Cada escenario representa una forma distinta de monetizar la raza. No todas las razas expresan su valor en el mismo modelo." />
-            <div className="m4-scenario-tabs">
+          {isPro && (
+            <div className="card m4-pro-overrides m4-layer-structured">
+              <h2 className="m4-section-title">{t('module4ProOverridesTitle')}</h2>
+              <div className="m4-override-grid">
+                {OVERRIDE_FIELDS.map(({ key, label }) => (
+                  <label key={key} className="m4-override-field">
+                    {label}
+                    <input
+                      type="number"
+                      step="any"
+                      className="m4-input"
+                      value={proOverrides[key] ?? breed[key] ?? ''}
+                      onChange={(e) => handleOverrideChange(key, e.target.value)}
+                    />
+                  </label>
+                ))}
+              </div>
+              <button type="button" className="m4-btn-primary" onClick={recalculatePro}>
+                {t('module4ProRecalculate')}
+              </button>
+            </div>
+          )}
+
+          <div className="card m4-scenarios-card m4-layer-structured">
+            <h2 className="m4-section-title m4-title-with-icon">
+              <ModernIcon name="scale" size={18} className="m4-title-icon" />
+              {t('module4ScenariosDetailedTitle')}
+            </h2>
+            <div className="m4-scenario-tabs m4-scenario-tabs--wrap">
               {SCENARIO_KEYS.map((key) => {
                 const isLocked = !isPro && key !== 's1';
+                const sub = scenarioTabSubtitle(key, t);
                 return (
                   <button
                     key={key}
+                    type="button"
                     className={`m4-scenario-tab ${activeScenario === key ? 'active' : ''} ${isLocked ? 'locked' : ''}`}
                     onClick={() => !isLocked && setActiveScenario(key)}
                     disabled={isLocked}
+                    title={sub || undefined}
                   >
-                    {scenarioLabels[key]}
+                    <span className="m4-scenario-tab-title">{scenarioTabLabel(key, t)}</span>
+                    {sub && <span className="m4-scenario-tab-sub">{sub}</span>}
                     {isLocked && ' (PRO)'}
                   </button>
                 );
               })}
             </div>
 
-            {/* ─── 7. KPI dinámicos del escenario ─────────────────── */}
+            <div className="m4-pedagogy-block m4-pedagogy--info m4-inline-pedagogy">
+              <p>{t('module4PedagogyBeforeResults')}</p>
+            </div>
+
             {activeKpi && (
               <div className="m4-scenario-kpis">
                 <div className="m4-scenario-kpi">
-                  <span className="m4-scenario-kpi-label">Resultado neto</span>
+                  <span className="m4-scenario-kpi-label">
+                    Resultado neto
+                    <HelpTip text={t('module4PedagogyBeforeResults')} />
+                  </span>
                   <span className={`m4-scenario-kpi-value ${activeKpi.result >= 0 ? 'm4-value-positive' : 'm4-value-negative'}`}>
                     ${fmt(activeKpi.result, 2)}
                   </span>
                 </div>
                 <ProGate isPro={isPro} teaser="Detalle en PRO">
                   <div className="m4-scenario-kpi">
-                    <span className="m4-scenario-kpi-label">ROI</span>
+                    <span className="m4-scenario-kpi-label">
+                      ROI
+                      <HelpTip text={t('module4RoiDefinitionShort')} />
+                    </span>
                     <span className="m4-scenario-kpi-value">{fmtPct(activeKpi.roi)}</span>
                   </div>
                 </ProGate>
                 <ProGate isPro={isPro} teaser="Detalle en PRO">
                   <div className="m4-scenario-kpi">
-                    <span className="m4-scenario-kpi-label">ROI Anual</span>
+                    <span className="m4-scenario-kpi-label">
+                      ROI Anual
+                      <HelpTip text={t('module4AnnualRoiDefinitionShort')} />
+                    </span>
                     <span className="m4-scenario-kpi-value">{fmtPct(activeKpi.annualROI)}</span>
                   </div>
                 </ProGate>
                 <div className="m4-scenario-kpi">
-                  <span className="m4-scenario-kpi-label">Payback</span>
+                  <span className="m4-scenario-kpi-label">
+                    Payback
+                    <HelpTip text={t('module4PaybackDefinitionShort')} />
+                  </span>
                   <span className="m4-scenario-kpi-value">{fmtYears(activeKpi.payback)}</span>
                 </div>
+                <div className="m4-scenario-kpi">
+                  <span className="m4-scenario-kpi-label">
+                    {t('module4CheeseYieldLPerKg')}
+                    <HelpTip text={t('module4CheeseYieldDefinitionShort')} />
+                  </span>
+                  <span className="m4-scenario-kpi-value">{fmt(Number(breedForCalc.cheese_yield_liters_per_kg) || 0, 2)}</span>
+                </div>
               </div>
             )}
-            <PedagogicHint text="Estos resultados cambian según el modelo elegido. La misma raza puede verse muy distinta si vendes leche o transformas en queso." />
           </div>
 
-          {/* ─── 8. Gráfico Principal — Curva de Recuperación ───── */}
-          <div className="card m4-chart-card">
-            <h2 className="m4-section-title m4-title-with-icon"><ModernIcon name="chartBar" size={18} className="m4-title-icon" />Curva de Recuperación de Inversión</h2>
-            <PedagogicHint text="La zona roja es dinero no recuperado. La zona verde es valor generado." />
-            {activeKpi && (() => {
-              const curveData = activeKpi.recoveryCurve.map((p) => ({
-                year: p.year,
-                value: p.value,
-                pos: p.value > 0 ? p.value : 0,
-                neg: p.value < 0 ? p.value : 0,
-              }));
-              return (
-                <ProGate isPro={isPro || activeScenario === 's1'} teaser="Gráfico interactivo completo en PRO">
-                  <ResponsiveContainer width="100%" height={340}>
-                    <AreaChart data={curveData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
-                      <defs>
-                        <linearGradient id="m4AreaPos" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={chartColors.margin} stopOpacity={0.4} />
-                          <stop offset="95%" stopColor={chartColors.margin} stopOpacity={0.05} />
-                        </linearGradient>
-                        <linearGradient id="m4AreaNeg" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={chartColors.costs} stopOpacity={0.05} />
-                          <stop offset="95%" stopColor={chartColors.costs} stopOpacity={0.35} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
-                      <XAxis
-                        dataKey="year"
-                        tickFormatter={(y) => `Año ${y}`}
-                        stroke={chartColors.axis.tick}
-                        tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
-                      />
-                      <YAxis
-                        stroke={chartColors.axis.tick}
-                        tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
-                        tickFormatter={(v) => `$${(v / 1000).toFixed(1)}k`}
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <Tooltip
-                        formatter={(value, name) => {
-                          if (name === 'pos' || name === 'neg') return null;
-                          return [`$${fmt(value, 2)}`, 'Valor acumulado'];
-                        }}
-                        labelFormatter={(y) => `Año ${y}`}
-                        contentStyle={{
-                          backgroundColor: chartColors.tooltip.bg,
-                          border: `1px solid ${chartColors.tooltip.border}`,
-                          borderRadius: '12px',
-                          boxShadow: chartColors.tooltip.shadow,
-                          padding: '12px 16px',
-                        }}
-                      />
-                      <ReferenceLine y={0} stroke={chartColors.axis.tick} strokeWidth={2} strokeDasharray="6 3" label={{ value: 'Punto de equilibrio', position: 'right', fill: chartColors.text.secondary, fontSize: 11 }} />
-                      <Area type="monotone" dataKey="neg" stroke="none" fill="url(#m4AreaNeg)" isAnimationActive={false} />
-                      <Area type="monotone" dataKey="pos" stroke="none" fill="url(#m4AreaPos)" isAnimationActive={false} />
-                      <Area
-                        type="monotone"
-                        dataKey="value"
-                        stroke={chartColors.primary}
-                        strokeWidth={3}
-                        fill="none"
-                        dot={{ r: 5, fill: chartColors.primary }}
-                        activeDot={{ r: 7 }}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </ProGate>
-              );
-            })()}
+          <div className="card m4-chart-card m4-layer-structured">
+            <div className="m4-chart-toolbar">
+              <h2 className="m4-section-title m4-title-with-icon">
+                <ModernIcon name="chartBar" size={18} className="m4-title-icon" />
+                {t('module4RecoveryChartTitle')}
+              </h2>
+              <div className="m4-chart-mode-toggle">
+                <button type="button" className={chartMode === 'goat' ? 'active' : ''} onClick={() => setChartMode('goat')}>{t('module4ChartModeGoat')}</button>
+                <button type="button" className={chartMode === 'herd' ? 'active' : ''} onClick={() => setChartMode('herd')}>{t('module4ChartModeHerd')}</button>
+              </div>
+            </div>
+            <PedagogicHint variant="info" text={t('module4RecoveryChartHint')} />
+            {activeKpi && (
+              <ProGate isPro={isPro || activeScenario === 's1'} teaser="Gráfico interactivo completo en PRO">
+                <div className="m4-chart-legend m4-chart-legend--functional">
+                  <span className="m4-legend-cap">CAP {t('module4ChartCapLabel')}: ${fmt(chartMode === 'herd' ? result.cap * herdN : result.cap, 2)}</span>
+                  {breakEvenYear != null && (
+                    <span className="m4-legend-breakeven">{t('module4ChartBreakeven')}: {t('module4Year')} {breakEvenYear}</span>
+                  )}
+                </div>
+                <ResponsiveContainer width="100%" height={360}>
+                  <AreaChart data={chartCurveData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
+                    <defs>
+                      <linearGradient id="m4AreaPos" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--m4-color-positive)" stopOpacity={0.35} />
+                        <stop offset="95%" stopColor="var(--m4-color-positive)" stopOpacity={0.05} />
+                      </linearGradient>
+                      <linearGradient id="m4AreaNeg" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--m4-color-negative)" stopOpacity={0.05} />
+                        <stop offset="95%" stopColor="var(--m4-color-negative)" stopOpacity={0.35} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
+                    <XAxis dataKey="year" tickFormatter={(y) => `${t('module4Year')} ${y}`} stroke={chartColors.axis.tick} tick={{ fill: chartColors.text.secondary, fontSize: 12 }} />
+                    <YAxis
+                      stroke={chartColors.axis.tick}
+                      tick={{ fill: chartColors.text.secondary, fontSize: 12 }}
+                      tickFormatter={(v) => `$${(v / 1000).toFixed(1)}k`}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      formatter={(value, name) => {
+                        if (name === 'pos' || name === 'neg') return [null, null];
+                        return [`$${fmt(value, 2)}`, t('module4CumulativeNet')];
+                      }}
+                      labelFormatter={(y) => `${t('module4Year')} ${y}`}
+                      contentStyle={{
+                        backgroundColor: chartColors.tooltip.bg,
+                        border: `1px solid ${chartColors.tooltip.border}`,
+                        borderRadius: '12px',
+                        padding: '12px 16px',
+                      }}
+                    />
+                    <ReferenceLine
+                      y={chartMode === 'herd' ? -result.cap * herdN : -result.cap}
+                      stroke="var(--m4-color-info)"
+                      strokeDasharray="4 4"
+                      label={{ value: 'CAP', position: 'insideTopRight', fill: chartColors.text.secondary, fontSize: 10 }}
+                    />
+                    <ReferenceLine y={0} stroke={chartColors.axis.tick} strokeWidth={2} strokeDasharray="6 3" label={{ value: t('module4ChartBreakevenLine'), position: 'right', fill: chartColors.text.secondary, fontSize: 11 }} />
+                    {breakEvenYear != null && breakEvenYear <= HORIZON && (
+                      <ReferenceLine x={breakEvenYear} stroke="var(--m4-color-warning)" strokeDasharray="3 3" />
+                    )}
+                    <Area type="monotone" dataKey="neg" stroke="none" fill="url(#m4AreaNeg)" isAnimationActive={false} />
+                    <Area type="monotone" dataKey="pos" stroke="none" fill="url(#m4AreaPos)" isAnimationActive={false} />
+                    <Area type="monotone" dataKey="value" stroke="var(--m4-color-info)" strokeWidth={3} fill="none" dot={{ r: 4 }} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </ProGate>
+            )}
           </div>
 
-          {/* ─── 9. Insight dinámico ─────────────────────────────── */}
           <div className="card m4-insight-card">
             <InsightText payback={activeKpi?.payback} />
-            <p className="m4-micro-quote">"El gráfico te muestra cuándo dejas de perder dinero y comienzas a generar valor."</p>
+            <p className="m4-micro-quote">&quot;El gráfico muestra la recuperación acumulada frente al CAP.&quot;</p>
           </div>
 
-          {/* ─── 10. Ranking de Queso ────────────────────────────── */}
-          <div className="card m4-cheese-ranking-card">
-            <h2 className="m4-section-title m4-title-with-icon"><ModernIcon name="trophy" size={18} className="m4-title-icon" />Ranking de Rendimiento Quesero</h2>
-            <p className="m4-section-subtitle">Referencia comparativa del potencial de queso por raza durante su vida productiva.</p>
-            <PedagogicHint text="Este ranking muestra cuánto queso puede producir una raza en su vida productiva. No define por sí solo cuál es la mejor decisión económica." />
-
-            {/* Top 3 */}
-            <div className="m4-cheese-podium">
-              {cheeseRanking.slice(0, 3).map((r, i) => (
-                <div key={r.id} className={`m4-cheese-podium-card rank-${i + 1}`}>
-                  <span className="m4-cheese-medal"><ModernIcon name="trophy" size={20} /></span>
-                  <span className="m4-cheese-rank-badge">#{i + 1}</span>
-                  <span className="m4-cheese-name">{r.name}</span>
-                  <span className="m4-cheese-kg">{fmt(r.lifetime_cheese_kg, 2)} kg</span>
-                  <div className="m4-cheese-bar">
-                    <div
-                      className="m4-cheese-bar-fill"
-                      style={{ width: `${(Number(r.lifetime_cheese_kg) / Number(cheeseRanking[0]?.lifetime_cheese_kg || 1)) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Remaining (pro) */}
-            {isPro ? (
-              <div className="m4-cheese-list">
-                {cheeseRanking.slice(3).map((r, i) => (
-                  <div key={r.id} className="m4-cheese-list-row">
-                    <span className="m4-cheese-rank">#{i + 4}</span>
-                    <span className="m4-cheese-name">{r.name}</span>
-                    <span className="m4-cheese-kg">{fmt(r.lifetime_cheese_kg, 2)} kg</span>
-                    <div className="m4-cheese-bar">
-                      <div
-                        className="m4-cheese-bar-fill"
-                        style={{ width: `${(Number(r.lifetime_cheese_kg) / Number(cheeseRanking[0]?.lifetime_cheese_kg || 1)) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="m4-cheese-pro-teaser">
-                <p>+{rankingTotal - 3} razas más disponibles en PRO</p>
-              </div>
-            )}
-          </div>
-
-          {/* ─── 11. Perfil Económico por Raza ───────────────────── */}
-          <div className="card m4-profile-card">
-            <h2 className="m4-section-title m4-title-with-icon"><ModernIcon name="fileText" size={18} className="m4-title-icon" />Perfil Económico — {breed.name}</h2>
-            <p className="m4-section-subtitle">Evaluación individual del potencial económico de esta raza dentro del sistema.</p>
-            <PedagogicHint text="Aquí no se busca decir cuál raza es &quot;mejor&quot;, sino mostrar cómo esta raza puede generar valor cuando se usa correctamente." />
-
-            {/* KPI row */}
+          <div className="card m4-profile-card m4-layer-structured">
+            <h2 className="m4-section-title m4-title-with-icon">
+              <ModernIcon name="fileText" size={18} className="m4-title-icon" />
+              {t('module4EconomicProfileTitle')} — {breed.name}
+            </h2>
+            <p className="m4-section-subtitle">{t('module4EconomicProfileSubtitle')}</p>
             <div className="m4-profile-kpi-row">
-              <div className="m4-profile-kpi"><span>Raza</span><strong>{breed.name}</strong></div>
-              <div className="m4-profile-kpi"><span>Valor máximo</span><strong>${fmt(result.bestScenarioValue, 2)}</strong></div>
-              <div className="m4-profile-kpi"><span>Mejor escenario</span><strong><span className="m4-best-badge">Mejor</span> {scenarioLabels[result.bestScenarioKey]}</strong></div>
-              <div className="m4-profile-kpi">
-                <span>Payback</span>
-                <strong>{fmtYears(result.scenarios[result.bestScenarioKey]?.payback)}</strong>
-              </div>
+              <div className="m4-profile-kpi"><span>{t('breed')}</span><strong>{breed.name}</strong></div>
+              <div className="m4-profile-kpi"><span>{t('module4BestScenarioValue')}</span><strong>${fmt(result.bestScenarioValue, 2)}</strong></div>
+              <div className="m4-profile-kpi"><span>{t('module4BestScenarioLabel')}</span><strong>{scenarioTabLabel(result.bestScenarioKey, t)}</strong></div>
+              <div className="m4-profile-kpi"><span>Payback ({t('module4BestScenarioLabel')})</span><strong>{fmtYears(result.scenarios[result.bestScenarioKey]?.payback)}</strong></div>
             </div>
-            <PedagogicHint text="Estos indicadores resumen cómo esta raza expresa su potencial económico dentro del modelo analizado." />
+            <div className="m4-profile-kpi-row m4-profile-kpi-row--secondary">
+              <div className="m4-profile-kpi"><span>{t('module4MedianScenarioLabel')}</span><strong>${fmt(result.medianScenarioValue, 2)}</strong></div>
+              <div className="m4-profile-kpi"><span>{t('module4ReferenceScenarioKey')}</span><strong>{scenarioTabLabel(result.medianScenarioKey, t)}</strong></div>
+            </div>
 
-            {/* Strengths */}
             <div className="m4-profile-section">
               <h3 className="m4-title-with-icon"><ModernIcon name="checkCircle" size={16} className="m4-title-icon" />Fortalezas económicas</h3>
               <ul className="m4-profile-list m4-strengths">
@@ -485,7 +619,6 @@ export default function Module4Investment({ user }) {
               </ul>
             </div>
 
-            {/* Limitations (PRO) */}
             <ProGate isPro={isPro} teaser="Consideraciones del sistema en PRO">
               <div className="m4-profile-section">
                 <h3 className="m4-title-with-icon"><ModernIcon name="warning" size={16} className="m4-title-icon" />Consideraciones del sistema</h3>
@@ -495,24 +628,27 @@ export default function Module4Investment({ user }) {
               </div>
             </ProGate>
 
-            {/* Recommendation (PRO) */}
             <ProGate isPro={isPro} teaser="Recomendación estratégica en PRO">
               <div className="m4-profile-section">
                 <h3 className="m4-title-with-icon"><ModernIcon name="rocket" size={16} className="m4-title-icon" />Cómo aprovechar esta raza</h3>
                 <p className="m4-profile-recommendation">{getBreedRecommendation(breed, result)}</p>
               </div>
             </ProGate>
-
-            <p className="m4-profile-closing">"Cada raza tiene un potencial económico distinto. La clave es saber cómo aprovecharlo."</p>
           </div>
 
-          {/* ─── 12. CTA PRO ─────────────────────────────────────── */}
+          <div className="card m4-m4b-cta">
+            <h3 className="m4-section-title">{t('module4CheeseAnalysisTitle')}</h3>
+            <p>{t('module4M4bLinkExplainer')}</p>
+            <Link to="/module4/queso" className="m4-btn-primary m4-btn-link">
+              {t('module4NavCheeseAnalysis')} →
+            </Link>
+          </div>
+
           {!isPro && (
             <div className="card m4-cta-card">
               <span className="m4-pro-badge">PRO</span>
               <h3>Desbloquea el análisis completo</h3>
               <p>La lectura rápida orienta. El análisis completo te muestra el potencial real del sistema.</p>
-              <p className="m4-micro-quote">"Producir no es lo mismo que ganar."</p>
             </div>
           )}
         </>

@@ -13,6 +13,13 @@
 
 const HORIZON_YEARS = 5;
 
+/** Approximate kg per liter for cow/goat milk; aligns margin $/L with lifetime milk in kg from master table. */
+export const MILK_KG_PER_LITER = 1.03;
+
+export function lifetimeMilkLitersFromKg(lifetimeMilkKg) {
+  return lifetimeMilkKg / MILK_KG_PER_LITER;
+}
+
 // ── CAP ────────────────────────────────────────────────────────────────────────
 export function calculateCAP(acquisitionLogisticsCost, raisingCost, mortalityPct, replacementPct) {
   if (mortalityPct >= 1) return 0;
@@ -26,11 +33,13 @@ export function calculateFemaleDaughters(daughtersPerLife, femaleRatio) {
 
 // ── Escenarios ─────────────────────────────────────────────────────────────────
 export function calculateScenarioS1(lifetimeMilkKg, milkMarginPerLiter, cap) {
-  return (lifetimeMilkKg * milkMarginPerLiter) - cap;
+  const liters = lifetimeMilkLitersFromKg(lifetimeMilkKg);
+  return (liters * milkMarginPerLiter) - cap;
 }
 
 export function calculateScenarioS2(lifetimeMilkKg, milkMarginPerLiter, femaleDaughters, femaleValue, cap) {
-  return (lifetimeMilkKg * milkMarginPerLiter) + (femaleDaughters * femaleValue) - cap;
+  const liters = lifetimeMilkLitersFromKg(lifetimeMilkKg);
+  return (liters * milkMarginPerLiter) + (femaleDaughters * femaleValue) - cap;
 }
 
 export function calculateScenarioS3(femaleDaughters, femaleValue, lifetimeCheeseKg, cheeseMargin, cap) {
@@ -89,6 +98,15 @@ export function getBestScenarioKey(scenarios) {
   return bestKey;
 }
 
+/** Median of the five scenario net results — reference for “escenario medio” quick estimate. */
+export function getMedianScenarioKey(scenarios) {
+  const entries = Object.entries(scenarios).filter(([, v]) => typeof v === 'number' && Number.isFinite(v));
+  if (entries.length === 0) return null;
+  const sorted = [...entries].sort((a, b) => a[1] - b[1]);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted[mid][0];
+}
+
 // ── Full M4 computation for one breed ──────────────────────────────────────────
 export function calculateM4(breed, overrides = {}) {
   const v = (field) => {
@@ -126,6 +144,8 @@ export function calculateM4(breed, overrides = {}) {
   const scenarioResults = { s1, s2, s3_c1, s3_c2, s3_c3 };
   const bestScenarioKey = getBestScenarioKey(scenarioResults);
   const bestScenarioValue = scenarioResults[bestScenarioKey] ?? 0;
+  const medianScenarioKey = getMedianScenarioKey(scenarioResults);
+  const medianScenarioValue = medianScenarioKey != null ? scenarioResults[medianScenarioKey] ?? 0 : 0;
 
   function kpis(result) {
     const roi = calculateROI(result, cap);
@@ -155,6 +175,8 @@ export function calculateM4(breed, overrides = {}) {
     },
     bestScenarioKey,
     bestScenarioValue,
+    medianScenarioKey,
+    medianScenarioValue,
     lifetimeMilkKg,
     lifetimeCheeseKg,
     milkPerLactation: Number(breed.milk_per_lactation_kg) || 0,
