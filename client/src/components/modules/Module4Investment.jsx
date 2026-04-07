@@ -8,7 +8,7 @@ import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import { useChartColors } from '../../hooks/useDarkMode';
 import { computeM4, MILK_KG_PER_LITER } from '../../utils/m4Calculations';
-import { getBreedImage, shouldMirrorBreedImage } from '../../utils/breedImages';
+import { getBreedImage } from '../../utils/breedImages';
 import ModernIcon from '../icons/ModernIcon';
 import '../../styles/Module4.css';
 
@@ -193,7 +193,6 @@ export default function Module4Investment() {
   const scaleKpi = result?.scenarios?.[scaleScenario] || null;
 
   const imgSrc = breed && !breed.locked ? getBreedImage(breed.name, null) : null;
-  const mirrorImg = breed && shouldMirrorBreedImage(breed.name, null);
 
   const herdN = Math.min(10000, Math.max(1, Math.round(Number(herdCount) || 1)));
 
@@ -323,7 +322,7 @@ export default function Module4Investment() {
               <img
                 src={imgSrc}
                 alt=""
-                className={`m4-breed-profile-img ${mirrorImg ? 'm4-breed-profile-img--mirror' : ''}`}
+                className="m4-breed-profile-img m4-breed-profile-img--face-left"
               />
             </div>
           )}

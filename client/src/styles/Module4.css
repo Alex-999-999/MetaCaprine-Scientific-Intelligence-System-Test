@@ -86,6 +86,11 @@
   transform: scaleX(-1);
 }
 
+/* M4 spec: uniform orientation (facing left) for breed photos */
+.m4-breed-profile-img--face-left {
+  transform: scaleX(-1);
+}
+
 .m4-quick-sub.muted {
   display: block;
   font-size: 0.78rem;

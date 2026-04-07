@@ -14,6 +14,7 @@
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
     "export:breed-reference-seed": "node server/scripts/export-breed-reference-seed.js",
     "parse:m4-master": "node server/scripts/parse-m4-master-csv.js",
+    "reconcile:m4": "node server/scripts/reconcile-m4-csv.js",
     "seed:m4": "node server/scripts/seed-m4-breeds.js",
     "build:m4-seed-sql": "node server/scripts/build-m4-seed-sql.js",
     "build": "cd client && npm run build",
