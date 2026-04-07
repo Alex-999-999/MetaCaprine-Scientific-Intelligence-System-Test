@@ -121,6 +121,8 @@ export function getMeanScenarioValue(scenarios) {
 
 // ── Full M4 computation for one breed ──────────────────────────────────────────
 export function calculateM4(breed, overrides = {}) {
+  const useReferenceScenarios = Object.keys(overrides || {}).length === 0;
+
   const v = (field) => {
     const ov = overrides[field];
     if (ov !== null && ov !== undefined && ov !== '') return Number(ov);
@@ -149,11 +151,26 @@ export function calculateM4(breed, overrides = {}) {
   const femaleValue = v('female_value');
   const femaleDaughters = calculateFemaleDaughters(daughtersPerLife, femaleRatio);
 
-  const s1 = calculateScenarioS1(lifetimeMilkKg, milkMarginPerLiter, cap);
-  const s2 = calculateScenarioS2(lifetimeMilkKg, milkMarginPerLiter, daughtersPerLife, femaleValue, cap);
-  const s3_c1 = calculateScenarioS3(daughtersPerLife, femaleValue, lifetimeCheeseKg, cheeseMarginC1, cap);
-  const s3_c2 = calculateScenarioS3(daughtersPerLife, femaleValue, lifetimeCheeseKg, cheeseMarginC2, cap);
-  const s3_c3 = calculateScenarioS3(daughtersPerLife, femaleValue, lifetimeCheeseKg, cheeseMarginC3, cap);
+  const s1Formula = calculateScenarioS1(lifetimeMilkKg, milkMarginPerLiter, cap);
+  const s2Formula = calculateScenarioS2(lifetimeMilkKg, milkMarginPerLiter, daughtersPerLife, femaleValue, cap);
+  const s3C1Formula = calculateScenarioS3(daughtersPerLife, femaleValue, lifetimeCheeseKg, cheeseMarginC1, cap);
+  const s3C2Formula = calculateScenarioS3(daughtersPerLife, femaleValue, lifetimeCheeseKg, cheeseMarginC2, cap);
+  const s3C3Formula = calculateScenarioS3(daughtersPerLife, femaleValue, lifetimeCheeseKg, cheeseMarginC3, cap);
+
+  const chooseScenario = (formulaValue, referenceField) => {
+    const rawRef = breed[referenceField];
+    const ref = Number(rawRef);
+    if (useReferenceScenarios && rawRef !== null && rawRef !== undefined && rawRef !== '' && Number.isFinite(ref)) {
+      return ref;
+    }
+    return formulaValue;
+  };
+
+  const s1 = chooseScenario(s1Formula, 'scenario_s1_reference');
+  const s2 = chooseScenario(s2Formula, 'scenario_s2_reference');
+  const s3_c1 = chooseScenario(s3C1Formula, 'scenario_s3_c1_reference');
+  const s3_c2 = chooseScenario(s3C2Formula, 'scenario_s3_c2_reference');
+  const s3_c3 = chooseScenario(s3C3Formula, 'scenario_s3_c3_reference');
 
   const scenarioResults = { s1, s2, s3_c1, s3_c2, s3_c3 };
   const bestScenarioKey = getBestScenarioKey(scenarioResults);
@@ -187,6 +204,14 @@ export function calculateM4(breed, overrides = {}) {
       s3_c1: kpis(s3_c1),
       s3_c2: kpis(s3_c2),
       s3_c3: kpis(s3_c3),
+    },
+    scenarioSource: useReferenceScenarios ? 'master_reference' : 'calculated',
+    scenarioFormulaResults: {
+      s1: s1Formula,
+      s2: s2Formula,
+      s3_c1: s3C1Formula,
+      s3_c2: s3C2Formula,
+      s3_c3: s3C3Formula,
     },
     bestScenarioKey,
     bestScenarioValue,

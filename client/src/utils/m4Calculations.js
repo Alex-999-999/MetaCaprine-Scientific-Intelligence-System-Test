@@ -125,7 +125,9 @@ function kpis(result, cap) {
   };
 }
 
-export function computeM4(breed) {
+export function computeM4(breed, options = {}) {
+  const useReferenceScenarios = options.useReferenceScenarios !== false;
+
   const acq = v(breed, 'acquisition_logistics_cost');
   const raise = v(breed, 'raising_cost');
   const mort = v(breed, 'mortality_pct');
@@ -146,11 +148,26 @@ export function computeM4(breed) {
   const fv = v(breed, 'female_value');
   const fd = calculateFemaleDaughters(dpl, fr);
 
-  const s1 = scenarioS1(lmk, mm, cap);
-  const s2 = scenarioS2(lmk, mm, dpl, fv, cap);
-  const s3c1 = scenarioS3(dpl, fv, lck, cm1, cap);
-  const s3c2 = scenarioS3(dpl, fv, lck, cm2, cap);
-  const s3c3 = scenarioS3(dpl, fv, lck, cm3, cap);
+  const s1Formula = scenarioS1(lmk, mm, cap);
+  const s2Formula = scenarioS2(lmk, mm, dpl, fv, cap);
+  const s3c1Formula = scenarioS3(dpl, fv, lck, cm1, cap);
+  const s3c2Formula = scenarioS3(dpl, fv, lck, cm2, cap);
+  const s3c3Formula = scenarioS3(dpl, fv, lck, cm3, cap);
+
+  const chooseScenario = (formulaValue, referenceField) => {
+    const rawRef = breed[referenceField];
+    const ref = Number(rawRef);
+    if (useReferenceScenarios && rawRef !== null && rawRef !== undefined && rawRef !== '' && Number.isFinite(ref)) {
+      return ref;
+    }
+    return formulaValue;
+  };
+
+  const s1 = chooseScenario(s1Formula, 'scenario_s1_reference');
+  const s2 = chooseScenario(s2Formula, 'scenario_s2_reference');
+  const s3c1 = chooseScenario(s3c1Formula, 'scenario_s3_c1_reference');
+  const s3c2 = chooseScenario(s3c2Formula, 'scenario_s3_c2_reference');
+  const s3c3 = chooseScenario(s3c3Formula, 'scenario_s3_c3_reference');
 
   const raw = { s1, s2, s3_c1: s3c1, s3_c2: s3c2, s3_c3: s3c3 };
   const bestKey = getBestScenarioKey(raw);
@@ -160,6 +177,14 @@ export function computeM4(breed) {
     cap,
     capComputed,
     capReference: capRef > 0 ? capRef : null,
+    scenarioSource: useReferenceScenarios ? 'master_reference' : 'calculated',
+    scenarioFormulaResults: {
+      s1: s1Formula,
+      s2: s2Formula,
+      s3_c1: s3c1Formula,
+      s3_c2: s3c2Formula,
+      s3_c3: s3c3Formula,
+    },
     femaleDaughters: fd,
     scenarios: {
       s1: kpis(s1, cap),

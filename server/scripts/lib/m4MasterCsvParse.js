@@ -99,6 +99,11 @@ export function rowToBreed(cells) {
   const repl = parsePercent(cells[38]);
   const mort = parsePercent(cells[39]);
   const capRef = parseMoneyOrNumber(cells[40]);
+  const scenarioS1Ref = parseMoneyOrNumber(cells[CSV_SCENARIO_NET_COL.s1]);
+  const scenarioS2Ref = parseMoneyOrNumber(cells[CSV_SCENARIO_NET_COL.s2]);
+  const scenarioS3C1Ref = parseMoneyOrNumber(cells[CSV_SCENARIO_NET_COL.s3_c1]);
+  const scenarioS3C2Ref = parseMoneyOrNumber(cells[CSV_SCENARIO_NET_COL.s3_c2]);
+  const scenarioS3C3Ref = parseMoneyOrNumber(cells[CSV_SCENARIO_NET_COL.s3_c3]);
 
   return {
     name,
@@ -142,6 +147,11 @@ export function rowToBreed(cells) {
     replacement_pct: repl ?? 0,
     mortality_pct: mort ?? 0,
     cap_reference: capRef,
+    scenario_s1_reference: scenarioS1Ref,
+    scenario_s2_reference: scenarioS2Ref,
+    scenario_s3_c1_reference: scenarioS3C1Ref,
+    scenario_s3_c2_reference: scenarioS3C2Ref,
+    scenario_s3_c3_reference: scenarioS3C3Ref,
   };
 }
 

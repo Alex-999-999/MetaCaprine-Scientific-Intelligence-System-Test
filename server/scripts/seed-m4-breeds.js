@@ -60,6 +60,11 @@ const COLUMNS = [
   'replacement_pct',
   'mortality_pct',
   'cap_reference',
+  'scenario_s1_reference',
+  'scenario_s2_reference',
+  'scenario_s3_c1_reference',
+  'scenario_s3_c2_reference',
+  'scenario_s3_c3_reference',
 ];
 
 function val(b, key) {

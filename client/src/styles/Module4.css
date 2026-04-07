@@ -383,11 +383,28 @@
   padding: 10px 12px;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
 }
 
 .m4-cheese-table th {
   font-weight: 700;
   color: var(--text-secondary);
+}
+
+.m4-breed-name-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.m4-breed-thumb {
+  width: 42px;
+  height: 28px;
+  object-fit: contain;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-secondary, #f8fafc);
+  flex-shrink: 0;
 }
 
 .m4-compare-grid {
@@ -410,6 +427,12 @@
   padding: 8px 0;
   border-bottom: 1px solid var(--border-color);
   font-size: 0.9rem;
+}
+
+.m4-compare-title-with-image {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .m4-compare-selects {

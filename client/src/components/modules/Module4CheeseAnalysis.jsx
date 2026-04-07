@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import ModernIcon from '../icons/ModernIcon';
+import { getBreedImage } from '../../utils/breedImages';
 import '../../styles/Module4.css';
 
 const fmt = (n, d = 0) =>
@@ -55,6 +56,18 @@ export default function Module4CheeseAnalysis() {
 
   const breedA = compareA != null ? byId.get(compareA) : null;
   const breedB = compareB != null ? byId.get(compareB) : null;
+
+  const renderBreedThumb = (breedName) => {
+    const src = getBreedImage(breedName, null);
+    if (!src) return null;
+    return (
+      <img
+        src={src}
+        alt=""
+        className="m4-breed-thumb m4-breed-profile-img--face-left"
+      />
+    );
+  };
 
   if (loading) {
     return (
@@ -116,7 +129,12 @@ export default function Module4CheeseAnalysis() {
                 return (
                   <tr key={r.id}>
                     <td>{rankIndex.get(r.id) ?? '—'}</td>
-                    <td>{r.name}</td>
+                    <td>
+                      <div className="m4-breed-name-cell">
+                        {renderBreedThumb(r.name)}
+                        <span>{r.name}</span>
+                      </div>
+                    </td>
                     <td>{fmt(r.lifetime_cheese_kg, 2)}</td>
                     <td>{yieldVal != null && Number.isFinite(yieldVal) ? fmt(yieldVal, 2) : '—'} L/kg</td>
                   </tr>
@@ -161,7 +179,10 @@ export default function Module4CheeseAnalysis() {
         {breedA && breedB && (
           <div className="m4-compare-grid">
             <div className="m4-compare-col">
-              <h3>{breedA.name}</h3>
+              <h3 className="m4-compare-title-with-image">
+                {renderBreedThumb(breedA.name)}
+                <span>{breedA.name}</span>
+              </h3>
               <ul className="m4-compare-list">
                 <li>
                   <span>{t('module4LifetimeCheeseKg')}</span> <strong>{fmt(breedA.lifetime_cheese_kg, 2)} kg</strong>
@@ -176,7 +197,10 @@ export default function Module4CheeseAnalysis() {
               </ul>
             </div>
             <div className="m4-compare-col">
-              <h3>{breedB.name}</h3>
+              <h3 className="m4-compare-title-with-image">
+                {renderBreedThumb(breedB.name)}
+                <span>{breedB.name}</span>
+              </h3>
               <ul className="m4-compare-list">
                 <li>
                   <span>{t('module4LifetimeCheeseKg')}</span> <strong>{fmt(breedB.lifetime_cheese_kg, 2)} kg</strong>

@@ -1,18 +1,19 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 /**
- * M4 engine vs TABLA MAESTRA CSV (columns 41–45: net per scenario).
+ * M4 engine vs TABLA MAESTRA CSV (columns 41â€“45: net per scenario).
  *
- * Nota: alguna fila (p. ej. Alpina genérica S2) puede diferir del motor unificado;
- * revisar fórmula en Excel del cliente si se requiere paridad fila a fila.
+ * Current behavior:
+ * - No overrides: scenario nets prioritize master-reference columns for exact parity.
+ * - With overrides: scenario nets come from engine formulas.
  *
  * Usage:
  *   node server/scripts/reconcile-m4-csv.js [path/to.csv]
  *
  * - Strict golden rows (must match within STRICT_USD or exit 1): Murciano-Granadina
- * - Full grid: prints per-scenario max |Δ| and rows with |Δ| > AUDIT_USD (default 4)
+ * - Full grid: prints per-scenario max |Î”| and rows with |Î”| > AUDIT_USD (default 4)
  *
  * Env:
- *   M4_AUDIT_ONLY=1  — skip strict exit, only print audit (always exit 0)
+ *   M4_AUDIT_ONLY=1  â€” skip strict exit, only print audit (always exit 0)
  */
 
 import { readFileSync } from 'fs';
@@ -85,7 +86,7 @@ for (let i = 1; i < lines.length; i++) {
     }
     if (STRICT_GOLDEN_NAMES.has(breed.name) && diff > STRICT_USD) {
       console.error(
-        `[STRICT FAIL] ${breed.name} ${key}: engine=${got.toFixed(2)} csv=${exp.toFixed(2)} Δ=${diff.toFixed(2)}`,
+        `[STRICT FAIL] ${breed.name} ${key}: engine=${got.toFixed(2)} csv=${exp.toFixed(2)} Î”=${diff.toFixed(2)}`,
       );
       strictFailures += 1;
     }
@@ -93,21 +94,22 @@ for (let i = 1; i < lines.length; i++) {
 }
 
 console.log(`M4 reconcile: ${csvPath}`);
-console.log('Max |Δ| vs CSV by scenario:', maxDelta);
+console.log('Max |Î”| vs CSV by scenario:', maxDelta);
 if (outliers.length) {
-  console.log(`Rows with |Δ| > $${AUDIT_USD} (${outliers.length}):`);
+  console.log(`Rows with |Î”| > $${AUDIT_USD} (${outliers.length}):`);
   for (const o of outliers.slice(0, 40)) {
-    console.log(`  ${o.name} ${o.key}: Δ=${o.diff.toFixed(2)} (engine ${o.engine.toFixed(2)} vs csv ${o.csv.toFixed(2)})`);
+    console.log(`  ${o.name} ${o.key}: Î”=${o.diff.toFixed(2)} (engine ${o.engine.toFixed(2)} vs csv ${o.csv.toFixed(2)})`);
   }
-  if (outliers.length > 40) console.log(`  … and ${outliers.length - 40} more`);
+  if (outliers.length > 40) console.log(`  â€¦ and ${outliers.length - 40} more`);
 } else {
   console.log(`All scenario cells within $${AUDIT_USD} of CSV (or no comparable data).`);
 }
 
 if (!auditOnly && strictFailures > 0) {
-  console.error(`Strict golden breeds failed: ${strictFailures} (tolerance ±$${STRICT_USD} on ${[...STRICT_GOLDEN_NAMES].join(', ')})`);
+  console.error(`Strict golden breeds failed: ${strictFailures} (tolerance Â±$${STRICT_USD} on ${[...STRICT_GOLDEN_NAMES].join(', ')})`);
   process.exit(1);
 }
 
 console.log('Strict golden check: OK (Murciano-Granadina).');
 process.exit(0);
+

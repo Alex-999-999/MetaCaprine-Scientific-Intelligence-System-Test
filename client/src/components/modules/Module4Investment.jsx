@@ -218,7 +218,14 @@ export default function Module4Investment() {
     return { ...breed, ...proOverrides };
   }, [breed, proOverrides]);
 
-  const result = useMemo(() => (breedForCalc ? computeM4(breedForCalc) : null), [breedForCalc]);
+  const result = useMemo(
+    () => (
+      breedForCalc
+        ? computeM4(breedForCalc, { useReferenceScenarios: Object.keys(proOverrides).length === 0 })
+        : null
+    ),
+    [breedForCalc, proOverrides],
+  );
 
   const activeKpi = result?.scenarios?.[activeScenario] || null;
   const scaleKpi = result?.scenarios?.[scaleScenario] || null;
@@ -233,13 +240,14 @@ export default function Module4Investment() {
     const cap = result.cap;
     const totalNet = perNet * herdN;
     const totalCap = cap * herdN;
+    const totalHerdValue = totalCap + totalNet;
     const annual = (perNet / HORIZON) * herdN;
     const roi = totalCap > 0 ? totalNet / totalCap : null;
     const payback = scaleKpi.payback;
     const grossLife = grossLifetimeRevenueForScenario(breedForCalc, scaleScenario);
     const annualGross = (grossLife / HORIZON) * herdN;
     const totalGross = grossLife * herdN;
-    return { totalNet, totalCap, annual, roi, payback, annualGross, totalGross };
+    return { totalNet, totalCap, totalHerdValue, annual, roi, payback, annualGross, totalGross };
   }, [result, scaleKpi, herdN, breedForCalc, scaleScenario]);
 
   const chartCurveData = useMemo(() => {
@@ -387,6 +395,11 @@ export default function Module4Investment() {
               </div>
             </div>
             <p className="m4-mandatory-inline">{t('module4QuickEstimateDisclaimer')}</p>
+            <p className="m4-mandatory-inline">
+              {result.scenarioSource === 'master_reference'
+                ? t('module4ScenarioSourceMaster')
+                : t('module4ScenarioSourceCalculated')}
+            </p>
           </div>
 
           <div className="card m4-scale-card m4-layer-explore">
@@ -442,6 +455,7 @@ export default function Module4Investment() {
                 <div><span className="muted">{t('module4ScaleRoi')}</span> <strong>{fmtPct(scaleMetrics.roi)}</strong></div>
                 <div><span className="muted">{t('module4ScalePayback')}</span> <strong>{fmtYears(scaleMetrics.payback)}</strong></div>
                 <div><span className="muted">{t('module4ScaleHerdInvestment')}</span> <strong>${fmt(scaleMetrics.totalCap, 2)}</strong></div>
+                <div><span className="muted">{t('module4ScaleHerdValue')}</span> <strong>${fmt(scaleMetrics.totalHerdValue, 2)}</strong></div>
               </div>
             )}
           </div>

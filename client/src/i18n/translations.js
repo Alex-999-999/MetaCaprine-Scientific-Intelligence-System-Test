@@ -637,6 +637,8 @@ export const translations = {
     module4QuickMeanSub: 'Average of the five monetization scenarios',
     module4QuickEstimateDisclaimer:
       'This estimate is based on a reference average scenario. Results may vary depending on the model applied.',
+    module4ScenarioSourceMaster: 'Base view uses validated values from the master table.',
+    module4ScenarioSourceCalculated: 'PRO edits active: results are calculated with your custom assumptions.',
     module4NavInvestment: 'Investment analysis',
     module4NavCheeseAnalysis: 'M4-B Cheese analysis',
     module4ScaleTitle: 'Herd scale calculator',
@@ -654,6 +656,7 @@ export const translations = {
     module4ScaleRoi: 'ROI (same as per goat)',
     module4ScalePayback: 'Payback (years)',
     module4ScaleHerdInvestment: 'Total herd asset cost (CAP × N)',
+    module4ScaleHerdValue: 'Total herd value (CAP + net result)',
     module4ChartModeGoat: 'Per goat',
     module4ChartModeHerd: 'Herd',
     module4ProOverridesTitle: 'Adjust assumptions (PRO)',
@@ -1421,6 +1424,8 @@ export const translations = {
     module4QuickMeanSub: 'Promedio de los cinco escenarios de monetización',
     module4QuickEstimateDisclaimer:
       'Esta estimación está basada en un escenario promedio de referencia. Los resultados pueden variar según el modelo aplicado.',
+    module4ScenarioSourceMaster: 'La vista base usa valores validados de la tabla maestra.',
+    module4ScenarioSourceCalculated: 'Edición PRO activa: los resultados se calculan con tus supuestos personalizados.',
     module4NavInvestment: 'Análisis de inversión',
     module4NavCheeseAnalysis: 'M4-B Análisis quesero',
     module4ScaleTitle: 'Calculadora de escala (rebaño)',
@@ -1438,6 +1443,7 @@ export const translations = {
     module4ScaleRoi: 'ROI (igual que por cabra)',
     module4ScalePayback: 'Payback (años)',
     module4ScaleHerdInvestment: 'Inversión total en activo (CAP × N)',
+    module4ScaleHerdValue: 'Valor total del rebaño (CAP + resultado neto)',
     module4ChartModeGoat: 'Por cabra',
     module4ChartModeHerd: 'Por rebaño',
     module4ProOverridesTitle: 'Ajustar supuestos (PRO)',

@@ -40,7 +40,12 @@
     "raising_cost": 672,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 1308.63
+    "cap_reference": 1308.63,
+    "scenario_s1_reference": 368.37,
+    "scenario_s2_reference": 2368.37,
+    "scenario_s3_c1_reference": 4916.87,
+    "scenario_s3_c2_reference": 2366.87,
+    "scenario_s3_c3_reference": 7091.87
   },
   {
     "name": "Dutch",
@@ -83,7 +88,12 @@
     "raising_cost": 554.4,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 1079.62
+    "cap_reference": 1079.62,
+    "scenario_s1_reference": 472.88,
+    "scenario_s2_reference": 2122.88,
+    "scenario_s3_c1_reference": 4733.3,
+    "scenario_s3_c2_reference": 3702.15,
+    "scenario_s3_c3_reference": 6132.73
   },
   {
     "name": "Alpina Americana",
@@ -126,7 +136,12 @@
     "raising_cost": 672,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 1308.63
+    "cap_reference": 1308.63,
+    "scenario_s1_reference": 186.37,
+    "scenario_s2_reference": 2186.37,
+    "scenario_s3_c1_reference": 5117.92,
+    "scenario_s3_c2_reference": 2676.28,
+    "scenario_s3_c3_reference": 7200.5
   },
   {
     "name": "LaMancha",
@@ -169,7 +184,12 @@
     "raising_cost": 672,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 1308.63
+    "cap_reference": 1308.63,
+    "scenario_s1_reference": 4.37,
+    "scenario_s2_reference": 2004.37,
+    "scenario_s3_c1_reference": 5404.23,
+    "scenario_s3_c2_reference": 3083.97,
+    "scenario_s3_c3_reference": 7383.28
   },
   {
     "name": "Alpina Francesa",
@@ -212,7 +232,12 @@
     "raising_cost": 554.4,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 1079.62
+    "cap_reference": 1079.62,
+    "scenario_s1_reference": 512.23,
+    "scenario_s2_reference": 2162.23,
+    "scenario_s3_c1_reference": 3413.91,
+    "scenario_s3_c2_reference": 2515.28,
+    "scenario_s3_c3_reference": 5917.24
   },
   {
     "name": "Saanen Francesa",
@@ -255,7 +280,12 @@
     "raising_cost": 554.4,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 1079.62
+    "cap_reference": 1079.62,
+    "scenario_s1_reference": 512.23,
+    "scenario_s2_reference": 2162.23,
+    "scenario_s3_c1_reference": 3160.36,
+    "scenario_s3_c2_reference": 2261.73,
+    "scenario_s3_c3_reference": 5663.7
   },
   {
     "name": "Alpina Británica",
@@ -298,7 +328,12 @@
     "raising_cost": 756,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 1472.21
+    "cap_reference": 1472.21,
+    "scenario_s1_reference": -122.21,
+    "scenario_s2_reference": 2127.79,
+    "scenario_s3_c1_reference": 4350.04,
+    "scenario_s3_c2_reference": 2461.14,
+    "scenario_s3_c3_reference": 5961.16
   },
   {
     "name": "Alpina (genérica)",
@@ -341,7 +376,12 @@
     "raising_cost": 336,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 654.32
+    "cap_reference": 654.32,
+    "scenario_s1_reference": 245.68,
+    "scenario_s2_reference": 591.37,
+    "scenario_s3_c1_reference": 1772.51,
+    "scenario_s3_c2_reference": 1553,
+    "scenario_s3_c3_reference": 3363.97
   },
   {
     "name": "Toggenburg Americana",
@@ -384,7 +424,12 @@
     "raising_cost": 672,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 1308.63
+    "cap_reference": 1308.63,
+    "scenario_s1_reference": -177.63,
+    "scenario_s2_reference": 1822.37,
+    "scenario_s3_c1_reference": 3718.78,
+    "scenario_s3_c2_reference": 1958.05,
+    "scenario_s3_c3_reference": 5220.57
   },
   {
     "name": "Saanen (genérica)",
@@ -427,7 +472,12 @@
     "raising_cost": 336,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 654.32
+    "cap_reference": 654.32,
+    "scenario_s1_reference": 245.68,
+    "scenario_s2_reference": 1245.68,
+    "scenario_s3_c1_reference": 1445.11,
+    "scenario_s3_c2_reference": 1240.56,
+    "scenario_s3_c3_reference": 2928.05
   },
   {
     "name": "Poitevine",
@@ -470,7 +520,12 @@
     "raising_cost": 554.4,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 1079.62
+    "cap_reference": 1079.62,
+    "scenario_s1_reference": 320.38,
+    "scenario_s2_reference": 1970.38,
+    "scenario_s3_c1_reference": 3871.07,
+    "scenario_s3_c2_reference": 4162.73,
+    "scenario_s3_c3_reference": 5766.89
   },
   {
     "name": "Murciano-Granadina",
@@ -513,7 +568,12 @@
     "raising_cost": 420,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 817.89
+    "cap_reference": 817.89,
+    "scenario_s1_reference": 49.35,
+    "scenario_s2_reference": 1299.35,
+    "scenario_s3_c1_reference": 3080.75,
+    "scenario_s3_c2_reference": 2409.48,
+    "scenario_s3_c3_reference": 4950.72
   },
   {
     "name": "Florida",
@@ -556,7 +616,12 @@
     "raising_cost": 420,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 817.89
+    "cap_reference": 817.89,
+    "scenario_s1_reference": 73.11,
+    "scenario_s2_reference": 1323.11,
+    "scenario_s3_c1_reference": 2717.67,
+    "scenario_s3_c2_reference": 2084.8,
+    "scenario_s3_c3_reference": 4480.67
   },
   {
     "name": "Malagueña",
@@ -599,7 +664,12 @@
     "raising_cost": 420,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 817.89
+    "cap_reference": 817.89,
+    "scenario_s1_reference": -1.14,
+    "scenario_s2_reference": 1248.86,
+    "scenario_s3_c1_reference": 2855.9,
+    "scenario_s3_c2_reference": 2232.82,
+    "scenario_s3_c3_reference": 4591.64
   },
   {
     "name": "Oberhasli Americana",
@@ -642,7 +712,12 @@
     "raising_cost": 672,
     "replacement_pct": 0.2,
     "mortality_pct": 0.07,
-    "cap_reference": 1334.71
+    "cap_reference": 1334.71,
+    "scenario_s1_reference": -470.21,
+    "scenario_s2_reference": 1529.79,
+    "scenario_s3_c1_reference": 3428.44,
+    "scenario_s3_c2_reference": 1979.09,
+    "scenario_s3_c3_reference": 4664.65
   },
   {
     "name": "Sable Americana",
@@ -685,7 +760,12 @@
     "raising_cost": 672,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 1308.63
+    "cap_reference": 1308.63,
+    "scenario_s1_reference": -431.13,
+    "scenario_s2_reference": 1568.87,
+    "scenario_s3_c1_reference": 3336.56,
+    "scenario_s3_c2_reference": 1902.16,
+    "scenario_s3_c3_reference": 4560.01
   },
   {
     "name": "Majorera",
@@ -728,7 +808,12 @@
     "raising_cost": 420,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 817.89
+    "cap_reference": 817.89,
+    "scenario_s1_reference": -75.39,
+    "scenario_s2_reference": 1174.61,
+    "scenario_s3_c1_reference": 2766.29,
+    "scenario_s3_c2_reference": 2182.95,
+    "scenario_s3_c3_reference": 4391.3
   },
   {
     "name": "Nubian Americana",
@@ -771,7 +856,12 @@
     "raising_cost": 672,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 1308.63
+    "cap_reference": 1308.63,
+    "scenario_s1_reference": -493.01,
+    "scenario_s2_reference": 1506.99,
+    "scenario_s3_c1_reference": 3471.87,
+    "scenario_s3_c2_reference": 2143.73,
+    "scenario_s3_c3_reference": 4604.7
   },
   {
     "name": "Serrana",
@@ -814,7 +904,12 @@
     "raising_cost": 420,
     "replacement_pct": 0.2,
     "mortality_pct": 0.07,
-    "cap_reference": 834.19
+    "cap_reference": 834.19,
+    "scenario_s1_reference": 581.81,
+    "scenario_s2_reference": 1831.81,
+    "scenario_s3_c1_reference": 3237.54,
+    "scenario_s3_c2_reference": 2757.54,
+    "scenario_s3_c3_reference": 4574.7
   },
   {
     "name": "Nigerian Dwarf",
@@ -857,7 +952,12 @@
     "raising_cost": 672,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 1308.63
+    "cap_reference": 1308.63,
+    "scenario_s1_reference": -691.31,
+    "scenario_s2_reference": 1308.69,
+    "scenario_s3_c1_reference": 2078.38,
+    "scenario_s3_c2_reference": 1415.86,
+    "scenario_s3_c3_reference": 2643.48
   },
   {
     "name": "Mestiza (genérica)",
@@ -900,7 +1000,12 @@
     "raising_cost": 84,
     "replacement_pct": 0.2,
     "mortality_pct": 0.05,
-    "cap_reference": 163.58
+    "cap_reference": 163.58,
+    "scenario_s1_reference": 196.42,
+    "scenario_s2_reference": 446.42,
+    "scenario_s3_c1_reference": 901.74,
+    "scenario_s3_c2_reference": 562.9,
+    "scenario_s3_c3_reference": 1099.39
   },
   {
     "name": "Criolla argentina",
@@ -943,7 +1048,12 @@
     "raising_cost": 84,
     "replacement_pct": 0.2,
     "mortality_pct": 0.07,
-    "cap_reference": 166.84
+    "cap_reference": 166.84,
+    "scenario_s1_reference": 67.16,
+    "scenario_s2_reference": 317.16,
+    "scenario_s3_c1_reference": 594.67,
+    "scenario_s3_c2_reference": 379.49,
+    "scenario_s3_c3_reference": 720.2
   },
   {
     "name": "Criolla mexicana",
@@ -986,7 +1096,12 @@
     "raising_cost": 84,
     "replacement_pct": 0.2,
     "mortality_pct": 0.07,
-    "cap_reference": 166.84
+    "cap_reference": 166.84,
+    "scenario_s1_reference": 47.66,
+    "scenario_s2_reference": 297.66,
+    "scenario_s3_c1_reference": 552,
+    "scenario_s3_c2_reference": 354.77,
+    "scenario_s3_c3_reference": 667.05
   },
   {
     "name": "Criolla (genérica)",
@@ -1029,7 +1144,12 @@
     "raising_cost": 84,
     "replacement_pct": 0.2,
     "mortality_pct": 0.07,
-    "cap_reference": 166.84
+    "cap_reference": 166.84,
+    "scenario_s1_reference": 28.16,
+    "scenario_s2_reference": 278.16,
+    "scenario_s3_c1_reference": 501.95,
+    "scenario_s3_c2_reference": 324.68,
+    "scenario_s3_c3_reference": 605.35
   },
   {
     "name": "Criolla colombiana",
@@ -1072,7 +1192,12 @@
     "raising_cost": 84,
     "replacement_pct": 0.2,
     "mortality_pct": 0.07,
-    "cap_reference": 166.84
+    "cap_reference": 166.84,
+    "scenario_s1_reference": 28.16,
+    "scenario_s2_reference": 278.16,
+    "scenario_s3_c1_reference": 501.95,
+    "scenario_s3_c2_reference": 324.68,
+    "scenario_s3_c3_reference": 605.35
   },
   {
     "name": "Criolla venezolana",
@@ -1115,7 +1240,12 @@
     "raising_cost": 84,
     "replacement_pct": 0.2,
     "mortality_pct": 0.07,
-    "cap_reference": 166.84
+    "cap_reference": 166.84,
+    "scenario_s1_reference": 8.66,
+    "scenario_s2_reference": 258.66,
+    "scenario_s3_c1_reference": 460.1,
+    "scenario_s3_c2_reference": 300.55,
+    "scenario_s3_c3_reference": 553.17
   },
   {
     "name": "Criolla peruana",
@@ -1158,6 +1288,11 @@
     "raising_cost": 84,
     "replacement_pct": 0.2,
     "mortality_pct": 0.07,
-    "cap_reference": 166.84
+    "cap_reference": 166.84,
+    "scenario_s1_reference": -10.84,
+    "scenario_s2_reference": 239.16,
+    "scenario_s3_c1_reference": 412.41,
+    "scenario_s3_c2_reference": 272.18,
+    "scenario_s3_c3_reference": 494.22
   }
 ]

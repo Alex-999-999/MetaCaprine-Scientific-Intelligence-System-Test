@@ -53,6 +53,11 @@ CREATE TABLE IF NOT EXISTS m4_breeds (
   mortality_pct              NUMERIC(10,6) NOT NULL DEFAULT 0,
 
   cap_reference              NUMERIC(14,4),
+  scenario_s1_reference      NUMERIC(14,4),
+  scenario_s2_reference      NUMERIC(14,4),
+  scenario_s3_c1_reference   NUMERIC(14,4),
+  scenario_s3_c2_reference   NUMERIC(14,4),
+  scenario_s3_c3_reference   NUMERIC(14,4),
 
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
@@ -78,6 +83,11 @@ ALTER TABLE m4_breeds ADD COLUMN IF NOT EXISTS cheese_cost_pack_c2 NUMERIC(12,6)
 ALTER TABLE m4_breeds ADD COLUMN IF NOT EXISTS cheese_price_c3 NUMERIC(12,6) NOT NULL DEFAULT 0;
 ALTER TABLE m4_breeds ADD COLUMN IF NOT EXISTS cheese_cost_pack_c3 NUMERIC(12,6) NOT NULL DEFAULT 0;
 ALTER TABLE m4_breeds ADD COLUMN IF NOT EXISTS cap_reference NUMERIC(14,4);
+ALTER TABLE m4_breeds ADD COLUMN IF NOT EXISTS scenario_s1_reference NUMERIC(14,4);
+ALTER TABLE m4_breeds ADD COLUMN IF NOT EXISTS scenario_s2_reference NUMERIC(14,4);
+ALTER TABLE m4_breeds ADD COLUMN IF NOT EXISTS scenario_s3_c1_reference NUMERIC(14,4);
+ALTER TABLE m4_breeds ADD COLUMN IF NOT EXISTS scenario_s3_c2_reference NUMERIC(14,4);
+ALTER TABLE m4_breeds ADD COLUMN IF NOT EXISTS scenario_s3_c3_reference NUMERIC(14,4);
 
 CREATE TABLE IF NOT EXISTS m4_user_scenarios (
   id              SERIAL PRIMARY KEY,
