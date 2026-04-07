@@ -129,6 +129,7 @@ const OVERRIDE_FIELDS = [
   { key: 'lifetime_milk_kg', label: 'Leche vitalicia (kg)' },
   { key: 'lifetime_cheese_kg', label: 'Queso vitalicio (kg)' },
   { key: 'cheese_yield_liters_per_kg', label: 'Rend. quesero (L/kg)' },
+  { key: 'cap_reference', label: 'CAP tabla maestra ($)' },
   { key: 'acquisition_logistics_cost', label: 'Adquisición + logística' },
   { key: 'raising_cost', label: 'Levante' },
   { key: 'mortality_pct', label: 'Mortalidad (0–1)' },
@@ -343,13 +344,11 @@ export default function Module4Investment() {
                 <span className="m4-quick-value">{fmt(breed.lifetime_cheese_kg, 2)} kg</span>
               </div>
               <div className="m4-quick-item">
-                <span className="m4-quick-label">{t('module4QuickMedianLabel')}</span>
-                <span className={`m4-quick-value ${result.medianScenarioValue >= 0 ? 'm4-value-positive' : 'm4-value-negative'}`}>
-                  ${fmt(result.medianScenarioValue, 2)}
+                <span className="m4-quick-label">{t('module4QuickMeanLabel')}</span>
+                <span className={`m4-quick-value ${result.meanScenarioValue >= 0 ? 'm4-value-positive' : 'm4-value-negative'}`}>
+                  ${fmt(result.meanScenarioValue, 2)}
                 </span>
-                <span className="m4-quick-sub muted">
-                  ({scenarioTabLabel(result.medianScenarioKey, t)})
-                </span>
+                <span className="m4-quick-sub muted">{t('module4QuickMeanSub')}</span>
               </div>
             </div>
             <p className="m4-mandatory-inline">{t('module4QuickEstimateDisclaimer')}</p>
@@ -406,11 +405,14 @@ export default function Module4Investment() {
               <div className="m4-cap-row"><span>Costo de levante</span><span>${fmt(breedForCalc.raising_cost, 2)}</span></div>
               <div className="m4-cap-row"><span>Reposición</span><span>{fmtPct(breedForCalc.replacement_pct)}</span></div>
               <div className="m4-cap-row"><span>Mortalidad</span><span>{fmtPct(breedForCalc.mortality_pct)}</span></div>
-              <div className="m4-cap-row m4-cap-total"><span>CAP total (motor)</span><span>${fmt(result.cap, 2)}</span></div>
-              {breed.cap_reference != null && Number(breed.cap_reference) > 0 && (
+              <div className="m4-cap-row m4-cap-total">
+                <span>{t('module4CapAppliedLabel')}</span>
+                <span>${fmt(result.cap, 2)}</span>
+              </div>
+              {result.capComputed != null && Math.abs(result.capComputed - result.cap) > 0.005 && (
                 <div className="m4-cap-row m4-cap-ref">
-                  <span>CAP tabla maestra (referencia)</span>
-                  <span>${fmt(breed.cap_reference, 2)}</span>
+                  <span>{t('module4CapComputedLabel')}</span>
+                  <span>${fmt(result.capComputed, 2)}</span>
                 </div>
               )}
             </div>
@@ -608,8 +610,11 @@ export default function Module4Investment() {
               <div className="m4-profile-kpi"><span>Payback ({t('module4BestScenarioLabel')})</span><strong>{fmtYears(result.scenarios[result.bestScenarioKey]?.payback)}</strong></div>
             </div>
             <div className="m4-profile-kpi-row m4-profile-kpi-row--secondary">
-              <div className="m4-profile-kpi"><span>{t('module4MedianScenarioLabel')}</span><strong>${fmt(result.medianScenarioValue, 2)}</strong></div>
-              <div className="m4-profile-kpi"><span>{t('module4ReferenceScenarioKey')}</span><strong>{scenarioTabLabel(result.medianScenarioKey, t)}</strong></div>
+              <div className="m4-profile-kpi m4-profile-kpi--block">
+                <span>{t('module4MeanScenarioLabel')}</span>
+                <strong>${fmt(result.meanScenarioValue, 2)}</strong>
+                <p className="m4-profile-kpi-note muted">{t('module4MeanScenarioExplainer')}</p>
+              </div>
             </div>
 
             <div className="m4-profile-section">

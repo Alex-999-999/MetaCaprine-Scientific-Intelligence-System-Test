@@ -13,11 +13,20 @@
 
 const HORIZON_YEARS = 5;
 
-/** Approximate kg per liter for cow/goat milk; aligns margin $/L with lifetime milk in kg from master table. */
+/** Optional: approximate kg per liter for UI notes (economics use kg × $/L per validated Excel). */
 export const MILK_KG_PER_LITER = 1.03;
 
 export function lifetimeMilkLitersFromKg(lifetimeMilkKg) {
   return lifetimeMilkKg / MILK_KG_PER_LITER;
+}
+
+/**
+ * CAP used in scenarios/KPIs: prefer tabla maestra ("Costo ajustado final CAP") when present, else formula from components.
+ */
+export function resolveCapForEconomics(capReference, acquisitionLogisticsCost, raisingCost, mortalityPct, replacementPct) {
+  const ref = Number(capReference);
+  if (ref > 0 && Number.isFinite(ref)) return ref;
+  return calculateCAP(acquisitionLogisticsCost, raisingCost, mortalityPct, replacementPct);
 }
 
 // ── CAP ────────────────────────────────────────────────────────────────────────
@@ -31,19 +40,20 @@ export function calculateFemaleDaughters(daughtersPerLife, femaleRatio) {
   return daughtersPerLife * femaleRatio;
 }
 
-// ── Escenarios ─────────────────────────────────────────────────────────────────
+// ── Escenarios (alineados a TABLA MAESTRA M4 / Excel validado) ─────────────────
+/** Solo leche: leche vitalicia (kg) × margen ($/L) − CAP */
 export function calculateScenarioS1(lifetimeMilkKg, milkMarginPerLiter, cap) {
-  const liters = lifetimeMilkLitersFromKg(lifetimeMilkKg);
-  return (liters * milkMarginPerLiter) - cap;
+  return lifetimeMilkKg * milkMarginPerLiter - cap;
 }
 
-export function calculateScenarioS2(lifetimeMilkKg, milkMarginPerLiter, femaleDaughters, femaleValue, cap) {
-  const liters = lifetimeMilkLitersFromKg(lifetimeMilkKg);
-  return (liters * milkMarginPerLiter) + (femaleDaughters * femaleValue) - cap;
+/** Leche + venta hijas: mismo término leche que S1 + hijas/vida × valor hija − CAP */
+export function calculateScenarioS2(lifetimeMilkKg, milkMarginPerLiter, daughtersPerLife, femaleValue, cap) {
+  return lifetimeMilkKg * milkMarginPerLiter + daughtersPerLife * femaleValue - cap;
 }
 
-export function calculateScenarioS3(femaleDaughters, femaleValue, lifetimeCheeseKg, cheeseMargin, cap) {
-  return (femaleDaughters * femaleValue) + (lifetimeCheeseKg * cheeseMargin) - cap;
+/** Queso + hijas: hijas/vida × valor hija + queso vitalicio × margen canal − CAP */
+export function calculateScenarioS3(daughtersPerLife, femaleValue, lifetimeCheeseKg, cheeseMargin, cap) {
+  return daughtersPerLife * femaleValue + lifetimeCheeseKg * cheeseMargin - cap;
 }
 
 // ── KPIs ───────────────────────────────────────────────────────────────────────
@@ -98,13 +108,11 @@ export function getBestScenarioKey(scenarios) {
   return bestKey;
 }
 
-/** Median of the five scenario net results — reference for “escenario medio” quick estimate. */
-export function getMedianScenarioKey(scenarios) {
-  const entries = Object.entries(scenarios).filter(([, v]) => typeof v === 'number' && Number.isFinite(v));
-  if (entries.length === 0) return null;
-  const sorted = [...entries].sort((a, b) => a[1] - b[1]);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted[mid][0];
+/** Arithmetic mean of the five scenario nets — “escenario promedio de referencia”. */
+export function getMeanScenarioValue(scenarios) {
+  const vals = Object.values(scenarios).filter((x) => typeof x === 'number' && Number.isFinite(x));
+  if (vals.length === 0) return 0;
+  return vals.reduce((a, b) => a + b, 0) / vals.length;
 }
 
 // ── Full M4 computation for one breed ──────────────────────────────────────────
@@ -119,11 +127,13 @@ export function calculateM4(breed, overrides = {}) {
   const raisingCost = v('raising_cost');
   const mortalityPct = v('mortality_pct');
   const replacementPct = v('replacement_pct');
+  const capReference = v('cap_reference');
 
-  const cap = calculateCAP(acquisitionLogisticsCost, raisingCost, mortalityPct, replacementPct);
+  const capComputed = calculateCAP(acquisitionLogisticsCost, raisingCost, mortalityPct, replacementPct);
+  const cap = resolveCapForEconomics(capReference, acquisitionLogisticsCost, raisingCost, mortalityPct, replacementPct);
 
-  const lifetimeMilkKg = Number(breed.lifetime_milk_kg) || 0;
-  const lifetimeCheeseKg = Number(breed.lifetime_cheese_kg) || 0;
+  const lifetimeMilkKg = v('lifetime_milk_kg');
+  const lifetimeCheeseKg = v('lifetime_cheese_kg');
 
   const milkMarginPerLiter = v('raw_milk_margin_per_liter');
   const cheeseMarginC1 = v('cheese_margin_c1');
@@ -136,16 +146,15 @@ export function calculateM4(breed, overrides = {}) {
   const femaleDaughters = calculateFemaleDaughters(daughtersPerLife, femaleRatio);
 
   const s1 = calculateScenarioS1(lifetimeMilkKg, milkMarginPerLiter, cap);
-  const s2 = calculateScenarioS2(lifetimeMilkKg, milkMarginPerLiter, femaleDaughters, femaleValue, cap);
-  const s3_c1 = calculateScenarioS3(femaleDaughters, femaleValue, lifetimeCheeseKg, cheeseMarginC1, cap);
-  const s3_c2 = calculateScenarioS3(femaleDaughters, femaleValue, lifetimeCheeseKg, cheeseMarginC2, cap);
-  const s3_c3 = calculateScenarioS3(femaleDaughters, femaleValue, lifetimeCheeseKg, cheeseMarginC3, cap);
+  const s2 = calculateScenarioS2(lifetimeMilkKg, milkMarginPerLiter, daughtersPerLife, femaleValue, cap);
+  const s3_c1 = calculateScenarioS3(daughtersPerLife, femaleValue, lifetimeCheeseKg, cheeseMarginC1, cap);
+  const s3_c2 = calculateScenarioS3(daughtersPerLife, femaleValue, lifetimeCheeseKg, cheeseMarginC2, cap);
+  const s3_c3 = calculateScenarioS3(daughtersPerLife, femaleValue, lifetimeCheeseKg, cheeseMarginC3, cap);
 
   const scenarioResults = { s1, s2, s3_c1, s3_c2, s3_c3 };
   const bestScenarioKey = getBestScenarioKey(scenarioResults);
   const bestScenarioValue = scenarioResults[bestScenarioKey] ?? 0;
-  const medianScenarioKey = getMedianScenarioKey(scenarioResults);
-  const medianScenarioValue = medianScenarioKey != null ? scenarioResults[medianScenarioKey] ?? 0 : 0;
+  const meanScenarioValue = getMeanScenarioValue(scenarioResults);
 
   function kpis(result) {
     const roi = calculateROI(result, cap);
@@ -165,6 +174,8 @@ export function calculateM4(breed, overrides = {}) {
     breed_id: breed.id,
     breed_name: breed.name || breed.breed_name,
     cap,
+    capComputed,
+    capReference: capReference > 0 ? capReference : null,
     femaleDaughters,
     scenarios: {
       s1: kpis(s1),
@@ -175,10 +186,9 @@ export function calculateM4(breed, overrides = {}) {
     },
     bestScenarioKey,
     bestScenarioValue,
-    medianScenarioKey,
-    medianScenarioValue,
+    meanScenarioValue,
     lifetimeMilkKg,
     lifetimeCheeseKg,
-    milkPerLactation: Number(breed.milk_per_lactation_kg) || 0,
+    milkPerLactation: v('milk_per_lactation_kg'),
   };
 }

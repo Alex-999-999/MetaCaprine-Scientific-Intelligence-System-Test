@@ -17,22 +17,26 @@ export function calculateCAP(acqLogCost, raisingCost, mortalityPct, replacementP
   return ((acqLogCost + raisingCost) / (1 - mortalityPct)) * (1 + replacementPct);
 }
 
+export function resolveCapForEconomics(capReference, acqLogCost, raisingCost, mortalityPct, replacementPct) {
+  const ref = Number(capReference);
+  if (ref > 0 && Number.isFinite(ref)) return ref;
+  return calculateCAP(acqLogCost, raisingCost, mortalityPct, replacementPct);
+}
+
 export function calculateFemaleDaughters(daughtersPerLife, femaleRatio) {
   return daughtersPerLife * femaleRatio;
 }
 
 export function scenarioS1(lifetimeMilkKg, milkMargin, cap) {
-  const liters = lifetimeMilkLitersFromKg(lifetimeMilkKg);
-  return liters * milkMargin - cap;
+  return lifetimeMilkKg * milkMargin - cap;
 }
 
-export function scenarioS2(lifetimeMilkKg, milkMargin, femaleDaughters, femaleValue, cap) {
-  const liters = lifetimeMilkLitersFromKg(lifetimeMilkKg);
-  return liters * milkMargin + femaleDaughters * femaleValue - cap;
+export function scenarioS2(lifetimeMilkKg, milkMargin, daughtersPerLife, femaleValue, cap) {
+  return lifetimeMilkKg * milkMargin + daughtersPerLife * femaleValue - cap;
 }
 
-export function scenarioS3(femaleDaughters, femaleValue, lifetimeCheeseKg, cheeseMargin, cap) {
-  return femaleDaughters * femaleValue + lifetimeCheeseKg * cheeseMargin - cap;
+export function scenarioS3(daughtersPerLife, femaleValue, lifetimeCheeseKg, cheeseMargin, cap) {
+  return daughtersPerLife * femaleValue + lifetimeCheeseKg * cheeseMargin - cap;
 }
 
 export function calcROI(result, cap) {
@@ -79,12 +83,10 @@ export function getBestScenarioKey(scenarios) {
   return bestKey;
 }
 
-export function getMedianScenarioKey(scenarios) {
-  const entries = Object.entries(scenarios).filter(([, v]) => typeof v === 'number' && Number.isFinite(v));
-  if (entries.length === 0) return null;
-  const sorted = [...entries].sort((a, b) => a[1] - b[1]);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted[mid][0];
+export function getMeanScenarioValue(scenarios) {
+  const vals = Object.values(scenarios).filter((x) => typeof x === 'number' && Number.isFinite(x));
+  if (vals.length === 0) return 0;
+  return vals.reduce((a, b) => a + b, 0) / vals.length;
 }
 
 function v(breed, field) {
@@ -108,7 +110,9 @@ export function computeM4(breed) {
   const raise = v(breed, 'raising_cost');
   const mort = v(breed, 'mortality_pct');
   const repl = v(breed, 'replacement_pct');
-  const cap = calculateCAP(acq, raise, mort, repl);
+  const capRef = v(breed, 'cap_reference');
+  const capComputed = calculateCAP(acq, raise, mort, repl);
+  const cap = resolveCapForEconomics(capRef, acq, raise, mort, repl);
 
   const lmk = v(breed, 'lifetime_milk_kg');
   const lck = v(breed, 'lifetime_cheese_kg');
@@ -123,17 +127,19 @@ export function computeM4(breed) {
   const fd = calculateFemaleDaughters(dpl, fr);
 
   const s1 = scenarioS1(lmk, mm, cap);
-  const s2 = scenarioS2(lmk, mm, fd, fv, cap);
-  const s3c1 = scenarioS3(fd, fv, lck, cm1, cap);
-  const s3c2 = scenarioS3(fd, fv, lck, cm2, cap);
-  const s3c3 = scenarioS3(fd, fv, lck, cm3, cap);
+  const s2 = scenarioS2(lmk, mm, dpl, fv, cap);
+  const s3c1 = scenarioS3(dpl, fv, lck, cm1, cap);
+  const s3c2 = scenarioS3(dpl, fv, lck, cm2, cap);
+  const s3c3 = scenarioS3(dpl, fv, lck, cm3, cap);
 
   const raw = { s1, s2, s3_c1: s3c1, s3_c2: s3c2, s3_c3: s3c3 };
   const bestKey = getBestScenarioKey(raw);
-  const medianKey = getMedianScenarioKey(raw);
+  const meanScenarioValue = getMeanScenarioValue(raw);
 
   return {
     cap,
+    capComputed,
+    capReference: capRef > 0 ? capRef : null,
     femaleDaughters: fd,
     scenarios: {
       s1: kpis(s1, cap),
@@ -144,8 +150,7 @@ export function computeM4(breed) {
     },
     bestScenarioKey: bestKey,
     bestScenarioValue: raw[bestKey] ?? 0,
-    medianScenarioKey: medianKey,
-    medianScenarioValue: medianKey != null ? raw[medianKey] ?? 0 : 0,
+    meanScenarioValue,
     milkPerLactation: v(breed, 'milk_per_lactation_kg'),
     lifetimeMilkKg: lmk,
     lifetimeCheeseKg: lck,
