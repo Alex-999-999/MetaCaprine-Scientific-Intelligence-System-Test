@@ -2,6 +2,9 @@
 /**
  * M4 engine vs TABLA MAESTRA CSV (columns 41–45: net per scenario).
  *
+ * Nota: alguna fila (p. ej. Alpina genérica S2) puede diferir del motor unificado;
+ * revisar fórmula en Excel del cliente si se requiere paridad fila a fila.
+ *
  * Usage:
  *   node server/scripts/reconcile-m4-csv.js [path/to.csv]
  *

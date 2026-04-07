@@ -105,6 +105,74 @@
   margin-bottom: 16px;
 }
 
+.m4-scale-results-group {
+  padding: 10px 0;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+}
+
+.m4-scale-results-group:last-of-type {
+  border-bottom: none;
+}
+
+.m4-scale-results-hint {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.m4-chart-diff {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  background: var(--bg-secondary, rgba(0, 0, 0, 0.04));
+}
+
+.m4-chart-diff-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.m4-chart-diff--positive strong {
+  color: var(--m4-color-positive, #16a34a);
+}
+
+.m4-chart-diff--negative strong {
+  color: var(--m4-color-negative, #dc2626);
+}
+
+.m4-recovery-tooltip-year {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.m4-recovery-tooltip-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.m4-recovery-tooltip-main strong {
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.m4-recovery-tooltip-notes {
+  margin: 10px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
 .m4-scale-field {
   display: flex;
   flex-direction: column;

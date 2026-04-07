@@ -93,6 +93,26 @@ function v(breed, field) {
   return Number(breed[field]) || 0;
 }
 
+/**
+ * Lifetime gross sales (ventas) for the scenario mix — antes de CAP / asignación de costos fijos.
+ * Leche: kg × precio venta ($/L); queso: kg × precio venta canal; hijas: hijas/vida × valor.
+ */
+export function grossLifetimeRevenueForScenario(breed, scenarioKey) {
+  const lmk = v(breed, 'lifetime_milk_kg');
+  const lck = v(breed, 'lifetime_cheese_kg');
+  const milkPrice = v(breed, 'milk_sale_price_per_liter');
+  const dpl = v(breed, 'daughters_per_life');
+  const fv = v(breed, 'female_value');
+  const milkGross = lmk * milkPrice;
+  const daughterGross = dpl * fv;
+  if (scenarioKey === 's1') return milkGross;
+  if (scenarioKey === 's2') return milkGross + daughterGross;
+  const priceField =
+    scenarioKey === 's3_c1' ? 'cheese_price_c1' : scenarioKey === 's3_c2' ? 'cheese_price_c2' : 'cheese_price_c3';
+  const cheesePrice = v(breed, priceField);
+  return daughterGross + lck * cheesePrice;
+}
+
 function kpis(result, cap) {
   const roi = calcROI(result, cap);
   return {

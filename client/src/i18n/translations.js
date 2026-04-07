@@ -642,6 +642,13 @@ export const translations = {
     module4ScaleTitle: 'Herd scale calculator',
     module4ScaleHerdCount: 'Number of goats',
     module4ScaleScenario: 'Scenario',
+    module4ScaleGrossHint: 'Gross sales (before CAP)',
+    module4ScaleNetHint: 'Net economic result (after CAP)',
+    module4ScaleAnnualGross: 'Estimated annual gross sales',
+    module4ScaleTotalGross: 'Total gross sales (lifetime, herd)',
+    module4ScaleGrossAnnualTip:
+      'Spreads lifetime gross sales for this scenario evenly over the analysis horizon, times herd size. Uses sale prices from the master data.',
+    module4ScaleGrossTotalTip: 'Lifetime gross sales for the selected scenario mix, times number of goats.',
     module4ScaleAnnualFlow: 'Estimated annual net result (economic, herd)',
     module4ScaleTotalNet: 'Total net economic result (lifetime, herd)',
     module4ScaleRoi: 'ROI (same as per goat)',
@@ -687,6 +694,11 @@ export const translations = {
     module4ScenariosDetailedTitle: 'Detailed monetization scenarios',
     module4RecoveryChartTitle: 'Investment recovery curve',
     module4RecoveryChartHint: 'Red: unrecovered CAP. Green: cumulative net gain vs time. Blue line: net position.',
+    module4ChartEndDifferential: 'Cumulative position at end of horizon (gain / loss vs initial −CAP)',
+    module4ChartEndDifferentialHint:
+      'Value at year 5 on the curve: −CAP plus evenly spread net flows. Negative means the scenario has not fully offset the CAP within the horizon under this simplified schedule.',
+    module4ChartTooltipRecoveryExplain:
+      'Curve starts at −CAP (initial outlay), then adds equal annual net flows. Reference lines: dashed CAP level, solid zero (break-even).',
     module4ChartCapLabel: 'initial',
     module4ChartBreakeven: 'Approx. break-even',
     module4Year: 'Year',
@@ -1414,6 +1426,13 @@ export const translations = {
     module4ScaleTitle: 'Calculadora de escala (rebaño)',
     module4ScaleHerdCount: 'Número de cabras',
     module4ScaleScenario: 'Escenario',
+    module4ScaleGrossHint: 'Ventas brutas (antes del CAP)',
+    module4ScaleNetHint: 'Resultado económico neto (después del CAP)',
+    module4ScaleAnnualGross: 'Ingreso bruto anual estimado',
+    module4ScaleTotalGross: 'Ingreso bruto total (vitalicio, rebaño)',
+    module4ScaleGrossAnnualTip:
+      'Reparte el ingreso bruto vitalicio del escenario en el horizonte, por rebaño. Usa precios de venta de la tabla maestra.',
+    module4ScaleGrossTotalTip: 'Ventas brutas vitalicias del escenario elegido × número de cabras.',
     module4ScaleAnnualFlow: 'Resultado neto anual estimado (económico, rebaño)',
     module4ScaleTotalNet: 'Resultado neto total vitalicio (económico, rebaño)',
     module4ScaleRoi: 'ROI (igual que por cabra)',
@@ -1461,6 +1480,11 @@ export const translations = {
     module4ScenariosDetailedTitle: 'Escenarios de monetización detallados',
     module4RecoveryChartTitle: 'Curva de recuperación de inversión',
     module4RecoveryChartHint: 'Rojo: CAP no recuperado. Verde: ganancia acumulada. Línea azul: posición neta.',
+    module4ChartEndDifferential: 'Posición acumulada al final del horizonte (ganancia/pérdida vs −CAP inicial)',
+    module4ChartEndDifferentialHint:
+      'Valor en el año 5: −CAP más flujos netos repartidos. Negativo: el escenario no compensa del todo el CAP en el horizonte bajo este calendario simplificado.',
+    module4ChartTooltipRecoveryExplain:
+      'La curva arranca en −CAP (desembolso) y suma flujos netos anuales iguales. Referencias: CAP en línea discontinua, equilibrio en cero (línea continua).',
     module4ChartCapLabel: 'inicial',
     module4ChartBreakeven: 'Punto de equilibrio aprox.',
     module4Year: 'Año',

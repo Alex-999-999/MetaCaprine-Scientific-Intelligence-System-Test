@@ -3,6 +3,10 @@
  *
  * All economic logic lives here. No component should duplicate these formulas.
  *
+ * Paridad con TABLA MAESTRA (CSV): validar con `npm run reconcile:m4` frente a columnas de escenario.
+ * Murciano-Granadina se usa como golden estricto; alguna fila del Excel puede discrepar (p. ej. S2)
+ * si la hoja usa una fórmula distinta — revisar con el cliente antes de forzar paridad fila a fila.
+ *
  * Glossary:
  *   CAP  – Costo real del Activo Productivo
  *   ROI  – Retorno sobre la inversión (lifetime)

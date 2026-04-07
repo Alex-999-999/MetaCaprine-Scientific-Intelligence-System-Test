@@ -7,7 +7,7 @@ import {
 import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import { useChartColors } from '../../hooks/useDarkMode';
-import { computeM4, MILK_KG_PER_LITER } from '../../utils/m4Calculations';
+import { computeM4, grossLifetimeRevenueForScenario, MILK_KG_PER_LITER } from '../../utils/m4Calculations';
 import { getBreedImage } from '../../utils/breedImages';
 import ModernIcon from '../icons/ModernIcon';
 import '../../styles/Module4.css';
@@ -29,6 +29,33 @@ function HelpTip({ text }) {
       <ModernIcon name="infoCircle" size={14} className="m4-help-icon" />
       {open && <span className="m4-help-bubble">{text}</span>}
     </span>
+  );
+}
+
+/** Recharts tooltip: cumulative net + short note vs −CAP (spec 5.1). */
+function M4RecoveryTooltipContent({ active, payload, label, t, fmt, chartColors }) {
+  if (!active || !payload?.length) return null;
+  const row = payload.find((p) => p.dataKey === 'value');
+  const cumulative = row?.value;
+  if (cumulative == null) return null;
+  const th = chartColors.tooltip;
+  return (
+    <div
+      className="m4-recovery-tooltip"
+      style={{
+        backgroundColor: th.bg,
+        border: `1px solid ${th.border}`,
+        borderRadius: '12px',
+        padding: '12px 16px',
+      }}
+    >
+      <div className="m4-recovery-tooltip-year">{label}</div>
+      <div className="m4-recovery-tooltip-main">
+        <span className="muted">{t('module4CumulativeNet')}</span>
+        <strong>${fmt(cumulative, 2)}</strong>
+      </div>
+      <p className="m4-recovery-tooltip-notes muted">{t('module4ChartTooltipRecoveryExplain')}</p>
+    </div>
   );
 }
 
@@ -135,9 +162,13 @@ const OVERRIDE_FIELDS = [
   { key: 'mortality_pct', label: 'Mortalidad (0–1)' },
   { key: 'replacement_pct', label: 'Reposición (0–1)' },
   { key: 'raw_milk_margin_per_liter', label: 'Margen leche ($/L)' },
+  { key: 'milk_sale_price_per_liter', label: 'Precio venta leche ($/L)' },
   { key: 'cheese_margin_c1', label: 'Margen queso canal 1' },
   { key: 'cheese_margin_c2', label: 'Margen queso canal 2' },
   { key: 'cheese_margin_c3', label: 'Margen queso canal 3' },
+  { key: 'cheese_price_c1', label: 'Precio queso canal 1 ($/kg)' },
+  { key: 'cheese_price_c2', label: 'Precio queso canal 2 ($/kg)' },
+  { key: 'cheese_price_c3', label: 'Precio queso canal 3 ($/kg)' },
   { key: 'daughters_per_life', label: 'Hijas / vida' },
   { key: 'female_ratio', label: 'Ratio hembras' },
   { key: 'female_value', label: 'Valor hija' },
@@ -197,7 +228,7 @@ export default function Module4Investment() {
   const herdN = Math.min(10000, Math.max(1, Math.round(Number(herdCount) || 1)));
 
   const scaleMetrics = useMemo(() => {
-    if (!result || !scaleKpi) return null;
+    if (!result || !scaleKpi || !breedForCalc) return null;
     const perNet = scaleKpi.result;
     const cap = result.cap;
     const totalNet = perNet * herdN;
@@ -205,8 +236,11 @@ export default function Module4Investment() {
     const annual = (perNet / HORIZON) * herdN;
     const roi = totalCap > 0 ? totalNet / totalCap : null;
     const payback = scaleKpi.payback;
-    return { totalNet, totalCap, annual, roi, payback };
-  }, [result, scaleKpi, herdN]);
+    const grossLife = grossLifetimeRevenueForScenario(breedForCalc, scaleScenario);
+    const annualGross = (grossLife / HORIZON) * herdN;
+    const totalGross = grossLife * herdN;
+    return { totalNet, totalCap, annual, roi, payback, annualGross, totalGross };
+  }, [result, scaleKpi, herdN, breedForCalc, scaleScenario]);
 
   const chartCurveData = useMemo(() => {
     if (!activeKpi || !result) return [];
@@ -225,6 +259,8 @@ export default function Module4Investment() {
     const p = chartCurveData.find((x) => x.value >= 0);
     return p != null ? p.year : null;
   }, [chartCurveData]);
+
+  const chartEndPosition = chartCurveData[HORIZON]?.value ?? null;
 
   const handleOverrideChange = useCallback((key, raw) => {
     setProOverrides((prev) => {
@@ -381,8 +417,28 @@ export default function Module4Investment() {
             </div>
             {scaleMetrics && (
               <div className="m4-scale-results">
-                <div><span className="muted">{t('module4ScaleAnnualFlow')}</span> <strong>${fmt(scaleMetrics.annual, 2)}</strong></div>
-                <div><span className="muted">{t('module4ScaleTotalNet')}</span> <strong>${fmt(scaleMetrics.totalNet, 2)}</strong></div>
+                <div className="m4-scale-results-group">
+                  <div className="m4-scale-results-hint muted">{t('module4ScaleGrossHint')}</div>
+                  <div>
+                    <span className="muted">
+                      {t('module4ScaleAnnualGross')}
+                      <HelpTip text={t('module4ScaleGrossAnnualTip')} />
+                    </span>{' '}
+                    <strong>${fmt(scaleMetrics.annualGross, 2)}</strong>
+                  </div>
+                  <div>
+                    <span className="muted">
+                      {t('module4ScaleTotalGross')}
+                      <HelpTip text={t('module4ScaleGrossTotalTip')} />
+                    </span>{' '}
+                    <strong>${fmt(scaleMetrics.totalGross, 2)}</strong>
+                  </div>
+                </div>
+                <div className="m4-scale-results-group">
+                  <div className="m4-scale-results-hint muted">{t('module4ScaleNetHint')}</div>
+                  <div><span className="muted">{t('module4ScaleAnnualFlow')}</span> <strong>${fmt(scaleMetrics.annual, 2)}</strong></div>
+                  <div><span className="muted">{t('module4ScaleTotalNet')}</span> <strong>${fmt(scaleMetrics.totalNet, 2)}</strong></div>
+                </div>
                 <div><span className="muted">{t('module4ScaleRoi')}</span> <strong>{fmtPct(scaleMetrics.roi)}</strong></div>
                 <div><span className="muted">{t('module4ScalePayback')}</span> <strong>{fmtYears(scaleMetrics.payback)}</strong></div>
                 <div><span className="muted">{t('module4ScaleHerdInvestment')}</span> <strong>${fmt(scaleMetrics.totalCap, 2)}</strong></div>
@@ -560,17 +616,15 @@ export default function Module4Investment() {
                       tickLine={false}
                     />
                     <Tooltip
-                      formatter={(value, name) => {
-                        if (name === 'pos' || name === 'neg') return [null, null];
-                        return [`$${fmt(value, 2)}`, t('module4CumulativeNet')];
-                      }}
                       labelFormatter={(y) => `${t('module4Year')} ${y}`}
-                      contentStyle={{
-                        backgroundColor: chartColors.tooltip.bg,
-                        border: `1px solid ${chartColors.tooltip.border}`,
-                        borderRadius: '12px',
-                        padding: '12px 16px',
-                      }}
+                      content={(tooltipProps) => (
+                        <M4RecoveryTooltipContent
+                          {...tooltipProps}
+                          t={t}
+                          fmt={fmt}
+                          chartColors={chartColors}
+                        />
+                      )}
                     />
                     <ReferenceLine
                       y={chartMode === 'herd' ? -result.cap * herdN : -result.cap}
@@ -587,6 +641,19 @@ export default function Module4Investment() {
                     <Area type="monotone" dataKey="value" stroke="var(--m4-color-info)" strokeWidth={3} fill="none" dot={{ r: 4 }} />
                   </AreaChart>
                 </ResponsiveContainer>
+                {chartEndPosition != null && Number.isFinite(chartEndPosition) && (
+                  <p
+                    className={`m4-chart-diff ${
+                      chartEndPosition >= 0 ? 'm4-chart-diff--positive' : 'm4-chart-diff--negative'
+                    }`}
+                  >
+                    <span className="m4-chart-diff-label">
+                      {t('module4ChartEndDifferential')}
+                      <HelpTip text={t('module4ChartEndDifferentialHint')} />
+                    </span>
+                    <strong>${fmt(chartEndPosition, 2)}</strong>
+                  </p>
+                )}
               </ProGate>
             )}
           </div>
