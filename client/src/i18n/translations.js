@@ -650,7 +650,7 @@
     module4RecoveryMessageNotRecovered: 'The investment is not recovered within the analyzed horizon.',
     module4ProOverridesSubtitle: 'PRO users can edit assumptions to simulate custom realities.',
     module4ProOverridesTitle: 'Adjust assumptions (PRO)',
-    module4CheeseAnalysisTitle: 'M4-B â€” Cheese analysis by breed',
+    module4CheeseAnalysisTitle: 'M4-B - Cheese analysis by breed',
     module4CheeseAnalysisSubtitle: 'Ranking and yield comparison, separate from economic scenarios.',
     module4CheeseCompareTitle: 'Compare breeds',
     module4CheeseCompareSubtitle: 'Select two breeds to compare cheese potential side by side.',
@@ -1407,7 +1407,7 @@
     module4ChartModeGoat: 'Por cabra',
     module4ChartModeHerd: 'Por rebaÃ±o',
     module4ProOverridesTitle: 'Ajustar supuestos (PRO)',
-    module4CheeseAnalysisTitle: 'M4-B â€” AnÃ¡lisis quesero por raza',
+    module4CheeseAnalysisTitle: 'M4-B - Analisis quesero por raza',
     module4CheeseAnalysisSubtitle: 'Ranking y comparaciÃ³n de rendimiento quesero, separado del anÃ¡lisis econÃ³mico.',
     module4CheeseCompareTitle: 'ComparaciÃ³n de razas',
     module4CheeseCompareSubtitle: 'Elige dos razas para comparar potencial quesero.',
@@ -4238,4 +4238,5 @@ Object.assign(translations.pt, {
   footerTermsPageTitle: 'Termos de Servico',
 });
 // STEP25_FOOTER_LEGAL_PAGES_END
+
 
