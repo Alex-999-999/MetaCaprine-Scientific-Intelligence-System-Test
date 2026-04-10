@@ -1,7 +1,7 @@
 {
   "name": "mvp-web-ganaderia",
   "version": "1.0.0",
-  "description": "MVP Web - Simuladores Productivos y EconÃ³micos para GanaderÃ­a",
+  "description": "MVP Web - Simuladores Productivos y Económicos para Ganadería",
   "main": "server/index.js",
   "type": "module",
   "engines": {

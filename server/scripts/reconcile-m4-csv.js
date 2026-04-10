@@ -1,6 +1,6 @@
 ﻿#!/usr/bin/env node
 /**
- * M4 engine vs TABLA MAESTRA CSV (columns 41â€“45: net per scenario).
+ * M4 engine vs TABLA MAESTRA CSV (columns 41–45: net per scenario).
  *
  * Current behavior:
  * - No overrides: scenario nets prioritize master-reference columns for exact parity.
@@ -13,7 +13,7 @@
  * - Full grid: prints per-scenario max |Î”| and rows with |Î”| > AUDIT_USD (default 4)
  *
  * Env:
- *   M4_AUDIT_ONLY=1  â€” skip strict exit, only print audit (always exit 0)
+ *   M4_AUDIT_ONLY=1  — skip strict exit, only print audit (always exit 0)
  */
 
 import { readFileSync } from 'fs';
@@ -100,13 +100,13 @@ if (outliers.length) {
   for (const o of outliers.slice(0, 40)) {
     console.log(`  ${o.name} ${o.key}: Î”=${o.diff.toFixed(2)} (engine ${o.engine.toFixed(2)} vs csv ${o.csv.toFixed(2)})`);
   }
-  if (outliers.length > 40) console.log(`  â€¦ and ${outliers.length - 40} more`);
+  if (outliers.length > 40) console.log(`  ⬦ and ${outliers.length - 40} more`);
 } else {
   console.log(`All scenario cells within $${AUDIT_USD} of CSV (or no comparable data).`);
 }
 
 if (!auditOnly && strictFailures > 0) {
-  console.error(`Strict golden breeds failed: ${strictFailures} (tolerance Â±$${STRICT_USD} on ${[...STRICT_GOLDEN_NAMES].join(', ')})`);
+  console.error(`Strict golden breeds failed: ${strictFailures} (tolerance ±$${STRICT_USD} on ${[...STRICT_GOLDEN_NAMES].join(', ')})`);
   process.exit(1);
 }
 

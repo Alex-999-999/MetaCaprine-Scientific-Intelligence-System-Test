@@ -6,7 +6,7 @@ A comprehensive web platform for livestock (goat/dairy) production management, s
 
 ---
 
-## ðŸ“‹ Table of Contents
+## 📋 Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
@@ -24,7 +24,7 @@ A comprehensive web platform for livestock (goat/dairy) production management, s
 
 ---
 
-## ðŸŽ¯ Overview
+## 🎯 Overview
 
 MVP Web is a full-stack web application that helps livestock producers make data-driven decisions through:
 
@@ -38,7 +38,7 @@ MVP Web is a full-stack web application that helps livestock producers make data
 
 ---
 
-## âœ¨ Features
+## ✨ Features
 
 ### Module 1: Production & Direct Sales
 - Daily production tracking
@@ -53,7 +53,7 @@ MVP Web is a full-stack web application that helps livestock producers make data
 - Profitability comparison: Direct sales vs. Transformation
 - Per-product margin analysis
 
-### Module 3: Scientific Breed Intelligence â­
+### Module 3: Scientific Breed Intelligence ⭐
 **INDEPENDENT MODULE** - Does not depend on Modules 1 or 2
 
 - **27 goat breeds** with scientific data
@@ -85,16 +85,16 @@ MVP Web is a full-stack web application that helps livestock producers make data
 - Breeding schedule optimization
 
 ### Additional Features
-- ðŸ” **User authentication** with email verification
-- ðŸŒ **Bilingual interface** (English/Spanish)
-- ðŸŒ“ **Dark/Light mode** with color system
-- ðŸ“Š **Interactive charts** with Recharts
-- ðŸ’¾ **Scenario management** - Save, load, and compare scenarios
-- ðŸ“± **Responsive design** - Works on desktop, tablet, and mobile
+- 🔐 **User authentication** with email verification
+- 🌐 **Bilingual interface** (English/Spanish)
+- 🌓 **Dark/Light mode** with color system
+- 📊 **Interactive charts** with Recharts
+- 💾 **Scenario management** - Save, load, and compare scenarios
+- 📱 **Responsive design** - Works on desktop, tablet, and mobile
 
 ---
 
-## ðŸ›  Technology Stack
+## 🛠 Technology Stack
 
 ### Frontend
 - **React 18** - UI framework
@@ -117,65 +117,65 @@ MVP Web is a full-stack web application that helps livestock producers make data
 
 ---
 
-## ðŸ“ Project Structure
+## 📁 Project Structure
 
 ```
 MVP Web/
-â”œâ”€â”€ client/                    # Frontend React application
-â”‚   â”œâ”€â”€ src/
-â”‚   â”‚   â”œâ”€â”€ components/       # React components
-â”‚   â”‚   â”‚   â”œâ”€â”€ modules/     # Module components (Module1-5)
-â”‚   â”‚   â”‚   â”œâ”€â”€ Dashboard.jsx
-â”‚   â”‚   â”‚   â”œâ”€â”€ Login.jsx
-â”‚   â”‚   â”‚   â”œâ”€â”€ Profile.jsx
-â”‚   â”‚   â”‚   â””â”€â”€ ...
-â”‚   â”‚   â”œâ”€â”€ hooks/           # Custom React hooks
-â”‚   â”‚   â”œâ”€â”€ i18n/            # Internationalization
-â”‚   â”‚   â”œâ”€â”€ styles/          # CSS files
-â”‚   â”‚   â”œâ”€â”€ utils/           # Utility functions
-â”‚   â”‚   â”œâ”€â”€ App.jsx          # Main app component
-â”‚   â”‚   â””â”€â”€ main.jsx         # Entry point
-â”‚   â”œâ”€â”€ public/              # Static assets
-â”‚   â”‚   â””â”€â”€ breeds/          # Breed images
-â”‚   â”œâ”€â”€ package.json
-â”‚   â””â”€â”€ vite.config.js
-â”‚
-â”œâ”€â”€ server/                   # Backend Node.js application
-â”‚   â”œâ”€â”€ core/                # Business logic engines
-â”‚   â”‚   â”œâ”€â”€ module3Engine.js # ECM calculation engine
-â”‚   â”‚   â”œâ”€â”€ lactationEngine.js
-â”‚   â”‚   â””â”€â”€ simulationEngine.js
-â”‚   â”œâ”€â”€ db/                  # Database files
-â”‚   â”‚   â”œâ”€â”€ complete_migration.sql  # Single consolidated migration
-â”‚   â”‚   â”œâ”€â”€ schema.sql       # Original schema (reference)
-â”‚   â”‚   â””â”€â”€ pool.js          # Database connection pool
-â”‚   â”œâ”€â”€ middleware/          # Express middleware
-â”‚   â”‚   â”œâ”€â”€ auth.js          # JWT authentication
-â”‚   â”‚   â””â”€â”€ requireEmailVerification.js
-â”‚   â”œâ”€â”€ routes/              # API routes
-â”‚   â”‚   â”œâ”€â”€ auth.js          # Authentication endpoints
-â”‚   â”‚   â”œâ”€â”€ module3.js       # Module 3 API
-â”‚   â”‚   â”œâ”€â”€ breeds.js        # Breed data endpoints
-â”‚   â”‚   â”œâ”€â”€ modules.js       # General module endpoints
-â”‚   â”‚   â””â”€â”€ scenarios.js     # Scenario management
-â”‚   â”œâ”€â”€ services/            # External services
-â”‚   â”‚   â””â”€â”€ emailService.js  # Resend email service
-â”‚   â”œâ”€â”€ index.js             # Server entry point
-â”‚   â”œâ”€â”€ package.json
-â”‚   â””â”€â”€ metacaprine_module3_breed_reference_ranked_ecm.json
-â”‚
-â”œâ”€â”€ api/                     # Vercel serverless functions
-â”‚   â””â”€â”€ index.js             # Serverless API handler
-â”‚
-â”œâ”€â”€ setup.js                 # Automated setup script
-â”œâ”€â”€ package.json             # Root package.json
-â”œâ”€â”€ vercel.json              # Vercel deployment config
-â””â”€â”€ README.md                # This file
+├── client/                    # Frontend React application
+│   ├── src/
+│   │   ├── components/       # React components
+│   │   │   ├── modules/     # Module components (Module1-5)
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── Profile.jsx
+│   │   │   └── ...
+│   │   ├── hooks/           # Custom React hooks
+│   │   ├── i18n/            # Internationalization
+│   │   ├── styles/          # CSS files
+│   │   ├── utils/           # Utility functions
+│   │   ├── App.jsx          # Main app component
+│   │   └── main.jsx         # Entry point
+│   ├── public/              # Static assets
+│   │   └── breeds/          # Breed images
+│   ├── package.json
+│   └── vite.config.js
+│
+├── server/                   # Backend Node.js application
+│   ├── core/                # Business logic engines
+│   │   ├── module3Engine.js # ECM calculation engine
+│   │   ├── lactationEngine.js
+│   │   └── simulationEngine.js
+│   ├── db/                  # Database files
+│   │   ├── complete_migration.sql  # Single consolidated migration
+│   │   ├── schema.sql       # Original schema (reference)
+│   │   └── pool.js          # Database connection pool
+│   ├── middleware/          # Express middleware
+│   │   ├── auth.js          # JWT authentication
+│   │   └── requireEmailVerification.js
+│   ├── routes/              # API routes
+│   │   ├── auth.js          # Authentication endpoints
+│   │   ├── module3.js       # Module 3 API
+│   │   ├── breeds.js        # Breed data endpoints
+│   │   ├── modules.js       # General module endpoints
+│   │   └── scenarios.js     # Scenario management
+│   ├── services/            # External services
+│   │   └── emailService.js  # Resend email service
+│   ├── index.js             # Server entry point
+│   ├── package.json
+│   └── metacaprine_module3_breed_reference_ranked_ecm.json
+│
+├── api/                     # Vercel serverless functions
+│   └── index.js             # Serverless API handler
+│
+├── setup.js                 # Automated setup script
+├── package.json             # Root package.json
+├── vercel.json              # Vercel deployment config
+└── README.md                # This file
 ```
 
 ---
 
-## ðŸš€ Installation & Setup
+## 🚀 Installation & Setup
 
 ### Prerequisites
 
@@ -269,7 +269,7 @@ Open http://localhost:3000 in your browser.
 
 ---
 
-## ðŸ”‘ Environment Variables
+## 🔑 Environment Variables
 
 ### Server Environment Variables
 
@@ -327,7 +327,7 @@ NODE_ENV=production
 
 ---
 
-## ðŸ—„ Database Setup
+## 🗄 Database Setup
 
 ### Database Schema
 
@@ -362,7 +362,7 @@ npm run export:breed-reference-seed
 This generates normalized `breed_reference` seed artifacts in `server/db/`.
 ---
 
-## ðŸƒ Running the Application
+## 🏃 Running the Application
 
 ### Development Mode
 
@@ -392,7 +392,7 @@ npm start
 
 ---
 
-## ðŸ“š Module Documentation
+## 📚 Module Documentation
 
 ### Module 1: Production & Direct Sales
 
@@ -447,8 +447,8 @@ npm start
 
 **Key Concepts**:
 - **ECM (Energy Corrected Milk)**: A standardized measure accounting for fat and protein content
-- **Formula**: ECM(kg) = Milk(kg) Ã— (0.327 + 0.122Ã—Fat% + 0.077Ã—Protein%)
-- **Lifetime production**: ECM Ã— Lactations per lifetime
+- **Formula**: ECM(kg) = Milk(kg) × (0.327 + 0.122×Fat% + 0.077×Protein%)
+- **Lifetime production**: ECM × Lactations per lifetime
 - **Why it matters**: A breed with lower percentages but higher volume and longevity can produce more total nutrients
 
 **Features**:
@@ -464,7 +464,7 @@ npm start
 **User Capabilities**:
 - Override any breed parameter
 - Simulate different herd sizes
-- Compare scenarios (e.g., 2000 MalagueÃ±a vs. 700 LaMancha)
+- Compare scenarios (e.g., 2000 Malagueña vs. 700 LaMancha)
 - Save and load simulations
 
 **Example Use Case**:
@@ -505,7 +505,7 @@ Winner: Saanen produces 27% more total protein despite lower percentage!
 
 ---
 
-## ðŸ“§ Email Verification Setup
+## 📧 Email Verification Setup
 
 The application includes email verification for user registration.
 
@@ -516,14 +516,14 @@ The application includes email verification for user registration.
    - Sign up for a free account (100 emails/day)
 
 2. **Create API Key**
-   - Navigate to Settings â†’ API Keys
+   - Navigate to Settings → API Keys
    - Click "Create API Key"
    - Choose "Restricted Access"
    - Grant "Mail Send" permissions
    - Copy the API key (you won't see it again!)
 
 3. **Verify Sender Email**
-   - Navigate to Settings â†’ Sender Authentication
+   - Navigate to Settings → Sender Authentication
    - Click "Verify a Single Sender"
    - Enter your email (e.g., noreply@yourdomain.com)
    - Check your email and verify
@@ -540,7 +540,7 @@ The application includes email verification for user registration.
 1. User registers with email/password
 2. System generates verification token (expires in 24 hours)
 3. Verification email sent via Resend
-4. User clicks link â†’ email verified
+4. User clicks link → email verified
 5. User can now login and access all features
 
 ### Development Without Email
@@ -551,7 +551,7 @@ For local development, you can:
 
 ---
 
-## ðŸš€ Deployment
+## 🚀 Deployment
 
 ### Deploying to Vercel
 
@@ -575,7 +575,7 @@ This application is configured for Vercel deployment with serverless API.
    ```
 
 3. **Configure Environment Variables in Vercel**
-   - Go to Vercel Dashboard â†’ Project Settings â†’ Environment Variables
+   - Go to Vercel Dashboard → Project Settings → Environment Variables
    - Add all **server** environment variables from the [Environment Variables](#environment-variables) section:
      - `DATABASE_URL` (required)
      - `JWT_SECRET` (required)
@@ -610,19 +610,19 @@ This application is configured for Vercel deployment with serverless API.
 
 ---
 
-## ðŸ”„ Project Transfer Information
+## 🔄 Project Transfer Information
 
 ### Source Code Delivery
 
 This project is delivered with complete source code and all necessary files for independent development.
 
 **Included**:
-- âœ… Complete frontend source code (client/)
-- âœ… Complete backend source code (server/)
-- âœ… Database schema and migration files
-- âœ… Breed reference data (27 breeds)
-- âœ… Deployment configuration
-- âœ… Comprehensive documentation
+- ✅ Complete frontend source code (client/)
+- ✅ Complete backend source code (server/)
+- ✅ Database schema and migration files
+- ✅ Breed reference data (27 breeds)
+- ✅ Deployment configuration
+- ✅ Comprehensive documentation
 
 ### Database Export
 
@@ -640,7 +640,7 @@ pg_dump $DATABASE_URL > database_backup.sql
 ### Transferring from Developer Accounts
 
 #### Vercel Transfer
-1. Go to Vercel Dashboard â†’ Project Settings â†’ General
+1. Go to Vercel Dashboard → Project Settings → General
 2. Click "Transfer Project"
 3. Enter the new owner's Vercel account email
 4. New owner accepts the transfer
@@ -669,7 +669,7 @@ After transfer, the client can:
 
 ---
 
-## ðŸ› Troubleshooting
+## 🐛 Troubleshooting
 
 ### Database Connection Issues
 
@@ -744,7 +744,7 @@ npm install
 
 ---
 
-## ðŸ“ Additional Notes
+## 📝 Additional Notes
 
 ### Data Validation
 
@@ -776,7 +776,7 @@ npm install
 
 ---
 
-## ðŸ“ž Support
+## 📞 Support
 
 For technical issues or questions after project transfer:
 
@@ -788,31 +788,31 @@ For technical issues or questions after project transfer:
 
 ---
 
-## ðŸ“„ License
+## 📄 License
 
 This project is delivered as proprietary software to the client with full source code ownership and rights to modify, extend, and redistribute as they see fit.
 
 ---
 
-## ðŸŽ‰ Project Status
+## 🎉 Project Status
 
-**Status**: âœ… **COMPLETE AND READY FOR DELIVERY**
+**Status**: ✅ **COMPLETE AND READY FOR DELIVERY**
 
 **Delivered**:
-- âœ… Module 3 visualization working correctly
-- âœ… Module 3 confirmed independent from Modules 1 & 2
-- âœ… Email verification functional
-- âœ… All migrations consolidated
-- âœ… Development files cleaned up
-- âœ… Comprehensive documentation
-- âœ… Setup script for easy installation
-- âœ… Ready for project transfer
+- ✅ Module 3 visualization working correctly
+- ✅ Module 3 confirmed independent from Modules 1 & 2
+- ✅ Email verification functional
+- ✅ All migrations consolidated
+- ✅ Development files cleaned up
+- ✅ Comprehensive documentation
+- ✅ Setup script for easy installation
+- ✅ Ready for project transfer
 
 **Date**: February 4, 2026
 
 ---
 
-**Thank you for using MVP Web!** ðŸš€
+**Thank you for using MVP Web!** 🚀
 
 
 

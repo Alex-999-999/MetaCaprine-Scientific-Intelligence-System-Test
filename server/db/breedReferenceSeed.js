@@ -11,10 +11,10 @@ function normalizeTextValue(value) {
   const text = String(value).trim();
   if (!text) return text;
 
-  if (/[Ãâ€]/.test(text)) {
+  if (/[\u00C3\u00E2\u20AC]/.test(text)) {
     try {
       const repaired = Buffer.from(text, 'latin1').toString('utf8').trim();
-      if (repaired && !/[Ãâ€]/.test(repaired)) {
+    if (repaired && !/[\u00C3\u00E2\u20AC]/.test(repaired)) {
         return repaired;
       }
     } catch {

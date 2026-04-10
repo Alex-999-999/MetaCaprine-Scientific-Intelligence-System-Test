@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS public.breed_reference (
   ecm_kg_lifetime NUMERIC NOT NULL, -- ECM lifetime (yr * lactations)
 
   -- Display helpers
-  approx_liters_note TEXT, -- "â‰ˆ 1183 L/aÃ±o (1 kg â‰ˆ 1 L)"
+  approx_liters_note TEXT, -- "≈ 1183 L/año (1 kg ≈ 1 L)"
   image_asset_key TEXT, -- key for breed image
 
   created_at TIMESTAMPTZ DEFAULT now(),
