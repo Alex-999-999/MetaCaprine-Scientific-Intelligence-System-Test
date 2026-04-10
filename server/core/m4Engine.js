@@ -1,66 +1,93 @@
-/**
- * Module 4: La Cabra como Inversión — Calculation Engine
- *
- * All economic logic lives here. No component should duplicate these formulas.
- *
- * Paridad con TABLA MAESTRA (CSV): validar con `npm run reconcile:m4` frente a columnas de escenario.
- * Murciano-Granadina se usa como golden estricto; alguna fila del Excel puede discrepar (p. ej. S2)
- * si la hoja usa una fórmula distinta — revisar con el cliente antes de forzar paridad fila a fila.
- *
- * Glossary:
- *   CAP  – Costo real del Activo Productivo
- *   ROI  – Retorno sobre la inversión (lifetime)
- *   S1   – Escenario: solo leche
- *   S2   – Escenario: leche + hijas
- *   S3   – Escenarios: queso + hijas por canal (C1, C2, C3)
+﻿/**
+ * Module 4 economic engine.
+ * Keeps formula logic centralized for backend and client sync.
  */
 
 const HORIZON_YEARS = 5;
 
-/** Optional: approximate kg per liter for UI notes (economics use kg × $/L per validated Excel). */
+/** Optional conversion for pedagogy notes only. */
 export const MILK_KG_PER_LITER = 1.03;
 
 export function lifetimeMilkLitersFromKg(lifetimeMilkKg) {
   return lifetimeMilkKg / MILK_KG_PER_LITER;
 }
 
-/**
- * CAP used in scenarios/KPIs: prefer tabla maestra ("Costo ajustado final CAP") when present, else formula from components.
- */
-export function resolveCapForEconomics(capReference, acquisitionLogisticsCost, raisingCost, mortalityPct, replacementPct) {
+/** CAP definition (updated): acquisition + logistics + raising only. */
+export function calculateCAP(acquisitionLogisticsCost, raisingCost) {
+  return acquisitionLogisticsCost + raisingCost;
+}
+
+/** Prefer explicit CAP reference from dataset when present. */
+export function resolveCapForEconomics(capReference, acquisitionLogisticsCost, raisingCost) {
   const ref = Number(capReference);
   if (ref > 0 && Number.isFinite(ref)) return ref;
-  return calculateCAP(acquisitionLogisticsCost, raisingCost, mortalityPct, replacementPct);
+  return calculateCAP(acquisitionLogisticsCost, raisingCost);
 }
 
-// ── CAP ────────────────────────────────────────────────────────────────────────
-export function calculateCAP(acquisitionLogisticsCost, raisingCost, mortalityPct, replacementPct) {
-  if (mortalityPct >= 1) return 0;
-  return ((acquisitionLogisticsCost + raisingCost) / (1 - mortalityPct)) * (1 + replacementPct);
-}
-
-// ── Hijas ──────────────────────────────────────────────────────────────────────
 export function calculateFemaleDaughters(daughtersPerLife, femaleRatio) {
   return daughtersPerLife * femaleRatio;
 }
 
-// ── Escenarios (alineados a TABLA MAESTRA M4 / Excel validado) ─────────────────
-/** Solo leche: leche vitalicia (kg) × margen ($/L) − CAP */
+/**
+ * Replacement and mortality apply only to scenarios that include daughters.
+ * Effective daughters sale value = gross daughters value - replacement reserve - mortality reserve.
+ */
+export function calculateAdjustedDaughterRevenue(
+  daughtersPerLife,
+  femaleValue,
+  replacementPct = 0.2,
+  mortalityPct = 0.08,
+) {
+  const gross = daughtersPerLife * femaleValue;
+  const repl = Number.isFinite(replacementPct) ? Math.max(0, replacementPct) : 0.2;
+  const mort = Number.isFinite(mortalityPct) ? Math.max(0, mortalityPct) : 0.08;
+  const adjusted = gross * (1 - repl - mort);
+  return Math.max(0, adjusted);
+}
+
+/** Milk only scenario. */
 export function calculateScenarioS1(lifetimeMilkKg, milkMarginPerLiter, cap) {
   return lifetimeMilkKg * milkMarginPerLiter - cap;
 }
 
-/** Leche + venta hijas: mismo término leche que S1 + hijas/vida × valor hija − CAP */
-export function calculateScenarioS2(lifetimeMilkKg, milkMarginPerLiter, daughtersPerLife, femaleValue, cap) {
-  return lifetimeMilkKg * milkMarginPerLiter + daughtersPerLife * femaleValue - cap;
+/** Milk + daughters scenario. */
+export function calculateScenarioS2(
+  lifetimeMilkKg,
+  milkMarginPerLiter,
+  daughtersPerLife,
+  femaleValue,
+  replacementPct,
+  mortalityPct,
+  cap,
+) {
+  const daughtersRevenue = calculateAdjustedDaughterRevenue(
+    daughtersPerLife,
+    femaleValue,
+    replacementPct,
+    mortalityPct,
+  );
+  return lifetimeMilkKg * milkMarginPerLiter + daughtersRevenue - cap;
 }
 
-/** Queso + hijas: hijas/vida × valor hija + queso vitalicio × margen canal − CAP */
-export function calculateScenarioS3(daughtersPerLife, femaleValue, lifetimeCheeseKg, cheeseMargin, cap) {
-  return daughtersPerLife * femaleValue + lifetimeCheeseKg * cheeseMargin - cap;
+/** Cheese + daughters scenario by channel. */
+export function calculateScenarioS3(
+  daughtersPerLife,
+  femaleValue,
+  replacementPct,
+  mortalityPct,
+  lifetimeCheeseKg,
+  cheeseMargin,
+  cap,
+) {
+  const daughtersRevenue = calculateAdjustedDaughterRevenue(
+    daughtersPerLife,
+    femaleValue,
+    replacementPct,
+    mortalityPct,
+  );
+  return daughtersRevenue + lifetimeCheeseKg * cheeseMargin - cap;
 }
 
-// ── KPIs ───────────────────────────────────────────────────────────────────────
 export function calculateROI(scenarioResult, cap) {
   if (!cap || cap === 0) return null;
   return scenarioResult / cap;
@@ -77,7 +104,6 @@ export function calculatePayback(scenarioResult, cap) {
   return cap / annualFlow;
 }
 
-// ── Recovery Curve ─────────────────────────────────────────────────────────────
 export function buildRecoveryCurve(cap, scenarioResult) {
   const annualFlow = scenarioResult / HORIZON_YEARS;
   const points = [];
@@ -90,7 +116,6 @@ export function buildRecoveryCurve(cap, scenarioResult) {
   return points;
 }
 
-// ── Scenario status label ──────────────────────────────────────────────────────
 export function getScenarioStatus(payback) {
   if (payback === null) return 'no_recovery';
   if (payback < 2) return 'fast';
@@ -99,7 +124,6 @@ export function getScenarioStatus(payback) {
   return 'weak';
 }
 
-// ── Best scenario selector ─────────────────────────────────────────────────────
 export function getBestScenarioKey(scenarios) {
   let bestKey = null;
   let bestValue = -Infinity;
@@ -112,14 +136,12 @@ export function getBestScenarioKey(scenarios) {
   return bestKey;
 }
 
-/** Arithmetic mean of the five scenario nets — “escenario promedio de referencia”. */
 export function getMeanScenarioValue(scenarios) {
   const vals = Object.values(scenarios).filter((x) => typeof x === 'number' && Number.isFinite(x));
   if (vals.length === 0) return 0;
   return vals.reduce((a, b) => a + b, 0) / vals.length;
 }
 
-// ── Full M4 computation for one breed ──────────────────────────────────────────
 export function calculateM4(breed, overrides = {}) {
   const useReferenceScenarios = Object.keys(overrides || {}).length === 0;
 
@@ -135,8 +157,8 @@ export function calculateM4(breed, overrides = {}) {
   const replacementPct = v('replacement_pct');
   const capReference = v('cap_reference');
 
-  const capComputed = calculateCAP(acquisitionLogisticsCost, raisingCost, mortalityPct, replacementPct);
-  const cap = resolveCapForEconomics(capReference, acquisitionLogisticsCost, raisingCost, mortalityPct, replacementPct);
+  const capComputed = calculateCAP(acquisitionLogisticsCost, raisingCost);
+  const cap = resolveCapForEconomics(capReference, acquisitionLogisticsCost, raisingCost);
 
   const lifetimeMilkKg = v('lifetime_milk_kg');
   const lifetimeCheeseKg = v('lifetime_cheese_kg');
@@ -150,12 +172,50 @@ export function calculateM4(breed, overrides = {}) {
   const femaleRatio = v('female_ratio');
   const femaleValue = v('female_value');
   const femaleDaughters = calculateFemaleDaughters(daughtersPerLife, femaleRatio);
+  const adjustedDaughterRevenue = calculateAdjustedDaughterRevenue(
+    daughtersPerLife,
+    femaleValue,
+    replacementPct,
+    mortalityPct,
+  );
 
   const s1Formula = calculateScenarioS1(lifetimeMilkKg, milkMarginPerLiter, cap);
-  const s2Formula = calculateScenarioS2(lifetimeMilkKg, milkMarginPerLiter, daughtersPerLife, femaleValue, cap);
-  const s3C1Formula = calculateScenarioS3(daughtersPerLife, femaleValue, lifetimeCheeseKg, cheeseMarginC1, cap);
-  const s3C2Formula = calculateScenarioS3(daughtersPerLife, femaleValue, lifetimeCheeseKg, cheeseMarginC2, cap);
-  const s3C3Formula = calculateScenarioS3(daughtersPerLife, femaleValue, lifetimeCheeseKg, cheeseMarginC3, cap);
+  const s2Formula = calculateScenarioS2(
+    lifetimeMilkKg,
+    milkMarginPerLiter,
+    daughtersPerLife,
+    femaleValue,
+    replacementPct,
+    mortalityPct,
+    cap,
+  );
+  const s3C1Formula = calculateScenarioS3(
+    daughtersPerLife,
+    femaleValue,
+    replacementPct,
+    mortalityPct,
+    lifetimeCheeseKg,
+    cheeseMarginC1,
+    cap,
+  );
+  const s3C2Formula = calculateScenarioS3(
+    daughtersPerLife,
+    femaleValue,
+    replacementPct,
+    mortalityPct,
+    lifetimeCheeseKg,
+    cheeseMarginC2,
+    cap,
+  );
+  const s3C3Formula = calculateScenarioS3(
+    daughtersPerLife,
+    femaleValue,
+    replacementPct,
+    mortalityPct,
+    lifetimeCheeseKg,
+    cheeseMarginC3,
+    cap,
+  );
 
   const chooseScenario = (formulaValue, referenceField) => {
     const rawRef = breed[referenceField];
@@ -198,6 +258,7 @@ export function calculateM4(breed, overrides = {}) {
     capComputed,
     capReference: capReference > 0 ? capReference : null,
     femaleDaughters,
+    adjustedDaughterRevenue,
     scenarios: {
       s1: kpis(s1),
       s2: kpis(s2),
@@ -205,7 +266,7 @@ export function calculateM4(breed, overrides = {}) {
       s3_c2: kpis(s3_c2),
       s3_c3: kpis(s3_c3),
     },
-    scenarioSource: useReferenceScenarios ? 'master_reference' : 'calculated',
+    scenarioSource: useReferenceScenarios ? 'dataset_reference' : 'calculated',
     scenarioFormulaResults: {
       s1: s1Formula,
       s2: s2Formula,

@@ -7,6 +7,10 @@
   --m4-color-negative: #dc2626;
   --m4-color-info: #2563eb;
   --m4-color-warning: #d97706;
+  --m4-color-cap: #6b7280;
+  --m4-color-generated: #16a34a;
+  --m4-color-flow: #2563eb;
+  --m4-color-breakeven: #d4a017;
   max-width: 1100px;
 }
 
@@ -1207,4 +1211,185 @@
   .m4-quick-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* New M4 investment calculator layout */
+.m4-investment-calculator {
+  border: 1px solid var(--border-color);
+}
+
+.m4-field-helper {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.m4-invest-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.m4-invest-metric-card {
+  background: var(--bg-secondary, #f8fafc);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.m4-invest-metric-card span {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.m4-invest-metric-card strong {
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.m4-invest-chart-wrap {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 10px;
+  background: var(--bg-primary, #fff);
+}
+
+.m4-invest-chart-title {
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.m4-recovery-message {
+  margin: 12px 0 4px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--m4-color-flow);
+  background: rgba(37, 99, 235, 0.08);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.m4-profile-bars {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.m4-profile-bar-row {
+  display: grid;
+  gap: 6px;
+}
+
+.m4-profile-bar-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.m4-profile-bar-label strong {
+  color: var(--text-primary);
+}
+
+.m4-profile-bar-track {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--border-color);
+  overflow: hidden;
+}
+
+.m4-profile-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+}
+
+.m4-profile-bar--milk {
+  background: #2563eb;
+}
+
+.m4-profile-bar--cheese {
+  background: #16a34a;
+}
+
+.m4-profile-bar--daughters {
+  background: #d4a017;
+}
+
+/* M4-B updates */
+.m4-cheese-top3-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.m4-cheese-top3-item {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--bg-secondary, #f8fafc);
+  display: grid;
+  gap: 6px;
+}
+
+.m4-cheese-top3-rank {
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+.m4-cheese-top3-name-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.m4-cheese-top3-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.m4-cheese-top3-percent {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.m4-cheese-bars-wrap {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 8px;
+}
+
+.m4-compare-diff-card {
+  margin-top: 12px;
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--m4-color-breakeven);
+  border-radius: 10px;
+  padding: 12px;
+  background: var(--bg-secondary, #f8fafc);
+}
+
+.m4-compare-diff-card span {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.m4-compare-diff-card strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.m4-compare-diff-card p {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-weight: 700;
 }

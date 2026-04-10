@@ -1,7 +1,11 @@
-/**
- * Shared TABLA MAESTRA M4 CSV parsing (European number format).
+﻿/**
+ * Shared M4 CSV parsing.
+ * Supports both Spanish (1.234,56) and US (1,234.56) number formats.
  * Used by parse-m4-master-csv.js and reconcile-m4-csv.js.
  */
+
+export const DEFAULT_REPLACEMENT_PCT = 0.20;
+export const DEFAULT_MORTALITY_PCT = 0.08;
 
 export function splitCsvLine(line) {
   const out = [];
@@ -24,28 +28,77 @@ export function splitCsvLine(line) {
   return out;
 }
 
-/** Spanish / Excel: $ 1.308,63 → 1308.63 */
+/**
+ * Parses monetary/numeric cells from mixed locale formats.
+ * Examples:
+ *  - "$ 1.308,63" -> 1308.63
+ *  - "$ 1,308.63" -> 1308.63
+ *  - "897.96" -> 897.96
+ */
 export function parseMoneyOrNumber(raw) {
   if (raw == null || raw === '') return null;
   let t = String(raw).trim();
   if (!t || t === ',') return null;
-  t = t.replace(/\$/g, '').replace(/\s/g, '');
-  if (t.endsWith('%')) return null;
+
+  t = t
+    .replace(/US\$/gi, '')
+    .replace(/\$/g, '')
+    .replace(/\s/g, '');
+
+  if (!t || t.endsWith('%')) return null;
+
   if (t.includes('.') && t.includes(',')) {
-    t = t.replace(/\./g, '').replace(',', '.');
+    const lastDot = t.lastIndexOf('.');
+    const lastComma = t.lastIndexOf(',');
+    if (lastComma > lastDot) {
+      // Spanish style: 1.234,56
+      t = t.replace(/\./g, '').replace(',', '.');
+    } else {
+      // US style: 1,234.56
+      t = t.replace(/,/g, '');
+    }
   } else if (t.includes(',')) {
-    t = t.replace(',', '.');
+    const parts = t.split(',');
+    const last = parts[parts.length - 1] || '';
+    if (parts.length > 1 && last.length === 3) {
+      // Thousands grouping only
+      t = parts.join('');
+    } else {
+      // Decimal comma
+      t = t.replace(',', '.');
+    }
+  } else if (t.includes('.')) {
+    const parts = t.split('.');
+    const last = parts[parts.length - 1] || '';
+    if (parts.length > 1 && last.length === 3) {
+      // Thousands grouping only
+      t = parts.join('');
+    }
   }
+
   const n = parseFloat(t);
   return Number.isFinite(n) ? n : null;
 }
 
 export function parsePercent(raw) {
   if (raw == null || raw === '') return null;
-  const t = String(raw).trim().replace(/\s/g, '').replace('%', '');
+  const t = String(raw).trim();
   if (!t) return null;
-  const n = parseFloat(t.replace(',', '.'));
-  return Number.isFinite(n) ? n / 100 : null;
+
+  // If the cell is monetary, this is not a percentage field.
+  if (/\$/i.test(t)) return null;
+
+  if (t.includes('%')) {
+    const clean = t.replace(/\s/g, '').replace('%', '');
+    const n = parseFloat(clean.replace(',', '.'));
+    return Number.isFinite(n) ? n / 100 : null;
+  }
+
+  const n = parseMoneyOrNumber(t);
+  if (n == null || !Number.isFinite(n)) return null;
+  if (n >= 0 && n <= 1) return n;
+  if (n > 1 && n <= 100) return n / 100;
+  return null;
 }
 
 export function rowToBreed(cells) {
@@ -96,8 +149,10 @@ export function rowToBreed(cells) {
   const femVal = parseMoneyOrNumber(cells[35]);
   const acq = parseMoneyOrNumber(cells[36]);
   const raise = parseMoneyOrNumber(cells[37]);
-  const repl = parsePercent(cells[38]);
-  const mort = parsePercent(cells[39]);
+  const replParsed = parsePercent(cells[38]);
+  const mortParsed = parsePercent(cells[39]);
+  const repl = replParsed != null && replParsed >= 0 && replParsed <= 0.25 ? replParsed : DEFAULT_REPLACEMENT_PCT;
+  const mort = mortParsed != null && mortParsed >= 0 && mortParsed <= 0.2 ? mortParsed : DEFAULT_MORTALITY_PCT;
   const capRef = parseMoneyOrNumber(cells[40]);
   const scenarioS1Ref = parseMoneyOrNumber(cells[CSV_SCENARIO_NET_COL.s1]);
   const scenarioS2Ref = parseMoneyOrNumber(cells[CSV_SCENARIO_NET_COL.s2]);
@@ -144,8 +199,8 @@ export function rowToBreed(cells) {
     female_value: femVal ?? 0,
     acquisition_logistics_cost: acq ?? 0,
     raising_cost: raise ?? 0,
-    replacement_pct: repl ?? 0,
-    mortality_pct: mort ?? 0,
+    replacement_pct: repl,
+    mortality_pct: mort,
     cap_reference: capRef,
     scenario_s1_reference: scenarioS1Ref,
     scenario_s2_reference: scenarioS2Ref,
@@ -155,7 +210,7 @@ export function rowToBreed(cells) {
   };
 }
 
-/** Column indices on TABLA MAESTRA row 1 after CAP (0-based): five scenario net results. */
+/** Column indices on M4 CSV row after CAP (0-based): five scenario net results. */
 export const CSV_SCENARIO_NET_COL = {
   s1: 41,
   s2: 42,
