@@ -4239,3 +4239,168 @@ Object.assign(translations.pt, {
 });
 // STEP25_FOOTER_LEGAL_PAGES_END
 
+
+// STEP26_M4_FINAL_PREDICTIVE_UI_START
+Object.assign(translations.en, {
+  module4PredictiveLead: 'This module is a predictive investment model, not a static dashboard. Use it to estimate invested capital, generated value, and recovery timing.',
+  module4GlobalAverageDisclaimer: 'This module uses international averages. Results may vary by management, environment, genetics, feeding, production system, and farm identity.',
+  module4ConceptsTitle: 'Core concepts in plain language',
+  module4ConceptCapTitle: 'CAP (investment)',
+  module4ConceptCapDesc: 'Total money required to bring each goat into productive operation.',
+  module4ConceptGeneratedTitle: 'Generated value',
+  module4ConceptGeneratedDesc: 'Estimated economic value produced across the selected horizon.',
+  module4ConceptGainTitle: 'Net gain',
+  module4ConceptGainDesc: 'Difference between generated value and invested capital.',
+  module4ConceptPaybackTitle: 'Payback',
+  module4ConceptPaybackDesc: 'Approximate year when the initial investment is recovered.',
+  module4FreeSummaryHint: 'Preview of productive potential with the free breed set.',
+  module4FreeSummaryExplainer: 'This means you can see productive potential, but not yet the full investment result.',
+  module4M4bPreviewTitle: 'M4-B preview: cheese analysis by breed',
+  module4M4bPreviewHint: 'Quick ranking of free-visible breeds to compare cheese potential.',
+  module4PreviewTitle: 'PRO investment simulator preview',
+  module4PreviewSubtitle: 'Calculator, scenarios, ROI and payback stay locked in free mode.',
+  module4PreviewLockedValue: '$****',
+  module4PreviewLockedYears: '*.* years',
+  module4PreviewOverlayMessage: 'Unlock the complete simulator to run investment projections with real values.',
+  module4FreeConversionHeadline: 'You are seeing productive potential, but not the full business model.',
+  module4FreeConversionMain: 'Unlock investment analysis and decide with real economic projections.',
+  module4FreeConversionSub: 'Move from intuition to financial control in one workflow.',
+  module4UnlockInvestmentAnalysis: 'Unlock investment analysis',
+  module4MainChartTypeLabel: 'Main chart type',
+  module4MainChartTypeLine: 'Lines',
+  module4MainChartTypeArea: 'Area',
+  module4MainChartTypeBars: 'Columns',
+  module4SecondaryChartTypeLabel: 'Complementary chart type',
+  module4SecondaryChartTypeColumns: 'Columns (CAP/Value/Gain)',
+  module4SecondaryChartTypePie: 'Pie (investment vs return)',
+  module4LegendCap: 'CAP (investment)',
+  module4LegendGenerated: 'Generated value',
+  module4LegendGain: 'Net gain / accumulated flow',
+  module4LegendBreakEven: 'Break-even point',
+  module4GainAreaLabel: 'Gain area',
+  module4ComplementaryChartTitle: 'Visual balance of investment vs return',
+  module4ComplementaryChartHint: 'Use this view to understand the financial balance in seconds.',
+  module4ChartPedagogyRecovered: 'The investment is recovered around year {{year}}.',
+  module4ChartPedagogyRecoveredLine2: 'From that point forward, the model generates positive net value.',
+  module4ChartPedagogyNotRecovered: 'The investment is not recovered within the analyzed horizon.',
+  module4ChartPedagogyNotRecoveredLine2: 'This means assumptions (price, productivity, or costs) should be reviewed before scaling.',
+  module4ProfileInsight: 'This means the main source of value comes from: {{source}}.',
+  module4GeneratedByYear: 'Year {{year}}: {{value}} generated value',
+  module4CheeseFreeHint: 'Free view is limited to the same breeds available in Module 3 free catalog.',
+});
+
+Object.assign(translations.es, {
+  module4PredictiveLead: 'Este módulo es un modelo predictivo de inversión, no un dashboard estático. Úsalo para estimar cuánto inviertes, cuánto generas y cuándo recuperas.',
+  module4GlobalAverageDisclaimer: 'Este módulo utiliza promedios internacionales. Los resultados pueden variar según manejo, ambiente, genética, alimentación, sistema e identidad productiva.',
+  module4ConceptsTitle: 'Conceptos clave en lenguaje simple',
+  module4ConceptCapTitle: 'CAP (inversión)',
+  module4ConceptCapDesc: 'Capital total necesario para poner cada cabra en operación productiva.',
+  module4ConceptGeneratedTitle: 'Valor generado',
+  module4ConceptGeneratedDesc: 'Valor económico estimado que produce la cabra en el horizonte analizado.',
+  module4ConceptGainTitle: 'Ganancia neta',
+  module4ConceptGainDesc: 'Diferencia entre el valor generado y la inversión inicial.',
+  module4ConceptPaybackTitle: 'Payback',
+  module4ConceptPaybackDesc: 'Año aproximado en que recuperas la inversión inicial.',
+  module4FreeSummaryHint: 'Vista base del potencial productivo con el catálogo FREE.',
+  module4FreeSummaryExplainer: 'Esto significa que puedes ver potencial productivo, pero todavía no el resultado completo del negocio.',
+  module4M4bPreviewTitle: 'Vista previa M4-B: análisis quesero por raza',
+  module4M4bPreviewHint: 'Ranking rápido de razas visibles en FREE para comparar potencial quesero.',
+  module4PreviewTitle: 'Vista previa del simulador de inversión PRO',
+  module4PreviewSubtitle: 'La calculadora completa, escenarios, ROI y payback están bloqueados en modo FREE.',
+  module4PreviewLockedValue: '$****',
+  module4PreviewLockedYears: '*.* años',
+  module4PreviewOverlayMessage: 'Desbloquea el simulador completo para proyectar inversión con valores reales.',
+  module4FreeConversionHeadline: 'Estás viendo el potencial productivo, pero no el negocio completo.',
+  module4FreeConversionMain: 'Desbloquea el análisis de inversión y decide con proyecciones económicas reales.',
+  module4FreeConversionSub: 'Pasa de la intuición al control financiero en un solo flujo.',
+  module4UnlockInvestmentAnalysis: 'Desbloquear análisis de inversión',
+  module4MainChartTypeLabel: 'Tipo de gráfico principal',
+  module4MainChartTypeLine: 'Líneas',
+  module4MainChartTypeArea: 'Área',
+  module4MainChartTypeBars: 'Columnas',
+  module4SecondaryChartTypeLabel: 'Tipo de gráfico complementario',
+  module4SecondaryChartTypeColumns: 'Columnas (CAP/Valor/Ganancia)',
+  module4SecondaryChartTypePie: 'Torta (inversión vs retorno)',
+  module4LegendCap: 'CAP (inversión)',
+  module4LegendGenerated: 'Valor generado',
+  module4LegendGain: 'Ganancia neta / flujo acumulado',
+  module4LegendBreakEven: 'Punto de recuperación',
+  module4GainAreaLabel: 'Área de ganancia',
+  module4ComplementaryChartTitle: 'Balance visual entre inversión y retorno',
+  module4ComplementaryChartHint: 'Usa esta vista para entender el balance financiero en segundos.',
+  module4ChartPedagogyRecovered: 'La inversión se recupera aproximadamente en el año {{year}}.',
+  module4ChartPedagogyRecoveredLine2: 'A partir de ese punto, el sistema genera valor neto positivo.',
+  module4ChartPedagogyNotRecovered: 'La inversión no se recupera dentro del horizonte analizado.',
+  module4ChartPedagogyNotRecoveredLine2: 'Esto significa que conviene revisar supuestos de precio, productividad o costos antes de escalar.',
+  module4ProfileInsight: 'Esto significa que la principal fuente de valor proviene de: {{source}}.',
+  module4GeneratedByYear: 'Año {{year}}: {{value}} de valor generado',
+  module4CheeseFreeHint: 'La vista FREE está limitada a las mismas razas visibles en el catálogo gratuito del M3.',
+});
+
+Object.assign(translations.fr, {
+  module4PredictiveLead: 'Predictive investment module for goat farming decisions.',
+  module4GlobalAverageDisclaimer: 'This module uses international averages; real results can vary by farm context.',
+  module4ConceptsTitle: 'Core concepts',
+  module4PreviewTitle: 'PRO simulator preview',
+  module4UnlockInvestmentAnalysis: 'Unlock investment analysis',
+  module4MainChartTypeLabel: 'Main chart type',
+  module4SecondaryChartTypeLabel: 'Complementary chart type',
+  module4ComplementaryChartTitle: 'Investment vs return balance',
+  module4ChartPedagogyRecovered: 'Investment is recovered around year {{year}}.',
+  module4ChartPedagogyNotRecovered: 'Investment is not recovered within the analyzed horizon.',
+  module4GeneratedByYear: 'Year {{year}}: {{value}} generated',
+});
+
+Object.assign(translations.it, {
+  module4PredictiveLead: 'Predictive investment module for goat farming decisions.',
+  module4GlobalAverageDisclaimer: 'This module uses international averages; real results can vary by farm context.',
+  module4ConceptsTitle: 'Core concepts',
+  module4PreviewTitle: 'PRO simulator preview',
+  module4UnlockInvestmentAnalysis: 'Unlock investment analysis',
+  module4MainChartTypeLabel: 'Main chart type',
+  module4SecondaryChartTypeLabel: 'Complementary chart type',
+  module4ComplementaryChartTitle: 'Investment vs return balance',
+  module4ChartPedagogyRecovered: 'Investment is recovered around year {{year}}.',
+  module4ChartPedagogyNotRecovered: 'Investment is not recovered within the analyzed horizon.',
+  module4GeneratedByYear: 'Year {{year}}: {{value}} generated',
+});
+
+Object.assign(translations.pt, {
+  module4PredictiveLead: 'Módulo preditivo de investimento para decisões na caprinocultura.',
+  module4GlobalAverageDisclaimer: 'Este módulo usa médias internacionais; os resultados podem variar no contexto real da fazenda.',
+  module4ConceptsTitle: 'Conceitos principais',
+  module4PreviewTitle: 'Prévia do simulador PRO',
+  module4UnlockInvestmentAnalysis: 'Desbloquear análise de investimento',
+  module4MainChartTypeLabel: 'Tipo de gráfico principal',
+  module4SecondaryChartTypeLabel: 'Tipo de gráfico complementar',
+  module4ComplementaryChartTitle: 'Balanço entre investimento e retorno',
+  module4ChartPedagogyRecovered: 'O investimento é recuperado por volta do ano {{year}}.',
+  module4ChartPedagogyNotRecovered: 'O investimento não é recuperado no horizonte analisado.',
+  module4GeneratedByYear: 'Ano {{year}}: {{value}} gerado',
+});
+// STEP26_M4_FINAL_PREDICTIVE_UI_END
+
+Object.assign(translations.en, {
+  module4YearUnitSingular: 'year',
+  module4YearUnitPlural: 'years',
+});
+
+Object.assign(translations.es, {
+  module4YearUnitSingular: 'año',
+  module4YearUnitPlural: 'años',
+});
+
+Object.assign(translations.fr, {
+  module4YearUnitSingular: 'year',
+  module4YearUnitPlural: 'years',
+});
+
+Object.assign(translations.it, {
+  module4YearUnitSingular: 'year',
+  module4YearUnitPlural: 'years',
+});
+
+Object.assign(translations.pt, {
+  module4YearUnitSingular: 'ano',
+  module4YearUnitPlural: 'anos',
+});

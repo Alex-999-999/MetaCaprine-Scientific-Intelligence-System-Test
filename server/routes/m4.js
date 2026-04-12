@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import { getPool } from '../db/pool.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { requireRole } from '../middleware/requireRole.js';
@@ -12,50 +12,122 @@ router.use(authenticateToken);
 router.use(requireRole(['free', 'pro', 'admin']));
 router.use(requireEmailVerification);
 
-const FREE_BREED_LIMIT = 6;
+const FREE_M3_BREED_TOKENS = new Set([
+  'alpina_generica',
+  'alpine_generica',
+  'saanen_generica',
+  'criolla_colombiana',
+  'criolla_peruana',
+  'nigerian_dwarf',
+]);
 
-// ── GET /api/m4/breeds — catalogue (free gets first N, pro gets all) ───────
+function normalizeToken(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .replace(/_+/g, '_');
+}
+
+function isFreeCatalogBreed(row) {
+  const nameToken = normalizeToken(row?.name);
+
+  if (FREE_M3_BREED_TOKENS.has(nameToken)) {
+    return true;
+  }
+
+  const alpinaGenerica =
+    (nameToken.includes('alpina') || nameToken.includes('alpine')) && nameToken.includes('generica');
+  const saanenGenerica = nameToken.includes('saanen') && nameToken.includes('generica');
+  const criollaColombiana = nameToken.includes('criolla') && nameToken.includes('colombiana');
+  const criollaPeruana = nameToken.includes('criolla') && nameToken.includes('peruana');
+  const nigerianDwarf = nameToken.includes('nigerian') && nameToken.includes('dwarf');
+
+  return alpinaGenerica || saanenGenerica || criollaColombiana || criollaPeruana || nigerianDwarf;
+}
+
+function buildFreeBreedPayload(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    milk_per_lactation_kg: row.milk_per_lactation_kg,
+    cheese_yield_liters_per_kg: row.cheese_yield_liters_per_kg,
+    lifetime_cheese_kg: row.lifetime_cheese_kg,
+    validation_source: row.validation_source,
+    region: row.region,
+    suggested_system: row.suggested_system,
+  };
+}
+
+async function getIsPro(userId) {
+  return hasFeatureAccess(userId, 'advanced_calculations');
+}
+
+function proRequiredResponse(res) {
+  return res.status(403).json({
+    error: 'Feature access required',
+    message: 'Este analisis completo es exclusivo para usuarios PRO.',
+    feature: 'advanced_calculations',
+    upgrade_required: true,
+  });
+}
+
+// GET /api/m4/breeds
 router.get('/breeds', async (req, res) => {
   try {
     const pool = getPool();
-    const { rows } = await pool.query(
-      'SELECT * FROM m4_breeds ORDER BY lifetime_cheese_kg DESC'
-    );
+    const { rows } = await pool.query('SELECT * FROM m4_breeds ORDER BY lifetime_cheese_kg DESC');
+    const isPro = await getIsPro(req.user.userId);
 
-    const isPro = await hasFeatureAccess(req.user.userId, 'advanced_calculations');
+    if (isPro) {
+      return res.json({
+        breeds: rows,
+        isPro: true,
+        fullCatalog: true,
+      });
+    }
 
-    const breeds = isPro
-      ? rows
-      : rows.map((b, i) => (i < FREE_BREED_LIMIT ? b : { id: b.id, name: b.name, locked: true }));
+    const freeBreeds = rows.filter(isFreeCatalogBreed).map(buildFreeBreedPayload);
 
-    res.json({ breeds, isPro });
+    return res.json({
+      breeds: freeBreeds,
+      isPro: false,
+      fullCatalog: false,
+    });
   } catch (error) {
     console.error('M4 breeds error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// ── GET /api/m4/breeds/:id — single breed with full calculations ───────────
+// GET /api/m4/breeds/:id
 router.get('/breeds/:id', async (req, res) => {
   try {
+    const isPro = await getIsPro(req.user.userId);
+    if (!isPro) return proRequiredResponse(res);
+
     const pool = getPool();
     const { rows } = await pool.query('SELECT * FROM m4_breeds WHERE id = $1', [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Breed not found' });
 
     const breed = rows[0];
     const result = calculateM4(breed);
-    const isPro = await hasFeatureAccess(req.user.userId, 'advanced_calculations');
 
-    res.json({ breed, result, isPro });
+    res.json({ breed, result, isPro: true });
   } catch (error) {
     console.error('M4 breed detail error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// ── POST /api/m4/calculate — ad-hoc calculation with optional overrides ────
+// POST /api/m4/calculate
 router.post('/calculate', async (req, res) => {
   try {
+    const isPro = await getIsPro(req.user.userId);
+    if (!isPro) return proRequiredResponse(res);
+
     const { breed_id, overrides } = req.body;
     if (!breed_id) return res.status(400).json({ error: 'breed_id is required' });
 
@@ -63,34 +135,24 @@ router.post('/calculate', async (req, res) => {
     const { rows } = await pool.query('SELECT * FROM m4_breeds WHERE id = $1', [breed_id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Breed not found' });
 
-    const isPro = await hasFeatureAccess(req.user.userId, 'advanced_calculations');
-
-    if (!isPro && overrides && Object.keys(overrides).length > 0) {
-      return res.status(403).json({
-        error: 'Feature access required',
-        message: 'La edicion de parametros es exclusiva para usuarios PRO.',
-        upgrade_required: true,
-      });
-    }
-
     const result = calculateM4(rows[0], overrides || {});
-    res.json({ result, isPro });
+    res.json({ result, isPro: true });
   } catch (error) {
     console.error('M4 calculate error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// ── GET /api/m4/ranking/cheese — cheese ranking (free = top 3) ─────────────
+// GET /api/m4/ranking/cheese
 router.get('/ranking/cheese', async (req, res) => {
   try {
     const pool = getPool();
     const { rows } = await pool.query(
-      'SELECT id, name, lifetime_cheese_kg, cheese_yield_liters_per_kg FROM m4_breeds ORDER BY lifetime_cheese_kg DESC'
+      'SELECT id, name, lifetime_cheese_kg, cheese_yield_liters_per_kg FROM m4_breeds ORDER BY lifetime_cheese_kg DESC',
     );
 
-    const isPro = await hasFeatureAccess(req.user.userId, 'advanced_calculations');
-    const ranking = isPro ? rows : rows.slice(0, 3);
+    const isPro = await getIsPro(req.user.userId);
+    const ranking = isPro ? rows : rows.filter(isFreeCatalogBreed);
 
     res.json({ ranking, total: rows.length, isPro });
   } catch (error) {
@@ -99,18 +161,20 @@ router.get('/ranking/cheese', async (req, res) => {
   }
 });
 
-// ── GET /api/m4/profile/:id — economic profile for one breed ───────────────
+// GET /api/m4/profile/:id
 router.get('/profile/:id', async (req, res) => {
   try {
+    const isPro = await getIsPro(req.user.userId);
+    if (!isPro) return proRequiredResponse(res);
+
     const pool = getPool();
     const { rows } = await pool.query('SELECT * FROM m4_breeds WHERE id = $1', [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Breed not found' });
 
     const breed = rows[0];
     const result = calculateM4(breed);
-    const isPro = await hasFeatureAccess(req.user.userId, 'advanced_calculations');
 
-    res.json({ breed, result, isPro });
+    res.json({ breed, result, isPro: true });
   } catch (error) {
     console.error('M4 profile error:', error);
     res.status(500).json({ error: 'Internal server error' });
