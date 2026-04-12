@@ -1677,3 +1677,129 @@
     grid-template-columns: 34px 1fr auto;
   }
 }
+
+.m4-concepts-panel {
+  margin-top: 14px;
+}
+
+.m4-concept-item--roi {
+  border-left: 4px solid var(--m4-color-generated);
+}
+
+.m4-scenario-kpis-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.m4-scenario-kpi {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--bg-secondary, #f8fafc);
+}
+
+.m4-scenario-kpi span {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.m4-scenario-kpi strong {
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.m4-annual-story-card {
+  margin-top: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--bg-secondary, #f8fafc);
+}
+
+.m4-year-story-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.m4-year-story-item {
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  padding: 10px 12px;
+  background: var(--bg-primary, #fff);
+}
+
+.m4-year-story-item strong {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  line-height: 1.45;
+}
+
+.m4-year-story-item span {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.m4-free-pro-table-wrap {
+  margin-top: 16px;
+  text-align: left;
+}
+
+.m4-free-pro-table-wrap h4 {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+}
+
+.m4-free-pro-table {
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.dark-mode .m4-free-pro-table {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.m4-free-pro-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1.4fr) 1fr 1.2fr;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.m4-free-pro-row:first-child {
+  border-top: 0;
+}
+
+.m4-free-pro-row--head {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.m4-free-pro-row span,
+.m4-free-pro-row strong {
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 900px) {
+  .m4-scenario-kpis-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .m4-free-pro-row {
+    grid-template-columns: 1fr;
+  }
+}

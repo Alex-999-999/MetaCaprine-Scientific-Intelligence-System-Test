@@ -24,7 +24,6 @@ import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import { useChartColors } from '../../hooks/useDarkMode';
 import { computeM4, scenarioRevenueBreakdown } from '../../utils/m4Calculations';
-import ModernIcon from '../icons/ModernIcon';
 import '../../styles/Module4.css';
 
 const HORIZON = 5;
@@ -51,6 +50,8 @@ const fmt = (n, d = 0) =>
     : Number(n).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d });
 
 const fmtMoney = (n, d = 2) => (n == null || Number.isNaN(Number(n)) ? '-' : `$${fmt(n, d)}`);
+const fmtRatioPct = (n, d = 1) =>
+  n == null || Number.isNaN(Number(n)) ? '-' : `${(Number(n) * 100).toFixed(d)}%`;
 const compactMoney = (n) => {
   const v = Number(n) || 0;
   const abs = Math.abs(v);
@@ -213,6 +214,15 @@ export default function Module4Investment() {
         { name: t('module4CardGenerated'), value: Math.max(calculator.generated, 0), color: 'var(--m4-color-generated)' },
       ]
     : [];
+  const annualStory = calculator
+    ? calculator.curve
+        .filter((point) => point.year > 0)
+        .map((point) => ({
+          year: point.year,
+          generated: point.valueGenerated,
+          flow: point.accumulatedFlow,
+        }))
+    : [];
 
   return (
     <div className="container module-compact m4-root m4-predictive-module">
@@ -232,6 +242,28 @@ export default function Module4Investment() {
           <p className="m4-explanation-cap"><strong className="m4-cap-term">CAP:</strong> {t('module4CapDefinition')}</p>
         </div>
         <div className="m4-pedagogy-block m4-pedagogy--info"><p className="m4-pedagogy-block-text">{t('module4GlobalAverageDisclaimer')}</p></div>
+        <section className="m4-concepts-panel">
+          <h2 className="m4-section-title">{t('module4ConceptsTitle')}</h2>
+          <div className="m4-concepts-grid">
+            <article className="m4-concept-item m4-concept-item--cap">
+              <strong>{t('module4ConceptCapTitle')}</strong>
+              <p>{t('module4ConceptCapDesc')}</p>
+            </article>
+            <article className="m4-concept-item m4-concept-item--generated">
+              <strong>{t('module4ConceptGeneratedTitle')}</strong>
+              <p>{t('module4ConceptGeneratedDesc')}</p>
+            </article>
+            <article className="m4-concept-item m4-concept-item--roi">
+              <strong>{t('module4ConceptRoiTitle')}</strong>
+              <p>{t('module4ConceptRoiDesc')}</p>
+            </article>
+            <article className="m4-concept-item m4-concept-item--payback">
+              <strong>{t('module4ConceptPaybackTitle')}</strong>
+              <p>{t('module4ConceptPaybackDesc')}</p>
+            </article>
+          </div>
+          <p className="m4-inline-explainer">{t('module4PlainLanguageExplainer')}</p>
+        </section>
       </header>
 
       {!isPro ? (
@@ -290,6 +322,41 @@ export default function Module4Investment() {
             <p className="m4-free-conversion-main">{t('module4FreeConversionMain')}</p>
             <p className="m4-free-conversion-sub">{t('module4FreeConversionSub')}</p>
             <button type="button" className="m4-btn-primary" onClick={() => navigate('/profile')}>{t('module4UnlockInvestmentAnalysis')}</button>
+            <div className="m4-free-pro-table-wrap">
+              <h4>{t('module4FreeVsProTitle')}</h4>
+              <div className="m4-free-pro-table">
+                <div className="m4-free-pro-row m4-free-pro-row--head">
+                  <span></span>
+                  <strong>{t('module4FreeVsProFree')}</strong>
+                  <strong>{t('module4FreeVsProPro')}</strong>
+                </div>
+                <div className="m4-free-pro-row">
+                  <span>{t('module4FreeVsProSummary')}</span>
+                  <span>{t('module4FreeVsProSummaryFree')}</span>
+                  <span>{t('module4FreeVsProSummaryPro')}</span>
+                </div>
+                <div className="m4-free-pro-row">
+                  <span>{t('module4FreeVsProCheese')}</span>
+                  <span>{t('module4FreeVsProCheeseFree')}</span>
+                  <span>{t('module4FreeVsProCheesePro')}</span>
+                </div>
+                <div className="m4-free-pro-row">
+                  <span>{t('module4FreeVsProSimulator')}</span>
+                  <span>{t('module4FreeVsProSimulatorFree')}</span>
+                  <span>{t('module4FreeVsProSimulatorPro')}</span>
+                </div>
+                <div className="m4-free-pro-row">
+                  <span>{t('module4FreeVsProScenarios')}</span>
+                  <span>{t('module4FreeVsProScenariosFree')}</span>
+                  <span>{t('module4FreeVsProScenariosPro')}</span>
+                </div>
+                <div className="m4-free-pro-row">
+                  <span>{t('module4FreeVsProProjection')}</span>
+                  <span>{t('module4FreeVsProProjectionFree')}</span>
+                  <span>{t('module4FreeVsProProjectionPro')}</span>
+                </div>
+              </div>
+            </div>
           </section>
         </>
       ) : (
@@ -341,6 +408,20 @@ export default function Module4Investment() {
                   <article className="m4-invest-metric-card m4-invest-metric--net"><span>{t('module4CardNet')}</span><strong>{fmtMoney(calculator.net, 2)}</strong></article>
                   <article className="m4-invest-metric-card m4-invest-metric--payback"><span>{t('module4CardPayback')}</span><strong>{fmtYears(calculator.payback, t)}</strong></article>
                 </div>
+                <div className="m4-scenario-kpis-strip">
+                  <div className="m4-scenario-kpi">
+                    <span>{t('module4SelectedScenarioLabel')}</span>
+                    <strong>{scenarioLabel(selectedScenario, t)}</strong>
+                  </div>
+                  <div className="m4-scenario-kpi">
+                    <span>{t('module4CardRoi')}</span>
+                    <strong>{fmtRatioPct(selectedKpi?.roi, 1)}</strong>
+                  </div>
+                  <div className="m4-scenario-kpi">
+                    <span>{t('module4CardAnnualRoi')}</span>
+                    <strong>{fmtRatioPct(selectedKpi?.annualROI, 1)}</strong>
+                  </div>
+                </div>
 
                 <div className="m4-invest-chart-wrap">
                   <h3 className="m4-section-subtitle m4-invest-chart-title">{t('module4InvestmentVsGeneratedChartTitle')} <span className="m4-pro-badge m4-pro-badge-inline">PRO</span></h3>
@@ -380,6 +461,18 @@ export default function Module4Investment() {
                     </ResponsiveContainer>
                   )}
                 </div>
+                <section className="m4-annual-story-card">
+                  <h3 className="m4-section-title">{t('module4AnnualStoryTitle')}</h3>
+                  <p className="m4-section-subtitle">{t('module4AnnualStorySubtitle')}</p>
+                  <div className="m4-year-story-grid">
+                    {annualStory.map((point) => (
+                      <article key={point.year} className="m4-year-story-item">
+                        <strong>{t('module4GeneratedByYear', { year: point.year, value: fmtMoney(point.generated, 2) })}</strong>
+                        <span>{t('module4AccumulatedFlowByYear', { value: fmtMoney(point.flow, 2) })}</span>
+                      </article>
+                    ))}
+                  </div>
+                </section>
 
                 <div className="m4-recovery-message m4-recovery-message--advanced">
                   {calculator.recovered
@@ -388,7 +481,7 @@ export default function Module4Investment() {
                 </div>
 
                 <section className="m4-complementary-chart-card">
-                  <h3 className="m4-section-title">{t('module4ComplementaryChartTitle')}</h3>
+                  <h3 className="m4-section-title">{t('module4ComplementaryChartTitle')} <span className="m4-pro-badge m4-pro-badge-inline">PRO</span></h3>
                   <p className="m4-section-subtitle">{t('module4ComplementaryChartHint')}</p>
                   {secondaryChartType === 'columns' ? (
                     <ResponsiveContainer width="100%" height={260}>
@@ -409,7 +502,7 @@ export default function Module4Investment() {
           </section>
 
           <section className="card m4-profile-card">
-            <h2 className="m4-section-title">{t('module4EconomicProfileTitle')}</h2>
+            <h2 className="m4-section-title">{t('module4EconomicProfileTitle')} <span className="m4-pro-badge m4-pro-badge-inline">PRO</span></h2>
             {profile && (
               <>
                 <div className="m4-profile-kpi-row m4-profile-kpi-row--strong">
