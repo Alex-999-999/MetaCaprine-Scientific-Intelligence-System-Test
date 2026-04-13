@@ -627,7 +627,7 @@
     module4InvestmentBannerIntro:
       'Welcome to the economic simulator by breed. Estimate the real asset cost (CAP), compare monetization scenarios (direct milk, milk plus replacements, cheese tiers), and see investment recovery over time. This is not an emotional breed ranking—it is a structured way to see where each breed expresses its value under your assumptions.',
     module4CapDefinition:
-      'CAP (Cost of the Productive Asset) is the investment needed to place a productive goat in operation: acquisition, logistics and raising.',
+      'CAP (Cost of the Productive Asset) is the investment needed to put a goat into production: it includes acquisition, logistics and raising. In simple terms: it is what it costs to take a baby goat from purchase until she starts producing milk.',
     module4CapTooltip: 'CAP = acquisition + logistics + raising.',
     module4QuickMeanLabel: 'Estimated net gain (average reference)',
     module4NavInvestment: 'Investment analysis',
@@ -1397,8 +1397,8 @@
     module4InvestmentBannerIntro:
       'Bienvenido al simulador económico por raza. Aquí puedes estimar el costo real del activo (CAP), comparar escenarios de monetización (leche directa, leche + hijas, quesos) y ver la recuperación de la inversión en el tiempo. No es un ranking emocional de razas: es una forma estructurada de ver dónde cada raza expresa mejor su valor bajo tus supuestos.',
     module4CapDefinition:
-      'El CAP (Costo del Activo Productivo) es el costo total de poner en producción una cabra, incluyendo adquisición, logística, levante, reposición y riesgo de mortalidad.',
-    module4CapTooltip: 'CAP = costo real de poner a producir esta cabra.',
+      'El CAP (Costo del Activo Productivo) es la inversión necesaria para poner en producción una cabra: incluye adquisición, logística y levante. En palabras simples: es lo que cuesta llevar una cabrita desde su compra hasta que empieza a producir leche.',
+    module4CapTooltip: 'CAP = adquisición + logística + levante.',
     module4QuickMeanLabel: 'Ganancia neta estimada (promedio de referencia)',
     module4NavInvestment: 'Análisis de inversión',
     module4NavCheeseAnalysis: 'M4-B Análisis quesero',
@@ -1470,7 +1470,7 @@
 
 Object.assign(translations.en, {
   module4CapDefinition:
-    'CAP (Cost of the Productive Asset) is the investment needed to place a productive goat in operation: acquisition, logistics and raising.',
+    'CAP (Cost of the Productive Asset) is the investment needed to put a goat into production: it includes acquisition, logistics and raising. In simple terms: it is what it costs to take a baby goat from purchase until she starts producing milk.',
   module4CapTooltip: 'CAP = acquisition + logistics + raising.',
   module4ChartModeTitle: 'View mode',
   module4InvestmentCalculatorTitle: 'Goat investment calculator',
@@ -1516,7 +1516,7 @@ Object.assign(translations.en, {
 
 Object.assign(translations.es, {
   module4CapDefinition:
-    'El CAP (Costo del Activo Productivo) es la inversión para poner en marcha una cabra productiva: adquisición, logística y levante.',
+    'El CAP (Costo del Activo Productivo) es la inversión necesaria para poner en producción una cabra: incluye adquisición, logística y levante. En palabras simples: es lo que cuesta llevar una cabrita desde su compra hasta que empieza a producir leche.',
   module4CapTooltip: 'CAP = adquisición + logística + levante.',
   module4ChartModeTitle: 'Modo de vista',
   module4InvestmentCalculatorTitle: 'Calculadora de inversión caprina',
@@ -4242,17 +4242,17 @@ Object.assign(translations.pt, {
 
 // STEP26_M4_FINAL_PREDICTIVE_UI_START
 Object.assign(translations.en, {
-  module4PredictiveLead: 'This module is a predictive investment model, not a static dashboard. Use it to estimate invested capital, generated value, and recovery timing.',
+  module4PredictiveLead: 'Welcome to the economic simulator by breed. Here you can estimate the real asset cost (CAP), compare monetization scenarios (direct milk, milk plus daughters, and cheese sales through different channels) and visualize the investment recovery over time. This is not an emotional breed ranking: it is a tool to understand where each breed generates the most value, under average assumptions or your own.',
   module4GlobalAverageDisclaimer: 'This module uses international averages. Results may vary by management, environment, genetics, feeding, production system, and farm identity.',
   module4ConceptsTitle: 'Core concepts in plain language',
   module4ConceptCapTitle: 'CAP (investment)',
-  module4ConceptCapDesc: 'Total money required to bring each goat into productive operation.',
+  module4ConceptCapDesc: 'It is the money you need for a baby goat to be ready to produce milk.',
   module4ConceptGeneratedTitle: 'Generated value',
-  module4ConceptGeneratedDesc: 'Estimated economic value produced across the selected horizon.',
+  module4ConceptGeneratedDesc: 'It is all the money that goat can produce during its life.',
   module4ConceptGainTitle: 'Net gain',
   module4ConceptGainDesc: 'Difference between generated value and invested capital.',
   module4ConceptPaybackTitle: 'Payback',
-  module4ConceptPaybackDesc: 'Approximate year when the initial investment is recovered.',
+  module4ConceptPaybackDesc: 'It is the time it takes to recover what you invested.',
   module4FreeSummaryHint: 'Preview of productive potential with the free breed set.',
   module4FreeSummaryExplainer: 'This means you can see productive potential, but not yet the full investment result.',
   module4M4bPreviewTitle: 'M4-B preview: cheese analysis by breed',
@@ -4261,7 +4261,7 @@ Object.assign(translations.en, {
   module4PreviewSubtitle: 'Calculator, scenarios, ROI and payback stay locked in free mode.',
   module4PreviewLockedValue: '$****',
   module4PreviewLockedYears: '*.* years',
-  module4PreviewOverlayMessage: 'Unlock the complete simulator to run investment projections with real values.',
+  module4PreviewOverlayMessage: 'You are seeing only part of the model. Unlock the full analysis to evaluate the real investment.',
   module4FreeConversionHeadline: 'You are seeing productive potential, but not the full business model.',
   module4FreeConversionMain: 'Unlock investment analysis and decide with real economic projections.',
   module4FreeConversionSub: 'Move from intuition to financial control in one workflow.',
@@ -4287,20 +4287,26 @@ Object.assign(translations.en, {
   module4ProfileInsight: 'This means the main source of value comes from: {{source}}.',
   module4GeneratedByYear: 'Year {{year}}: {{value}} generated value',
   module4CheeseFreeHint: 'Free view is limited to the same breeds available in Module 3 free catalog.',
+  module4FinalDecisionMessage: 'This model allows you to make decisions before investing real money.',
+  module4CheesePerLactationLabel: 'Cheese per lactation',
+  module4ProductionPerLactationLabel: 'Production per lactation',
+  module4CheesePerLactationCompare: 'Cheese per lactation',
+  module4ProductionPerLactationCompare: 'Milk per lactation',
+  module4CheeseTop4Title: 'Top 4 cheese-producing breeds',
 });
 
 Object.assign(translations.es, {
-  module4PredictiveLead: 'Este módulo es un modelo predictivo de inversión, no un dashboard estático. Úsalo para estimar cuánto inviertes, cuánto generas y cuándo recuperas.',
+  module4PredictiveLead: 'Bienvenido al simulador económico por raza. Aquí puedes estimar el costo real del activo (CAP), comparar escenarios de monetización (leche directa, leche + hijas y venta de quesos en diferentes canales) y visualizar la recuperación de la inversión en el tiempo. No es un ranking emocional de razas: es una herramienta para entender dónde cada raza genera mayor valor, bajo supuestos promedio o los tuyos propios.',
   module4GlobalAverageDisclaimer: 'Este módulo utiliza promedios internacionales. Los resultados pueden variar según manejo, ambiente, genética, alimentación, sistema e identidad productiva.',
   module4ConceptsTitle: 'Conceptos clave en lenguaje simple',
   module4ConceptCapTitle: 'CAP (inversión)',
-  module4ConceptCapDesc: 'Capital total necesario para poner cada cabra en operación productiva.',
+  module4ConceptCapDesc: 'Es el dinero que necesitas para que una cabrita esté lista para producir leche.',
   module4ConceptGeneratedTitle: 'Valor generado',
-  module4ConceptGeneratedDesc: 'Valor económico estimado que produce la cabra en el horizonte analizado.',
+  module4ConceptGeneratedDesc: 'Es todo el dinero que esa cabrita puede producir durante su vida.',
   module4ConceptGainTitle: 'Ganancia neta',
   module4ConceptGainDesc: 'Diferencia entre el valor generado y la inversión inicial.',
   module4ConceptPaybackTitle: 'Payback',
-  module4ConceptPaybackDesc: 'Año aproximado en que recuperas la inversión inicial.',
+  module4ConceptPaybackDesc: 'Es el tiempo que tardas en recuperar lo que invertiste.',
   module4FreeSummaryHint: 'Vista base del potencial productivo con el catálogo FREE.',
   module4FreeSummaryExplainer: 'Esto significa que puedes ver potencial productivo, pero todavía no el resultado completo del negocio.',
   module4M4bPreviewTitle: 'Vista previa M4-B: análisis quesero por raza',
@@ -4309,7 +4315,7 @@ Object.assign(translations.es, {
   module4PreviewSubtitle: 'La calculadora completa, escenarios, ROI y payback están bloqueados en modo FREE.',
   module4PreviewLockedValue: '$****',
   module4PreviewLockedYears: '*.* años',
-  module4PreviewOverlayMessage: 'Desbloquea el simulador completo para proyectar inversión con valores reales.',
+  module4PreviewOverlayMessage: 'Estás viendo solo una parte del modelo. Desbloquea el análisis completo para evaluar la inversión real.',
   module4FreeConversionHeadline: 'Estás viendo el potencial productivo, pero no el negocio completo.',
   module4FreeConversionMain: 'Desbloquea el análisis de inversión y decide con proyecciones económicas reales.',
   module4FreeConversionSub: 'Pasa de la intuición al control financiero en un solo flujo.',
@@ -4335,6 +4341,12 @@ Object.assign(translations.es, {
   module4ProfileInsight: 'Esto significa que la principal fuente de valor proviene de: {{source}}.',
   module4GeneratedByYear: 'Año {{year}}: {{value}} de valor generado',
   module4CheeseFreeHint: 'La vista FREE está limitada a las mismas razas visibles en el catálogo gratuito del M3.',
+  module4FinalDecisionMessage: 'Este modelo te permite tomar decisiones antes de invertir dinero real.',
+  module4CheesePerLactationLabel: 'Queso por lactancia',
+  module4ProductionPerLactationLabel: 'Producción por lactancia',
+  module4CheesePerLactationCompare: 'Queso por lactancia',
+  module4ProductionPerLactationCompare: 'Leche por lactancia',
+  module4CheeseTop4Title: 'Top 4 razas productoras de queso',
 });
 
 Object.assign(translations.fr, {
@@ -4349,6 +4361,12 @@ Object.assign(translations.fr, {
   module4ChartPedagogyRecovered: 'Investment is recovered around year {{year}}.',
   module4ChartPedagogyNotRecovered: 'Investment is not recovered within the analyzed horizon.',
   module4GeneratedByYear: 'Year {{year}}: {{value}} generated',
+  module4FinalDecisionMessage: 'This model allows you to make decisions before investing real money.',
+  module4CheesePerLactationLabel: 'Cheese per lactation',
+  module4ProductionPerLactationLabel: 'Production per lactation',
+  module4CheesePerLactationCompare: 'Cheese per lactation',
+  module4ProductionPerLactationCompare: 'Milk per lactation',
+  module4CheeseTop4Title: 'Top 4 cheese-producing breeds',
 });
 
 Object.assign(translations.it, {
@@ -4363,6 +4381,12 @@ Object.assign(translations.it, {
   module4ChartPedagogyRecovered: 'Investment is recovered around year {{year}}.',
   module4ChartPedagogyNotRecovered: 'Investment is not recovered within the analyzed horizon.',
   module4GeneratedByYear: 'Year {{year}}: {{value}} generated',
+  module4FinalDecisionMessage: 'This model allows you to make decisions before investing real money.',
+  module4CheesePerLactationLabel: 'Cheese per lactation',
+  module4ProductionPerLactationLabel: 'Production per lactation',
+  module4CheesePerLactationCompare: 'Cheese per lactation',
+  module4ProductionPerLactationCompare: 'Milk per lactation',
+  module4CheeseTop4Title: 'Top 4 cheese-producing breeds',
 });
 
 Object.assign(translations.pt, {
@@ -4377,6 +4401,12 @@ Object.assign(translations.pt, {
   module4ChartPedagogyRecovered: 'O investimento é recuperado por volta do ano {{year}}.',
   module4ChartPedagogyNotRecovered: 'O investimento não é recuperado no horizonte analisado.',
   module4GeneratedByYear: 'Ano {{year}}: {{value}} gerado',
+  module4FinalDecisionMessage: 'Este modelo permite tomar decisões antes de investir dinheiro real.',
+  module4CheesePerLactationLabel: 'Queijo por lactação',
+  module4ProductionPerLactationLabel: 'Produção por lactação',
+  module4CheesePerLactationCompare: 'Queijo por lactação',
+  module4ProductionPerLactationCompare: 'Leite por lactação',
+  module4CheeseTop4Title: 'Top 4 raças produtoras de queijo',
 });
 // STEP26_M4_FINAL_PREDICTIVE_UI_END
 
@@ -4407,8 +4437,8 @@ Object.assign(translations.pt, {
 
 Object.assign(translations.en, {
   module4ConceptRoiTitle: 'ROI',
-  module4ConceptRoiDesc: 'Simple return ratio between generated gain and invested capital.',
-  module4PlainLanguageExplainer: 'In simple terms: this module helps you see if the breed generates enough value to justify the investment.',
+  module4ConceptRoiDesc: 'It tells you if you made more money than you invested.',
+  module4PlainLanguageExplainer: 'In simple terms: this module helps you understand how much you invest, how much you generate, and when you recover — without needing to interpret technical data.',
   module4SelectedScenarioLabel: 'Selected scenario',
   module4CardRoi: 'ROI',
   module4CardAnnualRoi: 'Annual ROI',
@@ -4437,8 +4467,8 @@ Object.assign(translations.en, {
 
 Object.assign(translations.es, {
   module4ConceptRoiTitle: 'ROI',
-  module4ConceptRoiDesc: 'Relación simple entre la ganancia generada y el capital invertido.',
-  module4PlainLanguageExplainer: 'En palabras simples: este módulo te ayuda a ver si la raza genera suficiente valor para justificar la inversión.',
+  module4ConceptRoiDesc: 'Te dice si ganaste más dinero del que invertiste.',
+  module4PlainLanguageExplainer: 'En palabras simples: este módulo te permite entender cuánto inviertes, cuánto generas y cuándo recuperas — sin necesidad de interpretar datos técnicos.',
   module4SelectedScenarioLabel: 'Escenario seleccionado',
   module4CardRoi: 'ROI',
   module4CardAnnualRoi: 'ROI anual',
@@ -4467,8 +4497,8 @@ Object.assign(translations.es, {
 
 Object.assign(translations.fr, {
   module4ConceptRoiTitle: 'ROI',
-  module4ConceptRoiDesc: 'Simple return ratio between generated gain and invested capital.',
-  module4PlainLanguageExplainer: 'This module helps you understand whether the breed justifies the investment.',
+  module4ConceptRoiDesc: 'It tells you if you made more money than you invested.',
+  module4PlainLanguageExplainer: 'This module helps you understand how much you invest, how much you generate, and when you recover.',
   module4SelectedScenarioLabel: 'Selected scenario',
   module4CardRoi: 'ROI',
   module4CardAnnualRoi: 'Annual ROI',
@@ -4497,8 +4527,8 @@ Object.assign(translations.fr, {
 
 Object.assign(translations.it, {
   module4ConceptRoiTitle: 'ROI',
-  module4ConceptRoiDesc: 'Simple return ratio between generated gain and invested capital.',
-  module4PlainLanguageExplainer: 'This module helps you understand whether the breed justifies the investment.',
+  module4ConceptRoiDesc: 'It tells you if you made more money than you invested.',
+  module4PlainLanguageExplainer: 'This module helps you understand how much you invest, how much you generate, and when you recover.',
   module4SelectedScenarioLabel: 'Selected scenario',
   module4CardRoi: 'ROI',
   module4CardAnnualRoi: 'Annual ROI',
@@ -4527,8 +4557,8 @@ Object.assign(translations.it, {
 
 Object.assign(translations.pt, {
   module4ConceptRoiTitle: 'ROI',
-  module4ConceptRoiDesc: 'Relação simples entre o ganho gerado e o capital investido.',
-  module4PlainLanguageExplainer: 'Este módulo ajuda a entender se a raça justifica o investimento.',
+  module4ConceptRoiDesc: 'Diz se você ganhou mais dinheiro do que investiu.',
+  module4PlainLanguageExplainer: 'Este módulo ajuda a entender quanto você investe, quanto gera e quando recupera.',
   module4SelectedScenarioLabel: 'Cenário selecionado',
   module4CardRoi: 'ROI',
   module4CardAnnualRoi: 'ROI anual',

@@ -24,6 +24,7 @@ import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import { useChartColors } from '../../hooks/useDarkMode';
 import { computeM4, scenarioRevenueBreakdown } from '../../utils/m4Calculations';
+import { getBreedImage } from '../../utils/breedImages';
 import '../../styles/Module4.css';
 
 const HORIZON = 5;
@@ -47,11 +48,11 @@ const OVERRIDE_FIELDS = [
 const fmt = (n, d = 0) =>
   n == null || Number.isNaN(Number(n))
     ? '-'
-    : Number(n).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d });
+    : Number(n).toLocaleString(undefined, { minimumFractionDigits: Math.min(d, 2), maximumFractionDigits: Math.min(d, 2) });
 
-const fmtMoney = (n, d = 2) => (n == null || Number.isNaN(Number(n)) ? '-' : `$${fmt(n, d)}`);
+const fmtMoney = (n, d = 2) => (n == null || Number.isNaN(Number(n)) ? '-' : `$${fmt(n, Math.min(d, 2))}`);
 const fmtRatioPct = (n, d = 1) =>
-  n == null || Number.isNaN(Number(n)) ? '-' : `${(Number(n) * 100).toFixed(d)}%`;
+  n == null || Number.isNaN(Number(n)) ? '-' : `${(Number(n) * 100).toFixed(Math.min(d, 1))}%`;
 const compactMoney = (n) => {
   const v = Number(n) || 0;
   const abs = Math.abs(v);
@@ -227,7 +228,7 @@ export default function Module4Investment() {
   return (
     <div className="container module-compact m4-root m4-predictive-module">
       <nav className="m4-subnav" aria-label="M4">
-        <span className="m4-subnav-link m4-subnav-link--active">{t('module4NavInvestment')}</span>
+        <span className="m4-subnav-link m4-subnav-link--active-investment">{t('module4NavInvestment')}</span>
         <Link to="/module4/queso" className="m4-subnav-link">{t('module4NavCheeseAnalysis')}</Link>
       </nav>
 
@@ -235,13 +236,12 @@ export default function Module4Investment() {
         <div className="m4-hero-band">
           <h1 className="m4-title m4-hero-title">{t('module4InvestmentHeroTitle')}</h1>
           <p className="m4-hero-subtitle">{t('module4InvestmentHeroSubtitle')}</p>
-          <p className="m4-hero-description">{t('module4PredictiveLead')}</p>
         </div>
         <div className="m4-explanation-banner m4-explanation-banner--info">
-          <p className="m4-explanation-main">{t('module4InvestmentBannerIntro')}</p>
+          <p className="m4-explanation-main">{t('module4PredictiveLead')}</p>
           <p className="m4-explanation-cap"><strong className="m4-cap-term">CAP:</strong> {t('module4CapDefinition')}</p>
         </div>
-        <div className="m4-pedagogy-block m4-pedagogy--info"><p className="m4-pedagogy-block-text">{t('module4GlobalAverageDisclaimer')}</p></div>
+        <div className="m4-pedagogy-block m4-pedagogy--warning"><p className="m4-pedagogy-block-text">{t('module4GlobalAverageDisclaimer')}</p></div>
         <section className="m4-concepts-panel">
           <h2 className="m4-section-title">{t('module4ConceptsTitle')}</h2>
           <div className="m4-concepts-grid">
@@ -269,8 +269,21 @@ export default function Module4Investment() {
       {!isPro ? (
         <>
           <section className="card m4-free-summary-card">
-            <h2 className="m4-section-title">{t('module4BreedSummaryTitle')}</h2>
-            <p className="m4-section-subtitle">{t('module4FreeSummaryHint')}</p>
+            <div className="m4-calculator-header-row">
+              <div>
+                <h2 className="m4-section-title">{t('module4BreedSummaryTitle')}</h2>
+                <p className="m4-section-subtitle">{t('module4FreeSummaryHint')}</p>
+              </div>
+              {selectedBreed && getBreedImage(selectedBreed.name, selectedBreed.image_asset_key) && (
+                <div className="m4-breed-image-calculator">
+                  <img
+                    src={getBreedImage(selectedBreed.name, selectedBreed.image_asset_key)}
+                    alt={selectedBreed.name}
+                    className="m4-breed-profile-img m4-breed-profile-img--face-left"
+                  />
+                </div>
+              )}
+            </div>
             <label className="m4-scale-field">
               {t('breed')}
               <select className="m4-breed-select" value={selectedBreedId || ''} onChange={(e) => setSelectedBreedId(Number(e.target.value))}>
@@ -362,7 +375,18 @@ export default function Module4Investment() {
       ) : (
         <>
           <section className="card m4-investment-calculator">
-            <h2 className="m4-section-title">{t('module4InvestmentCalculatorTitle')} <span className="m4-pro-badge m4-pro-badge-inline">PRO</span></h2>
+            <div className="m4-calculator-header-row">
+              <h2 className="m4-section-title">{t('module4InvestmentCalculatorTitle')} <span className="m4-pro-badge m4-pro-badge-inline">PRO</span></h2>
+              {selectedBreed && getBreedImage(selectedBreed.name, selectedBreed.image_asset_key) && (
+                <div className="m4-breed-image-calculator">
+                  <img
+                    src={getBreedImage(selectedBreed.name, selectedBreed.image_asset_key)}
+                    alt={selectedBreed.name}
+                    className="m4-breed-profile-img m4-breed-profile-img--face-left"
+                  />
+                </div>
+              )}
+            </div>
             <div className="m4-scale-grid m4-scale-grid--advanced">
               <label className="m4-scale-field">{t('breed')}
                 <select className="m4-breed-select" value={selectedBreedId || ''} onChange={(e) => { setSelectedBreedId(Number(e.target.value)); setProOverrides({}); }}>
@@ -478,6 +502,9 @@ export default function Module4Investment() {
                   {calculator.recovered
                     ? <><p>{t('module4ChartPedagogyRecovered', { year: calculator.breakEvenYear.toFixed(1) })}</p><p>{t('module4ChartPedagogyRecoveredLine2')}</p></>
                     : <><p>{t('module4ChartPedagogyNotRecovered')}</p><p>{t('module4ChartPedagogyNotRecoveredLine2')}</p></>}
+                </div>
+                <div className="m4-final-decision-message">
+                  <p>{t('module4FinalDecisionMessage')}</p>
                 </div>
 
                 <section className="m4-complementary-chart-card">
