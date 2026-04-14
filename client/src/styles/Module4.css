@@ -1608,7 +1608,8 @@
 .m4-cheese-bars-wrap {
   border: 1px solid var(--border-color);
   border-radius: 10px;
-  padding: 8px;
+  padding: 12px 10px;
+  background: var(--bg-primary, #fff);
 }
 
 .m4-cheese-metric-selector {

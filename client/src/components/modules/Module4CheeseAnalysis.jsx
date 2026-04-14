@@ -218,11 +218,11 @@ export default function Module4CheeseAnalysis() {
         </div>
 
         <div className="m4-cheese-bars-wrap">
-          <ResponsiveContainer width="100%" height={420}>
-            <BarChart layout="vertical" data={chartData} margin={{ top: 8, right: 24, left: 24, bottom: 8 }}>
+          <ResponsiveContainer width="100%" height={500}>
+            <BarChart layout="vertical" data={chartData} barCategoryGap="36%" margin={{ top: 14, right: 28, left: 28, bottom: 14 }}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-              <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${fmt(Number(v), 2)}%`} />
-              <YAxis type="category" dataKey="shortName" width={170} />
+              <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${fmt(Number(v), 2)}%`} tick={{ fontSize: 12, fontWeight: 600 }} />
+              <YAxis type="category" dataKey="shortName" width={220} tick={{ fontSize: 12, fontWeight: 600 }} />
               <Tooltip
                 formatter={(value, name) => {
                   if (name === 'pct') return [`${fmt(Number(value), 2)}%`, t('module4CheeseRelativePerformance')];
