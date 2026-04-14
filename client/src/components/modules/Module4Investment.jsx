@@ -121,7 +121,6 @@ export default function Module4Investment() {
   const [breeds, setBreeds] = useState([]);
   const [selectedBreedId, setSelectedBreedId] = useState(null);
   const [selectedScenario, setSelectedScenario] = useState('s1');
-  const [scaleMode, setScaleMode] = useState('herd');
   const [herdCount, setHerdCount] = useState(10);
   const [mainChartType, setMainChartType] = useState('line');
   const [secondaryChartType, setSecondaryChartType] = useState('columns');
@@ -155,7 +154,7 @@ export default function Module4Investment() {
 
   const selectedBreed = useMemo(() => breeds.find((b) => b.id === selectedBreedId) || null, [breeds, selectedBreedId]);
   const herdN = Math.min(10000, Math.max(1, Math.round(Number(herdCount) || 1)));
-  const scaleUnits = scaleMode === 'goat' ? 1 : herdN;
+  const scaleUnits = herdN;
 
   const summary = useMemo(() => {
     if (!selectedBreed) return null;
@@ -191,11 +190,11 @@ export default function Module4Investment() {
 
   const selectedKpi = isPro ? result?.scenarios?.[selectedScenario] || null : null;
 
-  /** FREE: Solo leche (s1) only — same engine, scaled per goat/herd */
+  /** FREE: Solo leche (s1) only — same engine, scaled by herd count */
   const freeMilkOnly = useMemo(() => {
     if (isPro || !result || !result.scenarios?.s1) return null;
     const s1 = result.scenarios.s1;
-    const su = scaleMode === 'goat' ? 1 : herdN;
+    const su = herdN;
     const cap = result.cap * su;
     const net = s1.result * su;
     const generated = cap + net;
@@ -206,7 +205,7 @@ export default function Module4Investment() {
       roi: s1.roi,
       annualROI: s1.annualROI,
     };
-  }, [isPro, result, scaleMode, herdN]);
+  }, [isPro, result, herdN]);
 
   const calculator = useMemo(() => {
     if (!isPro || !result || !selectedKpi) return null;
@@ -383,13 +382,6 @@ export default function Module4Investment() {
                 <M4HintIcon labelForAria={t('module4ScaleHerdCount')} hint={t('module4HintHerdCount')} t={t} />
                 <input type="number" min={1} max={10000} className="m4-input" value={herdN} onChange={(e) => setHerdCount(e.target.value)} />
               </label>
-              <label className="m4-scale-field">
-                <M4HintIcon labelForAria={t('module4ChartModeTitle')} hint={t('module4HintViewMode')} t={t} />
-                <select className="m4-breed-select" value={scaleMode} onChange={(e) => setScaleMode(e.target.value)}>
-                  <option value="goat">{t('module4ChartModeGoat')}</option>
-                  <option value="herd">{t('module4ChartModeHerd')}</option>
-                </select>
-              </label>
             </div>
             {freeMilkOnly && (
               <>
@@ -490,13 +482,6 @@ export default function Module4Investment() {
               <label className="m4-scale-field">
                 <M4HintIcon labelForAria={t('module4ScaleHerdCount')} hint={t('module4HintHerdCount')} t={t} />
                 <input type="number" min={1} max={10000} className="m4-input" value={herdN} onChange={(e) => setHerdCount(e.target.value)} />
-              </label>
-              <label className="m4-scale-field">
-                <M4HintIcon labelForAria={t('module4ChartModeTitle')} hint={t('module4HintViewMode')} t={t} />
-                <select className="m4-breed-select" value={scaleMode} onChange={(e) => setScaleMode(e.target.value)}>
-                  <option value="goat">{t('module4ChartModeGoat')}</option>
-                  <option value="herd">{t('module4ChartModeHerd')}</option>
-                </select>
               </label>
               <label className="m4-scale-field">
                 <M4HintIcon labelForAria={t('module4MainChartTypeLabel')} hint={t('module4HintMainChart')} t={t} />
