@@ -4640,3 +4640,29 @@ Object.assign(translations.pt, {
   module4FreeVsProProjectionFree: 'Apenas ROI S1 (sem payback nem projeção)',
   module4FreeVsProProjectionPro: 'Payback, ROI e projeção completa',
 });
+
+/**
+ * Ensure every locale has all keys from English without overwriting
+ * existing translated strings. This prevents missing-key gaps across modules.
+ */
+function fillMissingLocaleKeys(base, target) {
+  if (!base || typeof base !== 'object' || !target || typeof target !== 'object') return;
+  Object.keys(base).forEach((key) => {
+    const baseVal = base[key];
+    const targetVal = target[key];
+    if (baseVal && typeof baseVal === 'object' && !Array.isArray(baseVal)) {
+      if (!targetVal || typeof targetVal !== 'object' || Array.isArray(targetVal)) {
+        target[key] = {};
+      }
+      fillMissingLocaleKeys(baseVal, target[key]);
+      return;
+    }
+    if (targetVal === undefined || targetVal === null) {
+      target[key] = baseVal;
+    }
+  });
+}
+
+['es', 'fr', 'it', 'pt'].forEach((locale) => {
+  fillMissingLocaleKeys(translations.en, translations[locale]);
+});
