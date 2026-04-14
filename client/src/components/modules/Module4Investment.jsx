@@ -119,6 +119,12 @@ export default function Module4Investment() {
   const [mainChartType, setMainChartType] = useState('line');
   const [secondaryChartType, setSecondaryChartType] = useState('columns');
   const [proOverrides, setProOverrides] = useState({});
+  const [appliedBreedId, setAppliedBreedId] = useState(null);
+  const [appliedScenario, setAppliedScenario] = useState('s1');
+  const [appliedHerdCount, setAppliedHerdCount] = useState(10);
+  const [appliedMainChartType, setAppliedMainChartType] = useState('line');
+  const [appliedSecondaryChartType, setAppliedSecondaryChartType] = useState('columns');
+  const [appliedOverrides, setAppliedOverrides] = useState({});
 
   useEffect(() => {
     (async () => {
@@ -128,7 +134,10 @@ export default function Module4Investment() {
         const list = (data.breeds || []).filter((b) => !b.locked);
         setBreeds(list);
         setIsPro(!!data.isPro);
-        if (list.length > 0) setSelectedBreedId(list[0].id);
+        if (list.length > 0) {
+          setSelectedBreedId(list[0].id);
+          setAppliedBreedId(list[0].id);
+        }
       } catch (error) {
         console.error('Error loading M4 breeds:', error);
       } finally {
@@ -143,12 +152,18 @@ export default function Module4Investment() {
       setMainChartType('line');
       setSecondaryChartType('columns');
       setProOverrides({});
+      setAppliedScenario('s1');
+      setAppliedMainChartType('line');
+      setAppliedSecondaryChartType('columns');
+      setAppliedOverrides({});
     }
   }, [isPro]);
 
   const selectedBreed = useMemo(() => breeds.find((b) => b.id === selectedBreedId) || null, [breeds, selectedBreedId]);
+  const appliedBreed = useMemo(() => breeds.find((b) => b.id === appliedBreedId) || null, [breeds, appliedBreedId]);
   const herdN = Math.min(10000, Math.max(1, Math.round(Number(herdCount) || 1)));
-  const scaleUnits = herdN;
+  const appliedHerdN = Math.min(10000, Math.max(1, Math.round(Number(appliedHerdCount) || 1)));
+  const scaleUnits = appliedHerdN;
 
   const summary = useMemo(() => {
     if (!selectedBreed) return null;
@@ -171,24 +186,24 @@ export default function Module4Investment() {
   }, [breeds]);
 
   const breedForCalc = useMemo(() => {
-    if (!selectedBreed) return null;
-    if (isPro) return { ...selectedBreed, ...proOverrides };
-    return selectedBreed;
-  }, [isPro, selectedBreed, proOverrides]);
+    if (!appliedBreed) return null;
+    if (isPro) return { ...appliedBreed, ...appliedOverrides };
+    return appliedBreed;
+  }, [isPro, appliedBreed, appliedOverrides]);
 
   const result = useMemo(() => {
     if (!breedForCalc) return null;
-    const useReferenceScenarios = isPro ? Object.keys(proOverrides).length === 0 : true;
+    const useReferenceScenarios = isPro ? Object.keys(appliedOverrides).length === 0 : true;
     return computeM4(breedForCalc, { useReferenceScenarios });
-  }, [breedForCalc, isPro, proOverrides]);
+  }, [breedForCalc, isPro, appliedOverrides]);
 
-  const selectedKpi = isPro ? result?.scenarios?.[selectedScenario] || null : null;
+  const selectedKpi = isPro ? result?.scenarios?.[appliedScenario] || null : null;
 
   /** FREE: Solo leche (s1) only — same engine, scaled by herd count */
   const freeMilkOnly = useMemo(() => {
     if (isPro || !result || !result.scenarios?.s1) return null;
     const s1 = result.scenarios.s1;
-    const su = herdN;
+    const su = appliedHerdN;
     const cap = result.cap * su;
     const net = s1.result * su;
     const generated = cap + net;
@@ -199,7 +214,7 @@ export default function Module4Investment() {
       roi: s1.roi,
       annualROI: s1.annualROI,
     };
-  }, [isPro, result, herdN]);
+  }, [isPro, result, appliedHerdN]);
 
   const calculator = useMemo(() => {
     if (!isPro || !result || !selectedKpi) return null;
@@ -261,14 +276,48 @@ export default function Module4Investment() {
   }, [isPro, result, breedForCalc, scaleUnits, t]);
 
   const referenceTime = useMemo(() => {
-    const lactationsRaw = Number(selectedBreed?.lactations_per_life);
+    const lactationsRaw = Number(appliedBreed?.lactations_per_life);
     const lactations = Number.isFinite(lactationsRaw) && lactationsRaw > 0 ? lactationsRaw : HORIZON;
     const years = lactations;
     return {
       lactations,
       years,
     };
-  }, [selectedBreed]);
+  }, [appliedBreed]);
+
+  const isSimulationDirty = useMemo(() => {
+    const sameOverrides = JSON.stringify(proOverrides) === JSON.stringify(appliedOverrides);
+    return (
+      selectedBreedId !== appliedBreedId ||
+      selectedScenario !== appliedScenario ||
+      herdN !== appliedHerdN ||
+      mainChartType !== appliedMainChartType ||
+      secondaryChartType !== appliedSecondaryChartType ||
+      !sameOverrides
+    );
+  }, [
+    selectedBreedId,
+    appliedBreedId,
+    selectedScenario,
+    appliedScenario,
+    herdN,
+    appliedHerdN,
+    mainChartType,
+    appliedMainChartType,
+    secondaryChartType,
+    appliedSecondaryChartType,
+    proOverrides,
+    appliedOverrides,
+  ]);
+
+  const applySimulation = useCallback(() => {
+    setAppliedBreedId(selectedBreedId);
+    setAppliedScenario(selectedScenario);
+    setAppliedHerdCount(herdN);
+    setAppliedMainChartType(mainChartType);
+    setAppliedSecondaryChartType(secondaryChartType);
+    setAppliedOverrides({ ...proOverrides });
+  }, [selectedBreedId, selectedScenario, herdN, mainChartType, secondaryChartType, proOverrides]);
 
   const handleOverrideChange = useCallback((field, value) => {
     setProOverrides((prev) => {
@@ -406,6 +455,11 @@ export default function Module4Investment() {
                 <input type="number" min={1} max={10000} step={1} className="m4-input" value={herdN} onChange={(e) => setHerdCount(e.target.value)} />
               </label>
             </div>
+            <div className="m4-sim-actions">
+              <button type="button" className="m4-btn-primary" onClick={applySimulation} disabled={!isSimulationDirty}>
+                {t('module4UpdateSimulation')}
+              </button>
+            </div>
             {freeMilkOnly && (
               <>
                 <div className="m4-invest-metrics-grid m4-invest-metrics-grid--free-milk">
@@ -525,6 +579,11 @@ export default function Module4Investment() {
                 </select>
               </label>
             </div>
+            <div className="m4-sim-actions">
+              <button type="button" className="m4-btn-primary" onClick={applySimulation} disabled={!isSimulationDirty}>
+                {t('module4UpdateSimulation')}
+              </button>
+            </div>
 
             <div className="m4-pedagogy-block m4-pedagogy--warning"><p className="m4-pedagogy-block-text">{t('module4ReplacementMortalityNote')}</p></div>
 
@@ -539,7 +598,7 @@ export default function Module4Investment() {
                 <div className="m4-scenario-kpis-strip">
                   <div className="m4-scenario-kpi">
                     <span>{t('module4SelectedScenarioLabel')}</span>
-                    <strong>{scenarioLabel(selectedScenario, t)}</strong>
+                    <strong>{scenarioLabel(appliedScenario, t)}</strong>
                   </div>
                   <div className="m4-scenario-kpi">
                     <span>{t('module4CardRoi')}</span>
@@ -562,7 +621,7 @@ export default function Module4Investment() {
                     <span className="m4-legend-gain">{t('module4LegendGain')}</span>
                     <span className="m4-legend-breakeven">{t('module4LegendBreakEven')}</span>
                   </div>
-                  {mainChartType === 'area' && (
+                  {appliedMainChartType === 'area' && (
                     <ResponsiveContainer width="100%" height={340}>
                       <AreaChart data={calculator.curve}><CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} /><XAxis dataKey="year" /><YAxis tickFormatter={compactMoney} /><Tooltip formatter={(v) => fmtMoney(v, 2)} />
                         {calculator.recovered && <ReferenceArea x1={calculator.breakEvenYear} x2={HORIZON} fill="var(--m4-color-gain)" fillOpacity={0.1} />}
@@ -572,7 +631,7 @@ export default function Module4Investment() {
                       </AreaChart>
                     </ResponsiveContainer>
                   )}
-                  {mainChartType === 'bars' && (
+                  {appliedMainChartType === 'bars' && (
                     <ResponsiveContainer width="100%" height={340}>
                       <BarChart data={calculator.curve.filter((p) => p.year > 0)}><CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} /><XAxis dataKey="year" /><YAxis tickFormatter={compactMoney} /><Tooltip formatter={(v) => fmtMoney(v, 2)} />
                         <ReferenceLine y={calculator.cap} stroke="var(--m4-color-cap)" strokeDasharray="5 5" />
@@ -580,7 +639,7 @@ export default function Module4Investment() {
                       </BarChart>
                     </ResponsiveContainer>
                   )}
-                  {mainChartType === 'line' && (
+                  {appliedMainChartType === 'line' && (
                     <ResponsiveContainer width="100%" height={340}>
                       <LineChart data={calculator.curve}><CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} /><XAxis dataKey="year" /><YAxis tickFormatter={compactMoney} /><Tooltip formatter={(v) => fmtMoney(v, 2)} />
                         {calculator.recovered && <ReferenceArea x1={calculator.breakEvenYear} x2={HORIZON} fill="var(--m4-color-gain)" fillOpacity={0.1} />}
@@ -617,7 +676,7 @@ export default function Module4Investment() {
                 <section className="m4-complementary-chart-card">
                   <h3 className="m4-section-title">{t('module4ComplementaryChartTitle')} <span className="m4-pro-badge m4-pro-badge-inline">PRO</span></h3>
                   <p className="m4-section-subtitle">{t('module4ComplementaryChartHint')}</p>
-                  {secondaryChartType === 'columns' ? (
+                  {appliedSecondaryChartType === 'columns' ? (
                     <ResponsiveContainer width="100%" height={260}>
                       <BarChart data={complementaryColumns}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartColors.grid} />
