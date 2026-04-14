@@ -646,6 +646,8 @@
       'How the main recovery chart is drawn: lines, area, or columns by year.',
     module4HintSecondaryChart:
       'How the small chart compares total investment (CAP) to total generated value.',
+    module4ReferenceTimeText:
+      'This calculation is based on approximately {{lactations}} average lactations for this breed (≈ {{years}} productive years).',
     module4InvestmentCalculatorTitle: 'Goat investment calculator',
     module4ReplacementMortalityNote:
       'Scenarios that include daughter sales use average replacement (20%) and mortality (8%) factors.',
@@ -699,6 +701,12 @@
       'Milk scenarios use lifetime milk (kg) × margin ($/L); approximate liters = kg ÷ {{density}}.',
     module4Year: 'Year',
     module4EconomicProfileTitle: 'Economic profile',
+    module4ProfileAverageTitle: 'Average economic profile',
+    module4ProfileAverageSubtitle: 'Mean of the three main cases: milk only, milk + daughters, and Channel 3 (Premium).',
+    module4ProfileAvgTotalGenerated: 'Average total generated value',
+    module4ProfileAvgRoi: 'Average ROI',
+    module4ProfileBestTitle: 'Best scenario',
+    module4ProfilePremiumLabel: 'Premium',
     module4BestScenarioLabel: 'Best scenario',
     module4M4bLinkExplainer: 'Cheese ranking and L/kg comparison live in M4-B, separate from economic scenarios.',
     module4CheeseTop3Title: 'Top 3 breeds by lifetime cheese',
@@ -1423,6 +1431,8 @@
     module4HintMainChart: 'Cómo se dibuja el gráfico principal de recuperación: líneas, área o columnas por año.',
     module4HintSecondaryChart:
       'Cómo se compara en el gráfico pequeño la inversión total (CAP) frente al valor generado.',
+    module4ReferenceTimeText:
+      'Este cálculo se basa en aproximadamente {{lactations}} lactancias promedio para esta raza (≈ {{years}} años productivos).',
     module4ProOverridesTitle: 'Ajustar supuestos (PRO)',
     module4CheeseAnalysisTitle: 'M4-B - Analisis quesero por raza',
     module4CheeseAnalysisSubtitle: 'Ranking y comparación de rendimiento quesero, separado del análisis económico.',
@@ -1445,6 +1455,13 @@
       'Escenarios de leche: leche vitalicia (kg) × margen ($/L), como la tabla maestra; litros ≈ kg ÷ {{density}}.',
     module4Year: 'Año',
     module4EconomicProfileTitle: 'Perfil económico',
+    module4ProfileAverageTitle: 'Perfil económico promedio',
+    module4ProfileAverageSubtitle:
+      'Promedio de los tres casos principales: solo leche, leche + hijas y Canal 3 (Premium).',
+    module4ProfileAvgTotalGenerated: 'Valor total generado promedio',
+    module4ProfileAvgRoi: 'ROI promedio',
+    module4ProfileBestTitle: 'Mejor escenario',
+    module4ProfilePremiumLabel: 'Premium',
     module4BestScenarioLabel: 'Mejor escenario',
     module4M4bLinkExplainer: 'El ranking quesero y L/kg están en M4-B, separado de los escenarios de dinero.',
     module4ScenarioS1Name: 'Solo leche',

@@ -30,6 +30,9 @@ import '../../styles/Module4.css';
 const HORIZON = 5;
 const SCENARIO_KEYS = ['s1', 's2', 's3_c1', 's3_c2', 's3_c3'];
 
+/** Principal trio for average economic profile: milk only, milk + daughters, premium cheese channel */
+const PROFILE_AVERAGE_SCENARIO_KEYS = ['s1', 's2', 's3_c3'];
+
 const OVERRIDE_FIELDS = [
   { key: 'acquisition_logistics_cost', labelKey: 'module4FieldAcquisition' },
   { key: 'raising_cost', labelKey: 'module4FieldRaising' },
@@ -229,6 +232,25 @@ export default function Module4Investment() {
     return { cap, generated, net, payback: selectedKpi.payback, breakEvenYear, recovered, curve };
   }, [isPro, result, selectedKpi, scaleUnits]);
 
+  /** Mean across s1, s2, s3_c3 (principal scenarios): total generated value + mean ROI */
+  const profileAverage = useMemo(() => {
+    if (!isPro || !result) return null;
+    const su = scaleUnits;
+    const capTerm = result.cap * su;
+    const generatedVals = [];
+    const roiVals = [];
+    PROFILE_AVERAGE_SCENARIO_KEYS.forEach((k) => {
+      const sc = result.scenarios?.[k];
+      if (!sc) return;
+      generatedVals.push(capTerm + sc.result * su);
+      if (sc.roi != null && Number.isFinite(Number(sc.roi))) roiVals.push(Number(sc.roi));
+    });
+    if (generatedVals.length === 0) return null;
+    const avgGenerated = generatedVals.reduce((a, b) => a + b, 0) / generatedVals.length;
+    const avgRoi = roiVals.length > 0 ? roiVals.reduce((a, b) => a + b, 0) / roiVals.length : null;
+    return { avgGenerated, avgRoi };
+  }, [isPro, result, scaleUnits]);
+
   const profile = useMemo(() => {
     if (!isPro || !result || !breedForCalc) return null;
     const key = result.bestScenarioKey || 's1';
@@ -246,6 +268,16 @@ export default function Module4Investment() {
     const primary = [...bars].sort((a, b) => b.value - a.value)[0];
     return { key, generated: (result.cap + best.result) * scaleUnits, payback: best.payback, bars, primary };
   }, [isPro, result, breedForCalc, scaleUnits, t]);
+
+  const referenceTime = useMemo(() => {
+    const lactationsRaw = Number(selectedBreed?.lactations_per_life);
+    const lactations = Number.isFinite(lactationsRaw) && lactationsRaw > 0 ? lactationsRaw : HORIZON;
+    const years = lactations;
+    return {
+      lactations,
+      years,
+    };
+  }, [selectedBreed]);
 
   const handleOverrideChange = useCallback((field, value) => {
     setProOverrides((prev) => {
@@ -404,6 +436,9 @@ export default function Module4Investment() {
                     <strong>{fmtRatioPct(freeMilkOnly.annualROI, 1)}</strong>
                   </div>
                 </div>
+                <div className="m4-reference-time-block">
+                  <p>{t('module4ReferenceTimeText', { lactations: fmt(referenceTime.lactations, 1), years: fmt(referenceTime.years, 1) })}</p>
+                </div>
                 <p className="m4-free-milk-only-footnote">{t('module4FreeMilkOnlyFootnote')}</p>
               </>
             )}
@@ -524,6 +559,9 @@ export default function Module4Investment() {
                     <strong>{fmtRatioPct(selectedKpi?.annualROI, 1)}</strong>
                   </div>
                 </div>
+                <div className="m4-reference-time-block">
+                  <p>{t('module4ReferenceTimeText', { lactations: fmt(referenceTime.lactations, 1), years: fmt(referenceTime.years, 1) })}</p>
+                </div>
 
                 <div className="m4-invest-chart-wrap">
                   <h3 className="m4-section-subtitle m4-invest-chart-title">{t('module4InvestmentVsGeneratedChartTitle')} <span className="m4-pro-badge m4-pro-badge-inline">PRO</span></h3>
@@ -608,8 +646,32 @@ export default function Module4Investment() {
 
           <section className="card m4-profile-card">
             <h2 className="m4-section-title">{t('module4EconomicProfileTitle')} <span className="m4-pro-badge m4-pro-badge-inline">PRO</span></h2>
+
+            {profileAverage && (
+              <div className="m4-profile-block m4-profile-block--average">
+                <h3 className="m4-profile-block-title">{t('module4ProfileAverageTitle')}</h3>
+                <p className="m4-profile-block-sub">{t('module4ProfileAverageSubtitle')}</p>
+                <div className="m4-profile-kpi-row m4-profile-kpi-row--average">
+                  <div className="m4-profile-kpi">
+                    <span>{t('module4ProfileAvgTotalGenerated')}</span>
+                    <strong>{fmtMoney(profileAverage.avgGenerated, 2)}</strong>
+                  </div>
+                  <div className="m4-profile-kpi">
+                    <span>{t('module4ProfileAvgRoi')}</span>
+                    <strong>{fmtRatioPct(profileAverage.avgRoi, 1)}</strong>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {profile && (
-              <>
+              <div className="m4-profile-block m4-profile-block--best">
+                <h3 className="m4-profile-block-title m4-profile-block-title--best">
+                  {t('module4ProfileBestTitle')}
+                  {profile.key === 's3_c3' && (
+                    <span className="m4-profile-premium-pill">{t('module4ProfilePremiumLabel')}</span>
+                  )}
+                </h3>
                 <div className="m4-profile-kpi-row m4-profile-kpi-row--strong">
                   <div className="m4-profile-kpi"><span>{t('module4BestScenarioLabel')}</span><strong>{scenarioLabel(profile.key, t)}</strong></div>
                   <div className="m4-profile-kpi"><span>{t('module4CardPayback')}</span><strong>{fmtYears(profile.payback, t)}</strong></div>
@@ -624,7 +686,7 @@ export default function Module4Investment() {
                   ))}
                 </div>
                 <p className="m4-profile-insight">{t('module4ProfileInsight', { source: profile.primary?.label || t('module4ProfileMilk') })}</p>
-              </>
+              </div>
             )}
           </section>
 
