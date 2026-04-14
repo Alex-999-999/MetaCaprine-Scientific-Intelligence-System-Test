@@ -1600,6 +1600,11 @@
   padding: 8px;
 }
 
+.m4-cheese-metric-selector {
+  margin: 8px 0 14px;
+  max-width: 360px;
+}
+
 .m4-compare-diff-card {
   margin-top: 12px;
   border: 1px solid var(--border-color);

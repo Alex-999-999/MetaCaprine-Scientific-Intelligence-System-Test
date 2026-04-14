@@ -19,6 +19,7 @@ import '../../styles/Module4.css';
 
 const TOP4_COLORS = ['#d4a017', '#3b82f6', '#22c55e', '#8b5cf6'];
 const NEUTRAL_BAR = '#94a3b8';
+const CHEESE_METRIC_VIEWS = ['yield_l_per_kg', 'cheese_per_lactation', 'lifetime_cheese'];
 
 export default function Module4CheeseAnalysis() {
   const { t } = useI18n();
@@ -28,6 +29,7 @@ export default function Module4CheeseAnalysis() {
   const [loading, setLoading] = useState(true);
   const [compareA, setCompareA] = useState(null);
   const [compareB, setCompareB] = useState(null);
+  const [metricView, setMetricView] = useState('lifetime_cheese');
 
   useEffect(() => {
     (async () => {
@@ -59,22 +61,67 @@ export default function Module4CheeseAnalysis() {
     return map;
   }, [breeds]);
 
+  const metricMeta = useMemo(() => {
+    if (metricView === 'yield_l_per_kg') {
+      return {
+        label: t('module4MetricYieldLPerKg'),
+        unit: 'L/kg',
+      };
+    }
+    if (metricView === 'cheese_per_lactation') {
+      return {
+        label: t('module4MetricCheesePerLactation'),
+        unit: 'kg',
+      };
+    }
+    return {
+      label: t('module4MetricLifetimeCheese'),
+      unit: 'kg',
+    };
+  }, [metricView, t]);
+
+  const metricValue = useMemo(
+    () => (item) => {
+      if (metricView === 'yield_l_per_kg') {
+        return Number(item.cheese_yield_liters_per_kg) || 0;
+      }
+      if (metricView === 'cheese_per_lactation') {
+        const milk = Number(item.milk_per_lactation_kg) || 0;
+        const y = Number(item.cheese_yield_liters_per_kg) || 0;
+        return y > 0 ? milk / y : 0;
+      }
+      return Number(item.lifetime_cheese_kg) || 0;
+    },
+    [metricView]
+  );
+
+  const topMetricValue = useMemo(() => {
+    if (!ranking.length) return 0;
+    return ranking.reduce((max, item) => Math.max(max, metricValue(item)), 0);
+  }, [ranking, metricValue]);
+
   const topCheese = ranking[0]?.lifetime_cheese_kg || 0;
   const top4 = ranking.slice(0, 4);
 
   const chartData = useMemo(() => {
-    return ranking.slice(0, 12).map((item, index) => {
-      const kg = Number(item.lifetime_cheese_kg) || 0;
-      return {
-        id: item.id,
+    return [...ranking]
+      .map((item) => {
+        const value = metricValue(item);
+        return {
+          id: item.id,
+          name: item.name,
+          shortName: item.name.length > 22 ? `${item.name.slice(0, 22)}...` : item.name,
+          value,
+        };
+      })
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 12)
+      .map((item, index) => ({
+        ...item,
         rank: index + 1,
-        name: item.name,
-        shortName: item.name.length > 22 ? `${item.name.slice(0, 22)}...` : item.name,
-        kg,
-        pct: topCheese > 0 ? (kg / topCheese) * 100 : 0,
-      };
-    });
-  }, [ranking, topCheese]);
+        pct: topMetricValue > 0 ? (item.value / topMetricValue) * 100 : 0,
+      }));
+  }, [ranking, metricValue, topMetricValue]);
 
   const breedA = compareA != null ? byId.get(compareA) : null;
   const breedB = compareB != null ? byId.get(compareB) : null;
@@ -153,6 +200,22 @@ export default function Module4CheeseAnalysis() {
           {t('module4CheeseComparativeBarsTitle')}
         </h2>
         <p className="m4-section-subtitle">{t('module4CheeseComparativeBarsHint')}</p>
+        <div className="m4-cheese-metric-selector">
+          <label className="m4-scale-field">
+            {t('module4CheeseMetricSelectorLabel')}
+            <select className="m4-breed-select" value={metricView} onChange={(e) => setMetricView(e.target.value)}>
+              {CHEESE_METRIC_VIEWS.map((key) => (
+                <option key={key} value={key}>
+                  {key === 'yield_l_per_kg'
+                    ? t('module4MetricYieldLPerKg')
+                    : key === 'cheese_per_lactation'
+                      ? t('module4MetricCheesePerLactation')
+                      : t('module4MetricLifetimeCheese')}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
 
         <div className="m4-cheese-bars-wrap">
           <ResponsiveContainer width="100%" height={420}>
@@ -163,11 +226,11 @@ export default function Module4CheeseAnalysis() {
               <Tooltip
                 formatter={(value, name) => {
                   if (name === 'pct') return [`${fmt(Number(value), 2)}%`, t('module4CheeseRelativePerformance')];
-                  return [`${fmt(value, 2)} kg`, t('module4LifetimeCheeseKg')];
+                  return [`${fmt(value, 2)} ${metricMeta.unit}`, metricMeta.label];
                 }}
                 labelFormatter={(label, payload) => payload?.[0]?.payload?.name || label}
               />
-              <Bar dataKey="pct" radius={[0, 8, 8, 0]}>
+              <Bar dataKey="pct" name={metricMeta.label} radius={[0, 8, 8, 0]}>
                 {chartData.map((entry) => {
                   const color = entry.rank <= 4 ? TOP4_COLORS[entry.rank - 1] : NEUTRAL_BAR;
                   return <Cell key={entry.id} fill={color} />;
