@@ -1338,6 +1338,97 @@
   color: var(--text-secondary);
 }
 
+/* Field labels + neutral info icon (pedagogical tooltip) */
+.m4-field-label-with-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+.m4-field-label-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.m4-hint-anchor {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.m4-info-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 2px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #64748b);
+  border-radius: 6px;
+  cursor: help;
+  line-height: 0;
+  transition: color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.m4-info-icon-btn:hover {
+  color: var(--text-primary, #0f172a);
+}
+
+.m4-info-icon-btn:focus {
+  outline: none;
+}
+
+.m4-info-icon-btn:focus-visible {
+  color: var(--text-primary, #0f172a);
+  box-shadow: 0 0 0 2px rgba(100, 116, 139, 0.45);
+}
+
+.m4-info-icon-svg {
+  display: block;
+}
+
+.m4-hint-tooltip {
+  position: absolute;
+  z-index: 30;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  min-width: 200px;
+  max-width: min(320px, calc(100vw - 24px));
+  padding: 8px 10px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: left;
+  color: var(--text-primary);
+  background: var(--bg-primary, #fff);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.12s ease, visibility 0.12s ease;
+}
+
+.m4-hint-anchor:hover .m4-hint-tooltip,
+.m4-hint-anchor:focus-within .m4-hint-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (hover: none) {
+  .m4-hint-anchor:active .m4-hint-tooltip {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
 .m4-invest-metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

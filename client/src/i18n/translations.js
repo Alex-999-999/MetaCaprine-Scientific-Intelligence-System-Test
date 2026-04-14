@@ -637,6 +637,15 @@
     module4ChartModeTitle: 'View mode',
     module4ChartModeGoat: 'Per goat',
     module4ChartModeHerd: 'Herd',
+    module4FieldInfoMore: 'More information',
+    module4HintBreed: 'Breed or type used as the data source for this calculator.',
+    module4HintScenario: 'Which revenues the model includes: milk only, milk and daughters, or cheese channels.',
+    module4HintHerdCount: 'How many goats this run represents; amounts scale when viewing as a herd.',
+    module4HintViewMode: 'Show values per goat or multiplied by the herd size above.',
+    module4HintMainChart:
+      'How the main recovery chart is drawn: lines, area, or columns by year.',
+    module4HintSecondaryChart:
+      'How the small chart compares total investment (CAP) to total generated value.',
     module4InvestmentCalculatorTitle: 'Goat investment calculator',
     module4ReplacementMortalityNote:
       'Scenarios that include daughter sales use average replacement (20%) and mortality (8%) factors.',
@@ -1406,6 +1415,14 @@
     module4ScaleScenario: 'Escenario',
     module4ChartModeGoat: 'Por cabra',
     module4ChartModeHerd: 'Por rebaño',
+    module4FieldInfoMore: 'Más información',
+    module4HintBreed: 'Raza o tipo utilizado como base para los datos de este cálculo.',
+    module4HintScenario: 'Qué ingresos incluye el modelo: solo leche, leche e hijas, o canales de queso.',
+    module4HintHerdCount: 'Cuántas cabras representa esta corrida; los montos escalan al ver por rebaño.',
+    module4HintViewMode: 'Ver valores por cabra o multiplicados por el número de cabras indicado.',
+    module4HintMainChart: 'Cómo se dibuja el gráfico principal de recuperación: líneas, área o columnas por año.',
+    module4HintSecondaryChart:
+      'Cómo se compara en el gráfico pequeño la inversión total (CAP) frente al valor generado.',
     module4ProOverridesTitle: 'Ajustar supuestos (PRO)',
     module4CheeseAnalysisTitle: 'M4-B - Analisis quesero por raza',
     module4CheeseAnalysisSubtitle: 'Ranking y comparación de rendimiento quesero, separado del análisis económico.',

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useId } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ResponsiveContainer,
@@ -75,6 +75,41 @@ const scenarioLabel = (key, t) => {
   if (key === 's3_c3') return t('module4Channel3Name');
   return key;
 };
+
+/** Neutral outline info control; hover or keyboard focus shows pedagogical line. */
+function M4HintIcon({ hint, labelForAria, t }) {
+  const tipId = useId();
+  return (
+    <span className="m4-field-label-with-help">
+      <span className="m4-field-label-text">{labelForAria}</span>
+      <span className="m4-hint-anchor">
+        <button
+          type="button"
+          className="m4-info-icon-btn"
+          aria-describedby={tipId}
+          aria-label={t('module4FieldInfoMore')}
+        >
+          <svg
+            className="m4-info-icon-svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M12 11v6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+            <circle cx="12" cy="7" r="1" fill="currentColor" />
+          </svg>
+        </button>
+        <span id={tipId} role="tooltip" className="m4-hint-tooltip">
+          {hint}
+        </span>
+      </span>
+    </span>
+  );
+}
 
 export default function Module4Investment() {
   const { t } = useI18n();
@@ -312,7 +347,7 @@ export default function Module4Investment() {
               )}
             </div>
             <label className="m4-scale-field">
-              {t('breed')}
+              <M4HintIcon labelForAria={t('breed')} hint={t('module4HintBreed')} t={t} />
               <select className="m4-breed-select" value={selectedBreedId || ''} onChange={(e) => setSelectedBreedId(Number(e.target.value))}>
                 {breeds.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
@@ -344,10 +379,12 @@ export default function Module4Investment() {
             <h2 className="m4-section-title">{t('module4FreeMilkOnlyTitle')} <span className="m4-badge-free-inline">FREE</span></h2>
             <p className="m4-section-subtitle">{t('module4FreeMilkOnlySubtitle')}</p>
             <div className="m4-scale-grid m4-scale-grid--free-milk">
-              <label className="m4-scale-field">{t('module4ScaleHerdCount')}
+              <label className="m4-scale-field">
+                <M4HintIcon labelForAria={t('module4ScaleHerdCount')} hint={t('module4HintHerdCount')} t={t} />
                 <input type="number" min={1} max={10000} className="m4-input" value={herdN} onChange={(e) => setHerdCount(e.target.value)} />
               </label>
-              <label className="m4-scale-field">{t('module4ChartModeTitle')}
+              <label className="m4-scale-field">
+                <M4HintIcon labelForAria={t('module4ChartModeTitle')} hint={t('module4HintViewMode')} t={t} />
                 <select className="m4-breed-select" value={scaleMode} onChange={(e) => setScaleMode(e.target.value)}>
                   <option value="goat">{t('module4ChartModeGoat')}</option>
                   <option value="herd">{t('module4ChartModeHerd')}</option>
@@ -438,33 +475,39 @@ export default function Module4Investment() {
               )}
             </div>
             <div className="m4-scale-grid m4-scale-grid--advanced">
-              <label className="m4-scale-field">{t('breed')}
+              <label className="m4-scale-field">
+                <M4HintIcon labelForAria={t('breed')} hint={t('module4HintBreed')} t={t} />
                 <select className="m4-breed-select" value={selectedBreedId || ''} onChange={(e) => { setSelectedBreedId(Number(e.target.value)); setProOverrides({}); }}>
                   {breeds.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
               </label>
-              <label className="m4-scale-field">{t('module4ScaleScenario')}
+              <label className="m4-scale-field">
+                <M4HintIcon labelForAria={t('module4ScaleScenario')} hint={t('module4HintScenario')} t={t} />
                 <select className="m4-breed-select" value={selectedScenario} onChange={(e) => setSelectedScenario(e.target.value)}>
                   {SCENARIO_KEYS.map((k) => <option key={k} value={k}>{scenarioLabel(k, t)}</option>)}
                 </select>
               </label>
-              <label className="m4-scale-field">{t('module4ScaleHerdCount')}
+              <label className="m4-scale-field">
+                <M4HintIcon labelForAria={t('module4ScaleHerdCount')} hint={t('module4HintHerdCount')} t={t} />
                 <input type="number" min={1} max={10000} className="m4-input" value={herdN} onChange={(e) => setHerdCount(e.target.value)} />
               </label>
-              <label className="m4-scale-field">{t('module4ChartModeTitle')}
+              <label className="m4-scale-field">
+                <M4HintIcon labelForAria={t('module4ChartModeTitle')} hint={t('module4HintViewMode')} t={t} />
                 <select className="m4-breed-select" value={scaleMode} onChange={(e) => setScaleMode(e.target.value)}>
                   <option value="goat">{t('module4ChartModeGoat')}</option>
                   <option value="herd">{t('module4ChartModeHerd')}</option>
                 </select>
               </label>
-              <label className="m4-scale-field">{t('module4MainChartTypeLabel')}
+              <label className="m4-scale-field">
+                <M4HintIcon labelForAria={t('module4MainChartTypeLabel')} hint={t('module4HintMainChart')} t={t} />
                 <select className="m4-breed-select" value={mainChartType} onChange={(e) => setMainChartType(e.target.value)}>
                   <option value="line">{t('module4MainChartTypeLine')}</option>
                   <option value="area">{t('module4MainChartTypeArea')}</option>
                   <option value="bars">{t('module4MainChartTypeBars')}</option>
                 </select>
               </label>
-              <label className="m4-scale-field">{t('module4SecondaryChartTypeLabel')}
+              <label className="m4-scale-field">
+                <M4HintIcon labelForAria={t('module4SecondaryChartTypeLabel')} hint={t('module4HintSecondaryChart')} t={t} />
                 <select className="m4-breed-select" value={secondaryChartType} onChange={(e) => setSecondaryChartType(e.target.value)}>
                   <option value="columns">{t('module4SecondaryChartTypeColumns')}</option>
                   <option value="pie">{t('module4SecondaryChartTypePie')}</option>
