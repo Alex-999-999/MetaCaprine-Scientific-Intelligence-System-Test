@@ -48,17 +48,12 @@ function isFreeCatalogBreed(row) {
   return alpinaGenerica || saanenGenerica || criollaColombiana || criollaPeruana || nigerianDwarf;
 }
 
+/**
+ * FREE catalog: return full breed row so the client can run the same M4 engine
+ * for scenario S1 (Solo leche) only — same inputs as PRO for that scenario.
+ */
 function buildFreeBreedPayload(row) {
-  return {
-    id: row.id,
-    name: row.name,
-    milk_per_lactation_kg: row.milk_per_lactation_kg,
-    cheese_yield_liters_per_kg: row.cheese_yield_liters_per_kg,
-    lifetime_cheese_kg: row.lifetime_cheese_kg,
-    validation_source: row.validation_source,
-    region: row.region,
-    suggested_system: row.suggested_system,
-  };
+  return { ...row };
 }
 
 async function getIsPro(userId) {

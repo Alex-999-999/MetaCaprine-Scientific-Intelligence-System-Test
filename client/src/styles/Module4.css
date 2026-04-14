@@ -1301,6 +1301,37 @@
   border: 1px solid var(--border-color);
 }
 
+.m4-free-milk-only-card .m4-scale-grid--free-milk {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.m4-badge-free-inline {
+  display: inline-block;
+  margin-left: 8px;
+  vertical-align: middle;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.08em;
+}
+
+.m4-free-milk-only-footnote {
+  margin: 12px 0 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.m4-invest-metrics-grid--free-milk {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
 .m4-field-helper {
   margin-top: 4px;
   font-size: 0.8rem;

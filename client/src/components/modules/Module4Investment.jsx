@@ -142,9 +142,36 @@ export default function Module4Investment() {
     return top.map((item, index) => ({ ...item, rank: index + 1, pct: topValue > 0 ? (item.kg / topValue) * 100 : 0 }));
   }, [breeds]);
 
-  const breedForCalc = useMemo(() => (isPro && selectedBreed ? { ...selectedBreed, ...proOverrides } : null), [isPro, selectedBreed, proOverrides]);
-  const result = useMemo(() => (breedForCalc ? computeM4(breedForCalc, { useReferenceScenarios: Object.keys(proOverrides).length === 0 }) : null), [breedForCalc, proOverrides]);
-  const selectedKpi = result?.scenarios?.[selectedScenario] || null;
+  const breedForCalc = useMemo(() => {
+    if (!selectedBreed) return null;
+    if (isPro) return { ...selectedBreed, ...proOverrides };
+    return selectedBreed;
+  }, [isPro, selectedBreed, proOverrides]);
+
+  const result = useMemo(() => {
+    if (!breedForCalc) return null;
+    const useReferenceScenarios = isPro ? Object.keys(proOverrides).length === 0 : true;
+    return computeM4(breedForCalc, { useReferenceScenarios });
+  }, [breedForCalc, isPro, proOverrides]);
+
+  const selectedKpi = isPro ? result?.scenarios?.[selectedScenario] || null : null;
+
+  /** FREE: Solo leche (s1) only — same engine, scaled per goat/herd */
+  const freeMilkOnly = useMemo(() => {
+    if (isPro || !result || !result.scenarios?.s1) return null;
+    const s1 = result.scenarios.s1;
+    const su = scaleMode === 'goat' ? 1 : herdN;
+    const cap = result.cap * su;
+    const net = s1.result * su;
+    const generated = cap + net;
+    return {
+      cap,
+      net,
+      generated,
+      roi: s1.roi,
+      annualROI: s1.annualROI,
+    };
+  }, [isPro, result, scaleMode, herdN]);
 
   const calculator = useMemo(() => {
     if (!isPro || !result || !selectedKpi) return null;
@@ -313,21 +340,44 @@ export default function Module4Investment() {
             <Link to="/module4/queso" className="m4-btn-primary m4-btn-link">{t('module4NavCheeseAnalysis')}</Link>
           </section>
 
-          <section className="card m4-pro-preview-card">
-            <h2 className="m4-section-title">{t('module4PreviewTitle')} <span className="m4-pro-badge m4-pro-badge-inline">PRO</span></h2>
-            <p className="m4-section-subtitle">{t('module4PreviewSubtitle')}</p>
-            <div className="m4-pro-preview-shell">
-              <div className="m4-pro-preview-blur">
-                <div className="m4-invest-metrics-grid">
-                  <article className="m4-invest-metric-card m4-invest-metric--cap"><span>{t('module4CardCap')}</span><strong>{t('module4PreviewLockedValue')}</strong></article>
-                  <article className="m4-invest-metric-card m4-invest-metric--generated"><span>{t('module4CardGenerated')}</span><strong>{t('module4PreviewLockedValue')}</strong></article>
-                  <article className="m4-invest-metric-card m4-invest-metric--net"><span>{t('module4CardNet')}</span><strong>{t('module4PreviewLockedValue')}</strong></article>
-                  <article className="m4-invest-metric-card m4-invest-metric--payback"><span>{t('module4CardPayback')}</span><strong>{t('module4PreviewLockedYears')}</strong></article>
-                </div>
-                <div className="m4-pro-chart-skeleton" />
-              </div>
-              <div className="m4-pro-preview-overlay"><span className="m4-pro-badge">PRO</span><p>{t('module4PreviewOverlayMessage')}</p></div>
+          <section className="card m4-free-milk-only-card">
+            <h2 className="m4-section-title">{t('module4FreeMilkOnlyTitle')} <span className="m4-badge-free-inline">FREE</span></h2>
+            <p className="m4-section-subtitle">{t('module4FreeMilkOnlySubtitle')}</p>
+            <div className="m4-scale-grid m4-scale-grid--free-milk">
+              <label className="m4-scale-field">{t('module4ScaleHerdCount')}
+                <input type="number" min={1} max={10000} className="m4-input" value={herdN} onChange={(e) => setHerdCount(e.target.value)} />
+              </label>
+              <label className="m4-scale-field">{t('module4ChartModeTitle')}
+                <select className="m4-breed-select" value={scaleMode} onChange={(e) => setScaleMode(e.target.value)}>
+                  <option value="goat">{t('module4ChartModeGoat')}</option>
+                  <option value="herd">{t('module4ChartModeHerd')}</option>
+                </select>
+              </label>
             </div>
+            {freeMilkOnly && (
+              <>
+                <div className="m4-invest-metrics-grid m4-invest-metrics-grid--free-milk">
+                  <article className="m4-invest-metric-card m4-invest-metric--cap"><span>{t('module4CardCap')}</span><strong>{fmtMoney(freeMilkOnly.cap, 2)}</strong></article>
+                  <article className="m4-invest-metric-card m4-invest-metric--generated"><span>{t('module4CardGenerated')}</span><strong>{fmtMoney(freeMilkOnly.generated, 2)}</strong></article>
+                  <article className="m4-invest-metric-card m4-invest-metric--net"><span>{t('module4CardNet')}</span><strong>{fmtMoney(freeMilkOnly.net, 2)}</strong></article>
+                </div>
+                <div className="m4-scenario-kpis-strip">
+                  <div className="m4-scenario-kpi">
+                    <span>{t('module4SelectedScenarioLabel')}</span>
+                    <strong>{scenarioLabel('s1', t)}</strong>
+                  </div>
+                  <div className="m4-scenario-kpi">
+                    <span>{t('module4CardRoi')}</span>
+                    <strong>{fmtRatioPct(freeMilkOnly.roi, 1)}</strong>
+                  </div>
+                  <div className="m4-scenario-kpi">
+                    <span>{t('module4CardAnnualRoi')}</span>
+                    <strong>{fmtRatioPct(freeMilkOnly.annualROI, 1)}</strong>
+                  </div>
+                </div>
+                <p className="m4-free-milk-only-footnote">{t('module4FreeMilkOnlyFootnote')}</p>
+              </>
+            )}
           </section>
 
           <section className="card m4-free-conversion-card">

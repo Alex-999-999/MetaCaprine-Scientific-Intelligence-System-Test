@@ -4293,6 +4293,10 @@ Object.assign(translations.en, {
   module4CheesePerLactationCompare: 'Cheese per lactation',
   module4ProductionPerLactationCompare: 'Milk per lactation',
   module4CheeseTop4Title: 'Top 4 cheese-producing breeds',
+  module4FreeMilkOnlyTitle: 'Milk-only investment (Solo leche)',
+  module4FreeMilkOnlySubtitle:
+    'Real CAP, generated value and net for the milk-only scenario (S1). Scale per goat or herd. Full scenarios, payback, charts and assumption overrides are PRO.',
+  module4FreeMilkOnlyFootnote: 'PRO unlocks all scenarios, projection charts, payback and editable assumptions.',
 });
 
 Object.assign(translations.es, {
@@ -4347,6 +4351,10 @@ Object.assign(translations.es, {
   module4CheesePerLactationCompare: 'Queso por lactancia',
   module4ProductionPerLactationCompare: 'Leche por lactancia',
   module4CheeseTop4Title: 'Top 4 razas productoras de queso',
+  module4FreeMilkOnlyTitle: 'Inversión solo leche',
+  module4FreeMilkOnlySubtitle:
+    'CAP, valor generado y ganancia neta reales para el escenario solo leche (S1). Escala por cabra o rebaño. El resto de escenarios, payback, gráficos y supuestos editables son PRO.',
+  module4FreeMilkOnlyFootnote: 'PRO desbloquea todos los escenarios, gráficos de proyección, payback y supuestos editables.',
 });
 
 Object.assign(translations.fr, {
@@ -4367,6 +4375,10 @@ Object.assign(translations.fr, {
   module4CheesePerLactationCompare: 'Cheese per lactation',
   module4ProductionPerLactationCompare: 'Milk per lactation',
   module4CheeseTop4Title: 'Top 4 cheese-producing breeds',
+  module4FreeMilkOnlyTitle: 'Milk-only investment (Solo leche)',
+  module4FreeMilkOnlySubtitle:
+    'Real CAP, generated value and net for the milk-only scenario (S1). Scale per goat or herd. Full scenarios, payback and charts are PRO.',
+  module4FreeMilkOnlyFootnote: 'PRO unlocks all scenarios, projection charts and payback.',
 });
 
 Object.assign(translations.it, {
@@ -4387,6 +4399,10 @@ Object.assign(translations.it, {
   module4CheesePerLactationCompare: 'Cheese per lactation',
   module4ProductionPerLactationCompare: 'Milk per lactation',
   module4CheeseTop4Title: 'Top 4 cheese-producing breeds',
+  module4FreeMilkOnlyTitle: 'Milk-only investment (Solo leche)',
+  module4FreeMilkOnlySubtitle:
+    'Real CAP, generated value and net for the milk-only scenario (S1). Scale per goat or herd. Full scenarios, payback and charts are PRO.',
+  module4FreeMilkOnlyFootnote: 'PRO unlocks all scenarios, projection charts and payback.',
 });
 
 Object.assign(translations.pt, {
@@ -4407,6 +4423,10 @@ Object.assign(translations.pt, {
   module4CheesePerLactationCompare: 'Queijo por lactação',
   module4ProductionPerLactationCompare: 'Leite por lactação',
   module4CheeseTop4Title: 'Top 4 raças produtoras de queijo',
+  module4FreeMilkOnlyTitle: 'Investimento só leite (Solo leche)',
+  module4FreeMilkOnlySubtitle:
+    'CAP, valor gerado e ganho líquido reais para o cenário só leite (S1). Escala por cabra ou rebanho. Demais cenários, payback, gráficos e suposições editáveis são PRO.',
+  module4FreeMilkOnlyFootnote: 'PRO desbloqueia todos os cenários, gráficos de projeção, payback e suposições editáveis.',
 });
 // STEP26_M4_FINAL_PREDICTIVE_UI_END
 
@@ -4455,13 +4475,13 @@ Object.assign(translations.en, {
   module4FreeVsProCheeseFree: 'Ranking and comparison',
   module4FreeVsProCheesePro: 'Full analysis with complete catalog',
   module4FreeVsProSimulator: 'Investment simulator',
-  module4FreeVsProSimulatorFree: 'Preview only',
+  module4FreeVsProSimulatorFree: 'Milk-only (S1) economics',
   module4FreeVsProSimulatorPro: 'Active calculator',
   module4FreeVsProScenarios: 'Scenarios',
-  module4FreeVsProScenariosFree: 'Locked',
+  module4FreeVsProScenariosFree: 'Solo leche (S1) only',
   module4FreeVsProScenariosPro: 'Milk, daughters, Channel 1, 2 and 3',
   module4FreeVsProProjection: 'Projection and ROI',
-  module4FreeVsProProjectionFree: 'Locked values',
+  module4FreeVsProProjectionFree: 'S1 ROI only (no payback chart)',
   module4FreeVsProProjectionPro: 'Payback, ROI and full projection',
 });
 
@@ -4485,13 +4505,13 @@ Object.assign(translations.es, {
   module4FreeVsProCheeseFree: 'Ranking y comparación',
   module4FreeVsProCheesePro: 'Análisis completo con catálogo total',
   module4FreeVsProSimulator: 'Simulador de inversión',
-  module4FreeVsProSimulatorFree: 'Solo vista previa',
+  module4FreeVsProSimulatorFree: 'Economía solo leche (S1)',
   module4FreeVsProSimulatorPro: 'Calculadora activa',
   module4FreeVsProScenarios: 'Escenarios',
-  module4FreeVsProScenariosFree: 'Bloqueados',
+  module4FreeVsProScenariosFree: 'Solo escenario solo leche (S1)',
   module4FreeVsProScenariosPro: 'Solo leche, leche + hijas y canales 1, 2 y 3',
   module4FreeVsProProjection: 'Proyección y ROI',
-  module4FreeVsProProjectionFree: 'Valores bloqueados',
+  module4FreeVsProProjectionFree: 'Solo ROI S1 (sin payback ni proyección)',
   module4FreeVsProProjectionPro: 'Payback, ROI y proyección completa',
 });
 
@@ -4515,13 +4535,13 @@ Object.assign(translations.fr, {
   module4FreeVsProCheeseFree: 'Ranking and comparison',
   module4FreeVsProCheesePro: 'Full catalog analysis',
   module4FreeVsProSimulator: 'Investment simulator',
-  module4FreeVsProSimulatorFree: 'Preview only',
+  module4FreeVsProSimulatorFree: 'Milk-only (S1) economics',
   module4FreeVsProSimulatorPro: 'Active calculator',
   module4FreeVsProScenarios: 'Scenarios',
-  module4FreeVsProScenariosFree: 'Locked',
+  module4FreeVsProScenariosFree: 'Solo leche (S1) only',
   module4FreeVsProScenariosPro: 'Milk, daughters and channels',
   module4FreeVsProProjection: 'Projection and ROI',
-  module4FreeVsProProjectionFree: 'Locked values',
+  module4FreeVsProProjectionFree: 'S1 ROI only (no payback chart)',
   module4FreeVsProProjectionPro: 'Payback, ROI and projection',
 });
 
@@ -4545,13 +4565,13 @@ Object.assign(translations.it, {
   module4FreeVsProCheeseFree: 'Ranking and comparison',
   module4FreeVsProCheesePro: 'Full catalog analysis',
   module4FreeVsProSimulator: 'Investment simulator',
-  module4FreeVsProSimulatorFree: 'Preview only',
+  module4FreeVsProSimulatorFree: 'Milk-only (S1) economics',
   module4FreeVsProSimulatorPro: 'Active calculator',
   module4FreeVsProScenarios: 'Scenarios',
-  module4FreeVsProScenariosFree: 'Locked',
+  module4FreeVsProScenariosFree: 'Solo leche (S1) only',
   module4FreeVsProScenariosPro: 'Milk, daughters and channels',
   module4FreeVsProProjection: 'Projection and ROI',
-  module4FreeVsProProjectionFree: 'Locked values',
+  module4FreeVsProProjectionFree: 'S1 ROI only (no payback chart)',
   module4FreeVsProProjectionPro: 'Payback, ROI and projection',
 });
 
@@ -4575,12 +4595,12 @@ Object.assign(translations.pt, {
   module4FreeVsProCheeseFree: 'Ranking e comparação',
   module4FreeVsProCheesePro: 'Análise completa com catálogo total',
   module4FreeVsProSimulator: 'Simulador de investimento',
-  module4FreeVsProSimulatorFree: 'Somente prévia',
+  module4FreeVsProSimulatorFree: 'Economia só leite (S1)',
   module4FreeVsProSimulatorPro: 'Calculadora ativa',
   module4FreeVsProScenarios: 'Cenários',
-  module4FreeVsProScenariosFree: 'Bloqueados',
+  module4FreeVsProScenariosFree: 'Apenas cenário só leite (S1)',
   module4FreeVsProScenariosPro: 'Leite, filhas e canais',
   module4FreeVsProProjection: 'Projeção e ROI',
-  module4FreeVsProProjectionFree: 'Valores bloqueados',
+  module4FreeVsProProjectionFree: 'Apenas ROI S1 (sem payback nem projeção)',
   module4FreeVsProProjectionPro: 'Payback, ROI e projeção completa',
 });
