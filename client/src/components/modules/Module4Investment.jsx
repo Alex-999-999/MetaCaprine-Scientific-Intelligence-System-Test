@@ -24,6 +24,13 @@ import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import { useChartColors } from '../../hooks/useDarkMode';
 import { computeM4, scenarioRevenueBreakdown } from '../../utils/m4Calculations';
+import {
+  m4Fmt as fmt,
+  m4FmtMoney as fmtMoney,
+  m4FmtRatioPct as fmtRatioPct,
+  m4CompactMoney as compactMoney,
+  m4Round,
+} from '../../utils/m4Format';
 import { getBreedImage } from '../../utils/breedImages';
 import '../../styles/Module4.css';
 
@@ -48,26 +55,10 @@ const OVERRIDE_FIELDS = [
   { key: 'female_value', labelKey: 'module4FieldDaughterValue' },
 ];
 
-const fmt = (n, d = 0) =>
-  n == null || Number.isNaN(Number(n))
-    ? '-'
-    : Number(n).toLocaleString(undefined, { minimumFractionDigits: Math.min(d, 2), maximumFractionDigits: Math.min(d, 2) });
-
-const fmtMoney = (n, d = 2) => (n == null || Number.isNaN(Number(n)) ? '-' : `$${fmt(n, Math.min(d, 2))}`);
-const fmtRatioPct = (n, d = 1) =>
-  n == null || Number.isNaN(Number(n)) ? '-' : `${(Number(n) * 100).toFixed(Math.min(d, 1))}%`;
-const compactMoney = (n) => {
-  const v = Number(n) || 0;
-  const abs = Math.abs(v);
-  if (abs >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000) return `$${(v / 1_000).toFixed(1)}k`;
-  return `$${Math.round(v)}`;
-};
-
 const fmtYears = (n, t) => {
   if (n == null || Number.isNaN(Number(n))) return '-';
   const years = Number(n);
-  return `${years.toFixed(1)} ${years === 1 ? t('module4YearUnitSingular') : t('module4YearUnitPlural')}`;
+  return `${years.toFixed(2)} ${years === 1 ? t('module4YearUnitSingular') : t('module4YearUnitPlural')}`;
 };
 
 const scenarioLabel = (key, t) => {
@@ -287,7 +278,7 @@ export default function Module4Investment() {
         return next;
       }
       const n = Number(value);
-      if (Number.isFinite(n)) next[field] = n;
+      if (Number.isFinite(n)) next[field] = m4Round(n, 2);
       return next;
     });
   }, []);
@@ -412,7 +403,7 @@ export default function Module4Investment() {
             <div className="m4-scale-grid m4-scale-grid--free-milk">
               <label className="m4-scale-field">
                 <M4HintIcon labelForAria={t('module4ScaleHerdCount')} hint={t('module4HintHerdCount')} t={t} />
-                <input type="number" min={1} max={10000} className="m4-input" value={herdN} onChange={(e) => setHerdCount(e.target.value)} />
+                <input type="number" min={1} max={10000} step={1} className="m4-input" value={herdN} onChange={(e) => setHerdCount(e.target.value)} />
               </label>
             </div>
             {freeMilkOnly && (
@@ -429,15 +420,15 @@ export default function Module4Investment() {
                   </div>
                   <div className="m4-scenario-kpi">
                     <span>{t('module4CardRoi')}</span>
-                    <strong>{fmtRatioPct(freeMilkOnly.roi, 1)}</strong>
+                    <strong>{fmtRatioPct(freeMilkOnly.roi, 2)}</strong>
                   </div>
                   <div className="m4-scenario-kpi">
                     <span>{t('module4CardAnnualRoi')}</span>
-                    <strong>{fmtRatioPct(freeMilkOnly.annualROI, 1)}</strong>
+                    <strong>{fmtRatioPct(freeMilkOnly.annualROI, 2)}</strong>
                   </div>
                 </div>
                 <div className="m4-reference-time-block">
-                  <p>{t('module4ReferenceTimeText', { lactations: fmt(referenceTime.lactations, 1), years: fmt(referenceTime.years, 1) })}</p>
+                  <p>{t('module4ReferenceTimeText', { lactations: fmt(referenceTime.lactations, 2), years: fmt(referenceTime.years, 2) })}</p>
                 </div>
                 <p className="m4-free-milk-only-footnote">{t('module4FreeMilkOnlyFootnote')}</p>
               </>
@@ -516,7 +507,7 @@ export default function Module4Investment() {
               </label>
               <label className="m4-scale-field">
                 <M4HintIcon labelForAria={t('module4ScaleHerdCount')} hint={t('module4HintHerdCount')} t={t} />
-                <input type="number" min={1} max={10000} className="m4-input" value={herdN} onChange={(e) => setHerdCount(e.target.value)} />
+                <input type="number" min={1} max={10000} step={1} className="m4-input" value={herdN} onChange={(e) => setHerdCount(e.target.value)} />
               </label>
               <label className="m4-scale-field">
                 <M4HintIcon labelForAria={t('module4MainChartTypeLabel')} hint={t('module4HintMainChart')} t={t} />
@@ -552,15 +543,15 @@ export default function Module4Investment() {
                   </div>
                   <div className="m4-scenario-kpi">
                     <span>{t('module4CardRoi')}</span>
-                    <strong>{fmtRatioPct(selectedKpi?.roi, 1)}</strong>
+                    <strong>{fmtRatioPct(selectedKpi?.roi, 2)}</strong>
                   </div>
                   <div className="m4-scenario-kpi">
                     <span>{t('module4CardAnnualRoi')}</span>
-                    <strong>{fmtRatioPct(selectedKpi?.annualROI, 1)}</strong>
+                    <strong>{fmtRatioPct(selectedKpi?.annualROI, 2)}</strong>
                   </div>
                 </div>
                 <div className="m4-reference-time-block">
-                  <p>{t('module4ReferenceTimeText', { lactations: fmt(referenceTime.lactations, 1), years: fmt(referenceTime.years, 1) })}</p>
+                  <p>{t('module4ReferenceTimeText', { lactations: fmt(referenceTime.lactations, 2), years: fmt(referenceTime.years, 2) })}</p>
                 </div>
 
                 <div className="m4-invest-chart-wrap">
@@ -616,7 +607,7 @@ export default function Module4Investment() {
 
                 <div className="m4-recovery-message m4-recovery-message--advanced">
                   {calculator.recovered
-                    ? <><p>{t('module4ChartPedagogyRecovered', { year: calculator.breakEvenYear.toFixed(1) })}</p><p>{t('module4ChartPedagogyRecoveredLine2')}</p></>
+                    ? <><p>{t('module4ChartPedagogyRecovered', { year: calculator.breakEvenYear.toFixed(2) })}</p><p>{t('module4ChartPedagogyRecoveredLine2')}</p></>
                     : <><p>{t('module4ChartPedagogyNotRecovered')}</p><p>{t('module4ChartPedagogyNotRecoveredLine2')}</p></>}
                 </div>
                 <div className="m4-final-decision-message">
@@ -658,7 +649,7 @@ export default function Module4Investment() {
                   </div>
                   <div className="m4-profile-kpi">
                     <span>{t('module4ProfileAvgRoi')}</span>
-                    <strong>{fmtRatioPct(profileAverage.avgRoi, 1)}</strong>
+                    <strong>{fmtRatioPct(profileAverage.avgRoi, 2)}</strong>
                   </div>
                 </div>
               </div>
@@ -680,7 +671,7 @@ export default function Module4Investment() {
                 <div className="m4-profile-bars m4-profile-bars--strong">
                   {profile.bars.map((bar) => (
                     <div key={bar.key} className="m4-profile-bar-row">
-                      <div className="m4-profile-bar-label"><span>{bar.label}</span><strong>{fmtMoney(bar.value, 2)} ({bar.pct.toFixed(1)}%)</strong></div>
+                      <div className="m4-profile-bar-label"><span>{bar.label}</span><strong>{fmtMoney(bar.value, 2)} ({fmt(bar.pct, 2)}%)</strong></div>
                       <div className="m4-profile-bar-track"><div className={`m4-profile-bar-fill ${bar.className}`} style={{ width: `${bar.pct}%` }} /></div>
                     </div>
                   ))}
@@ -697,7 +688,7 @@ export default function Module4Investment() {
               {OVERRIDE_FIELDS.map(({ key, labelKey }) => (
                 <label key={key} className="m4-override-field">
                   {t(labelKey)}
-                  <input type="number" step="any" className="m4-input" value={proOverrides[key] ?? selectedBreed[key] ?? ''} onChange={(e) => handleOverrideChange(key, e.target.value)} />
+                  <input type="number" step="0.01" className="m4-input" value={proOverrides[key] ?? selectedBreed[key] ?? ''} onChange={(e) => handleOverrideChange(key, e.target.value)} />
                 </label>
               ))}
             </div>

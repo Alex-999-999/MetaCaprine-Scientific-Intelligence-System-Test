@@ -14,10 +14,8 @@ import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import ModernIcon from '../icons/ModernIcon';
 import { getBreedImage } from '../../utils/breedImages';
+import { m4Fmt as fmt } from '../../utils/m4Format';
 import '../../styles/Module4.css';
-
-const fmt = (n, d = 0) =>
-  n == null ? '-' : Number(n).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d });
 
 const TOP4_COLORS = ['#d4a017', '#3b82f6', '#22c55e', '#8b5cf6'];
 const NEUTRAL_BAR = '#94a3b8';
@@ -141,7 +139,7 @@ export default function Module4CheeseAnalysis() {
                 <div className="m4-cheese-top3-detail">{t('module4CheeseYieldLPerKg')}: {fmt(yieldL, 2)}</div>
                 <div className="m4-cheese-top3-detail">{t('module4CheesePerLactationLabel') || 'Cheese/lactation'}: {fmt(cheeseLact, 2)} kg</div>
                 <div className="m4-cheese-top3-percent">
-                  {topCheese > 0 ? `${((Number(item.lifetime_cheese_kg) / Number(topCheese)) * 100).toFixed(1)}%` : '0%'}
+                  {topCheese > 0 ? `${fmt((Number(item.lifetime_cheese_kg) / Number(topCheese)) * 100, 2)}%` : '0%'}
                 </div>
               </article>
             );
@@ -160,11 +158,11 @@ export default function Module4CheeseAnalysis() {
           <ResponsiveContainer width="100%" height={420}>
             <BarChart layout="vertical" data={chartData} margin={{ top: 8, right: 24, left: 24, bottom: 8 }}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-              <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${Number(v).toFixed(0)}%`} />
+              <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${fmt(Number(v), 2)}%`} />
               <YAxis type="category" dataKey="shortName" width={170} />
               <Tooltip
-                formatter={(value, name, payload) => {
-                  if (name === 'pct') return [`${Number(value).toFixed(1)}%`, t('module4CheeseRelativePerformance')];
+                formatter={(value, name) => {
+                  if (name === 'pct') return [`${fmt(Number(value), 2)}%`, t('module4CheeseRelativePerformance')];
                   return [`${fmt(value, 2)} kg`, t('module4LifetimeCheeseKg')];
                 }}
                 labelFormatter={(label, payload) => payload?.[0]?.payload?.name || label}
@@ -252,7 +250,7 @@ export default function Module4CheeseAnalysis() {
               <div className="m4-compare-diff-card">
                 <span>{t('module4CheeseDifferenceTitle')}</span>
                 <strong>{comparison.diff >= 0 ? '+' : ''}{fmt(comparison.diff, 2)} kg</strong>
-                <p>{comparison.pct == null ? '-' : `${comparison.pct >= 0 ? '+' : ''}${comparison.pct.toFixed(1)}%`}</p>
+                <p>{comparison.pct == null ? '-' : `${comparison.pct >= 0 ? '+' : ''}${fmt(comparison.pct, 2)}%`}</p>
               </div>
             </div>
           );

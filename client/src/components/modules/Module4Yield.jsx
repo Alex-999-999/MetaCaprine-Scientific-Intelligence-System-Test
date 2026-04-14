@@ -5,6 +5,7 @@ import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import AlertModal from '../AlertModal';
 import { useChartColors } from '../../hooks/useDarkMode';
+import { m4Fmt, m4Round } from '../../utils/m4Format';
 import ModernIcon from '../icons/ModernIcon';
 
 function Module4Yield({ user }) {
@@ -115,12 +116,13 @@ function Module4Yield({ user }) {
     
     // Parse the cleaned value to a number
     const numValue = parseFloat(stringValue);
-    
-    // Update state with the numeric value
-    setProductionData(prev => ({
-      ...prev,
-      [name]: isNaN(numValue) ? 0 : numValue,
-    }));
+    if (isNaN(numValue)) {
+      setProductionData((prev) => ({ ...prev, [name]: 0 }));
+      return;
+    }
+    const nextVal =
+      name === 'production_days' || name === 'animals_count' ? Math.round(numValue) : m4Round(numValue, 2);
+    setProductionData((prev) => ({ ...prev, [name]: nextVal }));
   };
 
   const handleInputFocus = (e) => {
@@ -158,11 +160,10 @@ function Module4Yield({ user }) {
     
     // Parse the cleaned value to a number
     const numValue = parseFloat(stringValue);
-    
-    // Update state with the numeric value
-    setYieldData(prev => ({
+    const nextVal = isNaN(numValue) ? 0 : m4Round(numValue, 2);
+    setYieldData((prev) => ({
       ...prev,
-      [name]: isNaN(numValue) ? 0 : numValue,
+      [name]: nextVal,
     }));
   };
 
@@ -321,7 +322,7 @@ function Module4Yield({ user }) {
                   value={yieldData.conversion_rate}
                   onChange={handleYieldChange}
                   onFocus={handleInputFocus}
-                  step="0.0001"
+                  step="0.01"
                   placeholder={t('conversionRate')}
                 />
                 <p className="input-hint">{t('module4HintConversionRate')}</p>
@@ -334,7 +335,7 @@ function Module4Yield({ user }) {
                   value={yieldData.efficiency_percentage}
                   onChange={handleYieldChange}
                   onFocus={handleInputFocus}
-                  step="0.1"
+                  step="0.01"
                   min="0"
                   max="100"
                 />
@@ -359,25 +360,25 @@ function Module4Yield({ user }) {
                 <div className="metric-card info">
                   <div className="metric-label">{t('totalLiters')}</div>
                   <div className="metric-value">
-                    {Number(results.totalLiters || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })} L
+                    {m4Fmt(Number(results.totalLiters || 0), 2)} L
                   </div>
                 </div>
                 <div className="metric-card success">
                   <div className="metric-label">{t('effectiveLiters')}</div>
                   <div className="metric-value success">
-                    {Number(results.effectiveLiters || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })} L
+                    {m4Fmt(Number(results.effectiveLiters || 0), 2)} L
                   </div>
                 </div>
                 <div className="metric-card">
                   <div className="metric-label">{t('convertedProduct')}</div>
                   <div className="metric-value">
-                    {Number(results.convertedProduct || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    {m4Fmt(Number(results.convertedProduct || 0), 2)}
                   </div>
                 </div>
                 <div className={`metric-card ${results.efficiencyPercentage >= 90 ? 'success' : results.efficiencyPercentage >= 70 ? 'warning' : 'error'}`}>
                   <div className="metric-label">{t('efficiencyPercentage')}</div>
                   <div className={`metric-value ${results.efficiencyPercentage >= 90 ? 'success' : results.efficiencyPercentage >= 70 ? '' : 'error'}`}>
-                    {Number(results.efficiencyPercentage || 0).toFixed(1)}%
+                    {m4Fmt(Number(results.efficiencyPercentage || 0), 2)}%
                   </div>
                 </div>
               </div>
@@ -411,34 +412,34 @@ function Module4Yield({ user }) {
                     <tbody>
                       <tr>
                         <td><strong>{t('totalLiters')}</strong></td>
-                        <td>{Number(results.totalLiters || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} L</td>
+                        <td>{m4Fmt(Number(results.totalLiters || 0), 2)} L</td>
                       </tr>
                       <tr>
                         <td><strong>{t('effectiveLiters')}</strong></td>
-                        <td style={{ color: '#16a34a', fontWeight: '600' }}>{Number(results.effectiveLiters || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} L</td>
+                        <td style={{ color: '#16a34a', fontWeight: '600' }}>{m4Fmt(Number(results.effectiveLiters || 0), 2)} L</td>
                       </tr>
                       <tr>
                         <td><strong>{t('convertedProduct')}</strong></td>
-                        <td>{Number(results.convertedProduct || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} {t('units')}</td>
+                        <td>{m4Fmt(Number(results.convertedProduct || 0), 2)} {t('units')}</td>
                       </tr>
                       <tr>
                         <td><strong>{t('conversionRate')}</strong></td>
-                        <td>{Number(results.conversionRate || 0).toFixed(4)}</td>
+                        <td>{m4Fmt(Number(results.conversionRate || 0), 2)}</td>
                       </tr>
                       <tr>
                         <td><strong>{t('efficiencyPercentage')}</strong></td>
                         <td style={{ color: results.efficiencyPercentage >= 90 ? '#16a34a' : results.efficiencyPercentage >= 70 ? '#ca8a04' : '#dc2626', fontWeight: '600' }}>
-                          {Number(results.efficiencyPercentage || 0).toFixed(2)}%
+                          {m4Fmt(Number(results.efficiencyPercentage || 0), 2)}%
                         </td>
                       </tr>
                       <tr>
                         <td><strong>{t('wasteLiters')}</strong></td>
-                        <td style={{ color: '#dc2626' }}>{Number(results.wasteLiters || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} L</td>
+                        <td style={{ color: '#dc2626' }}>{m4Fmt(Number(results.wasteLiters || 0), 2)} L</td>
                       </tr>
                       <tr>
                         <td><strong>{t('wastePercentage')}</strong></td>
                         <td style={{ color: '#dc2626' }}>
-                          {Number(results.totalLiters || 0) > 0 ? ((Number(results.wasteLiters || 0) / Number(results.totalLiters || 0)) * 100).toFixed(2) : 0}%
+                          {Number(results.totalLiters || 0) > 0 ? m4Fmt((Number(results.wasteLiters || 0) / Number(results.totalLiters || 0)) * 100, 2) : m4Fmt(0, 2)}%
                         </td>
                       </tr>
                     </tbody>
@@ -502,14 +503,14 @@ function Module4Yield({ user }) {
                               outerRadius={118}
                               dataKey="value"
                               paddingAngle={3}
-                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                              label={({ name, percent }) => `${name}: ${m4Fmt(percent * 100, 2)}%`}
                             >
                               {utilizationPieData.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={chartColors.palette[index % chartColors.palette.length]} />
                               ))}
                             </Pie>
                             <Tooltip
-                              formatter={(value) => `${Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} L`}
+                              formatter={(value) => `${m4Fmt(Number(value || 0), 2)} L`}
                               contentStyle={{
                                 backgroundColor: chartColors.tooltip.bg,
                                 border: `1px solid ${chartColors.tooltip.border}`,
@@ -552,7 +553,7 @@ function Module4Yield({ user }) {
                               tickLine={false}
                             />
                             <Tooltip
-                              formatter={(value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                              formatter={(value) => m4Fmt(Number(value || 0), 2)}
                               contentStyle={{
                                 backgroundColor: chartColors.tooltip.bg,
                                 border: `1px solid ${chartColors.tooltip.border}`,
@@ -586,7 +587,7 @@ function Module4Yield({ user }) {
                             tickLine={false}
                           />
                           <Tooltip
-                            formatter={(value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                            formatter={(value) => m4Fmt(Number(value || 0), 2)}
                             contentStyle={{
                               backgroundColor: chartColors.tooltip.bg,
                               border: `1px solid ${chartColors.tooltip.border}`,
@@ -630,7 +631,7 @@ function Module4Yield({ user }) {
                               outerRadius={118}
                               dataKey="value"
                               paddingAngle={3}
-                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                              label={({ name, percent }) => `${name}: ${m4Fmt(percent * 100, 2)}%`}
                             >
                               {efficiencyPieData.map((entry, index) => (
                                 <Cell
@@ -640,7 +641,7 @@ function Module4Yield({ user }) {
                               ))}
                             </Pie>
                             <Tooltip
-                              formatter={(value) => `${Number(value || 0).toFixed(2)}%`}
+                              formatter={(value) => `${m4Fmt(Number(value || 0), 2)}%`}
                               contentStyle={{
                                 backgroundColor: chartColors.tooltip.bg,
                                 border: `1px solid ${chartColors.tooltip.border}`,
@@ -676,10 +677,10 @@ function Module4Yield({ user }) {
                               axisLine={false}
                               tickLine={false}
                               domain={[0, 100]}
-                              tickFormatter={(value) => `${value}%`}
+                              tickFormatter={(value) => `${m4Fmt(Number(value), 2)}%`}
                             />
                             <Tooltip
-                              formatter={(value) => `${Number(value || 0).toFixed(2)}%`}
+                              formatter={(value) => `${m4Fmt(Number(value || 0), 2)}%`}
                               contentStyle={{
                                 backgroundColor: chartColors.tooltip.bg,
                                 border: `1px solid ${chartColors.tooltip.border}`,
@@ -721,7 +722,7 @@ function Module4Yield({ user }) {
                             tickFormatter={(value) => `${value}%`}
                           />
                           <Tooltip
-                            formatter={(value) => `${Number(value).toFixed(2)}%`}
+                            formatter={(value) => `${m4Fmt(Number(value), 2)}%`}
                             contentStyle={{
                               backgroundColor: chartColors.tooltip.bg,
                               border: `1px solid ${chartColors.tooltip.border}`,
