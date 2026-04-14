@@ -1338,6 +1338,17 @@
   margin: 6px 0 0;
 }
 
+.m4-sim-notice {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(22, 163, 74, 0.35);
+  background: rgba(22, 163, 74, 0.1);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
 .m4-reference-time-block {
   margin: 10px 0 0;
   padding: 10px 12px;

@@ -125,6 +125,7 @@ export default function Module4Investment() {
   const [appliedMainChartType, setAppliedMainChartType] = useState('line');
   const [appliedSecondaryChartType, setAppliedSecondaryChartType] = useState('columns');
   const [appliedOverrides, setAppliedOverrides] = useState({});
+  const [showSimUpdatedNotice, setShowSimUpdatedNotice] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -317,7 +318,14 @@ export default function Module4Investment() {
     setAppliedMainChartType(mainChartType);
     setAppliedSecondaryChartType(secondaryChartType);
     setAppliedOverrides({ ...proOverrides });
+    setShowSimUpdatedNotice(true);
   }, [selectedBreedId, selectedScenario, herdN, mainChartType, secondaryChartType, proOverrides]);
+
+  useEffect(() => {
+    if (!showSimUpdatedNotice) return undefined;
+    const timer = setTimeout(() => setShowSimUpdatedNotice(false), 2200);
+    return () => clearTimeout(timer);
+  }, [showSimUpdatedNotice]);
 
   const handleOverrideChange = useCallback((field, value) => {
     setProOverrides((prev) => {
@@ -460,6 +468,11 @@ export default function Module4Investment() {
                 {t('module4UpdateSimulation')}
               </button>
             </div>
+            {showSimUpdatedNotice && (
+              <div className="m4-sim-notice" role="status" aria-live="polite">
+                {t('module4SimulationUpdated')}
+              </div>
+            )}
             {freeMilkOnly && (
               <>
                 <div className="m4-invest-metrics-grid m4-invest-metrics-grid--free-milk">
@@ -585,6 +598,11 @@ export default function Module4Investment() {
                 {t('module4UpdateSimulation')}
               </button>
             </div>
+            {showSimUpdatedNotice && (
+              <div className="m4-sim-notice" role="status" aria-live="polite">
+                {t('module4SimulationUpdated')}
+              </div>
+            )}
 
             <div className="m4-pedagogy-block m4-pedagogy--warning"><p className="m4-pedagogy-block-text">{t('module4ReplacementMortalityNote')}</p></div>
 
