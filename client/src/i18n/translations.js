@@ -4347,7 +4347,7 @@ Object.assign(translations.en, {
 
 Object.assign(translations.es, {
   module4PredictiveLead: 'Bienvenido al simulador económico por raza. Aquí puedes estimar el costo real del activo (CAP), comparar escenarios de monetización (leche directa, leche + hijas y venta de quesos en diferentes canales) y visualizar la recuperación de la inversión en el tiempo. No es un ranking emocional de razas: es una herramienta para entender dónde cada raza genera mayor valor, bajo supuestos promedio o los tuyos propios.',
-  module4GlobalAverageDisclaimer: 'Este módulo utiliza promedios internacionales. Los resultados pueden variar según manejo, ambiente, genética, alimentación, sistema e identidad productiva.',
+  module4GlobalAverageDisclaimer: 'Base de cálculo del modelo: Este simulador utiliza valores de referencia construidos a partir de promedios internacionales y sistemas productivos eficientes. En la práctica, los resultados pueden variar según ambiente, manejo, genética, alimentación, identidad, mercado y estrategia empresarial. En la mayoría de los casos reales, los resultados tienden a estar por debajo de esta base; sin embargo, sistemas bien diseñados pueden igualarla o superarla. NOTA: Los usuarios PRO pueden ajustar estos parámetros en la calculadora avanzada para reflejar su realidad productiva.',
   module4ConceptsTitle: 'Conceptos clave en lenguaje simple',
   module4ConceptCapTitle: 'CAP (inversión)',
   module4ConceptCapDesc: 'Es el dinero que necesitas para que una cabrita esté lista para producir leche.',
