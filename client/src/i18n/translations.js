@@ -4289,7 +4289,7 @@ Object.assign(translations.pt, {
 // STEP26_M4_FINAL_PREDICTIVE_UI_START
 Object.assign(translations.en, {
   module4PredictiveLead: 'Welcome to the economic simulator by breed. Here you can estimate the real asset cost (CAP), compare monetization scenarios (direct milk, milk plus daughters, and cheese sales through different channels) and visualize the investment recovery over time. This is not an emotional breed ranking: it is a tool to understand where each breed generates the most value, under average assumptions or your own.',
-  module4GlobalAverageDisclaimer: 'This module uses international averages. Results may vary by management, environment, genetics, feeding, production system, and farm identity.',
+  module4GlobalAverageDisclaimer: 'Model calculation baseline: This simulator uses reference values built from international averages and efficient production systems. In practice, results may vary depending on environment, management, genetics, feeding, identity, market, and business strategy. In most real-world cases, outcomes tend to be below this baseline; however, well-designed systems can match or exceed it. NOTE: PRO users can adjust these parameters in the advanced calculator to reflect their production reality.',
   module4ConceptsTitle: 'Core concepts in plain language',
   module4ConceptCapTitle: 'CAP (investment)',
   module4ConceptCapDesc: 'It is the money you need for a baby goat to be ready to produce milk.',
@@ -4405,7 +4405,7 @@ Object.assign(translations.es, {
 
 Object.assign(translations.fr, {
   module4PredictiveLead: 'Predictive investment module for goat farming decisions.',
-  module4GlobalAverageDisclaimer: 'This module uses international averages; real results can vary by farm context.',
+  module4GlobalAverageDisclaimer: 'Base de calcul du modele: ce simulateur utilise des valeurs de reference construites a partir de moyennes internationales et de systemes productifs performants. En pratique, les resultats peuvent varier selon l environnement, la conduite, la genetique, l alimentation, l identite, le marche et la strategie d entreprise. Dans la majorite des cas reels, les resultats tendent a etre en dessous de cette base; cependant, des systemes bien concus peuvent l egaler ou la depasser. NOTE: les utilisateurs PRO peuvent ajuster ces parametres dans la calculatrice avancee pour refleter leur realite productive.',
   module4ConceptsTitle: 'Core concepts',
   module4PreviewTitle: 'PRO simulator preview',
   module4UnlockInvestmentAnalysis: 'Unlock investment analysis',
@@ -4429,7 +4429,7 @@ Object.assign(translations.fr, {
 
 Object.assign(translations.it, {
   module4PredictiveLead: 'Predictive investment module for goat farming decisions.',
-  module4GlobalAverageDisclaimer: 'This module uses international averages; real results can vary by farm context.',
+  module4GlobalAverageDisclaimer: 'Base di calcolo del modello: questo simulatore utilizza valori di riferimento costruiti a partire da medie internazionali e sistemi produttivi efficienti. Nella pratica, i risultati possono variare in base ad ambiente, gestione, genetica, alimentazione, identita, mercato e strategia aziendale. Nella maggior parte dei casi reali, i risultati tendono a essere inferiori a questa base; tuttavia, sistemi ben progettati possono eguagliarla o superarla. NOTA: gli utenti PRO possono regolare questi parametri nella calcolatrice avanzata per riflettere la loro realta produttiva.',
   module4ConceptsTitle: 'Core concepts',
   module4PreviewTitle: 'PRO simulator preview',
   module4UnlockInvestmentAnalysis: 'Unlock investment analysis',
@@ -4453,7 +4453,7 @@ Object.assign(translations.it, {
 
 Object.assign(translations.pt, {
   module4PredictiveLead: 'Módulo preditivo de investimento para decisões na caprinocultura.',
-  module4GlobalAverageDisclaimer: 'Este módulo usa médias internacionais; os resultados podem variar no contexto real da fazenda.',
+  module4GlobalAverageDisclaimer: 'Base de calculo do modelo: este simulador utiliza valores de referencia construidos a partir de medias internacionais e sistemas produtivos eficientes. Na pratica, os resultados podem variar conforme ambiente, manejo, genetica, alimentacao, identidade, mercado e estrategia empresarial. Na maioria dos casos reais, os resultados tendem a ficar abaixo desta base; no entanto, sistemas bem desenhados podem iguala-la ou supera-la. NOTA: os usuarios PRO podem ajustar esses parametros na calculadora avancada para refletir sua realidade produtiva.',
   module4ConceptsTitle: 'Conceitos principais',
   module4PreviewTitle: 'Prévia do simulador PRO',
   module4UnlockInvestmentAnalysis: 'Desbloquear análise de investimento',
