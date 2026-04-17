@@ -141,15 +141,15 @@ router.post('/calculate', async (req, res) => {
 // GET /api/m4/ranking/cheese
 router.get('/ranking/cheese', async (req, res) => {
   try {
+    const isPro = await getIsPro(req.user.userId);
+    if (!isPro) return proRequiredResponse(res);
+
     const pool = getPool();
     const { rows } = await pool.query(
       'SELECT id, name, lifetime_cheese_kg, cheese_yield_liters_per_kg FROM m4_breeds ORDER BY lifetime_cheese_kg DESC',
     );
 
-    const isPro = await getIsPro(req.user.userId);
-    const ranking = isPro ? rows : rows.filter(isFreeCatalogBreed);
-
-    res.json({ ranking, total: rows.length, isPro });
+    res.json({ ranking: rows, total: rows.length, isPro: true });
   } catch (error) {
     console.error('M4 cheese ranking error:', error);
     res.status(500).json({ error: 'Internal server error' });

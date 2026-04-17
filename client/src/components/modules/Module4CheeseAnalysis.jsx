@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   ResponsiveContainer,
   BarChart,
@@ -19,10 +19,11 @@ import '../../styles/Module4.css';
 
 const TOP4_COLORS = ['#d4a017', '#3b82f6', '#22c55e', '#8b5cf6'];
 const NEUTRAL_BAR = '#94a3b8';
-const CHEESE_METRIC_VIEWS = ['yield_l_per_kg', 'cheese_per_lactation', 'lifetime_cheese'];
+const CHEESE_METRIC_VIEWS = ['yield_l_per_kg', 'lifetime_cheese'];
 
 export default function Module4CheeseAnalysis() {
   const { t } = useI18n();
+  const navigate = useNavigate();
   const [breeds, setBreeds] = useState([]);
   const [ranking, setRanking] = useState([]);
   const [isPro, setIsPro] = useState(false);
@@ -35,14 +36,19 @@ export default function Module4CheeseAnalysis() {
     (async () => {
       try {
         setLoading(true);
-        const [breedsResponse, rankingResponse] = await Promise.all([
-          api.get('/m4/breeds'),
-          api.get('/m4/ranking/cheese'),
-        ]);
+        const breedsResponse = await api.get('/m4/breeds');
         const list = (breedsResponse.data.breeds || []).filter((b) => !b.locked);
+        const proAccess = !!breedsResponse.data.isPro;
         setBreeds(list);
-        setRanking(rankingResponse.data.ranking || []);
-        setIsPro(!!breedsResponse.data.isPro);
+        setIsPro(proAccess);
+
+        if (proAccess) {
+          const rankingResponse = await api.get('/m4/ranking/cheese');
+          setRanking(rankingResponse.data.ranking || []);
+        } else {
+          setRanking([]);
+        }
+
         if (list.length > 0) {
           setCompareA(list[0].id);
           setCompareB(list.length > 1 ? list[1].id : list[0].id);
@@ -68,12 +74,6 @@ export default function Module4CheeseAnalysis() {
         unit: 'L/kg',
       };
     }
-    if (metricView === 'cheese_per_lactation') {
-      return {
-        label: t('module4MetricCheesePerLactation'),
-        unit: 'kg',
-      };
-    }
     return {
       label: t('module4MetricLifetimeCheese'),
       unit: 'kg',
@@ -84,11 +84,6 @@ export default function Module4CheeseAnalysis() {
     () => (item) => {
       if (metricView === 'yield_l_per_kg') {
         return Number(item.cheese_yield_liters_per_kg) || 0;
-      }
-      if (metricView === 'cheese_per_lactation') {
-        const milk = Number(item.milk_per_lactation_kg) || 0;
-        const y = Number(item.cheese_yield_liters_per_kg) || 0;
-        return y > 0 ? milk / y : 0;
       }
       return Number(item.lifetime_cheese_kg) || 0;
     },
@@ -143,6 +138,35 @@ export default function Module4CheeseAnalysis() {
     );
   }
 
+  if (!isPro) {
+    return (
+      <div className="container module-compact m4-root">
+        <nav className="m4-subnav" aria-label="M4">
+          <Link to="/module4" className="m4-subnav-link">
+            {t('module4NavInvestment')}
+          </Link>
+          <span className="m4-subnav-link m4-subnav-link--active-cheese">{t('module4NavCheeseAnalysis')}</span>
+        </nav>
+
+        <header className="m4-module-header">
+          <div className="m4-hero-band">
+            <h1 className="m4-title m4-hero-title">{t('module4CheeseAnalysisTitle')}</h1>
+            <p className="m4-hero-subtitle">{t('module4CheeseAnalysisSubtitle')}</p>
+          </div>
+        </header>
+
+        <section className="card m4-free-conversion-card">
+          <h3>{t('module4CheeseProOnlyTitle')}</h3>
+          <p className="m4-free-conversion-main">{t('module4CheeseProOnlyMain')}</p>
+          <p className="m4-free-conversion-sub">{t('module4CheeseProOnlySub')}</p>
+          <button type="button" className="m4-btn-primary" onClick={() => navigate('/profile')}>
+            {t('module4UnlockInvestmentAnalysis')}
+          </button>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="container module-compact m4-root">
       <nav className="m4-subnav" aria-label="M4">
@@ -159,6 +183,51 @@ export default function Module4CheeseAnalysis() {
           {!isPro && <p className="m4-hero-description">{t('module4CheeseFreeHint')}</p>}
         </div>
       </header>
+
+      <section className="card m4-cheese-chart-card">
+        <h2 className="m4-section-title m4-title-with-icon">
+          <ModernIcon name="chartBar" size={18} className="m4-title-icon" />
+          {t('module4CheeseComparativeBarsTitle')}
+        </h2>
+        <p className="m4-section-subtitle">{t('module4CheeseComparativeBarsHint')}</p>
+        <div className="m4-cheese-metric-selector">
+          <label className="m4-scale-field">
+            {t('module4CheeseMetricSelectorLabel')}
+            <select className="m4-breed-select" value={metricView} onChange={(e) => setMetricView(e.target.value)}>
+              {CHEESE_METRIC_VIEWS.map((key) => (
+                <option key={key} value={key}>
+                  {key === 'yield_l_per_kg'
+                    ? t('module4MetricYieldLPerKg')
+                    : t('module4MetricLifetimeCheese')}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div className="m4-cheese-bars-wrap">
+          <ResponsiveContainer width="100%" height={500}>
+            <BarChart layout="vertical" data={chartData} barCategoryGap="36%" margin={{ top: 14, right: 28, left: 28, bottom: 14 }}>
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+              <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${fmt(Number(v), 2)}%`} tick={{ fontSize: 12, fontWeight: 600 }} />
+              <YAxis type="category" dataKey="shortName" width={220} tick={{ fontSize: 12, fontWeight: 600 }} />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'pct') return [`${fmt(Number(value), 2)}%`, t('module4CheeseRelativePerformance')];
+                  return [`${fmt(value, 2)} ${metricMeta.unit}`, metricMeta.label];
+                }}
+                labelFormatter={(label, payload) => payload?.[0]?.payload?.name || label}
+              />
+              <Bar dataKey="pct" name={metricMeta.label} radius={[0, 8, 8, 0]}>
+                {chartData.map((entry) => {
+                  const color = entry.rank <= 4 ? TOP4_COLORS[entry.rank - 1] : NEUTRAL_BAR;
+                  return <Cell key={entry.id} fill={color} />;
+                })}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </section>
 
       <section className="card m4-cheese-top3-card">
         <h2 className="m4-section-title m4-title-with-icon">
@@ -191,53 +260,6 @@ export default function Module4CheeseAnalysis() {
               </article>
             );
           })}
-        </div>
-      </section>
-
-      <section className="card m4-cheese-chart-card">
-        <h2 className="m4-section-title m4-title-with-icon">
-          <ModernIcon name="chartBar" size={18} className="m4-title-icon" />
-          {t('module4CheeseComparativeBarsTitle')}
-        </h2>
-        <p className="m4-section-subtitle">{t('module4CheeseComparativeBarsHint')}</p>
-        <div className="m4-cheese-metric-selector">
-          <label className="m4-scale-field">
-            {t('module4CheeseMetricSelectorLabel')}
-            <select className="m4-breed-select" value={metricView} onChange={(e) => setMetricView(e.target.value)}>
-              {CHEESE_METRIC_VIEWS.map((key) => (
-                <option key={key} value={key}>
-                  {key === 'yield_l_per_kg'
-                    ? t('module4MetricYieldLPerKg')
-                    : key === 'cheese_per_lactation'
-                      ? t('module4MetricCheesePerLactation')
-                      : t('module4MetricLifetimeCheese')}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <div className="m4-cheese-bars-wrap">
-          <ResponsiveContainer width="100%" height={500}>
-            <BarChart layout="vertical" data={chartData} barCategoryGap="36%" margin={{ top: 14, right: 28, left: 28, bottom: 14 }}>
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-              <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${fmt(Number(v), 2)}%`} tick={{ fontSize: 12, fontWeight: 600 }} />
-              <YAxis type="category" dataKey="shortName" width={220} tick={{ fontSize: 12, fontWeight: 600 }} />
-              <Tooltip
-                formatter={(value, name) => {
-                  if (name === 'pct') return [`${fmt(Number(value), 2)}%`, t('module4CheeseRelativePerformance')];
-                  return [`${fmt(value, 2)} ${metricMeta.unit}`, metricMeta.label];
-                }}
-                labelFormatter={(label, payload) => payload?.[0]?.payload?.name || label}
-              />
-              <Bar dataKey="pct" name={metricMeta.label} radius={[0, 8, 8, 0]}>
-                {chartData.map((entry) => {
-                  const color = entry.rank <= 4 ? TOP4_COLORS[entry.rank - 1] : NEUTRAL_BAR;
-                  return <Cell key={entry.id} fill={color} />;
-                })}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
         </div>
       </section>
 

@@ -61,6 +61,12 @@ const fmtYears = (n, t) => {
   return `${years.toFixed(2)} ${years === 1 ? t('module4YearUnitSingular') : t('module4YearUnitPlural')}`;
 };
 
+const fmtInput2 = (value) => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '';
+  return m4Round(n, 2);
+};
+
 const scenarioLabel = (key, t) => {
   if (key === 's1') return t('module4ScenarioS1Name');
   if (key === 's2') return t('module4ScenarioS2Name');
@@ -135,10 +141,6 @@ export default function Module4Investment() {
         const list = (data.breeds || []).filter((b) => !b.locked);
         setBreeds(list);
         setIsPro(!!data.isPro);
-        if (list.length > 0) {
-          setSelectedBreedId(list[0].id);
-          setAppliedBreedId(list[0].id);
-        }
       } catch (error) {
         console.error('Error loading M4 breeds:', error);
       } finally {
@@ -162,6 +164,7 @@ export default function Module4Investment() {
 
   const selectedBreed = useMemo(() => breeds.find((b) => b.id === selectedBreedId) || null, [breeds, selectedBreedId]);
   const appliedBreed = useMemo(() => breeds.find((b) => b.id === appliedBreedId) || null, [breeds, appliedBreedId]);
+  const hasSelectedBreed = selectedBreedId != null;
   const herdN = Math.min(10000, Math.max(1, Math.round(Number(herdCount) || 1)));
   const appliedHerdN = Math.min(10000, Math.max(1, Math.round(Number(appliedHerdCount) || 1)));
   const scaleUnits = appliedHerdN;
@@ -277,7 +280,11 @@ export default function Module4Investment() {
   }, [isPro, result, breedForCalc, scaleUnits, t]);
 
   const referenceTime = useMemo(() => {
-    const lactationsRaw = Number(appliedBreed?.lactations_per_life);
+    const lactationsRaw = Number(
+      appliedBreed?.avg_lifetime_lactations ??
+      appliedBreed?.lactations_per_life ??
+      appliedBreed?.lactations_lifetime_avg,
+    );
     const lactations = Number.isFinite(lactationsRaw) && lactationsRaw > 0 ? lactationsRaw : HORIZON;
     const years = lactations;
     return {
@@ -312,6 +319,7 @@ export default function Module4Investment() {
   ]);
 
   const applySimulation = useCallback(() => {
+    if (!hasSelectedBreed) return;
     setAppliedBreedId(selectedBreedId);
     setAppliedScenario(selectedScenario);
     setAppliedHerdCount(herdN);
@@ -319,7 +327,7 @@ export default function Module4Investment() {
     setAppliedSecondaryChartType(secondaryChartType);
     setAppliedOverrides({ ...proOverrides });
     setShowSimUpdatedNotice(true);
-  }, [selectedBreedId, selectedScenario, herdN, mainChartType, secondaryChartType, proOverrides]);
+  }, [hasSelectedBreed, selectedBreedId, selectedScenario, herdN, mainChartType, secondaryChartType, proOverrides]);
 
   useEffect(() => {
     if (!showSimUpdatedNotice) return undefined;
@@ -341,7 +349,7 @@ export default function Module4Investment() {
   }, []);
 
   if (loading) return <div className="container"><p>{t('loading')}</p></div>;
-  if (!selectedBreed) return <div className="container"><p>{t('noDataToShow')}</p></div>;
+  if (breeds.length === 0) return <div className="container"><p>{t('noDataToShow')}</p></div>;
 
   const complementaryColumns = calculator
     ? [
@@ -427,7 +435,12 @@ export default function Module4Investment() {
             </div>
             <label className="m4-scale-field">
               <M4HintIcon labelForAria={t('breed')} hint={t('module4HintBreed')} t={t} />
-              <select className="m4-breed-select" value={selectedBreedId || ''} onChange={(e) => setSelectedBreedId(Number(e.target.value))}>
+              <select
+                className="m4-breed-select"
+                value={selectedBreedId || ''}
+                onChange={(e) => setSelectedBreedId(e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">{t('module4SelectBreedPlaceholder')}</option>
                 {breeds.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </label>
@@ -462,11 +475,6 @@ export default function Module4Investment() {
                 <M4HintIcon labelForAria={t('module4ScaleHerdCount')} hint={t('module4HintHerdCount')} t={t} />
                 <input type="number" min={1} max={10000} step={1} className="m4-input" value={herdN} onChange={(e) => setHerdCount(e.target.value)} />
               </label>
-            </div>
-            <div className="m4-sim-actions">
-              <button type="button" className="m4-btn-primary" onClick={applySimulation} disabled={!isSimulationDirty}>
-                {t('module4UpdateSimulation')}
-              </button>
             </div>
             {showSimUpdatedNotice && (
               <div className="m4-sim-notice" role="status" aria-live="polite">
@@ -563,7 +571,12 @@ export default function Module4Investment() {
             <div className="m4-scale-grid m4-scale-grid--advanced">
               <label className="m4-scale-field">
                 <M4HintIcon labelForAria={t('breed')} hint={t('module4HintBreed')} t={t} />
-                <select className="m4-breed-select" value={selectedBreedId || ''} onChange={(e) => { setSelectedBreedId(Number(e.target.value)); setProOverrides({}); }}>
+                <select
+                  className="m4-breed-select"
+                  value={selectedBreedId || ''}
+                  onChange={(e) => { setSelectedBreedId(e.target.value ? Number(e.target.value) : null); setProOverrides({}); }}
+                >
+                  <option value="">{t('module4SelectBreedPlaceholder')}</option>
                   {breeds.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
               </label>
@@ -594,7 +607,7 @@ export default function Module4Investment() {
               </label>
             </div>
             <div className="m4-sim-actions">
-              <button type="button" className="m4-btn-primary" onClick={applySimulation} disabled={!isSimulationDirty}>
+              <button type="button" className="m4-btn-primary" onClick={applySimulation} disabled={!hasSelectedBreed || !isSimulationDirty}>
                 {t('module4UpdateSimulation')}
               </button>
             </div>
@@ -767,9 +780,20 @@ export default function Module4Investment() {
               {OVERRIDE_FIELDS.map(({ key, labelKey }) => (
                 <label key={key} className="m4-override-field">
                   {t(labelKey)}
-                  <input type="number" step="0.01" className="m4-input" value={proOverrides[key] ?? selectedBreed[key] ?? ''} onChange={(e) => handleOverrideChange(key, e.target.value)} />
+                  <input
+                    type="number"
+                    step="0.01"
+                    className="m4-input"
+                    value={proOverrides[key] ?? fmtInput2(selectedBreed?.[key])}
+                    onChange={(e) => handleOverrideChange(key, e.target.value)}
+                  />
                 </label>
               ))}
+            </div>
+            <div className="m4-sim-actions">
+              <button type="button" className="m4-btn-primary" onClick={applySimulation} disabled={!hasSelectedBreed || !isSimulationDirty}>
+                {t('module4UpdateSimulation')}
+              </button>
             </div>
           </section>
         </>

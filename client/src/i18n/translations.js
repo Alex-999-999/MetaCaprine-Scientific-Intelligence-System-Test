@@ -4502,6 +4502,8 @@ Object.assign(translations.pt, {
 });
 
 Object.assign(translations.en, {
+  module4InvestmentCalculatorTitle: 'Bring this model to your system',
+  module4SelectBreedPlaceholder: 'Select a goat breed',
   module4ConceptRoiTitle: 'ROI',
   module4ConceptRoiDesc: 'It tells you if you made more money than you invested.',
   module4PlainLanguageExplainer: 'In simple terms: this module helps you understand how much you invest, how much you generate, and when you recover — without needing to interpret technical data.',
@@ -4532,6 +4534,8 @@ Object.assign(translations.en, {
 });
 
 Object.assign(translations.es, {
+  module4InvestmentCalculatorTitle: 'Lleva este modelo a tu sistema',
+  module4SelectBreedPlaceholder: 'Selecciona una raza de cabra',
   module4ConceptRoiTitle: 'ROI',
   module4ConceptRoiDesc: 'Te dice si ganaste más dinero del que invertiste.',
   module4PlainLanguageExplainer: 'En palabras simples: este módulo te permite entender cuánto inviertes, cuánto generas y cuándo recuperas — sin necesidad de interpretar datos técnicos.',
@@ -4562,6 +4566,7 @@ Object.assign(translations.es, {
 });
 
 Object.assign(translations.fr, {
+  module4SelectBreedPlaceholder: 'Select a goat breed',
   module4ConceptRoiTitle: 'ROI',
   module4ConceptRoiDesc: 'It tells you if you made more money than you invested.',
   module4PlainLanguageExplainer: 'This module helps you understand how much you invest, how much you generate, and when you recover.',
@@ -4592,6 +4597,7 @@ Object.assign(translations.fr, {
 });
 
 Object.assign(translations.it, {
+  module4SelectBreedPlaceholder: 'Select a goat breed',
   module4ConceptRoiTitle: 'ROI',
   module4ConceptRoiDesc: 'It tells you if you made more money than you invested.',
   module4PlainLanguageExplainer: 'This module helps you understand how much you invest, how much you generate, and when you recover.',
@@ -4622,6 +4628,7 @@ Object.assign(translations.it, {
 });
 
 Object.assign(translations.pt, {
+  module4SelectBreedPlaceholder: 'Selecione uma raca de cabra',
   module4ConceptRoiTitle: 'ROI',
   module4ConceptRoiDesc: 'Diz se você ganhou mais dinheiro do que investiu.',
   module4PlainLanguageExplainer: 'Este módulo ajuda a entender quanto você investe, quanto gera e quando recupera.',
@@ -4649,6 +4656,22 @@ Object.assign(translations.pt, {
   module4FreeVsProProjection: 'Projeção e ROI',
   module4FreeVsProProjectionFree: 'Apenas ROI S1 (sem payback nem projeção)',
   module4FreeVsProProjectionPro: 'Payback, ROI e projeção completa',
+});
+
+Object.assign(translations.en, {
+  module4ProOverridesTitle: 'Investment simulator aligned to your reality (assumptions adjustment)',
+  module4CheeseAnalysisTitle: 'Cheese performance analysis by breed',
+  module4CheeseProOnlyTitle: 'M4-B is available in PRO mode',
+  module4CheeseProOnlyMain: 'The full cheese analysis includes comparative charts, breed comparison, and complete ranking.',
+  module4CheeseProOnlySub: 'Unlock PRO to evaluate cheese performance with full decision support.',
+});
+
+Object.assign(translations.es, {
+  module4ProOverridesTitle: 'Simulador de inversion conforme tu realidad (ajuste de supuestos)',
+  module4CheeseAnalysisTitle: 'Analisis de rendimiento quesero por raza',
+  module4CheeseProOnlyTitle: 'M4-B esta disponible en modo PRO',
+  module4CheeseProOnlyMain: 'El analisis quesero completo incluye graficos comparativos, comparador de razas y ranking total.',
+  module4CheeseProOnlySub: 'Desbloquea PRO para evaluar rendimiento quesero con soporte completo para decisiones.',
 });
 
 /**
