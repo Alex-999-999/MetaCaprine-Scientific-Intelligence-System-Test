@@ -4511,6 +4511,37 @@ label {
   gap: 14px;
 }
 
+.module5-input-grid .form-group {
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.module5-input-grid .form-group > label {
+  min-height: 44px;
+  display: flex;
+  align-items: flex-start;
+  line-height: 1.3;
+}
+
+.module5-input-grid .module5-field-hint {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  min-height: 2.6em;
+}
+
+.module5-input-grid .input-hint {
+  margin-top: 4px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  min-height: 1.35em;
+}
+
 .module5-metric-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
