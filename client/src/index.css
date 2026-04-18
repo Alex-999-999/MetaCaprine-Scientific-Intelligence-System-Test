@@ -4536,12 +4536,35 @@ label {
   font-weight: 700;
 }
 
-.module5-metric-card--blue { background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); }
-.module5-metric-card--green { background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3); }
-.module5-metric-card--amber { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3); }
-.module5-metric-card--teal { background: rgba(20, 184, 166, 0.1); border-color: rgba(20, 184, 166, 0.3); }
-.module5-metric-card--violet { background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.3); }
-.module5-metric-card--rose { background: rgba(244, 63, 94, 0.1); border-color: rgba(244, 63, 94, 0.3); }
+.module5-metric-card--blue {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.module5-metric-card--green {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.module5-metric-card--amber {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.module5-metric-card--teal {
+  background: rgba(20, 184, 166, 0.1);
+  border-color: rgba(20, 184, 166, 0.3);
+}
+
+.module5-metric-card--violet {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.module5-metric-card--rose {
+  background: rgba(244, 63, 94, 0.1);
+  border-color: rgba(244, 63, 94, 0.3);
+}
 
 .module5-interpretation-line {
   margin: 14px 0 0 0;
@@ -4659,13 +4682,23 @@ label {
   color: #1d4ed8;
 }
 
-.module5-calendar-cell--error .module5-calendar-events { background: rgba(239, 68, 68, 0.16); }
-.module5-calendar-cell--error .module5-calendar-event-count,
-.module5-calendar-cell--error .module5-calendar-event-label { color: #b91c1c; }
+.module5-calendar-cell--error .module5-calendar-events {
+  background: rgba(239, 68, 68, 0.16);
+}
 
-.module5-calendar-cell--warning .module5-calendar-events { background: rgba(245, 158, 11, 0.2); }
+.module5-calendar-cell--error .module5-calendar-event-count,
+.module5-calendar-cell--error .module5-calendar-event-label {
+  color: #b91c1c;
+}
+
+.module5-calendar-cell--warning .module5-calendar-events {
+  background: rgba(245, 158, 11, 0.2);
+}
+
 .module5-calendar-cell--warning .module5-calendar-event-count,
-.module5-calendar-cell--warning .module5-calendar-event-label { color: #92400e; }
+.module5-calendar-cell--warning .module5-calendar-event-label {
+  color: #92400e;
+}
 
 .module5-upcoming-list {
   display: grid;
@@ -4708,10 +4741,25 @@ label {
   background: rgba(59, 130, 246, 0.12);
 }
 
-.module5-upcoming-item--error { border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); }
-.module5-upcoming-item--warning { border-color: rgba(245, 158, 11, 0.42); background: rgba(245, 158, 11, 0.08); }
-.module5-upcoming-item--success { border-color: rgba(34, 197, 94, 0.4); background: rgba(34, 197, 94, 0.08); }
-.module5-upcoming-item--info { border-color: rgba(59, 130, 246, 0.38); background: rgba(59, 130, 246, 0.08); }
+.module5-upcoming-item--error {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.module5-upcoming-item--warning {
+  border-color: rgba(245, 158, 11, 0.42);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.module5-upcoming-item--success {
+  border-color: rgba(34, 197, 94, 0.4);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.module5-upcoming-item--info {
+  border-color: rgba(59, 130, 246, 0.38);
+  background: rgba(59, 130, 246, 0.08);
+}
 
 .module5-empty-text {
   margin: 0;
@@ -4782,6 +4830,7 @@ label {
   border: 1px solid var(--border-color);
   background: #fff;
   padding: 10px;
+  display: flex;
 }
 
 .module5-stage-illustration {
@@ -4866,6 +4915,7 @@ label {
   0% {
     filter: brightness(0.92);
   }
+
   100% {
     filter: brightness(1);
   }
@@ -4980,12 +5030,35 @@ label {
   border-left: 4px solid #60a5fa;
 }
 
-.dark-mode .module5-metric-card--blue { background: rgba(59, 130, 246, 0.22); border-color: rgba(96, 165, 250, 0.42); }
-.dark-mode .module5-metric-card--green { background: rgba(34, 197, 94, 0.18); border-color: rgba(74, 222, 128, 0.42); }
-.dark-mode .module5-metric-card--amber { background: rgba(245, 158, 11, 0.2); border-color: rgba(251, 191, 36, 0.42); }
-.dark-mode .module5-metric-card--teal { background: rgba(20, 184, 166, 0.2); border-color: rgba(45, 212, 191, 0.4); }
-.dark-mode .module5-metric-card--violet { background: rgba(139, 92, 246, 0.2); border-color: rgba(167, 139, 250, 0.4); }
-.dark-mode .module5-metric-card--rose { background: rgba(244, 63, 94, 0.2); border-color: rgba(251, 113, 133, 0.42); }
+.dark-mode .module5-metric-card--blue {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: rgba(96, 165, 250, 0.42);
+}
+
+.dark-mode .module5-metric-card--green {
+  background: rgba(34, 197, 94, 0.18);
+  border-color: rgba(74, 222, 128, 0.42);
+}
+
+.dark-mode .module5-metric-card--amber {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(251, 191, 36, 0.42);
+}
+
+.dark-mode .module5-metric-card--teal {
+  background: rgba(20, 184, 166, 0.2);
+  border-color: rgba(45, 212, 191, 0.4);
+}
+
+.dark-mode .module5-metric-card--violet {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(167, 139, 250, 0.4);
+}
+
+.dark-mode .module5-metric-card--rose {
+  background: rgba(244, 63, 94, 0.2);
+  border-color: rgba(251, 113, 133, 0.42);
+}
 
 .dark-mode .module5-progress-track {
   background: rgba(100, 116, 139, 0.35);
@@ -5113,7 +5186,7 @@ label {
   margin-bottom: 12px;
 }
 
-.footer-page-section + .footer-page-section {
+.footer-page-section+.footer-page-section {
   margin-top: 16px;
 }
 
@@ -5284,7 +5357,7 @@ label {
 }
 
 /* Module 1 form alignment fixes */
-.module1-compact .module1-input-grid .form-group > label {
+.module1-compact .module1-input-grid .form-group>label {
   min-height: 48px;
   display: flex;
   align-items: flex-start;
@@ -5299,7 +5372,7 @@ label {
   column-gap: 6px;
 }
 
-.module1-compact .module1-input-grid .field-label-with-help > span:first-child {
+.module1-compact .module1-input-grid .field-label-with-help>span:first-child {
   min-width: 0;
 }
 
@@ -5336,7 +5409,7 @@ label {
 }
 
 /* Module 2 field alignment fixes */
-.module-compact .module2-input-grid .form-group > label {
+.module-compact .module2-input-grid .form-group>label {
   min-height: 48px;
   display: flex;
   align-items: flex-start;
@@ -5350,7 +5423,7 @@ label {
   gap: 6px;
 }
 
-.module-compact .module2-input-grid .field-label-with-help > span:first-child {
+.module-compact .module2-input-grid .field-label-with-help>span:first-child {
   flex: 1;
   min-width: 0;
 }
@@ -5360,7 +5433,7 @@ label {
   min-height: 40px;
 }
 
-.module-compact .module2-sales-grid .form-group > label {
+.module-compact .module2-sales-grid .form-group>label {
   min-height: 48px;
   display: flex;
   align-items: flex-start;
@@ -5372,7 +5445,7 @@ label {
   min-height: 40px;
 }
 
-.module-compact .module2-sales-channels-grid .form-group > label {
+.module-compact .module2-sales-channels-grid .form-group>label {
   min-height: 48px;
   display: flex;
   align-items: flex-start;
@@ -5397,6 +5470,7 @@ label {
 }
 
 @media (max-width: 900px) {
+
   .module2-page .module2-input-grid,
   .module2-page .module2-sales-grid,
   .module2-page .module2-sales-channels-grid {
@@ -5405,6 +5479,7 @@ label {
 }
 
 @media (max-width: 768px) {
+
   .module2-page .module2-input-grid,
   .module2-page .module2-sales-grid,
   .module2-page .module2-sales-channels-grid {
@@ -5482,4 +5557,3 @@ label {
   line-height: 1.2;
   padding: 8px 12px;
 }
-
