@@ -1,250 +1,86 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
 import AlertModal from '../AlertModal';
 import ModernIcon from '../icons/ModernIcon';
 
-/**
- * Module 5: Gestation Simulator + Reproductive Calendar
- * Visual tool for tracking goat gestation and reproductive management
- * 
- * Features:
- * - Mating/insemination date input
- * - Gestation duration (150 days default, editable)
- * - Probable birth date calculation
- * - 22-week timeline visualization
- * - Stage-based checklists and critical alerts
- * - Scenario persistence
- */
+const DAY_MS = 1000 * 60 * 60 * 24;
+
+const DEFAULT_FORM_DATA = {
+  mating_date: '',
+  breed_key: '',
+  gestation_days: 150,
+  doe_count: 1,
+  expected_kids_per_doe: 1.7,
+  pregnancy_loss_pct: 8,
+  management_level: 'standard',
+  reminder_window_days: 14,
+  notes: '',
+};
+
+const STAGE_ILLUSTRATIONS = {
+  early: '/assets/gestation/stage-early.svg',
+  mid: '/assets/gestation/stage-mid.svg',
+  late: '/assets/gestation/stage-late.svg',
+};
+
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+const asNumber = (value, fallback = 0) => {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+};
+
+const dateKey = (date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
+const mergeFormData = (raw) => {
+  const source = raw && typeof raw === 'object' ? raw : {};
+  return {
+    ...DEFAULT_FORM_DATA,
+    ...source,
+    gestation_days: clamp(Math.round(asNumber(source.gestation_days, DEFAULT_FORM_DATA.gestation_days)), 130, 170),
+    doe_count: clamp(Math.round(asNumber(source.doe_count, DEFAULT_FORM_DATA.doe_count)), 1, 5000),
+    expected_kids_per_doe: clamp(asNumber(source.expected_kids_per_doe, DEFAULT_FORM_DATA.expected_kids_per_doe), 1, 4),
+    pregnancy_loss_pct: clamp(asNumber(source.pregnancy_loss_pct, DEFAULT_FORM_DATA.pregnancy_loss_pct), 0, 60),
+    reminder_window_days: clamp(Math.round(asNumber(source.reminder_window_days, DEFAULT_FORM_DATA.reminder_window_days)), 3, 45),
+  };
+};
+
 function Module5Gestation({ user }) {
   const { t } = useI18n();
   const location = useLocation();
   const navigate = useNavigate();
   const scenarioId = location.state?.scenarioId;
+  const isProUser = ['pro', 'pro_user', 'premium', 'admin'].includes(String(user?.role || '').toLowerCase());
+  const hasModule5FullAccess = isProUser || (Array.isArray(user?.features) && (
+    user.features.includes('module5') ||
+    user.features.includes('advanced_calculations') ||
+    user.features.includes('gestation_advanced')
+  ));
 
-  const [formData, setFormData] = useState({
-    mating_date: '',
-    gestation_days: 0,
-    notes: '',
-  });
-
+  const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [calculatedData, setCalculatedData] = useState(null);
+  const [breedOptions, setBreedOptions] = useState([]);
   const [scenarios, setScenarios] = useState([]);
   const [selectedScenario, setSelectedScenario] = useState(null);
   const [loading, setLoading] = useState(false);
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: '', type: 'success' });
+  const [calendarCursor, setCalendarCursor] = useState(() => new Date());
+  const [selectedStageKey, setSelectedStageKey] = useState('early');
 
-  useEffect(() => {
-    const initialize = async () => {
-      await loadScenarios();
-      if (scenarioId) {
-        await loadScenario(scenarioId);
-      }
-    };
-    initialize();
-  }, [scenarioId]);
-
-  useEffect(() => {
-    if (formData.mating_date && formData.gestation_days) {
-      calculateGestationTimeline();
-    } else {
-      setCalculatedData(null);
-    }
-  }, [formData.mating_date, formData.gestation_days]);
-
-  const loadScenarios = async () => {
-    try {
-      const response = await api.get('/scenarios');
-      const allScenarios = response.data || [];
-      setScenarios(allScenarios);
-      if (scenarioId) {
-        const scenario = allScenarios.find(s => s.id === parseInt(scenarioId, 10));
-        setSelectedScenario(scenario);
-      }
-    } catch (error) {
-      console.error('Error loading scenarios:', error);
-    }
-  };
-
-  const loadScenario = async (id) => {
-    try {
-      const response = await api.get(`/scenarios/${id}`);
-      const scenario = response.data;
-      setSelectedScenario(scenario);
-      if (scenario.gestationData) {
-        // Handle both JSON string and object
-        const gestationData = typeof scenario.gestationData === 'string' 
-          ? JSON.parse(scenario.gestationData) 
-          : scenario.gestationData;
-        setFormData(gestationData);
-      }
-      if (scenario.calculatedGestationTimeline) {
-        // Handle both JSON string and object
-        const timeline = typeof scenario.calculatedGestationTimeline === 'string'
-          ? JSON.parse(scenario.calculatedGestationTimeline)
-          : scenario.calculatedGestationTimeline;
-        setCalculatedData(timeline);
-      }
-    } catch (error) {
-      console.error('Error loading scenario:', error);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const calculateGestationTimeline = () => {
-    if (!formData.mating_date) return;
-
-    const matingDate = new Date(formData.mating_date);
-    const gestationDays = parseInt(formData.gestation_days, 10) || 0;
-    if (gestationDays <= 0) return;
-    
-    // Calculate birth date
-    const birthDate = new Date(matingDate);
-    birthDate.setDate(birthDate.getDate() + gestationDays);
-    
-    // Calculate today's position
-    const today = new Date();
-    const daysFromMating = Math.floor((today - matingDate) / (1000 * 60 * 60 * 24));
-    const currentWeek = Math.floor(daysFromMating / 7);
-    const daysUntilBirth = gestationDays - daysFromMating;
-    
-    // Calculate weeks
-    const totalWeeks = Math.ceil(gestationDays / 7);
-    const weeks = [];
-    
-    for (let week = 1; week <= totalWeeks; week++) {
-      const weekStartDay = (week - 1) * 7;
-      const weekEndDay = Math.min(week * 7, gestationDays);
-      const weekStartDate = new Date(matingDate);
-      weekStartDate.setDate(weekStartDate.getDate() + weekStartDay);
-      
-      const stage = getGestationStage(week, totalWeeks);
-      const alerts = getStageAlerts(week, totalWeeks);
-      
-      weeks.push({
-        week,
-        startDay: weekStartDay,
-        endDay: weekEndDay,
-        startDate: weekStartDate,
-        stage: stage.name,
-        stageColor: stage.color,
-        alerts,
-        isCurrent: week === currentWeek || (week === currentWeek + 1 && daysFromMating % 7 > 0),
-        isPast: week < currentWeek,
-      });
-    }
-    
-    setCalculatedData({
-      matingDate,
-      birthDate,
-      gestationDays,
-      totalWeeks,
-      currentWeek: Math.max(0, currentWeek),
-      daysFromMating: Math.max(0, daysFromMating),
-      daysUntilBirth,
-      weeks,
-      isPregnant: daysFromMating >= 0 && daysFromMating <= gestationDays,
-      hasGivenBirth: daysFromMating > gestationDays,
-    });
-  };
-
-  const getGestationStage = (week, totalWeeks) => {
-    const progress = week / totalWeeks;
-    
-    if (progress <= 0.33) {
-      return { name: t('earlyGestation'), color: '#e3f2fd' }; // Light blue
-    } else if (progress <= 0.67) {
-      return { name: t('midGestation'), color: '#fff3e0' }; // Light orange
-    } else {
-      return { name: t('lateGestation'), color: '#ffebee' }; // Light red
-    }
-  };
-
-  const getStageAlerts = (week, totalWeeks) => {
-    const alerts = [];
-    
-    // Early stage (weeks 1-7)
-    if (week === 1) {
-      alerts.push({ type: 'info', message: t('gestationWeek1Alert') });
-    }
-    if (week === 2) {
-      alerts.push({ type: 'info', message: t('gestationWeek2Alert') });
-    }
-    if (week >= 3 && week <= 5) {
-      alerts.push({ type: 'success', message: t('gestationWeek3to5Alert') });
-    }
-    
-    // Mid stage (weeks 8-14)
-    if (week === 8) {
-      alerts.push({ type: 'warning', message: t('gestationWeek8Alert') });
-    }
-    if (week === 12) {
-      alerts.push({ type: 'info', message: t('gestationWeek12Alert') });
-    }
-    
-    // Late stage (weeks 15-22)
-    if (week === 15) {
-      alerts.push({ type: 'warning', message: t('gestationWeek15Alert') });
-    }
-    if (week === 18) {
-      alerts.push({ type: 'error', message: t('gestationWeek18Alert') });
-    }
-    if (week === 20) {
-      alerts.push({ type: 'error', message: t('gestationWeek20Alert') });
-    }
-    if (week === 21 || week === 22) {
-      alerts.push({ type: 'error', message: t('gestationWeek21Alert') });
-    }
-    
-    return alerts;
-  };
-
-  const handleSave = async () => {
-    if (!selectedScenario) {
-      setAlertModal({
-        isOpen: true,
-        message: t('pleaseSelectScenario'),
-        type: 'info'
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await api.post(`/modules/gestation/${selectedScenario.id}`, {
-        gestationData: formData,
-        calculatedGestationTimeline: calculatedData,
-      });
-      
-      setAlertModal({
-        isOpen: true,
-        message: t('dataSaved'),
-        type: 'success'
-      });
-    } catch (error) {
-      console.error('Error saving gestation data:', error);
-      setAlertModal({
-        isOpen: true,
-        message: error.response?.data?.error || t('errorSaving'),
-        type: 'error'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatDate = (date) => {
+  const formatDate = useCallback((date) => {
     if (!date) return '';
     const d = new Date(date);
     return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
-  };
+  }, []);
 
-  const getAlertIconName = (type) => {
+  const getAlertIconName = useCallback((type) => {
     switch (type) {
       case 'error': return 'bell';
       case 'warning': return 'warning';
@@ -252,9 +88,294 @@ function Module5Gestation({ user }) {
       case 'info': return 'infoCircle';
       default: return 'fileText';
     }
-  };
+  }, []);
 
-  const getAlertColor = (type) => {
+  const getGestationStage = useCallback((dayOffset, gestationDays) => {
+    const day = clamp(Math.round(asNumber(dayOffset, 0)), 0, gestationDays);
+
+    if (day < 50) {
+      return {
+        key: 'early',
+        name: t('earlyGestation'),
+        color: '#dcfce7',
+        riskColor: '#16a34a',
+        riskLabel: t('module5RiskStable'),
+      };
+    }
+    if (day < 100) {
+      return {
+        key: 'mid',
+        name: t('midGestation'),
+        color: '#fef3c7',
+        riskColor: '#d97706',
+        riskLabel: t('module5RiskAttention'),
+      };
+    }
+    return {
+      key: 'late',
+      name: t('lateGestation'),
+      color: '#fee2e2',
+      riskColor: '#dc2626',
+      riskLabel: t('module5RiskCritical'),
+    };
+  }, [t]);
+
+  const getStageAlerts = useCallback((week) => {
+    const alerts = [];
+    if (week === 1) alerts.push({ type: 'info', message: t('gestationWeek1Alert') });
+    if (week === 2) alerts.push({ type: 'info', message: t('gestationWeek2Alert') });
+    if (week >= 3 && week <= 5) alerts.push({ type: 'success', message: t('gestationWeek3to5Alert') });
+    if (week === 8) alerts.push({ type: 'warning', message: t('gestationWeek8Alert') });
+    if (week === 12) alerts.push({ type: 'info', message: t('gestationWeek12Alert') });
+    if (week === 15) alerts.push({ type: 'warning', message: t('gestationWeek15Alert') });
+    if (week === 18) alerts.push({ type: 'error', message: t('gestationWeek18Alert') });
+    if (week === 20) alerts.push({ type: 'error', message: t('gestationWeek20Alert') });
+    if (week === 21 || week === 22) alerts.push({ type: 'error', message: t('gestationWeek21Alert') });
+    return alerts;
+  }, [t]);
+
+  const buildOperationalEvents = useCallback((matingDate, gestationDays) => {
+    const templates = [
+      { id: 'service', day: 0, type: 'info', title: t('module5EventServiceTitle'), desc: t('module5EventServiceDesc') },
+      { id: 'implantation', day: 14, type: 'info', title: t('module5EventImplantationTitle'), desc: t('module5EventImplantationDesc') },
+      { id: 'ultrasound', day: 35, type: 'warning', title: t('module5EventUltrasoundTitle'), desc: t('module5EventUltrasoundDesc') },
+      { id: 'nutritionAdjust', day: 84, type: 'warning', title: t('module5EventNutritionTitle'), desc: t('module5EventNutritionDesc') },
+      { id: 'bodyCondition', day: 70, type: 'warning', title: t('module5EventBodyConditionTitle'), desc: t('module5EventBodyConditionDesc') },
+      { id: 'latePrep', day: 112, type: 'warning', title: t('module5EventLatePrepTitle'), desc: t('module5EventLatePrepDesc') },
+      { id: 'kiddingArea', day: gestationDays - 14, type: 'error', title: t('module5EventKiddingAreaTitle'), desc: t('module5EventKiddingAreaDesc') },
+      { id: 'closeMonitor', day: gestationDays - 7, type: 'error', title: t('module5EventCloseMonitorTitle'), desc: t('module5EventCloseMonitorDesc') },
+      { id: 'birthWindow', day: gestationDays, type: 'error', title: t('module5EventBirthWindowTitle'), desc: t('module5EventBirthWindowDesc') },
+    ];
+
+    const now = new Date();
+    return templates
+      .map((template) => {
+        const dayOffset = clamp(Math.round(template.day), 0, gestationDays);
+        const eventDate = new Date(matingDate);
+        eventDate.setDate(eventDate.getDate() + dayOffset);
+        const deltaDays = Math.floor((eventDate - now) / DAY_MS);
+        let status = 'upcoming';
+        if (deltaDays < 0) status = 'past';
+        if (deltaDays === 0) status = 'today';
+        return {
+          ...template,
+          dayOffset,
+          date: eventDate,
+          deltaDays,
+          status,
+        };
+      })
+      .sort((a, b) => a.date - b.date);
+  }, [t]);
+
+  const calculateGestationTimeline = useCallback(() => {
+    if (!formData.mating_date) {
+      setCalculatedData(null);
+      return;
+    }
+
+    const matingDate = new Date(formData.mating_date);
+    if (Number.isNaN(matingDate.getTime())) {
+      setCalculatedData(null);
+      return;
+    }
+
+    const gestationDays = clamp(Math.round(asNumber(formData.gestation_days, 150)), 130, 170);
+    const doeCount = clamp(Math.round(asNumber(formData.doe_count, 1)), 1, 5000);
+    const kidsPerDoe = clamp(asNumber(formData.expected_kids_per_doe, 1.7), 1, 4);
+    const pregnancyLossPct = clamp(asNumber(formData.pregnancy_loss_pct, 8), 0, 60);
+    const reminderWindowDays = clamp(Math.round(asNumber(formData.reminder_window_days, 14)), 3, 45);
+    const managementLevel = formData.management_level || 'standard';
+
+    const birthDate = new Date(matingDate);
+    birthDate.setDate(birthDate.getDate() + gestationDays);
+
+    const today = new Date();
+    const daysFromMating = Math.floor((today - matingDate) / DAY_MS);
+    const currentWeek = Math.floor(daysFromMating / 7);
+    const currentDayInRange = clamp(daysFromMating, 0, gestationDays);
+    const daysUntilBirth = gestationDays - daysFromMating;
+    const totalWeeks = Math.ceil(gestationDays / 7);
+
+    const weeks = [];
+    for (let week = 1; week <= totalWeeks; week += 1) {
+      const weekStartDay = (week - 1) * 7;
+      const weekEndDay = Math.min(week * 7, gestationDays);
+      const weekStartDate = new Date(matingDate);
+      weekStartDate.setDate(weekStartDate.getDate() + weekStartDay);
+      const weekMidpointDay = Math.min(gestationDays, weekStartDay + 3);
+      const stage = getGestationStage(weekMidpointDay, gestationDays);
+      const alerts = getStageAlerts(week);
+      weeks.push({
+        week,
+        startDay: weekStartDay,
+        endDay: weekEndDay,
+        startDate: weekStartDate,
+        stage: stage.name,
+        stageKey: stage.key,
+        stageColor: stage.color,
+        alerts,
+        isCurrent: week === currentWeek || (week === currentWeek + 1 && daysFromMating % 7 > 0),
+        isPast: week < currentWeek,
+      });
+    }
+
+    const events = buildOperationalEvents(matingDate, gestationDays);
+    const upcomingEvents = events.filter(
+      (event) => (event.status === 'today' || event.status === 'upcoming') && event.deltaDays <= reminderWindowDays,
+    );
+
+    const managementFactorMap = {
+      basic: 0.92,
+      standard: 1,
+      advanced: 1.06,
+    };
+    const managementFactor = managementFactorMap[managementLevel] || 1;
+    const effectiveBirths = doeCount * (1 - pregnancyLossPct / 100);
+    const projectedBirths = Math.max(0, effectiveBirths);
+    const projectedKids = Math.max(0, projectedBirths * kidsPerDoe * managementFactor);
+
+    const riskPenalty = managementLevel === 'basic' ? 4 : managementLevel === 'advanced' ? -2 : 0;
+    const urgencyPenalty = daysUntilBirth >= 0 && daysUntilBirth <= 7 ? 3 : 0;
+    const riskScore = clamp(pregnancyLossPct + riskPenalty + urgencyPenalty, 0, 100);
+    const riskBand = riskScore <= 10 ? 'low' : riskScore <= 18 ? 'medium' : 'high';
+    const currentStage = getGestationStage(currentDayInRange, gestationDays);
+
+    setCalculatedData({
+      matingDate,
+      birthDate,
+      gestationDays,
+      totalWeeks,
+      currentWeek: Math.max(0, currentWeek),
+      daysFromMating: Math.max(0, daysFromMating),
+      currentDayInRange,
+      daysUntilBirth,
+      weeks,
+      events,
+      upcomingEvents,
+      reminderWindowDays,
+      isPregnant: daysFromMating >= 0 && daysFromMating <= gestationDays,
+      hasGivenBirth: daysFromMating > gestationDays,
+      projectedBirths,
+      projectedKids,
+      riskScore,
+      riskBand,
+      currentStage,
+      managementLevel,
+      doeCount,
+      kidsPerDoe,
+      pregnancyLossPct,
+    });
+  }, [buildOperationalEvents, formData, getStageAlerts, getGestationStage]);
+
+  const loadScenarios = useCallback(async () => {
+    try {
+      const response = await api.get('/scenarios');
+      const allScenarios = response.data || [];
+      setScenarios(allScenarios);
+      if (scenarioId) {
+        const scenario = allScenarios.find((s) => s.id === parseInt(scenarioId, 10));
+        setSelectedScenario(scenario || null);
+      }
+    } catch (error) {
+      console.error('Error loading scenarios:', error);
+    }
+  }, [scenarioId]);
+
+  const loadBreeds = useCallback(async () => {
+    try {
+      const response = await api.get('/module3/breeds');
+      const options = (response.data?.breeds || [])
+        .map((breed) => ({
+          key: String(breed?.breed_key || breed?.id || ''),
+          label: String(breed?.breed_name || breed?.breed_key || '').trim(),
+        }))
+        .filter((breed) => breed.key && breed.label);
+      setBreedOptions(options);
+    } catch (error) {
+      console.error('Error loading breeds for module 5:', error);
+      setBreedOptions([]);
+    }
+  }, []);
+
+  const loadScenario = useCallback(async (id) => {
+    try {
+      const response = await api.get(`/scenarios/${id}`);
+      const scenario = response.data;
+      setSelectedScenario(scenario);
+      if (scenario.gestationData) {
+        const parsed = typeof scenario.gestationData === 'string'
+          ? JSON.parse(scenario.gestationData)
+          : scenario.gestationData;
+        setFormData(mergeFormData(parsed));
+      } else {
+        setFormData(DEFAULT_FORM_DATA);
+      }
+    } catch (error) {
+      console.error('Error loading scenario:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const initialize = async () => {
+      await Promise.all([loadScenarios(), loadBreeds()]);
+      if (scenarioId) {
+        await loadScenario(scenarioId);
+      }
+    };
+    initialize();
+  }, [loadBreeds, loadScenario, loadScenarios, scenarioId]);
+
+  useEffect(() => {
+    if (formData.mating_date) {
+      const base = new Date(formData.mating_date);
+      if (!Number.isNaN(base.getTime())) setCalendarCursor(new Date(base.getFullYear(), base.getMonth(), 1));
+    }
+  }, [formData.mating_date]);
+
+  useEffect(() => {
+    calculateGestationTimeline();
+  }, [calculateGestationTimeline]);
+
+  const handleInputChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }, []);
+
+  const handleSave = useCallback(async () => {
+    if (!selectedScenario) {
+      setAlertModal({
+        isOpen: true,
+        message: t('pleaseSelectScenario'),
+        type: 'info',
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await api.post(`/modules/gestation/${selectedScenario.id}`, {
+        gestationData: mergeFormData(formData),
+        calculatedGestationTimeline: calculatedData,
+      });
+      setAlertModal({
+        isOpen: true,
+        message: t('dataSaved'),
+        type: 'success',
+      });
+    } catch (error) {
+      console.error('Error saving gestation data:', error);
+      setAlertModal({
+        isOpen: true,
+        message: error.response?.data?.error || t('errorSaving'),
+        type: 'error',
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [calculatedData, formData, selectedScenario, t]);
+
+  const getAlertColor = useCallback((type) => {
     switch (type) {
       case 'error': return 'rgba(220, 38, 38, 0.1)';
       case 'warning': return 'rgba(234, 179, 8, 0.1)';
@@ -262,13 +383,131 @@ function Module5Gestation({ user }) {
       case 'info': return 'rgba(37, 99, 235, 0.1)';
       default: return 'var(--bg-tertiary)';
     }
-  };
+  }, []);
+
+  const calendarView = useMemo(() => {
+    if (!calculatedData) return { monthLabel: '', weeks: [] };
+    const year = calendarCursor.getFullYear();
+    const month = calendarCursor.getMonth();
+    const first = new Date(year, month, 1);
+    const last = new Date(year, month + 1, 0);
+    const firstWeekDay = first.getDay();
+    const daysInMonth = last.getDate();
+
+    const eventsByDate = calculatedData.events.reduce((acc, event) => {
+      const key = dateKey(event.date);
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(event);
+      return acc;
+    }, {});
+
+    const cells = [];
+    for (let i = 0; i < firstWeekDay; i += 1) {
+      cells.push(null);
+    }
+    for (let day = 1; day <= daysInMonth; day += 1) {
+      const date = new Date(year, month, day);
+      const key = dateKey(date);
+      const events = eventsByDate[key] || [];
+      const topSeverity = events.some((e) => e.type === 'error')
+        ? 'error'
+        : events.some((e) => e.type === 'warning')
+          ? 'warning'
+          : events.some((e) => e.type === 'success')
+            ? 'success'
+            : events.length > 0
+              ? 'info'
+              : 'none';
+      cells.push({ date, day, events, topSeverity });
+    }
+    while (cells.length % 7 !== 0) cells.push(null);
+    const rows = [];
+    for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
+
+    return {
+      monthLabel: calendarCursor.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }),
+      weeks: rows,
+    };
+  }, [calculatedData, calendarCursor]);
+
+  const interpretationText = useMemo(() => {
+    if (!calculatedData) return null;
+    const { riskBand, daysUntilBirth, projectedKids } = calculatedData;
+    const kidsText = t('module5InterpretationKids', { value: projectedKids.toFixed(1) });
+    if (riskBand === 'high') {
+      return `${t('module5InterpretationHighRisk')} ${kidsText}`;
+    }
+    if (riskBand === 'medium') {
+      return `${t('module5InterpretationMediumRisk')} ${kidsText}`;
+    }
+    if (daysUntilBirth <= 14 && daysUntilBirth >= 0) {
+      return `${t('module5InterpretationCloseBirth')} ${kidsText}`;
+    }
+    return `${t('module5InterpretationLowRisk')} ${kidsText}`;
+  }, [calculatedData, t]);
+
+  const progressPct = useMemo(() => {
+    if (!calculatedData || !calculatedData.gestationDays) return 0;
+    return Math.round(clamp((calculatedData.daysFromMating / calculatedData.gestationDays) * 100, 0, 100));
+  }, [calculatedData]);
+
+  useEffect(() => {
+    if (calculatedData?.currentStage?.key) {
+      setSelectedStageKey(calculatedData.currentStage.key);
+    }
+  }, [calculatedData?.currentStage?.key]);
+
+  const stageTimeline = useMemo(() => {
+    if (!calculatedData) return [];
+    const base = [
+      { key: 'early', start: 0, end: Math.min(50, calculatedData.gestationDays) },
+      { key: 'mid', start: 50, end: Math.min(100, calculatedData.gestationDays) },
+      { key: 'late', start: 100, end: calculatedData.gestationDays },
+    ];
+
+    return base
+      .filter((stage) => stage.start <= stage.end)
+      .map((stage) => {
+        const stageMeta = getGestationStage(stage.start, calculatedData.gestationDays);
+        return {
+          ...stage,
+          ...stageMeta,
+          label: t(`module5StageLabel_${stage.key}`),
+          isCurrent: calculatedData.currentStage?.key === stage.key,
+          isSelected: selectedStageKey === stage.key,
+        };
+      });
+  }, [calculatedData, getGestationStage, selectedStageKey, t]);
+
+  const selectedStage = useMemo(() => {
+    if (!calculatedData) return null;
+    const matched = stageTimeline.find((item) => item.key === selectedStageKey);
+    if (matched) return matched;
+    return stageTimeline[0] || calculatedData.currentStage || null;
+  }, [calculatedData, selectedStageKey, stageTimeline]);
+
+  const selectedStagePedagogy = useMemo(() => {
+    if (!selectedStage) return null;
+    const key = selectedStage.key;
+    return {
+      physiologicalState: t(`module5Stage_${key}_physiology`),
+      keyRecommendation: t(`module5Stage_${key}_recommendation`),
+      nutritionDryMatter: t(`module5Stage_${key}_nutrition_dmi`),
+      nutritionDiet: t(`module5Stage_${key}_nutrition_diet`),
+      healthDeworming: t(`module5Stage_${key}_health_deworming`),
+      healthVaccination: t(`module5Stage_${key}_health_vaccination`),
+      healthVitamins: t(`module5Stage_${key}_health_vitamins`),
+      managementDo: t(`module5Stage_${key}_management_do`),
+      managementAvoid: t(`module5Stage_${key}_management_avoid`),
+      illustration: STAGE_ILLUSTRATIONS[key],
+    };
+  }, [selectedStage, t]);
 
   return (
-    <div className="container module-compact">
-      <header style={{ marginBottom: '20px' }}>
-        <h1 style={{ marginTop: '20px' }}>{t('module5GestationTitle')}</h1>
-        <p style={{ color: '#666', fontSize: '0.95em', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+    <div className="container module-compact module5-live-root">
+      <header className="module5-live-header">
+        <h1 className="module5-live-title">{t('module5GestationTitle')}</h1>
+        <p className="module5-live-subtitle">
           <ModernIcon name="calendar" size={16} />
           {t('module5Subtitle')}
         </p>
@@ -290,16 +529,16 @@ function Module5Gestation({ user }) {
         <select
           value={selectedScenario?.id || ''}
           onChange={(e) => {
-            const id = parseInt(e.target.value);
+            const id = parseInt(e.target.value, 10);
             if (id) {
-              navigate(`/module5`, { state: { scenarioId: id }, replace: true });
+              navigate('/module5', { state: { scenarioId: id }, replace: true });
               loadScenario(id);
             }
           }}
           style={{ marginBottom: '20px' }}
         >
           <option value="">{t('selectScenarioPlaceholder')}</option>
-          {scenarios.map(s => (
+          {scenarios.map((s) => (
             <option key={s.id} value={s.id}>{s.name}</option>
           ))}
         </select>
@@ -307,39 +546,86 @@ function Module5Gestation({ user }) {
 
       {selectedScenario && (
         <>
-          <div className="card">
-            <h2>{t('gestationInputs')}</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
+          <div className="card module5-simulator-card">
+            <h2>{t('module5LiveSimulationTitle')}</h2>
+            <p className="module5-card-subtext">{t('module5LiveSimulationSubtitle')}</p>
+            <div className="module5-input-grid">
               <div className="form-group">
                 <label>{t('matingDate')}</label>
-                <input
-                  type="date"
-                  name="mating_date"
-                  value={formData.mating_date}
-                  onChange={handleInputChange}
-                />
-                <small style={{ display: 'block', marginTop: '5px', color: '#666' }}>
-                  {t('matingDateHint')}
-                </small>
+                <input type="date" name="mating_date" value={formData.mating_date} onChange={handleInputChange} />
+                <small className="module5-field-hint">{t('matingDateHint')}</small>
               </div>
-              
+
+              <div className="form-group">
+                <label>{t('breed')}</label>
+                {breedOptions.length > 0 ? (
+                  <select name="breed_key" value={formData.breed_key} onChange={handleInputChange}>
+                    <option value="">{t('module5SelectBreedPlaceholder')}</option>
+                    {breedOptions.map((breed) => (
+                      <option key={breed.key} value={breed.key}>
+                        {breed.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    name="breed_key"
+                    value={formData.breed_key}
+                    onChange={handleInputChange}
+                    placeholder={t('module5SelectBreedPlaceholder')}
+                  />
+                )}
+                <small className="module5-field-hint">{t('module5BreedHint')}</small>
+              </div>
+
               <div className="form-group">
                 <label>{t('gestationDays')}</label>
-                <input
-                  type="number"
-                  name="gestation_days"
-                  value={formData.gestation_days}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="1"
-                />
-                <small style={{ display: 'block', marginTop: '5px', color: '#666' }}>
-                  {t('gestationDaysHint')}
-                </small>
+                <input type="number" name="gestation_days" value={formData.gestation_days} onChange={handleInputChange} min="130" max="170" step="1" />
+                <small className="module5-field-hint">{t('gestationDaysHint')}</small>
                 <p className="input-hint">{t('module5GestationDaysPedagogyHint')}</p>
               </div>
+
+              <div className="form-group">
+                <label>{t('module5KidsPerDoe')}</label>
+                <input type="number" name="expected_kids_per_doe" value={formData.expected_kids_per_doe} onChange={handleInputChange} min="1" max="4" step="0.1" />
+                <small className="module5-field-hint">{t('module5KidsPerDoeHint')}</small>
+                <p className="input-hint">{t('module5KidsPerDoeOptionalHint')}</p>
+              </div>
+
+              {hasModule5FullAccess && (
+                <>
+                  <div className="form-group">
+                    <label>{t('module5DoeCount')}</label>
+                    <input type="number" name="doe_count" value={formData.doe_count} onChange={handleInputChange} min="1" max="5000" step="1" />
+                    <small className="module5-field-hint">{t('module5DoeCountHint')}</small>
+                  </div>
+
+                  <div className="form-group">
+                    <label>{t('module5PregnancyLoss')}</label>
+                    <input type="number" name="pregnancy_loss_pct" value={formData.pregnancy_loss_pct} onChange={handleInputChange} min="0" max="60" step="0.5" />
+                    <small className="module5-field-hint">{t('module5PregnancyLossHint')}</small>
+                  </div>
+
+                  <div className="form-group">
+                    <label>{t('module5ManagementLevel')}</label>
+                    <select name="management_level" value={formData.management_level} onChange={handleInputChange}>
+                      <option value="basic">{t('module5ManagementBasic')}</option>
+                      <option value="standard">{t('module5ManagementStandard')}</option>
+                      <option value="advanced">{t('module5ManagementAdvanced')}</option>
+                    </select>
+                    <small className="module5-field-hint">{t('module5ManagementLevelHint')}</small>
+                  </div>
+
+                  <div className="form-group">
+                    <label>{t('module5ReminderWindow')}</label>
+                    <input type="number" name="reminder_window_days" value={formData.reminder_window_days} onChange={handleInputChange} min="3" max="45" step="1" />
+                    <small className="module5-field-hint">{t('module5ReminderWindowHint')}</small>
+                  </div>
+                </>
+              )}
             </div>
-            
+
             <div className="form-group" style={{ marginTop: '15px' }}>
               <label>{t('notes')} ({t('optional')})</label>
               <textarea
@@ -348,7 +634,7 @@ function Module5Gestation({ user }) {
                 onChange={handleInputChange}
                 rows="3"
                 placeholder={t('gestationNotesPlaceholder')}
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)' }}
               />
             </div>
 
@@ -359,205 +645,319 @@ function Module5Gestation({ user }) {
 
           {calculatedData && (
             <>
-              {/* Summary Card */}
               <div className="card">
-                <h2>{t('gestationSummary')}</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
-                  <div style={{ padding: '15px', background: '#e3f2fd', borderRadius: '8px' }}>
-                    <h3 style={{ marginTop: 0, fontSize: '1em', color: '#1976d2' }}>{t('matingDate')}</h3>
-                    <p style={{ margin: 0, fontSize: '1.2em', fontWeight: 'bold' }}>
-                      {formatDate(calculatedData.matingDate)}
-                    </p>
-                  </div>
-                  
-                  <div style={{ padding: '15px', background: '#e8f5e9', borderRadius: '8px' }}>
-                    <h3 style={{ marginTop: 0, fontSize: '1em', color: '#388e3c' }}>{t('probableBirthDate')}</h3>
-                    <p style={{ margin: 0, fontSize: '1.2em', fontWeight: 'bold' }}>
-                      {formatDate(calculatedData.birthDate)}
-                    </p>
-                  </div>
-                  
-                  <div style={{ padding: '15px', background: '#fff3e0', borderRadius: '8px' }}>
-                    <h3 style={{ marginTop: 0, fontSize: '1em', color: '#f57c00' }}>{t('gestationDuration')}</h3>
-                    <p style={{ margin: 0, fontSize: '1.2em', fontWeight: 'bold' }}>
-                      {calculatedData.gestationDays} {t('days')} ({calculatedData.totalWeeks} {t('weeks')})
-                    </p>
-                  </div>
-                  
-                  {calculatedData.isPregnant && !calculatedData.hasGivenBirth && (
+                <h2>{t('module5PredictiveOverviewTitle')}</h2>
+                <div className="module5-metric-grid">
+                  <article className="module5-metric-card module5-metric-card--blue">
+                    <span>{t('matingDate')}</span>
+                    <strong>{formatDate(calculatedData.matingDate)}</strong>
+                  </article>
+                  <article className="module5-metric-card module5-metric-card--green">
+                    <span>{t('probableBirthDate')}</span>
+                    <strong>{formatDate(calculatedData.birthDate)}</strong>
+                  </article>
+                  <article className="module5-metric-card module5-metric-card--amber">
+                    <span>{t('module5CurrentGestationDays')}</span>
+                    <strong>{calculatedData.daysFromMating} {t('days')}</strong>
+                  </article>
+                  {hasModule5FullAccess && (
                     <>
-                      <div style={{ padding: '15px', background: '#f3e5f5', borderRadius: '8px' }}>
-                        <h3 style={{ marginTop: 0, fontSize: '1em', color: '#7b1fa2' }}>{t('currentWeek')}</h3>
-                        <p style={{ margin: 0, fontSize: '1.2em', fontWeight: 'bold' }}>
-                          {t('week')} {calculatedData.currentWeek + 1} ({calculatedData.daysFromMating} {t('days')})
-                        </p>
-                      </div>
-                      
-                      <div style={{ padding: '15px', background: '#ffebee', borderRadius: '8px' }}>
-                        <h3 style={{ marginTop: 0, fontSize: '1em', color: '#c62828' }}>{t('daysUntilBirth')}</h3>
-                        <p style={{ margin: 0, fontSize: '1.2em', fontWeight: 'bold' }}>
-                          {calculatedData.daysUntilBirth > 0 ? calculatedData.daysUntilBirth : 0} {t('days')}
-                        </p>
-                      </div>
+                      <article className="module5-metric-card module5-metric-card--teal">
+                        <span>{t('module5ProjectedBirths')}</span>
+                        <strong>{calculatedData.projectedBirths.toFixed(1)}</strong>
+                      </article>
+                      <article className="module5-metric-card module5-metric-card--violet">
+                        <span>{t('module5ProjectedKids')}</span>
+                        <strong>{calculatedData.projectedKids.toFixed(1)}</strong>
+                      </article>
+                      <article className="module5-metric-card module5-metric-card--rose">
+                        <span>{t('module5RiskBand')}</span>
+                        <strong>{t(`module5RiskBand_${calculatedData.riskBand}`)}</strong>
+                      </article>
                     </>
                   )}
-                  
-                  {calculatedData.hasGivenBirth && (
-                    <div style={{ padding: '15px', background: '#e8f5e9', borderRadius: '8px' }}>
-                      <h3 style={{ marginTop: 0, fontSize: '1em', color: '#388e3c', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                        <ModernIcon name="megaphone" size={14} />
-                        {t('status')}
-                      </h3>
-                      <p style={{ margin: 0, fontSize: '1.2em', fontWeight: 'bold' }}>
-                        {t('birthOccurred')}
-                      </p>
-                    </div>
-                  )}
                 </div>
+                {hasModule5FullAccess && <p className="module5-interpretation-line">{interpretationText}</p>}
               </div>
 
-              {/* Progress Bar */}
-              {calculatedData.isPregnant && !calculatedData.hasGivenBirth && (
+              {!hasModule5FullAccess && (
                 <div className="card">
-                  <h2>{t('gestationProgress')}</h2>
-                  <div style={{ width: '100%', background: '#e0e0e0', borderRadius: '8px', height: '30px', position: 'relative', overflow: 'hidden' }}>
-                    <div 
-                      style={{ 
-                        width: `${(calculatedData.daysFromMating / calculatedData.gestationDays) * 100}%`, 
-                        background: 'linear-gradient(90deg, #64b5f6, #1976d2)',
-                        height: '100%',
-                        borderRadius: '8px',
-                        transition: 'width 0.3s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'flex-end',
-                        paddingRight: '10px',
-                        color: 'white',
-                        fontWeight: 'bold',
-                        fontSize: '0.9em'
-                      }}
-                    >
-                      {Math.round((calculatedData.daysFromMating / calculatedData.gestationDays) * 100)}%
+                  <h2>{t('availableForProUsers')}</h2>
+                  <p className="module5-card-subtext">{t('module5ProLockedMain')}</p>
+                  <div className="blocked-preview-grid" style={{ marginTop: '12px', marginBottom: '14px' }}>
+                    <div className="blocked-preview-card">
+                      <h4>{t('module5LockedFeatureTimeline')}</h4>
+                    </div>
+                    <div className="blocked-preview-card">
+                      <h4>{t('module5LockedFeatureManagement')}</h4>
+                    </div>
+                    <div className="blocked-preview-card">
+                      <h4>{t('module5LockedFeatureAdvanced')}</h4>
                     </div>
                   </div>
-                  <p style={{ marginTop: '10px', textAlign: 'center', color: '#666' }}>
-                    {calculatedData.daysFromMating} / {calculatedData.gestationDays} {t('days')}
-                  </p>
+                  <button type="button" className="btn btn-primary" onClick={() => navigate('/profile')}>
+                    {t('module5ProLockCta')}
+                  </button>
                 </div>
               )}
 
-              {/* Weekly Timeline */}
               <div className="card">
-                <h2>{t('weeklyTimeline')}</h2>
-                <p style={{ color: 'var(--text-tertiary)', marginBottom: '20px' }}>
-                  {t('weeklyTimelineDescription')}
-                </p>
-                
-                <div style={{ display: 'grid', gap: '15px' }}>
-                  {calculatedData.weeks.map((week) => (
-                    <div 
-                      key={week.week}
-                      style={{
-                        padding: '15px',
-                        background: week.isCurrent ? 'rgba(234, 179, 8, 0.15)' : week.isPast ? 'var(--bg-tertiary)' : week.stageColor,
-                        borderRadius: '8px',
-                        border: week.isCurrent ? '3px solid var(--accent-warning)' : '1px solid var(--border-color)',
-                        opacity: week.isPast ? 0.6 : 1,
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                        <div>
-                          <h3 style={{ margin: 0, fontSize: '1.1em' }}>
-                            {week.isCurrent && (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '6px', color: 'var(--accent-warning)' }}>
-                                <ModernIcon name="mapPin" size={14} />
-                              </span>
-                            )}
-                            {t('week')} {week.week}
-                            {week.isCurrent && ` (${t('current')})`}
-                          </h3>
-                          <p style={{ margin: '5px 0 0 0', fontSize: '0.9em', color: 'var(--text-tertiary)' }}>
-                            {formatDate(week.startDate)} - {t('days')} {week.startDay}-{week.endDay}
-                          </p>
-                        </div>
-                        <div style={{ 
-                          padding: '6px 12px', 
-                          background: 'var(--bg-secondary)', 
-                          borderRadius: '4px',
-                          fontSize: '0.85em',
-                          fontWeight: 'bold'
-                        }}>
-                          {week.stage}
-                        </div>
-                      </div>
-                      
-                      {week.alerts.length > 0 && (
-                        <div style={{ marginTop: '10px' }}>
-                          {week.alerts.map((alert, idx) => (
-                            <div 
-                              key={idx}
-                              style={{
-                                padding: '10px',
-                                background: getAlertColor(alert.type),
-                                borderRadius: '4px',
-                                marginTop: idx > 0 ? '8px' : 0,
-                                border: `1px solid ${alert.type === 'error' ? 'var(--accent-error)' : alert.type === 'warning' ? 'var(--accent-warning)' : 'var(--border-color)'}`,
-                              }}
-                            >
-                              <p style={{ margin: 0, fontSize: '0.9em', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <ModernIcon name={getAlertIconName(alert.type)} size={14} />
-                                <span>{alert.message}</span>
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                <h2>{t('gestationProgress')}</h2>
+                <div className="module5-progress-track">
+                  <div
+                    className="module5-progress-fill"
+                    style={{ width: `${progressPct}%` }}
+                  >
+                    {progressPct}%
+                  </div>
                 </div>
+                <p className="module5-progress-caption">
+                  {calculatedData.daysFromMating} / {calculatedData.gestationDays} {t('days')}
+                </p>
               </div>
 
-              {/* General Care Checklist */}
-              <div className="card">
-                <h2>{t('generalCareChecklist')}</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '15px' }}>
-                  <div style={{ padding: '15px', background: '#e3f2fd', borderRadius: '8px' }}>
-                    <h3 style={{ marginTop: 0, fontSize: '1em', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                      <ModernIcon name="leaf" size={14} />
-                      {t('nutrition')}
-                    </h3>
-                    <ul style={{ marginLeft: '20px', lineHeight: '1.8' }}>
-                      <li>{t('nutritionItem1')}</li>
-                      <li>{t('nutritionItem2')}</li>
-                      <li>{t('nutritionItem3')}</li>
-                    </ul>
+              {hasModule5FullAccess && (
+                <>
+                  <div className="card module5-stage-card">
+                    <h2>{t('module5StageTimelineTitle')}</h2>
+                    <p className="module5-card-subtext">{t('module5StageTimelineSubtitle')}</p>
+
+                    <div className="module5-stage-timeline">
+                      {stageTimeline.map((stage) => (
+                        <button
+                          key={stage.key}
+                          type="button"
+                          className={`module5-stage-chip ${stage.isCurrent ? 'is-current' : ''} ${stage.isSelected ? 'is-selected' : ''}`}
+                          style={{ '--stage-accent': stage.riskColor }}
+                          onClick={() => setSelectedStageKey(stage.key)}
+                        >
+                          <strong>{stage.label}</strong>
+                          <span>{stage.start}-{stage.end} {t('days')}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {selectedStage && selectedStagePedagogy && (
+                      <div className="module5-stage-content">
+                        <div className="module5-stage-illustration-wrap">
+                          <img
+                            src={selectedStagePedagogy.illustration}
+                            alt={t(`module5StageIllustrationAlt_${selectedStage.key}`)}
+                            className="module5-stage-illustration"
+                          />
+                          <span className="module5-stage-risk-badge" style={{ background: selectedStage.riskColor }}>
+                            {selectedStage.riskLabel}
+                          </span>
+                        </div>
+
+                        <div className="module5-stage-details">
+                          <p className="module5-stage-physiology">
+                            <strong>{t('module5PhysiologicalStateLabel')}:</strong> {selectedStagePedagogy.physiologicalState}
+                          </p>
+                          <p className="module5-stage-recommendation">
+                            <strong>{t('module5KeyRecommendationLabel')}:</strong> {selectedStagePedagogy.keyRecommendation}
+                          </p>
+
+                          <div className="module5-stage-grid">
+                            <article className="module5-stage-topic module5-stage-topic--nutrition">
+                              <h3>{t('nutrition')}</h3>
+                              <ul>
+                                <li>{selectedStagePedagogy.nutritionDryMatter}</li>
+                                <li>{selectedStagePedagogy.nutritionDiet}</li>
+                              </ul>
+                            </article>
+
+                            <article className="module5-stage-topic module5-stage-topic--health">
+                              <h3>{t('healthMonitoring')}</h3>
+                              <ul>
+                                <li>{selectedStagePedagogy.healthDeworming}</li>
+                                <li>{selectedStagePedagogy.healthVaccination}</li>
+                                <li>{selectedStagePedagogy.healthVitamins}</li>
+                              </ul>
+                            </article>
+
+                            <article className="module5-stage-topic module5-stage-topic--management">
+                              <h3>{t('module5ManagementLabel')}</h3>
+                              <ul>
+                                <li>{selectedStagePedagogy.managementDo}</li>
+                                <li>{selectedStagePedagogy.managementAvoid}</li>
+                              </ul>
+                            </article>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <p className="module5-legal-note">{t('module5VeterinaryDisclaimer')}</p>
                   </div>
-                  
-                  <div style={{ padding: '15px', background: '#fff3e0', borderRadius: '8px' }}>
-                    <h3 style={{ marginTop: 0, fontSize: '1em', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                      <ModernIcon name="heartPulse" size={14} />
-                      {t('healthMonitoring')}
-                    </h3>
-                    <ul style={{ marginLeft: '20px', lineHeight: '1.8' }}>
-                      <li>{t('healthItem1')}</li>
-                      <li>{t('healthItem2')}</li>
-                      <li>{t('healthItem3')}</li>
-                    </ul>
+
+                  <div className="card">
+                    <div className="module5-calendar-header">
+                      <h2>{t('module5CalendarTitle')}</h2>
+                      <div className="module5-calendar-nav">
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => setCalendarCursor((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))}
+                        >
+                          {t('previous')}
+                        </button>
+                        <strong>{calendarView.monthLabel}</strong>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => setCalendarCursor((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))}
+                        >
+                          {t('next')}
+                        </button>
+                      </div>
+                    </div>
+                    <p className="module5-card-subtext">{t('module5CalendarSubtitle')}</p>
+                    <div className="module5-calendar-grid">
+                      {[t('module5WeekdaySun'), t('module5WeekdayMon'), t('module5WeekdayTue'), t('module5WeekdayWed'), t('module5WeekdayThu'), t('module5WeekdayFri'), t('module5WeekdaySat')].map((label) => (
+                        <div key={label} className="module5-calendar-weekday">{label}</div>
+                      ))}
+                      {calendarView.weeks.flat().map((cell, idx) => {
+                        if (!cell) return <div key={`empty-${idx}`} className="module5-calendar-cell module5-calendar-cell--empty" />;
+                        return (
+                          <div key={dateKey(cell.date)} className={`module5-calendar-cell module5-calendar-cell--${cell.topSeverity}`}>
+                            <div className="module5-calendar-day">{cell.day}</div>
+                            {cell.events.length > 0 && (
+                              <div className="module5-calendar-events">
+                                <span className="module5-calendar-event-count">{cell.events.length}</span>
+                                <span className="module5-calendar-event-label">{t('module5CalendarEventsShort')}</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  
-                  <div style={{ padding: '15px', background: '#e8f5e9', borderRadius: '8px' }}>
-                    <h3 style={{ marginTop: 0, fontSize: '1em', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                      <ModernIcon name="home" size={14} />
-                      {t('environment')}
-                    </h3>
-                    <ul style={{ marginLeft: '20px', lineHeight: '1.8' }}>
-                      <li>{t('environmentItem1')}</li>
-                      <li>{t('environmentItem2')}</li>
-                      <li>{t('environmentItem3')}</li>
-                    </ul>
+
+                  <div className="card">
+                    <h2>{t('module5UpcomingActionsTitle')}</h2>
+                    <p className="module5-card-subtext">{t('module5UpcomingActionsSubtitle', { days: calculatedData.reminderWindowDays })}</p>
+                    {calculatedData.upcomingEvents.length === 0 ? (
+                      <p className="module5-empty-text">{t('module5NoUpcomingEvents')}</p>
+                    ) : (
+                      <div className="module5-upcoming-list">
+                        {calculatedData.upcomingEvents.map((event) => (
+                          <article key={event.id} className={`module5-upcoming-item module5-upcoming-item--${event.type}`}>
+                            <div className="module5-upcoming-icon">
+                              <ModernIcon name={getAlertIconName(event.type)} size={14} />
+                            </div>
+                            <div>
+                              <h3>{event.title}</h3>
+                              <p>{event.desc}</p>
+                              <small>
+                                {formatDate(event.date)} - {event.status === 'today' ? t('module5EventToday') : t('module5EventInDays', { days: event.deltaDays })}
+                              </small>
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-              </div>
+
+                  <div className="card">
+                    <h2>{t('weeklyTimeline')}</h2>
+                    <p style={{ color: 'var(--text-tertiary)', marginBottom: '20px' }}>{t('weeklyTimelineDescription')}</p>
+                    <div style={{ display: 'grid', gap: '15px' }}>
+                      {calculatedData.weeks.map((week) => (
+                        <div
+                          key={week.week}
+                          style={{
+                            padding: '15px',
+                            background: week.isCurrent ? 'rgba(234, 179, 8, 0.15)' : week.isPast ? 'var(--bg-tertiary)' : week.stageColor,
+                            borderRadius: '8px',
+                            border: week.isCurrent ? '3px solid var(--accent-warning)' : '1px solid var(--border-color)',
+                            opacity: week.isPast ? 0.65 : 1,
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                            <div>
+                              <h3 style={{ margin: 0, fontSize: '1.05em' }}>
+                                {week.isCurrent && (
+                                  <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '6px', color: 'var(--accent-warning)' }}>
+                                    <ModernIcon name="mapPin" size={14} />
+                                  </span>
+                                )}
+                                {t('week')} {week.week}{week.isCurrent ? ` (${t('current')})` : ''}
+                              </h3>
+                              <p style={{ margin: '5px 0 0 0', fontSize: '0.9em', color: 'var(--text-tertiary)' }}>
+                                {formatDate(week.startDate)} - {t('days')} {week.startDay}-{week.endDay}
+                              </p>
+                            </div>
+                            <div style={{ padding: '6px 12px', background: 'var(--bg-secondary)', borderRadius: '4px', fontSize: '0.85em', fontWeight: 700 }}>
+                              {week.stage}
+                            </div>
+                          </div>
+                          {week.alerts.length > 0 && (
+                            <div style={{ marginTop: '10px' }}>
+                              {week.alerts.map((alert, idx) => (
+                                <div
+                                  key={`${week.week}-${idx}`}
+                                  style={{
+                                    padding: '10px',
+                                    background: getAlertColor(alert.type),
+                                    borderRadius: '4px',
+                                    marginTop: idx > 0 ? '8px' : 0,
+                                    border: `1px solid ${alert.type === 'error' ? 'var(--accent-error)' : alert.type === 'warning' ? 'var(--accent-warning)' : 'var(--border-color)'}`,
+                                  }}
+                                >
+                                  <p style={{ margin: 0, fontSize: '0.9em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <ModernIcon name={getAlertIconName(alert.type)} size={14} />
+                                    <span>{alert.message}</span>
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="card">
+                    <h2>{t('generalCareChecklist')}</h2>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '15px' }}>
+                      <div style={{ padding: '15px', background: '#e3f2fd', borderRadius: '8px' }}>
+                        <h3 style={{ marginTop: 0, fontSize: '1em', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                          <ModernIcon name="leaf" size={14} />
+                          {t('nutrition')}
+                        </h3>
+                        <ul style={{ marginLeft: '20px', lineHeight: '1.8' }}>
+                          <li>{t('nutritionItem1')}</li>
+                          <li>{t('nutritionItem2')}</li>
+                          <li>{t('nutritionItem3')}</li>
+                        </ul>
+                      </div>
+                      <div style={{ padding: '15px', background: '#fff3e0', borderRadius: '8px' }}>
+                        <h3 style={{ marginTop: 0, fontSize: '1em', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                          <ModernIcon name="heartPulse" size={14} />
+                          {t('healthMonitoring')}
+                        </h3>
+                        <ul style={{ marginLeft: '20px', lineHeight: '1.8' }}>
+                          <li>{t('healthItem1')}</li>
+                          <li>{t('healthItem2')}</li>
+                          <li>{t('healthItem3')}</li>
+                        </ul>
+                      </div>
+                      <div style={{ padding: '15px', background: '#e8f5e9', borderRadius: '8px' }}>
+                        <h3 style={{ marginTop: 0, fontSize: '1em', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                          <ModernIcon name="home" size={14} />
+                          {t('environment')}
+                        </h3>
+                        <ul style={{ marginLeft: '20px', lineHeight: '1.8' }}>
+                          <li>{t('environmentItem1')}</li>
+                          <li>{t('environmentItem2')}</li>
+                          <li>{t('environmentItem3')}</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </>
           )}
         </>
@@ -565,7 +965,7 @@ function Module5Gestation({ user }) {
 
       <AlertModal
         isOpen={alertModal.isOpen}
-        onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+        onClose={() => setAlertModal((prev) => ({ ...prev, isOpen: false }))}
         title={alertModal.type === 'success' ? t('success') : alertModal.type === 'error' ? t('error') : t('information')}
         message={alertModal.message}
         type={alertModal.type}

@@ -502,7 +502,8 @@ router.post('/gestation/:scenarioId', requireFeature('module5'), async (req, res
       pool,
       scenarioId,
       gestationData,
-      calculatedGestationTimeline
+      calculatedGestationTimeline,
+      req.user.userId
     );
 
     res.json(saved);

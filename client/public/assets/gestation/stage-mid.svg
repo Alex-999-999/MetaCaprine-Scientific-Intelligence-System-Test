@@ -1,0 +1,11 @@
+<svg width="520" height="280" viewBox="0 0 520 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mid gestation fetal development illustration">
+  <rect width="520" height="280" fill="#f8fafc"/>
+  <rect x="24" y="24" width="472" height="232" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <ellipse cx="260" cy="140" rx="170" ry="84" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+  <path d="M215 152 C214 118, 248 94, 286 112 C306 122, 312 148, 292 168 C273 188, 238 186, 224 170 Z" fill="#fde68a" stroke="#d97706" stroke-width="2"/>
+  <circle cx="282" cy="122" r="11" fill="#f59e0b"/>
+  <line x1="132" y1="182" x2="388" y2="182" stroke="#d97706" stroke-width="2"/>
+  <line x1="132" y1="192" x2="388" y2="192" stroke="#d97706" stroke-width="2" stroke-dasharray="5 5"/>
+  <text x="260" y="54" font-family="Arial, sans-serif" font-size="18" fill="#92400e" text-anchor="middle">Etapa media</text>
+  <text x="260" y="76" font-family="Arial, sans-serif" font-size="14" fill="#92400e" text-anchor="middle">Desarrollo fetal</text>
+</svg>

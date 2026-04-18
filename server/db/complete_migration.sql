@@ -346,6 +346,77 @@ CREATE TABLE IF NOT EXISTS gestation_data (
 
 CREATE INDEX IF NOT EXISTS idx_gestation_data_scenario_id ON gestation_data(scenario_id);
 
+-- PRO gestation model tables (timeline/events/stage pedagogy/alerts)
+CREATE TABLE IF NOT EXISTS gestations (
+  id SERIAL PRIMARY KEY,
+  scenario_id INTEGER NOT NULL REFERENCES scenarios(id) ON DELETE CASCADE,
+  service_date DATE NOT NULL,
+  breed_key TEXT,
+  gestation_days INTEGER NOT NULL DEFAULT 150,
+  doe_count INTEGER NOT NULL DEFAULT 1,
+  expected_kids_per_doe NUMERIC(6,2) DEFAULT 1.70,
+  pregnancy_loss_pct NUMERIC(5,2) DEFAULT 8.00,
+  reminder_window_days INTEGER DEFAULT 14,
+  management_level VARCHAR(20) DEFAULT 'standard',
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(scenario_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_gestations_service_date ON gestations(service_date);
+
+CREATE TABLE IF NOT EXISTS gestation_events (
+  id SERIAL PRIMARY KEY,
+  gestation_id INTEGER NOT NULL REFERENCES gestations(id) ON DELETE CASCADE,
+  event_key TEXT NOT NULL,
+  event_day INTEGER NOT NULL,
+  event_date DATE NOT NULL,
+  event_type VARCHAR(20) DEFAULT 'info',
+  title TEXT,
+  description TEXT,
+  status VARCHAR(20) DEFAULT 'upcoming',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(gestation_id, event_key, event_day)
+);
+
+CREATE INDEX IF NOT EXISTS idx_gestation_events_date ON gestation_events(event_date);
+
+CREATE TABLE IF NOT EXISTS gestation_stage_data (
+  id SERIAL PRIMARY KEY,
+  gestation_id INTEGER NOT NULL REFERENCES gestations(id) ON DELETE CASCADE,
+  stage_key VARCHAR(20) NOT NULL,
+  day_start INTEGER NOT NULL,
+  day_end INTEGER NOT NULL,
+  physiological_status TEXT,
+  risk_level VARCHAR(20),
+  nutrition JSONB,
+  health JSONB,
+  management JSONB,
+  illustration_path TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(gestation_id, stage_key)
+);
+
+CREATE TABLE IF NOT EXISTS user_alerts (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  scenario_id INTEGER NOT NULL REFERENCES scenarios(id) ON DELETE CASCADE,
+  gestation_id INTEGER REFERENCES gestations(id) ON DELETE CASCADE,
+  alert_key TEXT NOT NULL,
+  alert_type VARCHAR(20) DEFAULT 'info',
+  alert_date DATE NOT NULL,
+  status VARCHAR(20) DEFAULT 'pending',
+  message TEXT,
+  metadata JSONB,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, scenario_id, alert_key, alert_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_alerts_alert_date ON user_alerts(alert_date);
+
 -- ============================================================================
 -- RESULTS TABLE (Calculated outputs - shared across all modules)
 -- ============================================================================
@@ -490,7 +561,8 @@ BEGIN
     'users', 'scenarios', 'production_data', 'transformation_data', 
     'transformation_products', 'breed_reference', 'breed_scenarios',
     'lactation_data', 'breed_profiles', 'lactation_simulations',
-    'yield_data', 'gestation_data', 'results', 'plans', 'user_plans', 'plan_features'
+    'yield_data', 'gestation_data', 'gestations', 'gestation_events',
+    'gestation_stage_data', 'user_alerts', 'results', 'plans', 'user_plans', 'plan_features'
   );
   
   RAISE NOTICE '============================================================================';
@@ -498,8 +570,8 @@ BEGIN
   RAISE NOTICE 'Created/verified % tables', table_count;
   RAISE NOTICE '============================================================================';
   
-  IF table_count < 16 THEN
-    RAISE WARNING 'Expected at least 16 tables, got %. Some tables may not have been created.', table_count;
+  IF table_count < 20 THEN
+    RAISE WARNING 'Expected at least 20 tables, got %. Some tables may not have been created.', table_count;
   END IF;
 END $$;
 
@@ -511,5 +583,3 @@ END $$;
 -- 2. Verify all tables were created successfully
 -- 3. Test application functionality
 -- ============================================================================
-
-

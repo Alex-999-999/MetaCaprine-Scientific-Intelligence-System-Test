@@ -1,0 +1,12 @@
+<svg width="520" height="280" viewBox="0 0 520 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Late gestation complete fetus illustration">
+  <rect width="520" height="280" fill="#f8fafc"/>
+  <rect x="24" y="24" width="472" height="232" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <ellipse cx="260" cy="140" rx="170" ry="84" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+  <path d="M186 156 C180 116, 220 92, 266 92 C316 92, 350 124, 344 164 C338 198, 300 210, 262 210 C224 210, 192 194, 186 156 Z" fill="#fecaca" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="304" cy="126" r="12" fill="#ef4444"/>
+  <path d="M208 190 C228 178, 294 178, 314 190" stroke="#dc2626" stroke-width="3" fill="none"/>
+  <line x1="120" y1="80" x2="152" y2="112" stroke="#dc2626" stroke-width="2"/>
+  <line x1="368" y1="112" x2="400" y2="80" stroke="#dc2626" stroke-width="2"/>
+  <text x="260" y="54" font-family="Arial, sans-serif" font-size="18" fill="#991b1b" text-anchor="middle">Etapa final</text>
+  <text x="260" y="76" font-family="Arial, sans-serif" font-size="14" fill="#991b1b" text-anchor="middle">Preparacion de parto</text>
+</svg>
