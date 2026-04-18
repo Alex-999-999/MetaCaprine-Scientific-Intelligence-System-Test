@@ -4487,6 +4487,11 @@ label {
   border-left: 4px solid #ef4444;
 }
 
+.module5-simulator-card:hover {
+  border-color: rgba(239, 68, 68, 0.22);
+  border-left: 4px solid #ef4444;
+}
+
 .module5-card-subtext {
   margin: 4px 0 14px 0;
   color: var(--text-secondary);
@@ -4715,6 +4720,11 @@ label {
 
 .module5-stage-card {
   border: 1px solid rgba(59, 130, 246, 0.26);
+  border-left: 4px solid #3b82f6;
+}
+
+.module5-stage-card:hover {
+  border-color: rgba(59, 130, 246, 0.26);
   border-left: 4px solid #3b82f6;
 }
 
@@ -4958,6 +4968,16 @@ label {
   border: 1px solid rgba(248, 113, 113, 0.42);
   border-left: 4px solid #f87171;
   background: linear-gradient(180deg, rgba(239, 68, 68, 0.2) 0%, rgba(153, 27, 27, 0.16) 100%);
+}
+
+.dark-mode .module5-simulator-card:hover {
+  border-color: rgba(248, 113, 113, 0.42);
+  border-left: 4px solid #f87171;
+}
+
+.dark-mode .module5-stage-card:hover {
+  border-color: rgba(96, 165, 250, 0.42);
+  border-left: 4px solid #60a5fa;
 }
 
 .dark-mode .module5-metric-card--blue { background: rgba(59, 130, 246, 0.22); border-color: rgba(96, 165, 250, 0.42); }
