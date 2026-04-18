@@ -385,9 +385,6 @@ export default function Module4Investment() {
     setAdvancedAppliedConfig(null);
   }, [isPro, selectedBreed]);
 
-  if (loading) return <div className="container"><p>{t('loading')}</p></div>;
-  if (breeds.length === 0) return <div className="container"><p>{t('noDataToShow')}</p></div>;
-
   const complementaryColumns = calculator
     ? [
         { name: t('module4CardCap'), value: calculator.cap, color: 'var(--m4-color-cap)' },
@@ -556,6 +553,9 @@ export default function Module4Investment() {
     });
     setShowAdvancedUpdatedNotice(true);
   }, [hasSelectedBreed, selectedBreedId, selectedScenario, herdN, proOverrides]);
+
+  if (loading) return <div className="container"><p>{t('loading')}</p></div>;
+  if (breeds.length === 0) return <div className="container"><p>{t('noDataToShow')}</p></div>;
 
   return (
     <div className="container module-compact m4-root m4-predictive-module">
