@@ -67,6 +67,15 @@ const fmtInput2 = (value) => {
   return m4Round(n, 2);
 };
 
+const buildOverrideDraftFromBreed = (breed) => {
+  if (!breed) return {};
+  return OVERRIDE_FIELDS.reduce((acc, { key }) => {
+    const v = fmtInput2(breed[key]);
+    acc[key] = v === '' ? '' : String(v);
+    return acc;
+  }, {});
+};
+
 const scenarioLabel = (key, t) => {
   if (key === 's1') return t('module4ScenarioS1Name');
   if (key === 's2') return t('module4ScenarioS2Name');
@@ -125,13 +134,15 @@ export default function Module4Investment() {
   const [mainChartType, setMainChartType] = useState('line');
   const [secondaryChartType, setSecondaryChartType] = useState('columns');
   const [proOverrides, setProOverrides] = useState({});
+  const [overrideDraft, setOverrideDraft] = useState({});
   const [appliedBreedId, setAppliedBreedId] = useState(null);
   const [appliedScenario, setAppliedScenario] = useState('s1');
   const [appliedHerdCount, setAppliedHerdCount] = useState(10);
   const [appliedMainChartType, setAppliedMainChartType] = useState('line');
   const [appliedSecondaryChartType, setAppliedSecondaryChartType] = useState('columns');
-  const [appliedOverrides, setAppliedOverrides] = useState({});
   const [showSimUpdatedNotice, setShowSimUpdatedNotice] = useState(false);
+  const [advancedAppliedConfig, setAdvancedAppliedConfig] = useState(null);
+  const [showAdvancedUpdatedNotice, setShowAdvancedUpdatedNotice] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -158,7 +169,7 @@ export default function Module4Investment() {
       setAppliedScenario('s1');
       setAppliedMainChartType('line');
       setAppliedSecondaryChartType('columns');
-      setAppliedOverrides({});
+      setAdvancedAppliedConfig(null);
     }
   }, [isPro]);
 
@@ -191,15 +202,13 @@ export default function Module4Investment() {
 
   const breedForCalc = useMemo(() => {
     if (!appliedBreed) return null;
-    if (isPro) return { ...appliedBreed, ...appliedOverrides };
     return appliedBreed;
-  }, [isPro, appliedBreed, appliedOverrides]);
+  }, [appliedBreed]);
 
   const result = useMemo(() => {
     if (!breedForCalc) return null;
-    const useReferenceScenarios = isPro ? Object.keys(appliedOverrides).length === 0 : true;
-    return computeM4(breedForCalc, { useReferenceScenarios });
-  }, [breedForCalc, isPro, appliedOverrides]);
+    return computeM4(breedForCalc, { useReferenceScenarios: true });
+  }, [breedForCalc]);
 
   const selectedKpi = isPro ? result?.scenarios?.[appliedScenario] || null : null;
 
@@ -294,14 +303,12 @@ export default function Module4Investment() {
   }, [appliedBreed]);
 
   const isSimulationDirty = useMemo(() => {
-    const sameOverrides = JSON.stringify(proOverrides) === JSON.stringify(appliedOverrides);
     return (
       selectedBreedId !== appliedBreedId ||
       selectedScenario !== appliedScenario ||
       herdN !== appliedHerdN ||
       mainChartType !== appliedMainChartType ||
-      secondaryChartType !== appliedSecondaryChartType ||
-      !sameOverrides
+      secondaryChartType !== appliedSecondaryChartType
     );
   }, [
     selectedBreedId,
@@ -314,8 +321,6 @@ export default function Module4Investment() {
     appliedMainChartType,
     secondaryChartType,
     appliedSecondaryChartType,
-    proOverrides,
-    appliedOverrides,
   ]);
 
   const applySimulation = useCallback(() => {
@@ -325,9 +330,8 @@ export default function Module4Investment() {
     setAppliedHerdCount(herdN);
     setAppliedMainChartType(mainChartType);
     setAppliedSecondaryChartType(secondaryChartType);
-    setAppliedOverrides({ ...proOverrides });
     setShowSimUpdatedNotice(true);
-  }, [hasSelectedBreed, selectedBreedId, selectedScenario, herdN, mainChartType, secondaryChartType, proOverrides]);
+  }, [hasSelectedBreed, selectedBreedId, selectedScenario, herdN, mainChartType, secondaryChartType]);
 
   useEffect(() => {
     if (!showSimUpdatedNotice) return undefined;
@@ -335,7 +339,14 @@ export default function Module4Investment() {
     return () => clearTimeout(timer);
   }, [showSimUpdatedNotice]);
 
+  useEffect(() => {
+    if (!showAdvancedUpdatedNotice) return undefined;
+    const timer = setTimeout(() => setShowAdvancedUpdatedNotice(false), 2200);
+    return () => clearTimeout(timer);
+  }, [showAdvancedUpdatedNotice]);
+
   const handleOverrideChange = useCallback((field, value) => {
+    setOverrideDraft((prev) => ({ ...prev, [field]: value }));
     setProOverrides((prev) => {
       const next = { ...prev };
       if (value === '' || value == null) {
@@ -343,10 +354,36 @@ export default function Module4Investment() {
         return next;
       }
       const n = Number(value);
-      if (Number.isFinite(n)) next[field] = m4Round(n, 2);
+      if (!Number.isFinite(n)) {
+        delete next[field];
+        return next;
+      }
+
+      const rounded = m4Round(n, 2);
+      const baseRaw = Number(selectedBreed?.[field]);
+      const hasBase = Number.isFinite(baseRaw);
+      const baseRounded = hasBase ? m4Round(baseRaw, 2) : null;
+
+      if (hasBase && rounded === baseRounded) {
+        delete next[field];
+      } else {
+        next[field] = rounded;
+      }
       return next;
     });
-  }, []);
+  }, [selectedBreed]);
+
+  useEffect(() => {
+    if (!isPro || !selectedBreed) {
+      setOverrideDraft({});
+      setProOverrides({});
+      setAdvancedAppliedConfig(null);
+      return;
+    }
+    setOverrideDraft(buildOverrideDraftFromBreed(selectedBreed));
+    setProOverrides({});
+    setAdvancedAppliedConfig(null);
+  }, [isPro, selectedBreed]);
 
   if (loading) return <div className="container"><p>{t('loading')}</p></div>;
   if (breeds.length === 0) return <div className="container"><p>{t('noDataToShow')}</p></div>;
@@ -373,6 +410,152 @@ export default function Module4Investment() {
           flow: point.accumulatedFlow,
         }))
     : [];
+
+  const transparencyAssumptions = useMemo(() => {
+    if (!isPro || !breedForCalc) return null;
+    const lifetimeMilk = Number(breedForCalc.lifetime_milk_kg) || 0;
+    const lifetimeCheese = Number(breedForCalc.lifetime_cheese_kg) || 0;
+    const daughtersPerLife = Number(breedForCalc.daughters_per_life) || 0;
+    const femaleValue = Number(breedForCalc.female_value) || 0;
+    const replacementRaw = Number(breedForCalc.replacement_pct) || 0;
+    const mortalityRaw = Number(breedForCalc.mortality_pct) || 0;
+    const replacementPct = replacementRaw <= 1 ? replacementRaw * 100 : replacementRaw;
+    const mortalityPct = mortalityRaw <= 1 ? mortalityRaw * 100 : mortalityRaw;
+    const milkMargin = Number(breedForCalc.raw_milk_margin_per_liter) || 0;
+    const cheeseMarginC1 = Number(breedForCalc.cheese_margin_c1) || 0;
+    const cheeseMarginC2 = Number(breedForCalc.cheese_margin_c2) || 0;
+    const cheeseMarginC3 = Number(breedForCalc.cheese_margin_c3) || 0;
+
+    let marginText = t('module4AssumptionMarginMilkOnly', { value: fmtMoney(milkMargin, 2) });
+    if (appliedScenario === 's2') {
+      marginText = t('module4AssumptionMarginMilkPlusDaughters', { value: fmtMoney(milkMargin, 2) });
+    } else if (appliedScenario === 's3_c1') {
+      marginText = t('module4AssumptionMarginCheeseC1', { value: fmtMoney(cheeseMarginC1, 2) });
+    } else if (appliedScenario === 's3_c2') {
+      marginText = t('module4AssumptionMarginCheeseC2', { value: fmtMoney(cheeseMarginC2, 2) });
+    } else if (appliedScenario === 's3_c3') {
+      marginText = t('module4AssumptionMarginCheeseC3', { value: fmtMoney(cheeseMarginC3, 2) });
+    }
+
+    return {
+      lifetimeMilk,
+      lifetimeCheese,
+      daughtersPerLife,
+      femaleValue,
+      replacementPct,
+      mortalityPct,
+      marginText,
+    };
+  }, [isPro, breedForCalc, appliedScenario, t]);
+
+  const advancedAppliedBreed = useMemo(() => (
+    breeds.find((b) => b.id === advancedAppliedConfig?.breedId) || null
+  ), [breeds, advancedAppliedConfig]);
+
+  const advancedBreedForCalc = useMemo(() => {
+    if (!advancedAppliedBreed) return null;
+    return { ...advancedAppliedBreed, ...(advancedAppliedConfig?.overrides || {}) };
+  }, [advancedAppliedBreed, advancedAppliedConfig]);
+
+  const advancedResult = useMemo(() => {
+    if (!isPro || !advancedBreedForCalc) return null;
+    return computeM4(advancedBreedForCalc, { useReferenceScenarios: false });
+  }, [isPro, advancedBreedForCalc]);
+
+  const advancedSelectedKpi = useMemo(() => {
+    if (!advancedResult || !advancedAppliedConfig?.scenario) return null;
+    return advancedResult.scenarios?.[advancedAppliedConfig.scenario] || null;
+  }, [advancedResult, advancedAppliedConfig]);
+
+  const advancedScaleUnits = Math.min(10000, Math.max(1, Math.round(Number(advancedAppliedConfig?.herdCount) || 1)));
+
+  const advancedCalculator = useMemo(() => {
+    if (!advancedResult || !advancedSelectedKpi) return null;
+    const cap = advancedResult.cap * advancedScaleUnits;
+    const net = advancedSelectedKpi.result * advancedScaleUnits;
+    const generated = cap + net;
+    const annualGenerated = generated / HORIZON;
+    const breakEvenYear = annualGenerated > 0 ? cap / annualGenerated : null;
+    const recovered = breakEvenYear != null && breakEvenYear <= HORIZON;
+    const curve = Array.from({ length: HORIZON + 1 }, (_, year) => {
+      const valueGenerated = annualGenerated * year;
+      const accumulatedFlow = valueGenerated - cap;
+      return {
+        year,
+        cap,
+        valueGenerated,
+        accumulatedFlow,
+      };
+    });
+    return {
+      cap,
+      generated,
+      net,
+      roi: advancedSelectedKpi.roi,
+      annualROI: advancedSelectedKpi.annualROI,
+      payback: advancedSelectedKpi.payback,
+      recovered,
+      breakEvenYear,
+      curve,
+      scenario: advancedAppliedConfig?.scenario || 's1',
+    };
+  }, [advancedResult, advancedSelectedKpi, advancedScaleUnits, advancedAppliedConfig]);
+
+  const advancedComplementaryColumns = advancedCalculator
+    ? [
+        { name: t('module4CardCap'), value: advancedCalculator.cap, color: 'var(--m4-color-cap)' },
+        { name: t('module4CardGenerated'), value: advancedCalculator.generated, color: 'var(--m4-color-generated)' },
+        { name: t('module4CardNet'), value: advancedCalculator.net, color: advancedCalculator.net >= 0 ? 'var(--m4-color-gain)' : 'var(--m4-color-cap)' },
+      ]
+    : [];
+
+  const advancedBaseComparison = useMemo(() => {
+    if (!advancedAppliedBreed || !advancedAppliedConfig?.scenario || !advancedCalculator) return null;
+    const baseResult = computeM4(advancedAppliedBreed, { useReferenceScenarios: true });
+    const baseKpi = baseResult.scenarios?.[advancedAppliedConfig.scenario];
+    if (!baseKpi) return null;
+
+    const baseRoi = Number(baseKpi.roi);
+    const customRoi = Number(advancedCalculator.roi);
+    const baseNet = Number(baseKpi.result || 0) * advancedScaleUnits;
+    const customNet = Number(advancedCalculator.net || 0);
+
+    let improvementPct = null;
+    if (Number.isFinite(baseRoi) && Number.isFinite(customRoi) && baseRoi !== 0) {
+      improvementPct = ((customRoi - baseRoi) / Math.abs(baseRoi)) * 100;
+    }
+
+    return {
+      baseRoi,
+      customRoi,
+      baseNet,
+      customNet,
+      improvementPct,
+    };
+  }, [advancedAppliedBreed, advancedAppliedConfig, advancedCalculator, advancedScaleUnits]);
+
+  const advancedIsDirty = useMemo(() => {
+    if (!hasSelectedBreed) return false;
+    if (!advancedAppliedConfig) return true;
+    const sameOverrides = JSON.stringify(proOverrides) === JSON.stringify(advancedAppliedConfig.overrides || {});
+    return !(
+      advancedAppliedConfig.breedId === selectedBreedId &&
+      advancedAppliedConfig.scenario === selectedScenario &&
+      advancedAppliedConfig.herdCount === herdN &&
+      sameOverrides
+    );
+  }, [hasSelectedBreed, advancedAppliedConfig, proOverrides, selectedBreedId, selectedScenario, herdN]);
+
+  const applyAdvancedSimulation = useCallback(() => {
+    if (!hasSelectedBreed) return;
+    setAdvancedAppliedConfig({
+      breedId: selectedBreedId,
+      scenario: selectedScenario,
+      herdCount: herdN,
+      overrides: { ...proOverrides },
+    });
+    setShowAdvancedUpdatedNotice(true);
+  }, [hasSelectedBreed, selectedBreedId, selectedScenario, herdN, proOverrides]);
 
   return (
     <div className="container module-compact m4-root m4-predictive-module">
@@ -555,9 +738,13 @@ export default function Module4Investment() {
         </>
       ) : (
         <>
-          <section className="card m4-investment-calculator">
+          <section className="card m4-investment-calculator m4-tool-card-base">
             <div className="m4-calculator-header-row">
-              <h2 className="m4-section-title">{t('module4InvestmentCalculatorTitle')} <span className="m4-pro-badge m4-pro-badge-inline">PRO</span></h2>
+              <div>
+                <h2 className="m4-section-title m4-tool-title m4-tool-title--base">{t('module4InvestmentCalculatorTitle')} <span className="m4-pro-badge m4-pro-badge-inline">PRO</span></h2>
+                <p className="m4-tool-identity m4-tool-identity--base">{t('module4BaseToolIdentity')}</p>
+                <p className="m4-section-subtitle">{t('module4BaseSimulationSubtitle')}</p>
+              </div>
               {selectedBreed && getBreedImage(selectedBreed.name, selectedBreed.image_asset_key) && (
                 <div className="m4-breed-image-calculator">
                   <img
@@ -589,21 +776,6 @@ export default function Module4Investment() {
               <label className="m4-scale-field">
                 <M4HintIcon labelForAria={t('module4ScaleHerdCount')} hint={t('module4HintHerdCount')} t={t} />
                 <input type="number" min={1} max={10000} step={1} className="m4-input" value={herdN} onChange={(e) => setHerdCount(e.target.value)} />
-              </label>
-              <label className="m4-scale-field">
-                <M4HintIcon labelForAria={t('module4MainChartTypeLabel')} hint={t('module4HintMainChart')} t={t} />
-                <select className="m4-breed-select" value={mainChartType} onChange={(e) => setMainChartType(e.target.value)}>
-                  <option value="line">{t('module4MainChartTypeLine')}</option>
-                  <option value="area">{t('module4MainChartTypeArea')}</option>
-                  <option value="bars">{t('module4MainChartTypeBars')}</option>
-                </select>
-              </label>
-              <label className="m4-scale-field">
-                <M4HintIcon labelForAria={t('module4SecondaryChartTypeLabel')} hint={t('module4HintSecondaryChart')} t={t} />
-                <select className="m4-breed-select" value={secondaryChartType} onChange={(e) => setSecondaryChartType(e.target.value)}>
-                  <option value="columns">{t('module4SecondaryChartTypeColumns')}</option>
-                  <option value="pie">{t('module4SecondaryChartTypePie')}</option>
-                </select>
               </label>
             </div>
             <div className="m4-sim-actions">
@@ -648,6 +820,16 @@ export default function Module4Investment() {
 
                 <div className="m4-invest-chart-wrap">
                   <h3 className="m4-section-subtitle m4-invest-chart-title">{t('module4InvestmentVsGeneratedChartTitle')} <span className="m4-pro-badge m4-pro-badge-inline">PRO</span></h3>
+                  <div className="m4-chart-controls-grid">
+                    <label className="m4-scale-field">
+                      <M4HintIcon labelForAria={t('module4MainChartTypeLabel')} hint={t('module4HintMainChart')} t={t} />
+                      <select className="m4-breed-select" value={mainChartType} onChange={(e) => setMainChartType(e.target.value)}>
+                        <option value="line">{t('module4MainChartTypeLine')}</option>
+                        <option value="area">{t('module4MainChartTypeArea')}</option>
+                        <option value="bars">{t('module4MainChartTypeBars')}</option>
+                      </select>
+                    </label>
+                  </div>
                   <div className="m4-chart-legend m4-chart-legend--functional">
                     <span className="m4-legend-cap">{t('module4LegendCap')}</span>
                     <span className="m4-legend-generated">{t('module4LegendGenerated')}</span>
@@ -709,6 +891,15 @@ export default function Module4Investment() {
                 <section className="m4-complementary-chart-card">
                   <h3 className="m4-section-title">{t('module4ComplementaryChartTitle')} <span className="m4-pro-badge m4-pro-badge-inline">PRO</span></h3>
                   <p className="m4-section-subtitle">{t('module4ComplementaryChartHint')}</p>
+                  <div className="m4-chart-controls-grid">
+                    <label className="m4-scale-field">
+                      <M4HintIcon labelForAria={t('module4SecondaryChartTypeLabel')} hint={t('module4HintSecondaryChart')} t={t} />
+                      <select className="m4-breed-select" value={secondaryChartType} onChange={(e) => setSecondaryChartType(e.target.value)}>
+                        <option value="columns">{t('module4SecondaryChartTypeColumns')}</option>
+                        <option value="pie">{t('module4SecondaryChartTypePie')}</option>
+                      </select>
+                    </label>
+                  </div>
                   {appliedSecondaryChartType === 'columns' ? (
                     <ResponsiveContainer width="100%" height={260}>
                       <BarChart data={complementaryColumns}>
@@ -723,6 +914,43 @@ export default function Module4Investment() {
                     </ResponsiveContainer>
                   )}
                 </section>
+
+                {transparencyAssumptions && (
+                  <section className="m4-assumptions-card">
+                    <h3 className="m4-section-title">{t('module4AssumptionsTitle')}</h3>
+                    <div className="m4-assumptions-grid">
+                      <article className="m4-assumption-item">
+                        <span>{t('module4AssumptionLifetimeMilk')}</span>
+                        <strong>{fmt(transparencyAssumptions.lifetimeMilk, 2)} kg</strong>
+                      </article>
+                      <article className="m4-assumption-item">
+                        <span>{t('module4AssumptionLifetimeCheese')}</span>
+                        <strong>{fmt(transparencyAssumptions.lifetimeCheese, 2)} kg</strong>
+                      </article>
+                      <article className="m4-assumption-item">
+                        <span>{t('module4AssumptionDaughtersPerLife')}</span>
+                        <strong>{fmt(transparencyAssumptions.daughtersPerLife, 2)}</strong>
+                      </article>
+                      <article className="m4-assumption-item">
+                        <span>{t('module4AssumptionMortality')}</span>
+                        <strong>{fmt(transparencyAssumptions.mortalityPct, 2)}%</strong>
+                      </article>
+                      <article className="m4-assumption-item">
+                        <span>{t('module4AssumptionReplacement')}</span>
+                        <strong>{fmt(transparencyAssumptions.replacementPct, 2)}%</strong>
+                      </article>
+                      <article className="m4-assumption-item">
+                        <span>{t('module4AssumptionFemaleValue')}</span>
+                        <strong>{fmtMoney(transparencyAssumptions.femaleValue, 2)}</strong>
+                      </article>
+                      <article className="m4-assumption-item m4-assumption-item--wide">
+                        <span>{t('module4AssumptionScenarioMargins')}</span>
+                        <strong>{transparencyAssumptions.marginText}</strong>
+                      </article>
+                    </div>
+                    <p className="m4-assumptions-footnote">{t('module4AssumptionsFootnote')}</p>
+                  </section>
+                )}
               </>
             )}
           </section>
@@ -773,9 +1001,27 @@ export default function Module4Investment() {
             )}
           </section>
 
-          <section className="card m4-pro-overrides">
-            <h3 className="m4-section-title">{t('module4ProOverridesTitle')} <span className="m4-pro-badge m4-pro-badge-inline">PRO</span></h3>
-            <p className="m4-section-subtitle">{t('module4ProOverridesSubtitle')}</p>
+          <section className="card m4-tool-separator-card" aria-label={t('module4IndependentToolsTitle')}>
+            <h3 className="m4-section-title">{t('module4IndependentToolsTitle')}</h3>
+            <p className="m4-section-subtitle">{t('module4IndependentToolsBody')}</p>
+            <div className="m4-tool-separator-grid">
+              <article className="m4-tool-separator-item m4-tool-separator-item--base">
+                <strong>{t('module4BaseToolIdentity')}</strong>
+                <span>{t('module4IndependentToolsBaseHint')}</span>
+              </article>
+              <article className="m4-tool-separator-item m4-tool-separator-item--advanced">
+                <strong>{t('module4AdvancedToolIdentity')}</strong>
+                <span>{t('module4IndependentToolsAdvancedHint')}</span>
+              </article>
+            </div>
+          </section>
+
+          <section className="card m4-pro-overrides m4-submodule-card m4-tool-card-advanced">
+            <div className="m4-submodule-header">
+              <h3 className="m4-section-title m4-tool-title m4-tool-title--advanced">{t('module4ProOverridesTitle')} <span className="m4-pro-badge m4-pro-badge-inline m4-pro-badge-advanced">PRO</span></h3>
+              <p className="m4-tool-identity m4-tool-identity--advanced">{t('module4AdvancedToolIdentity')}</p>
+              <p className="m4-section-subtitle">{t('module4ProOverridesSubtitle')}</p>
+            </div>
             <div className="m4-override-grid">
               {OVERRIDE_FIELDS.map(({ key, labelKey }) => (
                 <label key={key} className="m4-override-field">
@@ -784,17 +1030,118 @@ export default function Module4Investment() {
                     type="number"
                     step="0.01"
                     className="m4-input"
-                    value={proOverrides[key] ?? fmtInput2(selectedBreed?.[key])}
+                    value={overrideDraft[key] ?? ''}
                     onChange={(e) => handleOverrideChange(key, e.target.value)}
                   />
                 </label>
               ))}
             </div>
             <div className="m4-sim-actions">
-              <button type="button" className="m4-btn-primary" onClick={applySimulation} disabled={!hasSelectedBreed || !isSimulationDirty}>
+              <button type="button" className="m4-btn-primary" onClick={applyAdvancedSimulation} disabled={!advancedIsDirty}>
                 {t('module4UpdateSimulation')}
               </button>
             </div>
+
+            {showAdvancedUpdatedNotice && (
+              <div className="m4-sim-notice" role="status" aria-live="polite">
+                {t('module4SimulationUpdated')}
+              </div>
+            )}
+
+            {advancedCalculator && (
+              <div className="m4-advanced-results">
+                <h4 className="m4-section-title">{t('module4AdvancedResultsTitle')}</h4>
+                <p className="m4-section-subtitle">{t('module4AdvancedResultsSubtitle')}</p>
+
+                <div className="m4-invest-metrics-grid">
+                  <article className="m4-invest-metric-card m4-invest-metric--cap"><span>{t('module4CardCapAdjusted')}</span><strong>{fmtMoney(advancedCalculator.cap, 2)}</strong></article>
+                  <article className="m4-invest-metric-card m4-invest-metric--generated"><span>{t('module4CardGeneratedAdjusted')}</span><strong>{fmtMoney(advancedCalculator.generated, 2)}</strong></article>
+                  <article className="m4-invest-metric-card m4-invest-metric--net"><span>{t('module4CardNetAdjusted')}</span><strong>{fmtMoney(advancedCalculator.net, 2)}</strong></article>
+                  <article className="m4-invest-metric-card m4-invest-metric--payback"><span>{t('module4CardPaybackAdjusted')}</span><strong>{fmtYears(advancedCalculator.payback, t)}</strong></article>
+                </div>
+
+                <div className="m4-scenario-kpis-strip">
+                  <div className="m4-scenario-kpi">
+                    <span>{t('module4SelectedScenarioLabel')}</span>
+                    <strong>{scenarioLabel(advancedCalculator.scenario, t)}</strong>
+                  </div>
+                  <div className="m4-scenario-kpi">
+                    <span>{t('module4CardRoiAdjusted')}</span>
+                    <strong>{fmtRatioPct(advancedCalculator.roi, 2)}</strong>
+                  </div>
+                  <div className="m4-scenario-kpi">
+                    <span>{t('module4CardAnnualRoiAdjusted')}</span>
+                    <strong>{fmtRatioPct(advancedCalculator.annualROI, 2)}</strong>
+                  </div>
+                </div>
+
+                <div className="m4-advanced-charts-grid">
+                  <div className="m4-invest-chart-wrap">
+                    <h5 className="m4-section-subtitle m4-invest-chart-title">{t('module4AdvancedChartMainTitle')}</h5>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={advancedCalculator.curve}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                        <XAxis dataKey="year" />
+                        <YAxis tickFormatter={compactMoney} />
+                        <Tooltip formatter={(v) => fmtMoney(v, 2)} />
+                        <ReferenceLine y={advancedCalculator.cap} stroke="var(--m4-color-cap)" strokeDasharray="5 5" />
+                        <Line dataKey="valueGenerated" stroke="var(--m4-color-generated)" strokeWidth={3} dot={{ r: 4 }} />
+                        <Line dataKey="accumulatedFlow" stroke="var(--m4-color-gain)" strokeWidth={2.5} dot={{ r: 3 }} />
+                        {advancedCalculator.recovered && <ReferenceDot x={advancedCalculator.breakEvenYear} y={advancedCalculator.cap} r={6} fill="var(--m4-color-payback)" />}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="m4-complementary-chart-card">
+                    <h5 className="m4-section-subtitle">{t('module4AdvancedChartSecondaryTitle')}</h5>
+                    <ResponsiveContainer width="100%" height={260}>
+                      <BarChart data={advancedComplementaryColumns}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartColors.grid} />
+                        <XAxis dataKey="name" />
+                        <YAxis tickFormatter={compactMoney} />
+                        <Tooltip formatter={(v) => fmtMoney(v, 2)} />
+                        <Bar dataKey="value">
+                          {advancedComplementaryColumns.map((c) => <Cell key={c.name} fill={c.color} />)}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {advancedBaseComparison && (
+                  <div className="m4-advanced-compare-card">
+                    <h5 className="m4-section-title">{t('module4AdvancedCompareTitle')}</h5>
+                    <div className="m4-advanced-compare-grid">
+                      <article className="m4-assumption-item">
+                        <span>{t('module4AdvancedCompareRoiBase')}</span>
+                        <strong>{fmtRatioPct(advancedBaseComparison.baseRoi, 2)}</strong>
+                      </article>
+                      <article className="m4-assumption-item">
+                        <span>{t('module4AdvancedCompareRoiCustom')}</span>
+                        <strong>{fmtRatioPct(advancedBaseComparison.customRoi, 2)}</strong>
+                      </article>
+                      <article className="m4-assumption-item">
+                        <span>{t('module4AdvancedCompareGainBase')}</span>
+                        <strong>{fmtMoney(advancedBaseComparison.baseNet, 2)}</strong>
+                      </article>
+                      <article className="m4-assumption-item">
+                        <span>{t('module4AdvancedCompareGainCustom')}</span>
+                        <strong>{fmtMoney(advancedBaseComparison.customNet, 2)}</strong>
+                      </article>
+                    </div>
+                    <p className="m4-advanced-compare-highlight">
+                      {advancedBaseComparison.improvementPct == null
+                        ? t('module4AdvancedCompareUnavailable')
+                        : advancedBaseComparison.improvementPct > 0
+                          ? t('module4AdvancedCompareImproved', { value: `${advancedBaseComparison.improvementPct >= 0 ? '+' : ''}${fmt(advancedBaseComparison.improvementPct, 2)}%` })
+                          : advancedBaseComparison.improvementPct < 0
+                            ? t('module4AdvancedCompareDeclined', { value: `${fmt(Math.abs(advancedBaseComparison.improvementPct), 2)}%` })
+                            : t('module4AdvancedCompareNeutral')}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </section>
         </>
       )}

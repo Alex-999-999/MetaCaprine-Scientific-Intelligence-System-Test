@@ -345,6 +345,168 @@
   margin-bottom: 14px;
 }
 
+.m4-tool-title {
+  font-size: clamp(1.08rem, 1.1vw, 1.28rem);
+  font-weight: 900;
+  letter-spacing: 0.01em;
+}
+
+.m4-tool-title--base {
+  color: color-mix(in oklab, var(--m4-color-info) 74%, var(--text-primary));
+}
+
+.m4-tool-title--advanced {
+  color: color-mix(in oklab, #0f766e 78%, var(--text-primary));
+}
+
+.m4-tool-card-base {
+  position: relative;
+  border: 1px solid color-mix(in oklab, var(--m4-color-info) 34%, var(--border-color));
+  box-shadow: 0 10px 22px rgba(2, 6, 23, 0.06);
+  background: linear-gradient(180deg, color-mix(in oklab, var(--m4-color-info) 8%, transparent), var(--bg-primary, #fff) 46%);
+}
+
+.m4-tool-card-base::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 4px;
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(90deg, var(--m4-color-info), #60a5fa);
+}
+
+.m4-submodule-card {
+  margin-top: 42px;
+  border: 1px solid color-mix(in oklab, var(--m4-color-info) 28%, var(--border-color));
+  box-shadow: 0 14px 28px rgba(2, 6, 23, 0.08);
+  position: relative;
+}
+
+.m4-tool-card-advanced {
+  border: 1px solid color-mix(in oklab, #0f766e 34%, var(--border-color));
+  box-shadow: 0 16px 30px rgba(2, 6, 23, 0.12);
+  background: linear-gradient(180deg, color-mix(in oklab, #0f766e 10%, transparent), var(--bg-primary, #fff) 44%);
+}
+
+.m4-submodule-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 4px;
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(90deg, #0f766e, #14b8a6);
+}
+
+.m4-submodule-header {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.m4-tool-identity {
+  margin: 6px 0 4px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.m4-tool-identity--base {
+  color: var(--m4-color-info);
+}
+
+.m4-tool-identity--advanced {
+  color: #0f766e;
+}
+
+.m4-pro-badge-advanced {
+  background: linear-gradient(135deg, #1d4ed8, #0f766e);
+  box-shadow: 0 3px 10px rgba(13, 148, 136, 0.35);
+}
+
+.m4-tool-separator-card {
+  margin-top: 34px;
+  border: 1px dashed color-mix(in oklab, var(--m4-color-info) 32%, var(--border-color));
+  background: linear-gradient(180deg, color-mix(in oklab, var(--m4-color-info) 8%, transparent), var(--bg-primary, #fff) 55%);
+}
+
+.m4-tool-separator-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.m4-tool-separator-item {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-primary, #fff);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.m4-tool-separator-item strong {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.m4-tool-separator-item span {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.m4-tool-separator-item--base {
+  border-left: 4px solid var(--m4-color-info);
+}
+
+.m4-tool-separator-item--advanced {
+  border-left: 4px solid #0f766e;
+}
+
+.m4-advanced-results {
+  margin-top: 14px;
+  border-top: 1px dashed var(--border-color);
+  padding-top: 12px;
+}
+
+.m4-advanced-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.m4-advanced-compare-card {
+  margin-top: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-primary, #fff);
+  padding: 12px;
+}
+
+.m4-advanced-compare-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.m4-advanced-compare-highlight {
+  margin: 10px 0 0;
+  padding: 9px 10px;
+  border-left: 4px solid var(--m4-color-positive);
+  background: color-mix(in oklab, var(--m4-color-positive) 14%, transparent);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
 .m4-override-field {
   display: flex;
   flex-direction: column;
@@ -1502,6 +1664,13 @@
   font-weight: 700;
 }
 
+.m4-chart-controls-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 340px);
+  gap: 10px;
+  margin: 0 0 12px;
+}
+
 .m4-recovery-message {
   margin: 12px 0 4px;
   padding: 10px 12px;
@@ -1510,6 +1679,52 @@
   border-radius: 8px;
   font-size: 0.9rem;
   color: var(--text-primary);
+}
+
+.m4-assumptions-card {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--bg-secondary, #f8fafc) 70%, transparent);
+}
+
+.m4-assumptions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.m4-assumption-item {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-primary, #fff);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.m4-assumption-item span {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.m4-assumption-item strong {
+  color: var(--text-primary);
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.m4-assumption-item--wide {
+  grid-column: 1 / -1;
+}
+
+.m4-assumptions-footnote {
+  margin: 10px 0 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
 }
 
 .m4-profile-bars {

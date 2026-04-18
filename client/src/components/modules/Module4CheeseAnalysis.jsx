@@ -90,11 +90,6 @@ export default function Module4CheeseAnalysis() {
     [metricView]
   );
 
-  const topMetricValue = useMemo(() => {
-    if (!ranking.length) return 0;
-    return ranking.reduce((max, item) => Math.max(max, metricValue(item)), 0);
-  }, [ranking, metricValue]);
-
   const topCheese = ranking[0]?.lifetime_cheese_kg || 0;
   const top4 = ranking.slice(0, 4);
 
@@ -114,9 +109,8 @@ export default function Module4CheeseAnalysis() {
       .map((item, index) => ({
         ...item,
         rank: index + 1,
-        pct: topMetricValue > 0 ? (item.value / topMetricValue) * 100 : 0,
       }));
-  }, [ranking, metricValue, topMetricValue]);
+  }, [ranking, metricValue]);
 
   const breedA = compareA != null ? byId.get(compareA) : null;
   const breedB = compareB != null ? byId.get(compareB) : null;
@@ -209,16 +203,13 @@ export default function Module4CheeseAnalysis() {
           <ResponsiveContainer width="100%" height={500}>
             <BarChart layout="vertical" data={chartData} barCategoryGap="36%" margin={{ top: 14, right: 28, left: 28, bottom: 14 }}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-              <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${fmt(Number(v), 2)}%`} tick={{ fontSize: 12, fontWeight: 600 }} />
+              <XAxis type="number" tickFormatter={(v) => `${fmt(Number(v), 2)} ${metricMeta.unit}`} tick={{ fontSize: 12, fontWeight: 600 }} />
               <YAxis type="category" dataKey="shortName" width={220} tick={{ fontSize: 12, fontWeight: 600 }} />
               <Tooltip
-                formatter={(value, name) => {
-                  if (name === 'pct') return [`${fmt(Number(value), 2)}%`, t('module4CheeseRelativePerformance')];
-                  return [`${fmt(value, 2)} ${metricMeta.unit}`, metricMeta.label];
-                }}
+                formatter={(value) => [`${fmt(value, 2)} ${metricMeta.unit}`, metricMeta.label]}
                 labelFormatter={(label, payload) => payload?.[0]?.payload?.name || label}
               />
-              <Bar dataKey="pct" name={metricMeta.label} radius={[0, 8, 8, 0]}>
+              <Bar dataKey="value" name={metricMeta.label} radius={[0, 8, 8, 0]}>
                 {chartData.map((entry) => {
                   const color = entry.rank <= 4 ? TOP4_COLORS[entry.rank - 1] : NEUTRAL_BAR;
                   return <Cell key={entry.id} fill={color} />;
@@ -317,8 +308,6 @@ export default function Module4CheeseAnalysis() {
         <div className="m4-cheese-top3-grid">
           {top4.map((item, idx) => {
             const yieldL = Number(item.cheese_yield_liters_per_kg) || 0;
-            const milkLact = Number(item.milk_per_lactation_kg) || 0;
-            const cheeseLact = yieldL > 0 ? milkLact / yieldL : 0;
             return (
               <article key={item.id} className="m4-cheese-top3-item">
                 <div className="m4-cheese-top3-rank" style={{ color: TOP4_COLORS[idx] || TOP4_COLORS[3] }}>
@@ -332,7 +321,6 @@ export default function Module4CheeseAnalysis() {
                 </div>
                 <div className="m4-cheese-top3-value">{fmt(item.lifetime_cheese_kg, 2)} kg</div>
                 <div className="m4-cheese-top3-detail">{t('module4CheeseYieldLPerKg')}: {fmt(yieldL, 2)}</div>
-                <div className="m4-cheese-top3-detail">{t('module4CheesePerLactationLabel') || 'Cheese/lactation'}: {fmt(cheeseLact, 2)} kg</div>
                 <div className="m4-cheese-top3-percent">
                   {topCheese > 0 ? `${fmt((Number(item.lifetime_cheese_kg) / Number(topCheese)) * 100, 2)}%` : '0%'}
                 </div>
