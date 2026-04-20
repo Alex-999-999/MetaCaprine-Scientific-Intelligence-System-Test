@@ -4492,11 +4492,43 @@ label {
   border-left: 4px solid #ef4444;
 }
 
+.module5-primary-actions {
+  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .module5-card-subtext {
   margin: 4px 0 14px 0;
   color: var(--text-secondary);
   font-size: 0.92rem;
   line-height: 1.45;
+}
+
+.module5-case-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 12px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+}
+
+.module5-case-toolbar-select {
+  min-width: 240px;
+  flex: 1;
+}
+
+.module5-case-toolbar-select label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
 }
 
 .module5-field-hint {
@@ -4633,6 +4665,28 @@ label {
   margin-top: 10px;
   text-align: center;
   color: var(--text-secondary);
+}
+
+.module5-progress-caption-secondary {
+  margin-top: 4px;
+  font-size: 0.86rem;
+}
+
+.module5-progress-marker {
+  position: absolute;
+  top: -22px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.module5-progress-marker span {
+  display: inline-flex;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.88);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .module5-calendar-header {
@@ -4851,7 +4905,7 @@ label {
 
 .module5-stage-content {
   display: grid;
-  grid-template-columns: minmax(220px, 280px) 1fr;
+  grid-template-columns: 1fr;
   gap: 14px;
   margin-bottom: 12px;
 }
@@ -4860,12 +4914,13 @@ label {
   position: relative;
   border: 1px solid var(--border-color);
   background: #fff;
-  padding: 10px;
+  padding: 12px;
   display: flex;
+  justify-content: center;
 }
 
 .module5-stage-illustration {
-  width: 100%;
+  width: min(100%, 620px);
   height: auto;
   display: block;
 }
@@ -4894,7 +4949,7 @@ label {
 
 .module5-stage-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -4932,6 +4987,129 @@ label {
 
 .module5-stage-topic--management {
   border-left: 3px solid #2563eb;
+}
+
+.module5-stage-topic--alerts {
+  border-left: 3px solid #dc2626;
+}
+
+.module5-basic-stage-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.module5-basic-stage-pill {
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--stage-accent, #64748b);
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 3px;
+}
+
+.module5-basic-stage-pill strong {
+  font-size: 0.87rem;
+}
+
+.module5-basic-stage-pill span {
+  font-size: 0.79rem;
+  color: var(--text-secondary);
+}
+
+.module5-basic-stage-pill.is-current {
+  box-shadow: inset 0 0 0 1px var(--stage-accent, #3b82f6);
+}
+
+.module5-inside-doe-text {
+  margin: 0;
+  color: var(--text-primary);
+  line-height: 1.55;
+}
+
+.module5-calendar-feed {
+  margin-top: 12px;
+}
+
+.module5-calendar-feed h3 {
+  margin: 0 0 8px 0;
+  font-size: 0.94rem;
+}
+
+.module5-calendar-feed-list {
+  display: grid;
+  gap: 8px;
+}
+
+.module5-calendar-feed-item {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--bg-secondary);
+}
+
+.module5-calendar-feed-item strong {
+  display: block;
+  font-size: 0.79rem;
+  color: var(--text-tertiary);
+}
+
+.module5-calendar-feed-item p {
+  margin: 4px 0 0 0;
+  font-size: 0.86rem;
+  color: var(--text-primary);
+}
+
+.module5-next10-checklist {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.module5-next10-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, #22c55e 10%, transparent);
+  color: var(--text-primary);
+  font-size: 0.86rem;
+}
+
+.module5-week-narrative {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.module5-history-table-wrap {
+  overflow-x: auto;
+}
+
+.module5-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 520px;
+}
+
+.module5-history-table th,
+.module5-history-table td {
+  border-bottom: 1px solid var(--border-color);
+  padding: 10px 8px;
+  text-align: left;
+  font-size: 0.88rem;
+}
+
+.module5-history-table th {
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
 }
 
 .module5-legal-note {
@@ -5095,8 +5273,26 @@ label {
   background: rgba(100, 116, 139, 0.35);
 }
 
+.dark-mode .module5-progress-marker span {
+  background: rgba(30, 41, 59, 0.95);
+}
+
 .dark-mode .module5-calendar-events {
   background: rgba(96, 165, 250, 0.22);
+}
+
+.dark-mode .module5-next10-item {
+  background: rgba(34, 197, 94, 0.18);
+  border-color: rgba(74, 222, 128, 0.36);
+}
+
+.dark-mode .module5-stage-illustration-wrap {
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.dark-mode .module5-case-toolbar {
+  background: rgba(15, 23, 42, 0.42);
+  border-color: rgba(148, 163, 184, 0.35);
 }
 
 .dark-mode .module5-calendar-event-count,
@@ -5123,6 +5319,15 @@ label {
 
   .module5-stage-grid {
     grid-template-columns: 1fr;
+  }
+
+  .module5-basic-stage-row {
+    grid-template-columns: 1fr;
+  }
+
+  .module5-case-toolbar {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .module5-calendar-weekday {

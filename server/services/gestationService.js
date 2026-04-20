@@ -108,6 +108,7 @@ export async function ensureGestationTable(pool) {
           id SERIAL PRIMARY KEY,
           scenario_id INTEGER NOT NULL REFERENCES scenarios(id) ON DELETE CASCADE,
           service_date DATE NOT NULL,
+          service_type VARCHAR(40) DEFAULT 'natural',
           breed_key TEXT,
           gestation_days INTEGER NOT NULL DEFAULT 150,
           doe_count INTEGER NOT NULL DEFAULT 1,
@@ -122,6 +123,7 @@ export async function ensureGestationTable(pool) {
         )
       `);
       await pool.query('CREATE INDEX IF NOT EXISTS idx_gestations_service_date ON gestations(service_date)');
+      await pool.query("ALTER TABLE gestations ADD COLUMN IF NOT EXISTS service_type VARCHAR(40) DEFAULT 'natural'");
 
       await pool.query(`
         CREATE TABLE IF NOT EXISTS gestation_events (
@@ -177,6 +179,28 @@ export async function ensureGestationTable(pool) {
         )
       `);
       await pool.query('CREATE INDEX IF NOT EXISTS idx_user_alerts_alert_date ON user_alerts(alert_date)');
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS gestation_cases (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          scenario_id INTEGER NOT NULL REFERENCES scenarios(id) ON DELETE CASCADE,
+          animal_id TEXT NOT NULL,
+          service_type VARCHAR(40) DEFAULT 'natural',
+          status VARCHAR(20) DEFAULT 'active',
+          current_day INTEGER DEFAULT 0,
+          probable_birth_date DATE,
+          risk_band VARCHAR(20),
+          risk_score NUMERIC(6,2),
+          form_data JSONB,
+          timeline_data JSONB,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE (user_id, scenario_id, animal_id)
+        )
+      `);
+      await pool.query('CREATE INDEX IF NOT EXISTS idx_gestation_cases_user_scenario ON gestation_cases(user_id, scenario_id)');
+      await pool.query('CREATE INDEX IF NOT EXISTS idx_gestation_cases_birth_date ON gestation_cases(probable_birth_date)');
     })().catch((error) => {
       // Allow retry on next request if initialization failed.
       ensureGestationTablePromise = null;
@@ -228,11 +252,12 @@ export async function saveGestationData(
   } else {
     const gestationResult = await pool.query(
       `INSERT INTO gestations (
-        scenario_id, service_date, breed_key, gestation_days, doe_count, expected_kids_per_doe,
+        scenario_id, service_date, service_type, breed_key, gestation_days, doe_count, expected_kids_per_doe,
         pregnancy_loss_pct, reminder_window_days, management_level, notes
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
       ON CONFLICT (scenario_id) DO UPDATE SET
         service_date = EXCLUDED.service_date,
+        service_type = EXCLUDED.service_type,
         breed_key = EXCLUDED.breed_key,
         gestation_days = EXCLUDED.gestation_days,
         doe_count = EXCLUDED.doe_count,
@@ -246,6 +271,7 @@ export async function saveGestationData(
       [
         scenarioId,
         serviceDate,
+        gestationData?.service_type || 'natural',
         gestationData?.breed_key || null,
         Number(gestationData?.gestation_days) || 150,
         Number(gestationData?.doe_count) || 1,
@@ -378,4 +404,87 @@ export async function getGestationDataByScenarioId(pool, scenarioId) {
     gestationData: row?.gestation_data || null,
     calculatedGestationTimeline: row?.calculated_gestation_timeline || null,
   };
+}
+
+function normalizeGestationCaseRow(row) {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    scenarioId: row.scenario_id,
+    animalId: row.animal_id,
+    serviceType: row.service_type || 'natural',
+    status: row.status || 'active',
+    currentDay: Number(row.current_day) || 0,
+    probableBirthDate: row.probable_birth_date || null,
+    riskBand: row.risk_band || null,
+    riskScore: row.risk_score !== null && row.risk_score !== undefined ? Number(row.risk_score) : null,
+    formData: row.form_data || null,
+    timelineData: row.timeline_data || null,
+    updatedAt: row.updated_at || null,
+    createdAt: row.created_at || null,
+  };
+}
+
+export async function listGestationCases(pool, scenarioId, userId) {
+  await ensureGestationTable(pool);
+  const result = await pool.query(
+    `SELECT *
+     FROM gestation_cases
+     WHERE scenario_id = $1 AND user_id = $2
+     ORDER BY updated_at DESC, id DESC`,
+    [scenarioId, userId]
+  );
+  return result.rows.map(normalizeGestationCaseRow);
+}
+
+export async function saveGestationCase(pool, scenarioId, userId, payload = {}) {
+  await ensureGestationTable(pool);
+
+  const animalId = String(payload?.animalId || payload?.formData?.animal_id || '').trim();
+  if (!animalId) {
+    throw new Error('Animal ID is required to save a gestation case');
+  }
+
+  const serviceType = String(payload?.serviceType || payload?.formData?.service_type || 'natural').trim() || 'natural';
+  const status = String(payload?.status || 'active').trim() || 'active';
+  const timeline = payload?.calculatedGestationTimeline || null;
+  const probableBirthDate = normalizeDateInput(payload?.probableBirthDate || timeline?.birthDate);
+  const currentDay = Number(payload?.currentDay ?? timeline?.daysFromMating ?? 0);
+  const riskBand = payload?.riskBand || timeline?.riskBand || null;
+  const riskScoreRaw = payload?.riskScore ?? timeline?.riskScore;
+  const riskScore = Number.isFinite(Number(riskScoreRaw)) ? Number(riskScoreRaw) : null;
+  const formData = payload?.formData || null;
+
+  const result = await pool.query(
+    `INSERT INTO gestation_cases (
+      user_id, scenario_id, animal_id, service_type, status,
+      current_day, probable_birth_date, risk_band, risk_score, form_data, timeline_data
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+    ON CONFLICT (user_id, scenario_id, animal_id) DO UPDATE SET
+      service_type = EXCLUDED.service_type,
+      status = EXCLUDED.status,
+      current_day = EXCLUDED.current_day,
+      probable_birth_date = EXCLUDED.probable_birth_date,
+      risk_band = EXCLUDED.risk_band,
+      risk_score = EXCLUDED.risk_score,
+      form_data = EXCLUDED.form_data,
+      timeline_data = EXCLUDED.timeline_data,
+      updated_at = CURRENT_TIMESTAMP
+    RETURNING *`,
+    [
+      userId,
+      scenarioId,
+      animalId,
+      serviceType,
+      status,
+      Number.isFinite(currentDay) ? Math.max(0, Math.round(currentDay)) : 0,
+      probableBirthDate,
+      riskBand,
+      riskScore,
+      JSON.stringify(formData),
+      JSON.stringify(timeline),
+    ]
+  );
+
+  return normalizeGestationCaseRow(result.rows[0]);
 }

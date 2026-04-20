@@ -9,6 +9,8 @@ const DAY_MS = 1000 * 60 * 60 * 24;
 
 const DEFAULT_FORM_DATA = {
   mating_date: '',
+  service_type: 'natural',
+  animal_id: '',
   breed_key: '',
   gestation_days: 150,
   doe_count: 1,
@@ -39,6 +41,13 @@ const dateKey = (date) => {
   return `${y}-${m}-${d}`;
 };
 
+const escapeHtml = (value) => String(value ?? '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
 const mergeFormData = (raw) => {
   const source = raw && typeof raw === 'object' ? raw : {};
   return {
@@ -59,7 +68,6 @@ function Module5Gestation({ user }) {
   const scenarioId = location.state?.scenarioId;
   const isProUser = ['pro', 'pro_user', 'premium', 'admin'].includes(String(user?.role || '').toLowerCase());
   const hasModule5FullAccess = isProUser || (Array.isArray(user?.features) && (
-    user.features.includes('module5') ||
     user.features.includes('advanced_calculations') ||
     user.features.includes('gestation_advanced')
   ));
@@ -73,6 +81,8 @@ function Module5Gestation({ user }) {
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: '', type: 'success' });
   const [calendarCursor, setCalendarCursor] = useState(() => new Date());
   const [selectedStageKey, setSelectedStageKey] = useState('early');
+  const [savedCases, setSavedCases] = useState([]);
+  const [selectedCaseId, setSelectedCaseId] = useState('');
 
   const formatDate = useCallback((date) => {
     if (!date) return '';
@@ -309,22 +319,49 @@ function Module5Gestation({ user }) {
           : scenario.gestationData;
         setFormData(mergeFormData(parsed));
       } else {
-        setFormData(DEFAULT_FORM_DATA);
+        setFormData(mergeFormData({
+          ...DEFAULT_FORM_DATA,
+          animal_id: scenario?.name || '',
+        }));
       }
     } catch (error) {
       console.error('Error loading scenario:', error);
     }
   }, []);
 
+  const loadSavedCases = useCallback(async (id) => {
+    if (!hasModule5FullAccess || !id) {
+      setSavedCases([]);
+      setSelectedCaseId('');
+      return;
+    }
+    try {
+      const response = await api.get(`/modules/gestation-cases/${id}`);
+      const cases = Array.isArray(response.data?.cases) ? response.data.cases : [];
+      setSavedCases(cases);
+      if (!selectedCaseId && cases.length > 0) {
+        setSelectedCaseId(String(cases[0].id));
+        if (cases[0].formData) {
+          setFormData(mergeFormData(cases[0].formData));
+        }
+      }
+    } catch (error) {
+      console.error('Error loading gestation cases:', error);
+      setSavedCases([]);
+      setSelectedCaseId('');
+    }
+  }, [hasModule5FullAccess, selectedCaseId]);
+
   useEffect(() => {
     const initialize = async () => {
       await Promise.all([loadScenarios(), loadBreeds()]);
       if (scenarioId) {
         await loadScenario(scenarioId);
+        await loadSavedCases(parseInt(scenarioId, 10));
       }
     };
     initialize();
-  }, [loadBreeds, loadScenario, loadScenarios, scenarioId]);
+  }, [loadBreeds, loadSavedCases, loadScenario, loadScenarios, scenarioId]);
 
   useEffect(() => {
     if (formData.mating_date) {
@@ -336,6 +373,12 @@ function Module5Gestation({ user }) {
   useEffect(() => {
     calculateGestationTimeline();
   }, [calculateGestationTimeline]);
+
+  useEffect(() => {
+    if (selectedScenario?.id) {
+      loadSavedCases(selectedScenario.id);
+    }
+  }, [loadSavedCases, selectedScenario?.id]);
 
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -374,6 +417,70 @@ function Module5Gestation({ user }) {
       setLoading(false);
     }
   }, [calculatedData, formData, selectedScenario, t]);
+
+  const handleLockedProAction = useCallback(() => {
+    setAlertModal({
+      isOpen: true,
+      message: `${t('module5ProCopyMain')} ${t('module5ProCopySub')}`,
+      type: 'info',
+    });
+  }, [t]);
+
+  const handleSaveCase = useCallback(async () => {
+    if (!hasModule5FullAccess) {
+      handleLockedProAction();
+      return;
+    }
+    if (!calculatedData) {
+      setAlertModal({
+        isOpen: true,
+        message: t('module5PdfNoData'),
+        type: 'info',
+      });
+      return;
+    }
+    await handleSave();
+    if (selectedScenario && calculatedData) {
+      try {
+        const payloadFormData = mergeFormData(formData);
+        const response = await api.post(`/modules/gestation-cases/${selectedScenario.id}`, {
+          animalId: (payloadFormData.animal_id || '').trim() || selectedScenario.name || `Animal-${selectedScenario.id}`,
+          serviceType: payloadFormData.service_type || 'natural',
+          status: 'active',
+          formData: payloadFormData,
+          calculatedGestationTimeline: calculatedData,
+        });
+        setSelectedCaseId(String(response.data?.case?.id || ''));
+        await loadSavedCases(selectedScenario.id);
+      } catch (error) {
+        console.error('Error saving gestation case:', error);
+        setAlertModal({
+          isOpen: true,
+          message: error.response?.data?.error || t('errorSaving'),
+          type: 'error',
+        });
+      }
+    }
+  }, [calculatedData, formData, handleLockedProAction, handleSave, hasModule5FullAccess, loadSavedCases, selectedScenario, t]);
+
+  const handleSelectSavedCase = useCallback((caseId) => {
+    setSelectedCaseId(caseId);
+    const selected = savedCases.find((item) => String(item.id) === String(caseId));
+    if (selected?.formData) {
+      setFormData(mergeFormData(selected.formData));
+    }
+  }, [savedCases]);
+
+  const handleNewAnimalCase = useCallback(() => {
+    setSelectedCaseId('');
+    setFormData((prev) => mergeFormData({
+      ...DEFAULT_FORM_DATA,
+      mating_date: prev.mating_date || '',
+      breed_key: prev.breed_key || '',
+      gestation_days: prev.gestation_days || DEFAULT_FORM_DATA.gestation_days,
+      service_type: prev.service_type || DEFAULT_FORM_DATA.service_type,
+    }));
+  }, []);
 
   const getAlertColor = useCallback((type) => {
     switch (type) {
@@ -451,6 +558,59 @@ function Module5Gestation({ user }) {
     return Math.round(clamp((calculatedData.daysFromMating / calculatedData.gestationDays) * 100, 0, 100));
   }, [calculatedData]);
 
+  const remainingDays = useMemo(() => {
+    if (!calculatedData) return 0;
+    return Math.max(0, calculatedData.gestationDays - calculatedData.daysFromMating);
+  }, [calculatedData]);
+
+  const operationalStateLabel = useMemo(() => {
+    if (!calculatedData) return '';
+    if (calculatedData.riskBand === 'high') return t('module5OperationalStateCritical');
+    if (calculatedData.riskBand === 'medium') return t('module5OperationalStateAttention');
+    return t('module5OperationalStateStable');
+  }, [calculatedData, t]);
+
+  const dynamicStageMessage = useMemo(() => {
+    if (!calculatedData) return '';
+    const day = Math.max(0, calculatedData.daysFromMating);
+    if (day < 50) return t('module5StageDynamicMessageEarly', { day });
+    if (day < 100) return t('module5StageDynamicMessageMid', { day });
+    return t('module5StageDynamicMessageLate', { day });
+  }, [calculatedData, t]);
+
+  const insideDoeTodayMessage = useMemo(() => {
+    if (!calculatedData) return '';
+    const day = Math.max(0, calculatedData.daysFromMating);
+    if (day < 50) return t('module5InsideDoeEarly', { day });
+    if (day < 100) return t('module5InsideDoeMid', { day });
+    return t('module5InsideDoeLate', { day });
+  }, [calculatedData, t]);
+
+  const nextTenDayEvents = useMemo(() => {
+    if (!calculatedData) return [];
+    return calculatedData.events
+      .filter((event) => event.deltaDays >= 0 && event.deltaDays <= 10)
+      .sort((a, b) => a.date - b.date);
+  }, [calculatedData]);
+
+  const nextTenDayActions = useMemo(() => {
+    if (!calculatedData) return [];
+    const day = Math.max(0, calculatedData.daysFromMating);
+    const stageActions = day < 50
+      ? [t('module5ActionEarly1'), t('module5ActionEarly2')]
+      : day < 100
+        ? [t('module5ActionMid1'), t('module5ActionMid2')]
+        : [t('module5ActionLate1'), t('module5ActionLate2')];
+    return [
+      t('module5ActionWater'),
+      t('module5ActionBodyCondition'),
+      t('module5ActionMinerals'),
+      t('module5ActionBirthKit'),
+      t('module5ActionStress'),
+      ...stageActions,
+    ].filter(Boolean);
+  }, [calculatedData, t]);
+
   useEffect(() => {
     if (calculatedData?.currentStage?.key) {
       setSelectedStageKey(calculatedData.currentStage.key);
@@ -499,9 +659,98 @@ function Module5Gestation({ user }) {
       healthVitamins: t(`module5Stage_${key}_health_vitamins`),
       managementDo: t(`module5Stage_${key}_management_do`),
       managementAvoid: t(`module5Stage_${key}_management_avoid`),
+      alertsMain: t(`module5Stage_${key}_alerts_main`),
+      alertsAction: t(`module5Stage_${key}_alerts_action`),
       illustration: STAGE_ILLUSTRATIONS[key],
     };
   }, [selectedStage, t]);
+
+  const handleDownloadFichaPdf = useCallback(() => {
+    if (!hasModule5FullAccess) {
+      handleLockedProAction();
+      return;
+    }
+    if (!calculatedData) {
+      setAlertModal({
+        isOpen: true,
+        message: t('module5PdfNoData'),
+        type: 'info',
+      });
+      return;
+    }
+
+    const printWindow = window.open('', '_blank', 'width=980,height=760');
+    if (!printWindow) {
+      setAlertModal({
+        isOpen: true,
+        message: t('module5PdfPopupBlocked'),
+        type: 'warning',
+      });
+      return;
+    }
+
+    const scenarioName = (formData.animal_id || '').trim() || selectedScenario?.name || `Scenario ${selectedScenario?.id || '-'}`;
+    const printableServiceType = t(`module5ServiceTypeValue_${formData.service_type || 'natural'}`);
+    const printableActions = nextTenDayActions.slice(0, 6)
+      .map((action) => `<li>${escapeHtml(action)}</li>`)
+      .join('');
+
+    const printableHtml = `
+      <!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>${t('module5PdfTitle')}</title>
+          <style>
+            body { font-family: Arial, sans-serif; color: #0f172a; margin: 24px; }
+            h1 { margin: 0 0 10px 0; color: #0f766e; }
+            h2 { margin: 18px 0 8px 0; font-size: 18px; color: #334155; }
+            .meta { margin: 0 0 18px 0; color: #475569; }
+            .grid { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 10px; }
+            .card { border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; }
+            .label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: .02em; }
+            .value { font-weight: 700; margin-top: 4px; font-size: 16px; }
+            ul { margin: 6px 0 0 18px; }
+            .notes { white-space: pre-wrap; }
+          </style>
+        </head>
+        <body>
+          <h1>${t('module5PdfTitle')}</h1>
+          <p class="meta">${t('module5PdfGeneratedAt')}: ${new Date().toLocaleString()}</p>
+          <div class="grid">
+            <div class="card"><div class="label">${t('module5PdfAnimalId')}</div><div class="value">${escapeHtml(scenarioName)}</div></div>
+            <div class="card"><div class="label">${t('module5PdfServiceType')}</div><div class="value">${escapeHtml(printableServiceType || t('module5PdfNotAvailable'))}</div></div>
+            <div class="card"><div class="label">${t('matingDate')}</div><div class="value">${formatDate(calculatedData.matingDate)}</div></div>
+            <div class="card"><div class="label">${t('probableBirthDate')}</div><div class="value">${formatDate(calculatedData.birthDate)}</div></div>
+            <div class="card"><div class="label">${t('module5CurrentGestationDays')}</div><div class="value">${calculatedData.daysFromMating} ${t('days')}</div></div>
+            <div class="card"><div class="label">${t('module5RiskBand')}</div><div class="value">${t(`module5RiskBand_${calculatedData.riskBand}`)}</div></div>
+            <div class="card"><div class="label">${t('module5RiskIndex')}</div><div class="value">${Math.round(calculatedData.riskScore)} / 100</div></div>
+          </div>
+          <h2>${t('module5Next10DaysTitle')}</h2>
+          <ul>${printableActions}</ul>
+          <h2>${t('notes')}</h2>
+          <div class="card notes">${escapeHtml(formData.notes || t('module5PdfNoNotes'))}</div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.open();
+    printWindow.document.write(printableHtml);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  }, [
+    calculatedData,
+    formData.animal_id,
+    formData.notes,
+    formData.service_type,
+    formatDate,
+    handleLockedProAction,
+    hasModule5FullAccess,
+    nextTenDayActions,
+    selectedScenario,
+    t,
+  ]);
 
   return (
     <div className="container module-compact module5-live-root">
@@ -533,6 +782,7 @@ function Module5Gestation({ user }) {
             if (id) {
               navigate('/module5', { state: { scenarioId: id }, replace: true });
               loadScenario(id);
+              loadSavedCases(id);
             }
           }}
           style={{ marginBottom: '20px' }}
@@ -549,11 +799,58 @@ function Module5Gestation({ user }) {
           <div className="card module5-simulator-card">
             <h2>{t('module5LiveSimulationTitle')}</h2>
             <p className="module5-card-subtext">{t('module5LiveSimulationSubtitle')}</p>
+            {hasModule5FullAccess && (
+              <div className="module5-case-toolbar">
+                <div className="module5-case-toolbar-select">
+                  <label>{t('module5SavedCaseSelector')}</label>
+                  <select
+                    value={selectedCaseId}
+                    onChange={(e) => handleSelectSavedCase(e.target.value)}
+                  >
+                    <option value="">{t('module5SavedCasePlaceholder')}</option>
+                    {savedCases.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.animalId} · {item.currentDay} {t('days')}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={handleNewAnimalCase}
+                >
+                  {t('module5NewAnimalCase')}
+                </button>
+              </div>
+            )}
             <div className="module5-input-grid">
               <div className="form-group">
                 <label>{t('matingDate')}</label>
                 <input type="date" name="mating_date" value={formData.mating_date} onChange={handleInputChange} />
                 <small className="module5-field-hint">{t('matingDateHint')}</small>
+              </div>
+
+              <div className="form-group">
+                <label>{t('module5ServiceType')}</label>
+                <select name="service_type" value={formData.service_type} onChange={handleInputChange}>
+                  <option value="natural">{t('module5ServiceTypeNatural')}</option>
+                  <option value="insemination">{t('module5ServiceTypeInsemination')}</option>
+                  <option value="synchronized">{t('module5ServiceTypeSynchronized')}</option>
+                </select>
+                <small className="module5-field-hint">{t('module5ServiceTypeHint')}</small>
+              </div>
+
+              <div className="form-group">
+                <label>{t('module5AnimalIdLabel')}</label>
+                <input
+                  type="text"
+                  name="animal_id"
+                  value={formData.animal_id}
+                  onChange={handleInputChange}
+                  placeholder={t('module5AnimalIdPlaceholder')}
+                />
+                <small className="module5-field-hint">{t('module5AnimalIdHint')}</small>
               </div>
 
               <div className="form-group">
@@ -638,9 +935,23 @@ function Module5Gestation({ user }) {
               />
             </div>
 
-            <button className="btn btn-secondary" onClick={handleSave} disabled={loading} style={{ marginTop: '15px' }}>
-              {loading ? t('saving') : t('save')}
-            </button>
+            <div className="module5-primary-actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleSaveCase}
+                disabled={loading}
+              >
+                {loading ? t('saving') : t('module5SaveCase')}
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleDownloadFichaPdf}
+              >
+                {t('module5DownloadPdf')}
+              </button>
+            </div>
           </div>
 
           {calculatedData && (
@@ -660,13 +971,21 @@ function Module5Gestation({ user }) {
                     <span>{t('module5CurrentGestationDays')}</span>
                     <strong>{calculatedData.daysFromMating} {t('days')}</strong>
                   </article>
+                  <article className="module5-metric-card module5-metric-card--teal">
+                    <span>{t('module5OperationalState')}</span>
+                    <strong>{operationalStateLabel}</strong>
+                  </article>
+                  <article className="module5-metric-card module5-metric-card--violet">
+                    <span>{t('module5BirthPreparation')}</span>
+                    <strong>{progressPct}%</strong>
+                  </article>
                   {hasModule5FullAccess && (
                     <>
-                      <article className="module5-metric-card module5-metric-card--teal">
+                      <article className="module5-metric-card module5-metric-card--blue">
                         <span>{t('module5ProjectedBirths')}</span>
                         <strong>{calculatedData.projectedBirths.toFixed(1)}</strong>
                       </article>
-                      <article className="module5-metric-card module5-metric-card--violet">
+                      <article className="module5-metric-card module5-metric-card--green">
                         <span>{t('module5ProjectedKids')}</span>
                         <strong>{calculatedData.projectedKids.toFixed(1)}</strong>
                       </article>
@@ -674,16 +993,22 @@ function Module5Gestation({ user }) {
                         <span>{t('module5RiskBand')}</span>
                         <strong>{t(`module5RiskBand_${calculatedData.riskBand}`)}</strong>
                       </article>
+                      <article className="module5-metric-card module5-metric-card--amber">
+                        <span>{t('module5RiskIndex')}</span>
+                        <strong>{Math.round(calculatedData.riskScore)} / 100</strong>
+                      </article>
                     </>
                   )}
                 </div>
+                <p className="module5-interpretation-line">{dynamicStageMessage}</p>
                 {hasModule5FullAccess && <p className="module5-interpretation-line">{interpretationText}</p>}
               </div>
 
               {!hasModule5FullAccess && (
                 <div className="card">
                   <h2>{t('availableForProUsers')}</h2>
-                  <p className="module5-card-subtext">{t('module5ProLockedMain')}</p>
+                  <p className="module5-card-subtext">{t('module5ProCopyMain')}</p>
+                  <p className="module5-card-subtext">{t('module5ProCopySub')}</p>
                   <div className="blocked-preview-grid" style={{ marginTop: '12px', marginBottom: '14px' }}>
                     <div className="blocked-preview-card">
                       <h4>{t('module5LockedFeatureTimeline')}</h4>
@@ -710,11 +1035,43 @@ function Module5Gestation({ user }) {
                   >
                     {progressPct}%
                   </div>
+                  <div className="module5-progress-marker" style={{ left: `${progressPct}%` }}>
+                    <span>{t('module5TodayMarker')}</span>
+                  </div>
                 </div>
                 <p className="module5-progress-caption">
                   {calculatedData.daysFromMating} / {calculatedData.gestationDays} {t('days')}
                 </p>
+                <p className="module5-progress-caption module5-progress-caption-secondary">
+                  {t('module5DaysRemaining', { days: remainingDays })}
+                </p>
               </div>
+
+              {!hasModule5FullAccess && (
+                <>
+                  <div className="card">
+                    <h2>{t('module5BasicTimelineTitle')}</h2>
+                    <p className="module5-card-subtext">{t('module5BasicTimelineSubtitle')}</p>
+                    <div className="module5-basic-stage-row">
+                      {stageTimeline.map((stage) => (
+                        <div
+                          key={stage.key}
+                          className={`module5-basic-stage-pill ${stage.isCurrent ? 'is-current' : ''}`}
+                          style={{ '--stage-accent': stage.riskColor }}
+                        >
+                          <strong>{stage.label}</strong>
+                          <span>{stage.start}-{stage.end} {t('days')}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="card">
+                    <h2>{t('module5InsideDoeTodayTitle')}</h2>
+                    <p className="module5-inside-doe-text">{insideDoeTodayMessage}</p>
+                  </div>
+                </>
+              )}
 
               {hasModule5FullAccess && (
                 <>
@@ -783,6 +1140,14 @@ function Module5Gestation({ user }) {
                                 <li>{selectedStagePedagogy.managementAvoid}</li>
                               </ul>
                             </article>
+
+                            <article className="module5-stage-topic module5-stage-topic--alerts">
+                              <h3>{t('module5AlertsLabel')}</h3>
+                              <ul>
+                                <li>{selectedStagePedagogy.alertsMain}</li>
+                                <li>{selectedStagePedagogy.alertsAction}</li>
+                              </ul>
+                            </article>
                           </div>
                         </div>
                       </div>
@@ -832,16 +1197,35 @@ function Module5Gestation({ user }) {
                         );
                       })}
                     </div>
+                    <div className="module5-calendar-feed">
+                      <h3>{t('module5CalendarFeedTitle')}</h3>
+                      <div className="module5-calendar-feed-list">
+                        {calculatedData.events.map((event) => (
+                          <article key={`calendar-feed-${event.id}`} className={`module5-calendar-feed-item module5-calendar-feed-item--${event.type}`}>
+                            <strong>{formatDate(event.date)}</strong>
+                            <p>{event.title}</p>
+                          </article>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="card">
-                    <h2>{t('module5UpcomingActionsTitle')}</h2>
-                    <p className="module5-card-subtext">{t('module5UpcomingActionsSubtitle', { days: calculatedData.reminderWindowDays })}</p>
-                    {calculatedData.upcomingEvents.length === 0 ? (
+                    <h2>{t('module5Next10DaysTitle')}</h2>
+                    <p className="module5-card-subtext">{t('module5Next10DaysSubtitle')}</p>
+                    <div className="module5-next10-checklist">
+                      {nextTenDayActions.map((action) => (
+                        <div key={action} className="module5-next10-item">
+                          <ModernIcon name="checkCircle" size={13} />
+                          <span>{action}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {nextTenDayEvents.length === 0 ? (
                       <p className="module5-empty-text">{t('module5NoUpcomingEvents')}</p>
                     ) : (
                       <div className="module5-upcoming-list">
-                        {calculatedData.upcomingEvents.map((event) => (
+                        {nextTenDayEvents.map((event) => (
                           <article key={event.id} className={`module5-upcoming-item module5-upcoming-item--${event.type}`}>
                             <div className="module5-upcoming-icon">
                               <ModernIcon name={getAlertIconName(event.type)} size={14} />
@@ -892,6 +1276,9 @@ function Module5Gestation({ user }) {
                               {week.stage}
                             </div>
                           </div>
+                          <p className="module5-week-narrative">
+                            {t(`module5WeekNarrative_${week.stageKey}`, { week: week.week })}
+                          </p>
                           {week.alerts.length > 0 && (
                             <div style={{ marginTop: '10px' }}>
                               {week.alerts.map((alert, idx) => (
@@ -916,6 +1303,11 @@ function Module5Gestation({ user }) {
                         </div>
                       ))}
                     </div>
+                  </div>
+
+                  <div className="card">
+                    <h2>{t('module5InsideDoeTodayTitle')}</h2>
+                    <p className="module5-inside-doe-text">{insideDoeTodayMessage}</p>
                   </div>
 
                   <div className="card">
@@ -955,6 +1347,37 @@ function Module5Gestation({ user }) {
                         </ul>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="card">
+                    <h2>{t('module5SavedCasesTitle')}</h2>
+                    <p className="module5-card-subtext">{t('module5SavedCasesSubtitle')}</p>
+                    {savedCases.length === 0 ? (
+                      <p className="module5-empty-text">{t('module5SavedCasesEmpty')}</p>
+                    ) : (
+                      <div className="module5-history-table-wrap">
+                        <table className="module5-history-table">
+                          <thead>
+                            <tr>
+                              <th>{t('module5HistoryAnimal')}</th>
+                              <th>{t('module5HistoryCurrentDay')}</th>
+                              <th>{t('module5HistoryProbableBirth')}</th>
+                              <th>{t('module5HistoryStatus')}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {savedCases.map((item) => (
+                              <tr key={`saved-case-${item.id}`}>
+                                <td>{item.animalId}</td>
+                                <td>{item.currentDay}</td>
+                                <td>{item.probableBirthDate ? formatDate(item.probableBirthDate) : '-'}</td>
+                                <td>{item.status === 'active' ? t('module5CaseStatusActive') : t('module5CaseStatusArchived')}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
                 </>
               )}

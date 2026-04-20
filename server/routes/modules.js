@@ -5,7 +5,7 @@ import { requireRole } from '../middleware/requireRole.js';
 import { requireEmailVerification } from '../middleware/requireEmailVerification.js';
 import { requireFeature } from '../middleware/requirePlan.js';
 import { hasFeatureAccess } from '../services/planService.js';
-import { saveGestationData } from '../services/gestationService.js';
+import { listGestationCases, saveGestationCase, saveGestationData } from '../services/gestationService.js';
 import { runSimulation } from '../core/simulationEngine.js';
 import { runLactationSimulation } from '../core/lactationEngine.js';
 
@@ -511,6 +511,93 @@ router.post('/gestation/:scenarioId', requireFeature('module5'), async (req, res
     console.error('Error saving gestation data:', error);
     const errorMessage = error.message || 'Internal server error';
     res.status(500).json({ 
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
+// Module 5 PRO: Gestation cases (multi-animal history)
+router.get('/gestation-cases/:scenarioId', requireFeature('module5'), async (req, res) => {
+  try {
+    let pool;
+    try {
+      pool = getPool();
+    } catch (dbError) {
+      console.error('Database connection error:', dbError);
+      return res.status(500).json({
+        error: 'Database connection failed. Please check your environment variables.',
+        details: dbError.message
+      });
+    }
+
+    const scenarioId = parseInt(req.params.scenarioId, 10);
+    if (!(await verifyScenarioOwnership(pool, scenarioId, req.user.userId))) {
+      return res.status(403).json({ error: 'Access denied: Scenario not found or you do not have permission' });
+    }
+
+    const isAdmin = String(req.user?.role || '').toLowerCase() === 'admin';
+    const hasAdvancedAccess = isAdmin
+      || await hasFeatureAccess(req.user.userId, 'advanced_calculations')
+      || await hasFeatureAccess(req.user.userId, 'gestation_advanced');
+    if (!hasAdvancedAccess) {
+      return res.status(403).json({
+        error: 'Feature access required',
+        message: 'Upgrade required for multi-animal history and advanced gestation controls.',
+        feature: 'advanced_calculations',
+        upgrade_required: true,
+      });
+    }
+
+    const cases = await listGestationCases(pool, scenarioId, req.user.userId);
+    res.json({ cases });
+  } catch (error) {
+    console.error('Error listing gestation cases:', error);
+    const errorMessage = error.message || 'Internal server error';
+    res.status(500).json({
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
+router.post('/gestation-cases/:scenarioId', requireFeature('module5'), async (req, res) => {
+  try {
+    let pool;
+    try {
+      pool = getPool();
+    } catch (dbError) {
+      console.error('Database connection error:', dbError);
+      return res.status(500).json({
+        error: 'Database connection failed. Please check your environment variables.',
+        details: dbError.message
+      });
+    }
+
+    const scenarioId = parseInt(req.params.scenarioId, 10);
+    if (!(await verifyScenarioOwnership(pool, scenarioId, req.user.userId))) {
+      return res.status(403).json({ error: 'Access denied: Scenario not found or you do not have permission' });
+    }
+
+    const isAdmin = String(req.user?.role || '').toLowerCase() === 'admin';
+    const hasAdvancedAccess = isAdmin
+      || await hasFeatureAccess(req.user.userId, 'advanced_calculations')
+      || await hasFeatureAccess(req.user.userId, 'gestation_advanced');
+    if (!hasAdvancedAccess) {
+      return res.status(403).json({
+        error: 'Feature access required',
+        message: 'Upgrade required for multi-animal history and advanced gestation controls.',
+        feature: 'advanced_calculations',
+        upgrade_required: true,
+      });
+    }
+
+    const gestationCase = await saveGestationCase(pool, scenarioId, req.user.userId, req.body || {});
+    res.json({ case: gestationCase });
+  } catch (error) {
+    console.error('Error saving gestation case:', error);
+    const errorMessage = error.message || 'Internal server error';
+    res.status(500).json({
       error: errorMessage,
       details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });

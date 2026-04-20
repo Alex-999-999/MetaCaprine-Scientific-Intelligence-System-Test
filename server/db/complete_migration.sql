@@ -351,6 +351,7 @@ CREATE TABLE IF NOT EXISTS gestations (
   id SERIAL PRIMARY KEY,
   scenario_id INTEGER NOT NULL REFERENCES scenarios(id) ON DELETE CASCADE,
   service_date DATE NOT NULL,
+  service_type VARCHAR(40) DEFAULT 'natural',
   breed_key TEXT,
   gestation_days INTEGER NOT NULL DEFAULT 150,
   doe_count INTEGER NOT NULL DEFAULT 1,
@@ -365,6 +366,7 @@ CREATE TABLE IF NOT EXISTS gestations (
 );
 
 CREATE INDEX IF NOT EXISTS idx_gestations_service_date ON gestations(service_date);
+ALTER TABLE gestations ADD COLUMN IF NOT EXISTS service_type VARCHAR(40) DEFAULT 'natural';
 
 CREATE TABLE IF NOT EXISTS gestation_events (
   id SERIAL PRIMARY KEY,
@@ -416,6 +418,27 @@ CREATE TABLE IF NOT EXISTS user_alerts (
 );
 
 CREATE INDEX IF NOT EXISTS idx_user_alerts_alert_date ON user_alerts(alert_date);
+
+CREATE TABLE IF NOT EXISTS gestation_cases (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  scenario_id INTEGER NOT NULL REFERENCES scenarios(id) ON DELETE CASCADE,
+  animal_id TEXT NOT NULL,
+  service_type VARCHAR(40) DEFAULT 'natural',
+  status VARCHAR(20) DEFAULT 'active',
+  current_day INTEGER DEFAULT 0,
+  probable_birth_date DATE,
+  risk_band VARCHAR(20),
+  risk_score NUMERIC(6,2),
+  form_data JSONB,
+  timeline_data JSONB,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, scenario_id, animal_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_gestation_cases_user_scenario ON gestation_cases(user_id, scenario_id);
+CREATE INDEX IF NOT EXISTS idx_gestation_cases_birth_date ON gestation_cases(probable_birth_date);
 
 -- ============================================================================
 -- RESULTS TABLE (Calculated outputs - shared across all modules)
@@ -562,7 +585,7 @@ BEGIN
     'transformation_products', 'breed_reference', 'breed_scenarios',
     'lactation_data', 'breed_profiles', 'lactation_simulations',
     'yield_data', 'gestation_data', 'gestations', 'gestation_events',
-    'gestation_stage_data', 'user_alerts', 'results', 'plans', 'user_plans', 'plan_features'
+    'gestation_stage_data', 'user_alerts', 'gestation_cases', 'results', 'plans', 'user_plans', 'plan_features'
   );
   
   RAISE NOTICE '============================================================================';
@@ -570,8 +593,8 @@ BEGIN
   RAISE NOTICE 'Created/verified % tables', table_count;
   RAISE NOTICE '============================================================================';
   
-  IF table_count < 20 THEN
-    RAISE WARNING 'Expected at least 20 tables, got %. Some tables may not have been created.', table_count;
+  IF table_count < 21 THEN
+    RAISE WARNING 'Expected at least 21 tables, got %. Some tables may not have been created.', table_count;
   END IF;
 END $$;
 
