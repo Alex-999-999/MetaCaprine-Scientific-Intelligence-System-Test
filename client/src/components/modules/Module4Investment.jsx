@@ -688,7 +688,6 @@ export default function Module4Investment() {
                 <div className="m4-reference-time-block">
                   <p>{t('module4ReferenceTimeText', { lactations: fmt(referenceTime.lactations, 2), years: fmt(referenceTime.years, 2) })}</p>
                 </div>
-                <p className="m4-financial-horizon-note">{t('module4FinancialHorizonNote')}</p>
                 <p className="m4-free-milk-only-footnote">{t('module4FreeMilkOnlyFootnote')}</p>
               </>
             )}
@@ -816,7 +815,6 @@ export default function Module4Investment() {
                 <div className="m4-reference-time-block">
                   <p>{t('module4ReferenceTimeText', { lactations: fmt(referenceTime.lactations, 2), years: fmt(referenceTime.years, 2) })}</p>
                 </div>
-                <p className="m4-financial-horizon-note">{t('module4FinancialHorizonNote')}</p>
 
                 <div className="m4-invest-chart-wrap">
                   <h3 className="m4-section-subtitle m4-invest-chart-title">{t('module4InvestmentVsGeneratedChartTitle')} <span className="m4-pro-badge m4-pro-badge-inline">PRO</span></h3>
