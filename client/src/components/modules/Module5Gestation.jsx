@@ -89,6 +89,41 @@ function Module5Gestation({ user }) {
   const [selectedCaseId, setSelectedCaseId] = useState('');
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
+  const normalizeDateForInput = useCallback((value) => {
+    if (!value) return '';
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return '';
+    return parsed.toISOString().slice(0, 10);
+  }, []);
+
+  const buildFormDataFromCase = useCallback((item) => {
+    if (!item || typeof item !== 'object') return null;
+
+    const rawFormData = item.formData && typeof item.formData === 'object'
+      ? item.formData
+      : {};
+
+    const timeline = item.timelineData && typeof item.timelineData === 'object'
+      ? item.timelineData
+      : {};
+
+    const fallbackData = {
+      animal_id: item.animalId || '',
+      service_type: item.serviceType || 'natural',
+      mating_date: normalizeDateForInput(timeline.matingDate || ''),
+      gestation_days: timeline.gestationDays || DEFAULT_FORM_DATA.gestation_days,
+      reminder_window_days: timeline.reminderWindowDays || DEFAULT_FORM_DATA.reminder_window_days,
+    };
+
+    return mergeFormData({
+      ...fallbackData,
+      ...rawFormData,
+      // Keep dates safe for <input type="date">
+      mating_date: normalizeDateForInput(rawFormData.mating_date || fallbackData.mating_date),
+    });
+  }, [normalizeDateForInput]);
+
   const formatDate = useCallback((date) => {
     if (!date) return '';
     const d = new Date(date);
@@ -326,18 +361,28 @@ function Module5Gestation({ user }) {
       const response = await api.get('/modules/gestation-cases');
       const cases = Array.isArray(response.data?.cases) ? response.data.cases : [];
       setSavedCases(cases);
-      if (!selectedCaseId && cases.length > 0) {
-        setSelectedCaseId(String(cases[0].id));
-        if (cases[0].formData) {
-          setFormData(mergeFormData(cases[0].formData));
-        }
+
+      if (cases.length === 0) {
+        setSelectedCaseId('');
+        return;
+      }
+
+      const preferredId = selectedCaseId
+        ? String(selectedCaseId)
+        : String(cases[0].id);
+      const selected = cases.find((item) => String(item.id) === preferredId) || cases[0];
+
+      setSelectedCaseId(String(selected.id));
+      const hydratedForm = buildFormDataFromCase(selected);
+      if (hydratedForm) {
+        setFormData(hydratedForm);
       }
     } catch (error) {
       console.error('Error loading gestation cases:', error);
       setSavedCases([]);
       setSelectedCaseId('');
     }
-  }, [hasModule5FullAccess, selectedCaseId]);
+  }, [buildFormDataFromCase, hasModule5FullAccess, selectedCaseId]);
 
   useEffect(() => {
     const initialize = async () => {
@@ -433,10 +478,11 @@ function Module5Gestation({ user }) {
   const handleSelectSavedCase = useCallback((caseId) => {
     setSelectedCaseId(caseId);
     const selected = savedCases.find((item) => String(item.id) === String(caseId));
-    if (selected?.formData) {
-      setFormData(mergeFormData(selected.formData));
+    const hydratedForm = buildFormDataFromCase(selected);
+    if (hydratedForm) {
+      setFormData(hydratedForm);
     }
-  }, [savedCases]);
+  }, [buildFormDataFromCase, savedCases]);
 
   const handleNewAnimalCase = useCallback(() => {
     setSelectedCaseId('');
@@ -454,10 +500,11 @@ function Module5Gestation({ user }) {
   const handleViewOrEditCase = useCallback((item) => {
     if (!item) return;
     setSelectedCaseId(String(item.id));
-    if (item.formData) {
-      setFormData(mergeFormData(item.formData));
+    const hydratedForm = buildFormDataFromCase(item);
+    if (hydratedForm) {
+      setFormData(hydratedForm);
     }
-  }, []);
+  }, [buildFormDataFromCase]);
 
   const handleDeleteCase = useCallback(async (item) => {
     if (!hasModule5FullAccess) {
