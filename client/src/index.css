@@ -4515,11 +4515,9 @@ label {
 }
 
 .module5-case-toolbar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    "label ."
-    "control button";
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
   gap: 10px 12px;
   margin: 0 0 12px 0;
@@ -4530,11 +4528,10 @@ label {
 }
 
 .module5-case-toolbar-select {
-  display: contents;
+  width: 100%;
 }
 
 .module5-case-toolbar-select label {
-  grid-area: label;
   display: block;
   margin-bottom: 6px;
   font-size: 0.82rem;
@@ -4542,15 +4539,13 @@ label {
 }
 
 .module5-case-toolbar-select select {
-  grid-area: control;
   width: 100%;
 }
 
 .module5-case-toolbar .btn {
-  grid-area: button;
   height: 42px;
   white-space: nowrap;
-  align-self: center;
+  margin: auto;
 }
 
 .module5-field-hint {
@@ -5368,11 +5363,6 @@ label {
   }
 
   .module5-case-toolbar {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "label"
-      "control"
-      "button";
     align-items: stretch;
   }
 
