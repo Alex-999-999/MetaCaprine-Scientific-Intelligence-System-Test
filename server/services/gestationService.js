@@ -212,6 +212,62 @@ export async function ensureGestationTable(pool) {
 }
 
 /**
+ * Resolve a dedicated Module 5 workspace scenario for a user.
+ * This keeps Module 5 persistence independent from scenario selection in the UI.
+ * @param {import('pg').Pool} pool
+ * @param {number} userId
+ * @returns {Promise<{id:number,name:string}>}
+ */
+export async function resolveOrCreateGestationWorkspaceScenario(pool, userId) {
+  await ensureGestationTable(pool);
+
+  const existing = await pool.query(
+    `SELECT id, name
+     FROM scenarios
+     WHERE user_id = $1 AND type = 'gestation'
+     ORDER BY updated_at DESC, id DESC
+     LIMIT 1`,
+    [userId]
+  );
+
+  if (existing.rows.length > 0) {
+    return { id: existing.rows[0].id, name: existing.rows[0].name };
+  }
+
+  const baseName = 'M5 Gestation Workspace';
+  let attempt = 0;
+  // Handle rare name collisions due to UNIQUE(user_id, name)
+  while (attempt < 8) {
+    const suffix = attempt === 0 ? '' : ` ${attempt + 1}`;
+    const candidateName = `${baseName}${suffix}`;
+    try {
+      const created = await pool.query(
+        `INSERT INTO scenarios (user_id, name, type, description)
+         VALUES ($1, $2, 'gestation', $3)
+         RETURNING id, name`,
+        [userId, candidateName, 'Auto-created workspace for Module 5 persistence']
+      );
+      return { id: created.rows[0].id, name: created.rows[0].name };
+    } catch (error) {
+      if (error?.code === '23505') {
+        attempt += 1;
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  const fallbackName = `${baseName} ${Date.now()}`;
+  const created = await pool.query(
+    `INSERT INTO scenarios (user_id, name, type, description)
+     VALUES ($1, $2, 'gestation', $3)
+     RETURNING id, name`,
+    [userId, fallbackName, 'Auto-created workspace for Module 5 persistence']
+  );
+  return { id: created.rows[0].id, name: created.rows[0].name };
+}
+
+/**
  * Save gestation payload for a scenario.
  * @param {import('pg').Pool} pool
  * @param {number} scenarioId
@@ -487,4 +543,15 @@ export async function saveGestationCase(pool, scenarioId, userId, payload = {}) 
   );
 
   return normalizeGestationCaseRow(result.rows[0]);
+}
+
+export async function deleteGestationCase(pool, scenarioId, userId, caseId) {
+  await ensureGestationTable(pool);
+  const result = await pool.query(
+    `DELETE FROM gestation_cases
+     WHERE id = $1 AND scenario_id = $2 AND user_id = $3
+     RETURNING id`,
+    [caseId, scenarioId, userId]
+  );
+  return result.rows[0]?.id || null;
 }

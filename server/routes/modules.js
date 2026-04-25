@@ -5,7 +5,13 @@ import { requireRole } from '../middleware/requireRole.js';
 import { requireEmailVerification } from '../middleware/requireEmailVerification.js';
 import { requireFeature } from '../middleware/requirePlan.js';
 import { hasFeatureAccess } from '../services/planService.js';
-import { listGestationCases, saveGestationCase, saveGestationData } from '../services/gestationService.js';
+import {
+  deleteGestationCase,
+  listGestationCases,
+  resolveOrCreateGestationWorkspaceScenario,
+  saveGestationCase,
+  saveGestationData,
+} from '../services/gestationService.js';
 import { runSimulation } from '../core/simulationEngine.js';
 import { runLactationSimulation } from '../core/lactationEngine.js';
 
@@ -23,6 +29,15 @@ async function verifyScenarioOwnership(pool, scenarioId, userId) {
     [scenarioId, userId]
   );
   return result.rows.length > 0;
+}
+
+async function hasModule5AdvancedAccess(user) {
+  const isAdmin = String(user?.role || '').toLowerCase() === 'admin';
+  if (isAdmin) return true;
+  return (
+    await hasFeatureAccess(user.userId, 'advanced_calculations')
+    || await hasFeatureAccess(user.userId, 'gestation_advanced')
+  );
 }
 
 // Module 1: Production & Sales - Save/Update production data
@@ -478,6 +493,40 @@ router.post('/yield/:scenarioId', requireFeature('module4'), async (req, res) =>
 });
 
 // Module 5: Gestation - Save/Update gestation data
+router.post('/gestation', requireFeature('module5'), async (req, res) => {
+  try {
+    let pool;
+    try {
+      pool = getPool();
+    } catch (dbError) {
+      console.error('Database connection error:', dbError);
+      return res.status(500).json({
+        error: 'Database connection failed. Please check your environment variables.',
+        details: dbError.message
+      });
+    }
+
+    const workspace = await resolveOrCreateGestationWorkspaceScenario(pool, req.user.userId);
+    const { gestationData, calculatedGestationTimeline } = req.body;
+    const saved = await saveGestationData(
+      pool,
+      workspace.id,
+      gestationData,
+      calculatedGestationTimeline,
+      req.user.userId
+    );
+
+    res.json({ ...saved, workspaceScenarioId: workspace.id });
+  } catch (error) {
+    console.error('Error saving gestation data (workspace):', error);
+    const errorMessage = error.message || 'Internal server error';
+    res.status(500).json({
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
 router.post('/gestation/:scenarioId', requireFeature('module5'), async (req, res) => {
   try {
     let pool;
@@ -518,6 +567,42 @@ router.post('/gestation/:scenarioId', requireFeature('module5'), async (req, res
 });
 
 // Module 5 PRO: Gestation cases (multi-animal history)
+router.get('/gestation-cases', requireFeature('module5'), async (req, res) => {
+  try {
+    let pool;
+    try {
+      pool = getPool();
+    } catch (dbError) {
+      console.error('Database connection error:', dbError);
+      return res.status(500).json({
+        error: 'Database connection failed. Please check your environment variables.',
+        details: dbError.message
+      });
+    }
+
+    const hasAdvancedAccess = await hasModule5AdvancedAccess(req.user);
+    if (!hasAdvancedAccess) {
+      return res.status(403).json({
+        error: 'Feature access required',
+        message: 'Upgrade required for multi-animal history and advanced gestation controls.',
+        feature: 'advanced_calculations',
+        upgrade_required: true,
+      });
+    }
+
+    const workspace = await resolveOrCreateGestationWorkspaceScenario(pool, req.user.userId);
+    const cases = await listGestationCases(pool, workspace.id, req.user.userId);
+    res.json({ cases, workspaceScenarioId: workspace.id });
+  } catch (error) {
+    console.error('Error listing gestation cases (workspace):', error);
+    const errorMessage = error.message || 'Internal server error';
+    res.status(500).json({
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
 router.get('/gestation-cases/:scenarioId', requireFeature('module5'), async (req, res) => {
   try {
     let pool;
@@ -536,10 +621,7 @@ router.get('/gestation-cases/:scenarioId', requireFeature('module5'), async (req
       return res.status(403).json({ error: 'Access denied: Scenario not found or you do not have permission' });
     }
 
-    const isAdmin = String(req.user?.role || '').toLowerCase() === 'admin';
-    const hasAdvancedAccess = isAdmin
-      || await hasFeatureAccess(req.user.userId, 'advanced_calculations')
-      || await hasFeatureAccess(req.user.userId, 'gestation_advanced');
+    const hasAdvancedAccess = await hasModule5AdvancedAccess(req.user);
     if (!hasAdvancedAccess) {
       return res.status(403).json({
         error: 'Feature access required',
@@ -553,6 +635,42 @@ router.get('/gestation-cases/:scenarioId', requireFeature('module5'), async (req
     res.json({ cases });
   } catch (error) {
     console.error('Error listing gestation cases:', error);
+    const errorMessage = error.message || 'Internal server error';
+    res.status(500).json({
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
+router.post('/gestation-cases', requireFeature('module5'), async (req, res) => {
+  try {
+    let pool;
+    try {
+      pool = getPool();
+    } catch (dbError) {
+      console.error('Database connection error:', dbError);
+      return res.status(500).json({
+        error: 'Database connection failed. Please check your environment variables.',
+        details: dbError.message
+      });
+    }
+
+    const hasAdvancedAccess = await hasModule5AdvancedAccess(req.user);
+    if (!hasAdvancedAccess) {
+      return res.status(403).json({
+        error: 'Feature access required',
+        message: 'Upgrade required for multi-animal history and advanced gestation controls.',
+        feature: 'advanced_calculations',
+        upgrade_required: true,
+      });
+    }
+
+    const workspace = await resolveOrCreateGestationWorkspaceScenario(pool, req.user.userId);
+    const gestationCase = await saveGestationCase(pool, workspace.id, req.user.userId, req.body || {});
+    res.json({ case: gestationCase, workspaceScenarioId: workspace.id });
+  } catch (error) {
+    console.error('Error saving gestation case (workspace):', error);
     const errorMessage = error.message || 'Internal server error';
     res.status(500).json({
       error: errorMessage,
@@ -579,10 +697,7 @@ router.post('/gestation-cases/:scenarioId', requireFeature('module5'), async (re
       return res.status(403).json({ error: 'Access denied: Scenario not found or you do not have permission' });
     }
 
-    const isAdmin = String(req.user?.role || '').toLowerCase() === 'admin';
-    const hasAdvancedAccess = isAdmin
-      || await hasFeatureAccess(req.user.userId, 'advanced_calculations')
-      || await hasFeatureAccess(req.user.userId, 'gestation_advanced');
+    const hasAdvancedAccess = await hasModule5AdvancedAccess(req.user);
     if (!hasAdvancedAccess) {
       return res.status(403).json({
         error: 'Feature access required',
@@ -596,6 +711,90 @@ router.post('/gestation-cases/:scenarioId', requireFeature('module5'), async (re
     res.json({ case: gestationCase });
   } catch (error) {
     console.error('Error saving gestation case:', error);
+    const errorMessage = error.message || 'Internal server error';
+    res.status(500).json({
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
+router.delete('/gestation-cases/:caseId', requireFeature('module5'), async (req, res) => {
+  try {
+    let pool;
+    try {
+      pool = getPool();
+    } catch (dbError) {
+      console.error('Database connection error:', dbError);
+      return res.status(500).json({
+        error: 'Database connection failed. Please check your environment variables.',
+        details: dbError.message
+      });
+    }
+
+    const caseId = parseInt(req.params.caseId, 10);
+    const hasAdvancedAccess = await hasModule5AdvancedAccess(req.user);
+    if (!hasAdvancedAccess) {
+      return res.status(403).json({
+        error: 'Feature access required',
+        message: 'Upgrade required for multi-animal history and advanced gestation controls.',
+        feature: 'advanced_calculations',
+        upgrade_required: true,
+      });
+    }
+
+    const workspace = await resolveOrCreateGestationWorkspaceScenario(pool, req.user.userId);
+    const deletedId = await deleteGestationCase(pool, workspace.id, req.user.userId, caseId);
+    if (!deletedId) {
+      return res.status(404).json({ error: 'Gestation case not found' });
+    }
+    res.json({ success: true, deletedId, workspaceScenarioId: workspace.id });
+  } catch (error) {
+    console.error('Error deleting gestation case (workspace):', error);
+    const errorMessage = error.message || 'Internal server error';
+    res.status(500).json({
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
+router.delete('/gestation-cases/:scenarioId/:caseId', requireFeature('module5'), async (req, res) => {
+  try {
+    let pool;
+    try {
+      pool = getPool();
+    } catch (dbError) {
+      console.error('Database connection error:', dbError);
+      return res.status(500).json({
+        error: 'Database connection failed. Please check your environment variables.',
+        details: dbError.message
+      });
+    }
+
+    const scenarioId = parseInt(req.params.scenarioId, 10);
+    const caseId = parseInt(req.params.caseId, 10);
+    if (!(await verifyScenarioOwnership(pool, scenarioId, req.user.userId))) {
+      return res.status(403).json({ error: 'Access denied: Scenario not found or you do not have permission' });
+    }
+
+    const hasAdvancedAccess = await hasModule5AdvancedAccess(req.user);
+    if (!hasAdvancedAccess) {
+      return res.status(403).json({
+        error: 'Feature access required',
+        message: 'Upgrade required for multi-animal history and advanced gestation controls.',
+        feature: 'advanced_calculations',
+        upgrade_required: true,
+      });
+    }
+
+    const deletedId = await deleteGestationCase(pool, scenarioId, req.user.userId, caseId);
+    if (!deletedId) {
+      return res.status(404).json({ error: 'Gestation case not found' });
+    }
+    res.json({ success: true, deletedId });
+  } catch (error) {
+    console.error('Error deleting gestation case:', error);
     const errorMessage = error.message || 'Internal server error';
     res.status(500).json({
       error: errorMessage,

@@ -4499,6 +4499,14 @@ label {
   gap: 10px;
 }
 
+.module5-advanced-wrap {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px dashed var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+}
+
 .module5-card-subtext {
   margin: 4px 0 14px 0;
   color: var(--text-secondary);
@@ -5087,6 +5095,15 @@ label {
   line-height: 1.45;
 }
 
+.module5-clinical-list {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+  color: var(--text-primary);
+  line-height: 1.45;
+}
+
 .module5-history-table-wrap {
   overflow-x: auto;
 }
@@ -5094,7 +5111,7 @@ label {
 .module5-history-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 520px;
+  min-width: 760px;
 }
 
 .module5-history-table th,
@@ -5110,6 +5127,12 @@ label {
   font-weight: 700;
   font-size: 0.8rem;
   text-transform: uppercase;
+}
+
+.module5-history-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .module5-legal-note {
@@ -5293,6 +5316,11 @@ label {
 .dark-mode .module5-case-toolbar {
   background: rgba(15, 23, 42, 0.42);
   border-color: rgba(148, 163, 184, 0.35);
+}
+
+.dark-mode .module5-advanced-wrap {
+  background: rgba(15, 23, 42, 0.4);
+  border-color: rgba(148, 163, 184, 0.4);
 }
 
 .dark-mode .module5-calendar-event-count,

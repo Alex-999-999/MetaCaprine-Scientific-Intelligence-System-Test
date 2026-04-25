@@ -1,12 +1,60 @@
-<svg width="520" height="280" viewBox="0 0 520 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Late gestation complete fetus illustration">
-  <rect width="520" height="280" fill="#f8fafc"/>
-  <rect x="24" y="24" width="472" height="232" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
-  <ellipse cx="260" cy="140" rx="170" ry="84" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
-  <path d="M186 156 C180 116, 220 92, 266 92 C316 92, 350 124, 344 164 C338 198, 300 210, 262 210 C224 210, 192 194, 186 156 Z" fill="#fecaca" stroke="#dc2626" stroke-width="2"/>
-  <circle cx="304" cy="126" r="12" fill="#ef4444"/>
-  <path d="M208 190 C228 178, 294 178, 314 190" stroke="#dc2626" stroke-width="3" fill="none"/>
-  <line x1="120" y1="80" x2="152" y2="112" stroke="#dc2626" stroke-width="2"/>
-  <line x1="368" y1="112" x2="400" y2="80" stroke="#dc2626" stroke-width="2"/>
-  <text x="260" y="54" font-family="Arial, sans-serif" font-size="18" fill="#991b1b" text-anchor="middle">Etapa final</text>
-  <text x="260" y="76" font-family="Arial, sans-serif" font-size="14" fill="#991b1b" text-anchor="middle">Preparacion de parto</text>
+﻿<svg width="960" height="540" viewBox="0 0 960 540" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Late gestation biological illustration">
+  <defs>
+    <linearGradient id="bgLate" x1="0" y1="0" x2="960" y2="540" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fef2f2"/>
+      <stop offset="1" stop-color="#fff7ed"/>
+    </linearGradient>
+    <linearGradient id="shellLate" x1="182" y1="120" x2="780" y2="430" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fecaca"/>
+      <stop offset="1" stop-color="#fdba74"/>
+    </linearGradient>
+    <filter id="softShadowLate" x="0" y="0" width="960" height="540" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#7f1d1d" flood-opacity="0.14"/>
+    </filter>
+  </defs>
+
+  <rect width="960" height="540" fill="url(#bgLate)"/>
+
+  <g opacity="0.15" stroke="#b91c1c" stroke-width="1">
+    <path d="M60 110H900"/>
+    <path d="M60 200H900"/>
+    <path d="M60 290H900"/>
+    <path d="M60 380H900"/>
+    <path d="M140 70V470"/>
+    <path d="M320 70V470"/>
+    <path d="M500 70V470"/>
+    <path d="M680 70V470"/>
+    <path d="M860 70V470"/>
+  </g>
+
+  <g filter="url(#softShadowLate)">
+    <rect x="70" y="58" width="820" height="424" rx="24" fill="#ffffff"/>
+  </g>
+
+  <g>
+    <path d="M214 274C214 178 288 114 382 114H585C679 114 753 178 753 274C753 370 679 434 585 434H382C288 434 214 370 214 274Z" fill="url(#shellLate)" stroke="#dc2626" stroke-width="3"/>
+    <path d="M246 274C246 196 305 146 382 146H585C662 146 721 196 721 274C721 352 662 402 585 402H382C305 402 246 352 246 274Z" fill="#fff1f2" stroke="#f97316" stroke-width="2"/>
+
+    <path d="M370 320C354 280 360 236 387 208C422 172 478 160 534 176C580 190 615 226 620 272C624 307 611 338 586 360C559 385 519 398 476 398C430 398 389 378 370 320Z" fill="#fca5a5" stroke="#b91c1c" stroke-width="3"/>
+    <circle cx="556" cy="232" r="14" fill="#ef4444"/>
+    <path d="M416 342C440 360 489 361 515 340" stroke="#991b1b" stroke-width="5" stroke-linecap="round"/>
+    <path d="M388 300C374 286 366 268 365 248" stroke="#b91c1c" stroke-width="5" stroke-linecap="round"/>
+    <path d="M586 312C600 297 607 278 607 258" stroke="#b91c1c" stroke-width="5" stroke-linecap="round"/>
+    <path d="M436 384C456 372 520 372 542 384" stroke="#b91c1c" stroke-width="4" stroke-linecap="round"/>
+
+    <path d="M304 336H660" stroke="#fb7185" stroke-width="3" stroke-dasharray="8 8"/>
+  </g>
+
+  <g>
+    <rect x="108" y="88" width="232" height="64" rx="12" fill="#7f1d1d"/>
+    <text x="124" y="126" fill="#fff1f2" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">DAYS 100-150</text>
+    <text x="626" y="126" fill="#991b1b" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600">Final fetal stage</text>
+  </g>
+
+  <g>
+    <line x1="180" y1="462" x2="780" y2="462" stroke="#fda4af" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="250" cy="462" r="10" fill="#fecdd3" stroke="#dc2626" stroke-width="3"/>
+    <circle cx="480" cy="462" r="10" fill="#fecdd3" stroke="#dc2626" stroke-width="3"/>
+    <circle cx="710" cy="462" r="14" fill="#dc2626"/>
+  </g>
 </svg>
