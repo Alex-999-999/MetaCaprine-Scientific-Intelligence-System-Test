@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { useI18n } from '../../i18n/I18nContext';
@@ -87,6 +87,7 @@ function Module5Gestation({ user }) {
   const [selectedStageKey, setSelectedStageKey] = useState('early');
   const [savedCases, setSavedCases] = useState([]);
   const [selectedCaseId, setSelectedCaseId] = useState('');
+  const selectedCaseIdRef = useRef('');
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
   const normalizeDateForInput = useCallback((value) => {
@@ -351,7 +352,11 @@ function Module5Gestation({ user }) {
     }
   }, []);
 
-  const loadSavedCases = useCallback(async () => {
+  useEffect(() => {
+    selectedCaseIdRef.current = selectedCaseId ? String(selectedCaseId) : '';
+  }, [selectedCaseId]);
+
+  const loadSavedCases = useCallback(async (preferredCaseId = null) => {
     if (!hasModule5FullAccess) {
       setSavedCases([]);
       setSelectedCaseId('');
@@ -367,12 +372,24 @@ function Module5Gestation({ user }) {
         return;
       }
 
-      const preferredId = selectedCaseId
-        ? String(selectedCaseId)
-        : String(cases[0].id);
-      const selected = cases.find((item) => String(item.id) === preferredId) || cases[0];
+      const requestedId = preferredCaseId != null
+        ? String(preferredCaseId)
+        : selectedCaseIdRef.current;
 
-      setSelectedCaseId(String(selected.id));
+      // Keep the selector stable: do not auto-jump to another case
+      // if the user is in "new case" mode or no case is explicitly selected.
+      if (!requestedId) {
+        setSelectedCaseId('');
+        return;
+      }
+
+      const selected = cases.find((item) => String(item.id) === requestedId);
+      if (!selected) {
+        setSelectedCaseId('');
+        return;
+      }
+
+      setSelectedCaseId(requestedId);
       const hydratedForm = buildFormDataFromCase(selected);
       if (hydratedForm) {
         setFormData(hydratedForm);
@@ -382,7 +399,7 @@ function Module5Gestation({ user }) {
       setSavedCases([]);
       setSelectedCaseId('');
     }
-  }, [buildFormDataFromCase, hasModule5FullAccess, selectedCaseId]);
+  }, [buildFormDataFromCase, hasModule5FullAccess]);
 
   useEffect(() => {
     const initialize = async () => {
@@ -463,8 +480,11 @@ function Module5Gestation({ user }) {
         formData: payloadFormData,
         calculatedGestationTimeline: calculatedData,
       });
-      setSelectedCaseId(String(response.data?.case?.id || ''));
-      await loadSavedCases();
+      const savedId = String(response.data?.case?.id || '');
+      if (savedId) {
+        setSelectedCaseId(savedId);
+      }
+      await loadSavedCases(savedId || null);
     } catch (error) {
       console.error('Error saving gestation case:', error);
       setAlertModal({
@@ -476,6 +496,11 @@ function Module5Gestation({ user }) {
   }, [calculatedData, formData, handleLockedProAction, handleSave, hasModule5FullAccess, loadSavedCases, t]);
 
   const handleSelectSavedCase = useCallback((caseId) => {
+    if (!caseId) {
+      setSelectedCaseId('');
+      setFormData(mergeFormData(DEFAULT_FORM_DATA));
+      return;
+    }
     setSelectedCaseId(caseId);
     const selected = savedCases.find((item) => String(item.id) === String(caseId));
     const hydratedForm = buildFormDataFromCase(selected);
@@ -486,15 +511,7 @@ function Module5Gestation({ user }) {
 
   const handleNewAnimalCase = useCallback(() => {
     setSelectedCaseId('');
-    setFormData((prev) => mergeFormData({
-      ...DEFAULT_FORM_DATA,
-      farm_name: prev.farm_name || '',
-      herd_lot: prev.herd_lot || '',
-      mating_date: prev.mating_date || '',
-      breed_key: prev.breed_key || '',
-      gestation_days: prev.gestation_days || DEFAULT_FORM_DATA.gestation_days,
-      service_type: prev.service_type || DEFAULT_FORM_DATA.service_type,
-    }));
+    setFormData(mergeFormData(DEFAULT_FORM_DATA));
   }, []);
 
   const handleViewOrEditCase = useCallback((item) => {
