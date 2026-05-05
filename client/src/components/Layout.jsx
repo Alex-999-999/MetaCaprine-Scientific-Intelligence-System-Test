@@ -101,6 +101,31 @@ function Sidebar({ user, onLogout }) {
       ),
       label: t('sidebarPredictiveGestation')
     },
+    {
+      path: '/module6',
+      navClass: 'module-m6',
+      icon: (
+        <NavIcon>
+          <path d="M4 19h16" />
+          <path d="M8 19V9l4-3 4 3v10" />
+          <path d="M10 13h4" />
+          <circle cx="12" cy="6" r="2" />
+        </NavIcon>
+      ),
+      label: t('sidebarKidRaisingSimulator')
+    },
+    {
+      path: '/module7',
+      navClass: 'module-m7',
+      icon: (
+        <NavIcon>
+          <path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H20v15h-1.5A3.5 3.5 0 0 0 15 21H5.5A2.5 2.5 0 0 1 3 18.5v-13Z" />
+          <path d="M8 7h8M8 11h8M8 15h5" />
+          <path d="M15 21V6.5A2.5 2.5 0 0 1 17.5 4H20" />
+        </NavIcon>
+      ),
+      label: t('sidebarStrategicAcademy')
+    },
   ];
 
   return (
@@ -536,5 +561,3 @@ function Layout({ children, user, onLogout }) {
 }
 
 export default Layout;
-
-

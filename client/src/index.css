@@ -1058,6 +1058,14 @@ label {
   color: #ef4444;
 }
 
+.sidebar-nav-link.module-m6 .nav-icon {
+  color: #8b5cf6;
+}
+
+.sidebar-nav-link.module-m7 .nav-icon {
+  color: #0ea5e9;
+}
+
 .sidebar-nav-link.module-dashboard.active .nav-icon {
   color: #93c5fd;
 }
@@ -1080,6 +1088,14 @@ label {
 
 .sidebar-nav-link.module-m5.active .nav-icon {
   color: #fca5a5;
+}
+
+.sidebar-nav-link.module-m6.active .nav-icon {
+  color: #c4b5fd;
+}
+
+.sidebar-nav-link.module-m7.active .nav-icon {
+  color: #bae6fd;
 }
 
 .sidebar-footer {
@@ -5201,6 +5217,14 @@ label {
   color: #f87171;
 }
 
+.dark-mode .sidebar-nav-link.module-m6 .nav-icon {
+  color: #a78bfa;
+}
+
+.dark-mode .sidebar-nav-link.module-m7 .nav-icon {
+  color: #38bdf8;
+}
+
 .dark-mode .sidebar-nav-link.module-dashboard.active .nav-icon {
   color: #bfdbfe;
 }
@@ -5247,6 +5271,14 @@ label {
 
 .dark-mode .sidebar-nav-link.module-m5.active .nav-icon {
   color: #fecaca;
+}
+
+.dark-mode .sidebar-nav-link.module-m6.active .nav-icon {
+  color: #ddd6fe;
+}
+
+.dark-mode .sidebar-nav-link.module-m7.active .nav-icon {
+  color: #e0f2fe;
 }
 
 .dark-mode .module4-pedagogy-block {
@@ -5833,4 +5865,472 @@ label {
   min-height: 36px;
   line-height: 1.2;
   padding: 8px 12px;
+}
+
+/* Module 6 - Kid Rearing Simulator */
+.module6-root .module6-header h1 {
+  margin-bottom: 8px;
+}
+
+.module6-subtitle {
+  margin: 0 0 14px 0;
+  color: var(--text-secondary);
+}
+
+.module6-pedagogy {
+  margin-top: 8px;
+  border-left: 4px solid #8b5cf6;
+}
+
+.module6-card {
+  margin-bottom: 16px;
+}
+
+.module6-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.module6-section-title {
+  margin: 14px 0 10px;
+  font-size: 1rem;
+}
+
+.module6-advanced-toggle {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.module6-advanced-box {
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px dashed var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+}
+
+.module6-action-row {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.module6-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.module6-chart-full {
+  grid-column: 1 / -1;
+}
+
+.module6-tables-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.module6-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.module6-table th,
+.module6-table td {
+  border-bottom: 1px solid var(--border-color);
+  padding: 8px 6px;
+  text-align: left;
+}
+
+.module6-table th {
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.module6-narrative p {
+  margin: 0 0 10px 0;
+  color: var(--text-secondary);
+}
+
+.module6-recommendation {
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.24);
+}
+
+.dark-mode .module6-pedagogy {
+  border-left-color: #a78bfa;
+}
+
+.dark-mode .module6-advanced-box {
+  background: rgba(15, 23, 42, 0.4);
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+.dark-mode .module6-recommendation {
+  background: rgba(124, 58, 237, 0.24);
+  border-color: rgba(167, 139, 250, 0.42);
+}
+
+@media (max-width: 900px) {
+  .module6-chart-grid,
+  .module6-tables-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .module6-action-row {
+    justify-content: stretch;
+  }
+
+  .module6-action-row .btn {
+    width: 100%;
+  }
+}
+
+/* Module 7 - Strategic Academy */
+.module7-header h1 {
+  margin-bottom: 8px;
+}
+
+.module7-subtitle {
+  margin: 0 0 16px;
+  color: var(--text-secondary);
+}
+
+.module7-route-card,
+.module7-diagnosis-card,
+.module7-content-card,
+.module7-detail-card,
+.module7-admin-card {
+  margin-bottom: 16px;
+}
+
+.module7-audience-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.module7-audience-btn {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 14px;
+  background: var(--bg-secondary);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.module7-audience-btn:hover {
+  border-color: var(--accent-info);
+  transform: translateY(-1px);
+}
+
+.module7-audience-btn.active {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+}
+
+.module7-audience-btn h3 {
+  margin: 0 0 6px;
+}
+
+.module7-audience-btn p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.module7-diagnosis-head,
+.module7-content-head,
+.module7-admin-head,
+.module7-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.module7-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.module7-signal {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px;
+  background: var(--bg-secondary);
+}
+
+.module7-signal-label {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  margin-bottom: 7px;
+}
+
+.module7-signal-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.26);
+  overflow: hidden;
+}
+
+.module7-signal-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.module7-signal-value {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.module7-signal--green .module7-signal-bar span {
+  background: #22c55e;
+}
+
+.module7-signal--blue .module7-signal-bar span {
+  background: #38bdf8;
+}
+
+.module7-signal--amber .module7-signal-bar span {
+  background: #f59e0b;
+}
+
+.module7-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.module7-item-card {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.module7-item-card.locked {
+  opacity: 0.88;
+  position: relative;
+}
+
+.module7-item-card.locked::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(135deg, rgba(148, 163, 184, 0.06) 0, rgba(148, 163, 184, 0.06) 9px, transparent 9px, transparent 18px);
+  pointer-events: none;
+}
+
+.module7-item-topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.module7-item-type {
+  color: var(--text-secondary);
+}
+
+.module7-item-access {
+  color: var(--accent-info);
+  font-weight: 700;
+}
+
+.module7-item-card h3 {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.module7-item-subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.module7-item-impact {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.module7-item-actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.module7-item-duration {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+}
+
+.module7-video-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin-top: 10px;
+}
+
+.module7-video-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 10px;
+}
+
+.module7-detail-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.module7-detail-block {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px;
+  background: var(--bg-secondary);
+}
+
+.module7-detail-block h3 {
+  margin: 0 0 6px;
+}
+
+.module7-detail-block p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.module7-detail-actions {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.module7-admin-head {
+  align-items: flex-start;
+}
+
+.module7-admin-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.module7-inline-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+}
+
+.module7-admin-form {
+  margin-top: 10px;
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--bg-secondary);
+}
+
+.module7-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.module7-admin-actions {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.module7-admin-message {
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+}
+
+.module7-admin-list {
+  margin-top: 14px;
+}
+
+.module7-admin-list h3 {
+  margin-bottom: 8px;
+}
+
+.module7-admin-row-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.dark-mode .module7-audience-btn.active {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.28);
+}
+
+.dark-mode .module7-item-access {
+  color: #7dd3fc;
+}
+
+.dark-mode .module7-item-card.locked::after {
+  background: repeating-linear-gradient(135deg, rgba(148, 163, 184, 0.09) 0, rgba(148, 163, 184, 0.09) 9px, transparent 9px, transparent 18px);
+}
+
+@media (max-width: 900px) {
+  .module7-audience-grid,
+  .module7-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .module7-content-head,
+  .module7-diagnosis-head,
+  .module7-admin-head,
+  .module7-detail-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .module7-item-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .module7-item-actions .btn {
+    width: 100%;
+  }
+
+  .module7-admin-row-actions {
+    flex-direction: column;
+  }
+
+  .module7-admin-row-actions .btn {
+    width: 100%;
+  }
 }

@@ -9,6 +9,7 @@ import breedRoutes from './routes/breeds.js';
 import module3Routes from './routes/module3.js';
 import billingRoutes, { handleStripeWebhook } from './routes/billing.js';
 import m4Routes from './routes/m4.js';
+import m7Routes from './routes/m7.js';
 
 dotenv.config();
 
@@ -129,6 +130,7 @@ app.use('/api/breeds', breedRoutes);
 app.use('/api/module3', module3Routes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/m4', m4Routes);
+app.use('/api/m7', m7Routes);
 
 // Health check
 app.get('/api/health', async (req, res) => {

@@ -118,6 +118,7 @@ function Dashboard({ user, onLogout }) {
       lactation: '/module3',
       yield: '/module4',
       gestation: '/module5',
+      kid_rearing: '/module6',
     };
     return typeMap[normalizedType] || '/dashboard';
   };
@@ -135,6 +136,7 @@ function Dashboard({ user, onLogout }) {
       lactation: 'var(--accent-warning)',
       yield: 'var(--accent-info)',
       gestation: 'var(--accent-error)',
+      kid_rearing: '#8b5cf6',
     };
     return colorMap[normalizedType] || 'var(--text-tertiary)';
   };
@@ -147,6 +149,7 @@ function Dashboard({ user, onLogout }) {
       lactation: 'heartPulse',
       yield: 'conversionYield',
       gestation: 'calendar',
+      kid_rearing: 'leaf',
     };
     return iconMap[normalizedType] || 'fileText';
   };
@@ -318,6 +321,7 @@ function Dashboard({ user, onLogout }) {
               <option value="lactation">{t('moduleTypes.lactation')}</option>
               <option value="yield">{t('moduleTypes.yield')}</option>
               <option value="gestation">{t('moduleTypes.gestation')}</option>
+              <option value="kid_rearing">{t('moduleTypes.kid_rearing')}</option>
             </select>
           </div>
         </div>
@@ -467,6 +471,7 @@ function Dashboard({ user, onLogout }) {
               <option value="lactation">{t('moduleTypes.lactation')}</option>
               <option value="yield">{t('moduleTypes.yield')}</option>
               <option value="gestation">{t('moduleTypes.gestation')}</option>
+              <option value="kid_rearing">{t('moduleTypes.kid_rearing')}</option>
             </select>
           </div>
         </form>

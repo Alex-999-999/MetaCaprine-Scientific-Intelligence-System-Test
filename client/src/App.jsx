@@ -12,6 +12,8 @@ import Module3Lactation from './components/modules/Module3Lactation';
 import Module4Investment from './components/modules/Module4Investment';
 import Module4CheeseAnalysis from './components/modules/Module4CheeseAnalysis';
 import Module5Gestation from './components/modules/Module5Gestation';
+import Module6KidRaising from './components/modules/Module6KidRaising';
+import Module7StrategicAcademy from './components/modules/Module7StrategicAcademy';
 import VerifyEmail from './components/VerifyEmail';
 import { AboutPage, ContactPage, PrivacyPage, TermsPage } from './components/FooterLegalPages';
 import { getAuthToken, setAuthToken, removeAuthToken, getUser, setUser as saveUserToStorage } from './utils/auth';
@@ -175,6 +177,56 @@ function AppContent() {
           element={
             user ? (
               <Module5Gestation user={user} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/module6"
+          element={
+            user ? (
+              <Module6KidRaising />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/module7"
+          element={
+            user ? (
+              <Module7StrategicAcademy user={user} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/m7"
+          element={
+            user ? (
+              <Module7StrategicAcademy user={user} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/m7/admin"
+          element={
+            user ? (
+              <Module7StrategicAcademy user={user} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/m7/contenido/:contentId"
+          element={
+            user ? (
+              <Module7StrategicAcademy user={user} />
             ) : (
               <Navigate to="/login" />
             )
