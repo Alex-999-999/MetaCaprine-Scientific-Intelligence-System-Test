@@ -1,4 +1,4 @@
--- Module 7 - Strategic Academy content table
+﻿-- Module 7 - Strategic Academy content table
 -- Run this migration in Supabase SQL editor for existing deployments.
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -62,6 +62,35 @@ CREATE TRIGGER trg_m7_content_updated_at
 BEFORE UPDATE ON m7_content
 FOR EACH ROW
 EXECUTE FUNCTION m7_content_set_updated_at();
+
+-- Repair legacy mojibake rows from previous seed versions (safe no-op when not present)
+UPDATE m7_content
+SET
+  title = CASE title
+    WHEN 'No estÃ¡s viendo una cabra. EstÃ¡s viendo un activo productivo.' THEN 'No estás viendo una cabra. Estás viendo un activo productivo.'
+    WHEN 'Antes de invertir en tierra, cemento o locales, mira el retorno potencial de una cabra bien diseÃ±ada.' THEN 'Antes de invertir en tierra, cemento o locales, mira el retorno potencial de una cabra bien diseñada.'
+    ELSE title
+  END,
+  subtitle = CASE subtitle
+    WHEN 'DiagnÃ³stico para productor actual' THEN 'Diagnóstico para productor actual'
+    WHEN 'OrientaciÃ³n para nuevo inversionista' THEN 'Orientación para nuevo inversionista'
+    ELSE subtitle
+  END,
+  summary = CASE summary
+    WHEN 'IntroducciÃ³n estratÃ©gica para entender a la cabra como unidad de negocio.' THEN 'Introducción estratégica para entender a la cabra como unidad de negocio.'
+    WHEN 'Marco inicial para identificar pÃ©rdidas ocultas y priorizar control de costos.' THEN 'Marco inicial para identificar pérdidas ocultas y priorizar control de costos.'
+    ELSE summary
+  END,
+  business_impact = CASE business_impact
+    WHEN 'Cambia la toma de decisiones de biologÃ­a aislada a rentabilidad integrada.' THEN 'Cambia la toma de decisiones de biología aislada a rentabilidad integrada.'
+    WHEN 'Permite evaluar inversiÃ³n con horizonte financiero y payback estimado.' THEN 'Permite evaluar inversión con horizonte financiero y payback estimado.'
+    ELSE business_impact
+  END,
+  cta_text = CASE cta_text
+    WHEN 'Descubre el potencial econÃ³mico' THEN 'Descubre el potencial económico'
+    WHEN 'Simular mi inversiÃ³n' THEN 'Simular mi inversión'
+    ELSE cta_text
+  END;
 
 -- Minimal starter layer for FREE hooks (editable later from M7 admin panel)
 INSERT INTO m7_content (
@@ -142,3 +171,4 @@ WHERE NOT EXISTS (
   WHERE existing.title = seed_data.title
     AND existing.audience = seed_data.audience
 );
+

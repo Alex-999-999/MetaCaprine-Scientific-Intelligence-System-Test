@@ -16,6 +16,7 @@ import {
 } from 'recharts';
 import { useI18n } from '../../i18n/I18nContext';
 import ModernIcon from '../icons/ModernIcon';
+import api from '../../utils/api';
 
 const LEVANTE_TYPES = [
   { key: 'maximized', system: 'Intensivo' },
@@ -23,7 +24,7 @@ const LEVANTE_TYPES = [
   { key: 'minimal', system: 'Extensivo' },
 ];
 
-const SYSTEM_BASE = {
+const DEFAULT_SYSTEM_BASE = {
   Intensivo: {
     peso90: 20,
     diasLevante: 90,
@@ -75,7 +76,7 @@ const SYSTEM_BASE = {
   },
 };
 
-const WEANING_SCENARIOS = {
+const DEFAULT_WEANING_SCENARIOS = {
   45: { diasLeche: 45, diasSustituto: 45, diasConcentrado: 40, diasHeno: 30 },
   60: { diasLeche: 60, diasSustituto: 60, diasConcentrado: 45, diasHeno: 30 },
   70: { diasLeche: 70, diasSustituto: 70, diasConcentrado: 55, diasHeno: 40 },
@@ -131,6 +132,8 @@ function Module6KidRaising() {
   const [levanteType, setLevanteType] = useState('maximized');
   const [weaningDays, setWeaningDays] = useState(60);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [systemBase, setSystemBase] = useState(DEFAULT_SYSTEM_BASE);
+  const [weaningScenarios, setWeaningScenarios] = useState(DEFAULT_WEANING_SCENARIOS);
 
   const [prices, setPrices] = useState({
     leche: 1,
@@ -160,10 +163,44 @@ function Module6KidRaising() {
     }),
   );
 
+  useEffect(() => {
+    let mounted = true;
+    const fetchConfig = async () => {
+      try {
+        const response = await api.get('/modules/module6/config');
+        const systems = response?.data?.systems;
+        const weaning = response?.data?.weaningScenarios;
+        if (!mounted) return;
+
+        if (systems && Object.keys(systems).length > 0) {
+          setSystemBase(systems);
+        }
+        if (weaning && Object.keys(weaning).length > 0) {
+          setWeaningScenarios(weaning);
+          if (!weaning[String(weaningDays)]) {
+            const sortedDays = Object.keys(weaning)
+              .map((d) => Number(d))
+              .filter((d) => Number.isFinite(d))
+              .sort((a, b) => a - b);
+            if (sortedDays.length > 0) {
+              setWeaningDays(sortedDays[0]);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch module6 config:', error);
+      }
+    };
+    fetchConfig();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const activeSystem = useMemo(() => {
     const entry = LEVANTE_TYPES.find((item) => item.key === levanteType) || LEVANTE_TYPES[0];
-    return SYSTEM_BASE[entry.system];
-  }, [levanteType]);
+    return systemBase[entry.system];
+  }, [levanteType, systemBase]);
 
   useEffect(() => {
     if (!activeSystem) return;
@@ -196,8 +233,8 @@ function Module6KidRaising() {
 
   const runModel = useCallback((snapshot) => {
     const levanteMeta = LEVANTE_TYPES.find((item) => item.key === snapshot.levanteType) || LEVANTE_TYPES[0];
-    const system = SYSTEM_BASE[levanteMeta.system];
-    const destete = WEANING_SCENARIOS[snapshot.weaningDays] || WEANING_SCENARIOS[60];
+    const system = systemBase[levanteMeta.system];
+    const destete = weaningScenarios[snapshot.weaningDays] || weaningScenarios[60];
 
     const basePrices = {
       leche: system.precioLeche,
@@ -278,7 +315,7 @@ function Module6KidRaising() {
     const basePesoFinal = Math.max(0.0001, system.peso90 * factorSistema);
     const baseCostoPorKg = baseCostoTotal / basePesoFinal;
 
-    const compareScenarios = Object.keys(WEANING_SCENARIOS).map((key) => {
+    const compareScenarios = Object.keys(weaningScenarios).map((key) => {
       const scenarioSnapshot = {
         ...snapshot,
         weaningDays: Number(key),
@@ -336,12 +373,12 @@ function Module6KidRaising() {
       compareScenarios,
       narrativeBlocks,
     };
-  }, [t]);
+  }, [systemBase, t, weaningScenarios]);
 
   const runModelInternal = (snapshot) => {
     const levanteMeta = LEVANTE_TYPES.find((item) => item.key === snapshot.levanteType) || LEVANTE_TYPES[0];
-    const system = SYSTEM_BASE[levanteMeta.system];
-    const destete = WEANING_SCENARIOS[snapshot.weaningDays] || WEANING_SCENARIOS[60];
+    const system = systemBase[levanteMeta.system];
+    const destete = weaningScenarios[snapshot.weaningDays] || weaningScenarios[60];
 
     const lecheTotal = system.lecheDia * destete.diasLeche;
     const sustitutoTotal = system.sustitutoDia * destete.diasSustituto;
@@ -500,7 +537,7 @@ function Module6KidRaising() {
           <div className="form-group">
             <label>{t('module6WeaningDays')}</label>
             <select value={weaningDays} onChange={(e) => setWeaningDays(Number(e.target.value))}>
-              {Object.keys(WEANING_SCENARIOS).map((day) => (
+              {Object.keys(weaningScenarios).map((day) => (
                 <option key={day} value={day}>{day}</option>
               ))}
             </select>

@@ -22,6 +22,42 @@ router.use(authenticateToken);
 router.use(requireRole(['free', 'pro', 'admin']));
 router.use(requireEmailVerification);
 
+// Module 6: model config (Supabase-backed)
+router.get('/module6/config', async (req, res) => {
+  try {
+    const pool = getPool();
+    const { rows } = await pool.query(
+      `SELECT config_type, config_key, payload
+       FROM public.m6_model_config
+       WHERE is_active = true
+       ORDER BY config_type, sort_order, config_key`
+    );
+
+    const systems = {};
+    const weaningScenarios = {};
+
+    for (const row of rows) {
+      if (row.config_type === 'system') {
+        systems[row.config_key] = row.payload || {};
+      } else if (row.config_type === 'weaning') {
+        const dayKey = String(row.config_key);
+        weaningScenarios[dayKey] = row.payload || {};
+      }
+    }
+
+    return res.json({
+      systems,
+      weaningScenarios,
+    });
+  } catch (error) {
+    console.error('Error fetching module6 config:', error);
+    return res.status(500).json({
+      error: 'Failed to fetch module6 config',
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    });
+  }
+});
+
 // Helper function to verify scenario ownership
 async function verifyScenarioOwnership(pool, scenarioId, userId) {
   const result = await pool.query(
